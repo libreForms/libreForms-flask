@@ -49,7 +49,7 @@ forms = {
 
 ## dependencies
 
-This application has a few dependencies that, in its current form, may be prone to obsolescence; there is an issue in the backlog to unit test for, among other things, obsolete dependencies. For now, here is a list of dependencies:
+This application has a few dependencies that, in its current form, may be prone to obsolescence; there is an issue in the backlog to unit test for, among other things, obsolete dependencies. For now, here is a list of dependencies that ship with the application under the static/ directory:
 
 ```
 bootstrap-3.4.1.min.css
