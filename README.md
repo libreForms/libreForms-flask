@@ -59,7 +59,6 @@ jquery-3.5.1.min.js
 plotly-v1.58.5.min.js
 
 ```
-```
 
 And python requirements:
 ```
