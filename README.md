@@ -7,7 +7,29 @@ an extensible, browser-based form manager
 - Gunicorn web server (http://x.x.x.x:8000/) that works well with Apache, Nginx, and other reverse-proxies
 - MongoDB backend
 
-## libreForm API
+## Installation
+
+### Linux
+
+1. Download the last stable release of this repository:
+
+```
+wget https://github.com/signebedi/libreForms/releases/latest
+```
+
+2. Move this to the /opt directory
+
+```
+mv xxxx /opt/libreForms
+```
+
+3. libreforms user
+
+
+4. Systemd service
+
+
+## API
 
 The purpose of this project is to provide a simple but highly extensible method of form building and management in Python, leveraging Flask's doctrine of 'simplicity and extensibility.' As a result, the application provides an API for storing all the information ut needs to generate a browser-based form within a Python dictionary. The application then translates these form fields into data structures intended to be stored in a database. Given the project's emphasis on supporting arbitrary data structures, it writes data to a MongoDB database, creating a separate collection for each unique form with the presumption that the documents contained therein will adhere to a data structure that contains some set of common fields upon which data may be collated.
 
