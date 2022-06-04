@@ -9,12 +9,12 @@ class MongoDB:
         from pymongo import MongoClient
         import datetime
         self.client = MongoClient('localhost', 27017)
-        self.db = self.client['libreForms']
+        self.db = self.client['bn']
 
     def write_document_to_collection(self, data, collection_name):
         import datetime
         collection = self.db[collection_name]
-        data['timestamp'] = str(datetime.datetime.utcnow())
+        data['Timestamp'] = str(datetime.datetime.utcnow())
         collection.insert_one(data).inserted_id
 
     def read_documents_from_collection(self, collection_name):
