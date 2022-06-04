@@ -1,16 +1,17 @@
-# report-app
+# libreForms
 an extensible, browser-based form manager
 
 ## features
 
-- A routeable web server (http://192.168.x.x:8000/) that provides access to various features
-- MongoDB backend with documents broken down by unit, then data-type (or report-type), and then timestamp
+- A form-building API based on Python dictionaries
+- Gunicorn web server (http://x.x.x.x:8000/) that works well with Apache, Nginx, and other reverse-proxies
+- MongoDB backend
 
-## database
-The structure of the MongoDB database is libreForms > form > _id such that administrators can easily sort data by form and, within each form, select by arbitrary fields like "Preparer" or "timestamp". 
+## libreForm API
 
+The purpose of this project is to provide a simple but highly extensible method of form building and management in Python, leveraging Flask's doctrine of 'simplicity and extensibility.' As a result, the application provides an API for storing all the information ut needs to generate a browser-based form within a Python dictionary. The application then translates these form fields into data structures intended to be stored in a database. Given the project's emphasis on supporting arbitrary data structures, it writes data to a MongoDB database, creating a separate collection for each unique form with the presumption that the documents contained therein will adhere to a data structure that contains some set of common fields upon which data may be collated.
 
-The form_src.py file contains a list of python dictionaries containing each form's name and an arbitary set of fields mapped to their default values for data typing. This list is externalized from app.py in order to make it easily extensible with new forms. The progagate_forms() function in app.py will be used to generate a different static page based on the form field values within the dictionary. Here is an example of what form_src.py might look like.
+The ```libreforms/__init__.py``` file contains a Python dictionary containing each form's name and an arbitary set of fields mapped to their default values for data typing. This function is externalized from app.py in order to make it easily extensible with new forms. The progagate_forms() function in app.py will be used to generate a different static page based on the form field values within the dictionary. Here is an example of what ```libreforms/__init__.py``` might look like.
 
 ```python
 # forms/__init__.py: the source for form field data in the libreForm application.
@@ -60,7 +61,7 @@ plotly-v1.58.5.min.js
 
 ```
 
-And python requirements:
+As well as the application's python requirements:
 ```
 click==8.1.3
 Flask==2.1.2
