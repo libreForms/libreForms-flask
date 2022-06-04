@@ -9,7 +9,7 @@ class MongoDB:
         from pymongo import MongoClient
         import datetime
         self.client = MongoClient('localhost', 27017)
-        self.db = self.client['bn']
+        self.db = self.client['libreforms']
 
     def write_document_to_collection(self, data, collection_name):
         import datetime
