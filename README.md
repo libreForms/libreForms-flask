@@ -1,5 +1,5 @@
 # report-app
-an open, extensible, lightweight browser-based form manager
+an extensible, browser-based form manager
 
 ## features
 
