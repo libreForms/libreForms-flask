@@ -1,5 +1,5 @@
 # libreForms
-an extensible, browser-based form manager
+an open form manager API
 
 ## features
 
@@ -112,7 +112,7 @@ zipp==3.8.0
 ## Copyright
 
 ```
-libreForms is an extensible, browser-based form manager
+libreForms is an open form manager API
 Copyright (C) 2022 Sig Janoska-Bedi
 
 This program is free software: you can redistribute it and/or modify
