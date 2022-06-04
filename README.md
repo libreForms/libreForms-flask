@@ -111,6 +111,7 @@ zipp==3.8.0
 
 ## Copyright
 
+```
 libreForms is an extensible, browser-based form manager
 Copyright (C) 2022 Sig Janoska-Bedi
 
@@ -126,3 +127,4 @@ GNU Affero General Public License for more details.
 
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
+```
