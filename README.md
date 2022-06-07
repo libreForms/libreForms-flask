@@ -9,27 +9,48 @@ an open form manager API
 
 ## Installation
 
-### Linux
+### Red Hat Enterprise Linux 8
 
-1. Download the last stable release of this repository:
-
-```
-wget https://github.com/signebedi/libreForms/releases/latest
-```
-
-2. Move this to the /opt directory
+0. install dependencies
 
 ```
-mv xxxx /opt/libreForms
+yum install python3.8 mongodb-org
+sudo systemctl enable --now mongod
 ```
 
-3. Install dependencies, venv
+1. Download the last stable release of this repository into the opt directory:
+
+```
+cd /opt
+wget https://github.com/signebedi/libreForms/archive/refs/tags/v0.0.1-alpha.tar.gz
+tar -xvf v0.0.1-alpha.tar.gz
+mv libreforms-v0.0.1-alpha libreForms
+```
+
+2. Install dependencies, venv
+
+```
+cd /opt/libreForms
+python3.8 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
+3. libreforms user
+
+```
+useradd --no-create-home --system libreforms
+chown -R libreforms:libreforms /opt/libreForms
+```
 
 
-4. libreforms user
+4. Systemd service
 
-
-5. Systemd service
+```
+cp /opt/libreForms/gunicorn/libreforms.service /etc/systemd/system
+systemctl daemon-reload
+systemctl enable --now libreforms
+```
 
 
 ## API
