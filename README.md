@@ -62,6 +62,9 @@ systemctl daemon-reload
 systemctl enable --now libreforms
 ```
 
+### Ubuntu 20.04
+
+
 
 ## API
 
