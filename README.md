@@ -14,7 +14,7 @@ an open form manager API
 0. install dependencies
 
 ```
-yum install python3.8 mongodb-org
+yum install python3.8 mongodb-org # see https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-red-hat/
 sudo systemctl enable --now mongod
 ```
 
