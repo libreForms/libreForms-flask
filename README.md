@@ -14,7 +14,15 @@ an open form manager API
 0. install dependencies
 
 ```
-yum install python3.8 mongodb-org # see https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-red-hat/
+# see https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-red-hat/
+echo "[mongodb-org-5.0] 
+name=MongoDB Repository 
+baseurl=https://repo.mongodb.org/yum/redhat/$releasever/mongodb-org/5.0/x86_64/ 
+gpgcheck=1 
+enabled=1 
+gpgkey=https://www.mongodb.org/static/pgp/server-5.0.asc" | sudo tee /etc/yum.repos.d/mongodb-org-5.0.repo
+yum update -y
+yum install python3.8 mongodb-org -y
 sudo systemctl enable --now mongod
 ```
 
