@@ -46,7 +46,6 @@ forms = {
         },
         "Date_Field": {
             "input_field": {"type": "date", "content": [datetime.datetime.today().strftime("%Y-%m-%d")]},
-            # "input_field": {"type": "date", "content": []},
             "output_data": {"type": "date", "validators": []},
         },
         "Hidden_Field": {
@@ -76,5 +75,6 @@ forms = {
         "_allow_repeat": False, # defaults to False
         "_allow_uploads": False, # defaults to False
         "_allow_csv_templates": False, # defaults to False
+        "_suppress_default_values": False, # defaults to False
     },
 }
