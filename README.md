@@ -151,7 +151,7 @@ forms = {
        },
     "Check_Field": {
         "input_field": {"type": "checkbox", "content": ["Pick", "An", "Option"]},
-        "output_data": {"type": "str", "validators": []},
+        "output_data": {"type": "list", "validators": []},
        },
     "Date_Field": {
         "input_field": {"type": "date", "content": [datetime.datetime.today().strftime("%Y-%m-%d")]},
