@@ -189,6 +189,13 @@ forms = {
 }
 ```
 
+
+## dashboards
+When you define a dashboard for a given form, you need to set a dependent variable. However, this can be overridden by passing the ```?y=field_name``` GET variable in the browser. 
+
+## database
+If you elect to password protect your database, which is recommended, you should drop a file in the application home directory named ```dbpw``` and ensure that the ```libreforms``` user has read access.
+
 ## dependencies
 
 This application has a few dependencies that, in its current form, may be prone to obsolescence; there is an issue in the backlog to unit test for, among other things, obsolete dependencies. In addition to the standard requirements, like Python3, Python3-Pip, Python3-Venv, and MongoDB, here is a list of dependencies that ship with the application under the static/ directory:
