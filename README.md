@@ -9,9 +9,9 @@ an open form manager API
 
 ## Installation
 
-### Red Hat Enterprise Linux 8
+In most cases, the runtime commands below must be run with root privileges.
 
-The following commands must be run with root privileges.
+### Red Hat Enterprise Linux 8
 
 0. install dependencies
 
@@ -64,6 +64,45 @@ systemctl enable --now libreforms
 
 ### Ubuntu 20.04
 
+0. install dependencies
+
+```
+apt install -y mongodb-org # for the most up to date version of mongodb, see https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-ubuntu/
+systemctl enable --now mongod
+```
+
+1. Download the last stable release of this repository into the opt directory:
+
+```
+cd /opt
+wget https://github.com/signebedi/libreForms/archive/refs/tags/v0.0.1-alpha.tar.gz
+tar -xvf v0.0.1-alpha.tar.gz
+mv libreforms-v0.0.1-alpha libreForms
+```
+
+2. Install Python virtual environment
+
+```
+cd /opt/libreForms
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
+3. libreforms user
+
+```
+useradd --no-create-home --system libreforms
+chown -R libreforms:libreforms /opt/libreForms
+```
+
+4. Systemd service
+
+```
+cp /opt/libreForms/gunicorn/libreforms.service /etc/systemd/system
+systemctl daemon-reload
+systemctl enable --now libreforms
+```
 
 
 ## API
