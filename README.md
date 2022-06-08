@@ -125,6 +125,7 @@ as well as the following output data types:
 - str
 - float
 - int
+- list
 
 The “input_field” key refers only to the structure of the markup field that will be used to collect the data; all the information regarding the typing and validation of the data exists in the “output_data” key. for each form, optional, non-form-field data is defined with an underscore (_) preceding the key name, like _allow_repeats. All of these are optional fields and default to a value of False.
 
