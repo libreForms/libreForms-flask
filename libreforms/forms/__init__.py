@@ -17,6 +17,7 @@
     # str
     # float
     # int
+    # list
 # input_field refers only to the structure of the markup field that will be used
 # to collect the data; all the information regarding the typing and validation
 # of the data exists in output_data.
@@ -42,7 +43,7 @@ forms = {
         },
         "Check_Field": {
             "input_field": {"type": "checkbox", "content": ["Pick", "An", "Option"]},
-            "output_data": {"type": "str", "validators": []},
+            "output_data": {"type": "list", "validators": []},
         },
         "Date_Field": {
             "input_field": {"type": "date", "content": [datetime.datetime.today().strftime("%Y-%m-%d")]},
