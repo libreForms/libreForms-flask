@@ -7,8 +7,6 @@ from libreforms import forms as form_src, db
 from webargs import fields, flaskparser, ValidationError
 from pymongo import MongoClient
 
-
-
 def parse_form_fields(form=False):
 
     FORM_ARGS = {}           
@@ -34,7 +32,6 @@ def parse_form_fields(form=False):
                         required=form_src.forms[form][field]['output_data']['required'],
                         validators=form_src.forms[form][field]['output_data']['validators'],)
         elif form_src.forms[form][field]['output_data']['type'] == "date":
-            # FORM_ARGS[field] = fields.Date()
             FORM_ARGS[field] = fields.Str(
                         required=form_src.forms[form][field]['output_data']['required'],
                         validators=form_src.forms[form][field]['output_data']['validators'],)
@@ -184,6 +181,7 @@ def table(form_name):
         type="table",
         name=form_name,
         is_table=True,
+        options=parse_options(form=form_name),
         menu=[x for x in form_src.forms.keys()],
     )
 
@@ -191,7 +189,15 @@ def table(form_name):
 @app.route(f'/dashboards/<form_name>')
 def dashboard(form_name):
 
-    
+    if parse_options(form=form_name)["_dashboard"] == False:
+        return render_template('index.html', 
+            form_not_found=True,
+            msg="No dashboard has been configured for this form.",
+            name="404",
+            type="dashboard",
+            menu=[x for x in form_src.forms.keys()],
+        )
+
     data = db.read_documents_from_collection(form_name)
     df = pd.DataFrame(list(data))
     ref = form_src.forms[form_name]["_dashboard"]['fields']
@@ -216,14 +222,8 @@ def dashboard(form_name):
         name=form_name,
         type="dashboard",
         menu=[x for x in form_src.forms.keys()],
+        options=parse_options(form=form_name),
     )
-        # return render_template('index.html', 
-        #     form_not_found=True,
-        #     msg="No dashboard has been configured for this form.",
-        #     name="404",
-        #     type="forms",
-        #     menu=[x for x in form_src.forms.keys()],
-        # )
 
         
 if __name__ == "__main__":
