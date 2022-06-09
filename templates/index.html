@@ -24,7 +24,7 @@
 					<td><label for="">{{ field | replace('_', ' ')}}</label></td>
 					<td>
 					{% for item in context[field].input_field.content %}
-					<input type="{{ context[field].input_field.type }}" value="{{ item }}" id="{{ field }} {{ item }}" name="{{ field }}"/><label for="">{{ item }}</label>
+					<input type="{{ context[field].input_field.type }}" value="{{ item }}" id="{{ field }} {{ item }}" name="{{ field }}" {% if context[field].output_data.required==true %}required{% endif %}/><label for="">{{ item }}</label>
 					{% endfor %}
 					</td>
 				</tr>
@@ -32,7 +32,7 @@
 				{% else %}
 				<tr>
 				  <td><label for="{{ field }}">{{ field | replace('_', ' ')}}</label></td>
-				  <td><input type="{{ context[field].input_field.type }}" value="{{ context[field].input_field.content[0] }}" id="{{ field }}" name="{{ field }}"/></td>
+				  <td><input type="{{ context[field].input_field.type }}" value="{{ context[field].input_field.content[0] }}" id="{{ field }}" name="{{ field }}" {% if context[field].output_data.required==true %}required{% endif %}/></td>
 				</tr>
 				{% endif %}
 				{% endfor %}
