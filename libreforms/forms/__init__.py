@@ -31,35 +31,36 @@ forms = {
     "sample-form": {
         "Text_Field": {
             "input_field": {"type": "text", "content": ["NA"]},
-            "output_data": {"type": "str", "validators": [lambda p: len(p) >= 6]},
+            "output_data": {"type": "str", "required": False, "validators": [lambda p: len(p) >= 6]},
         },
         "Pass_Field": {
             "input_field": {"type": "password", "content": [""]},
-            "output_data": {"type": "str", "validators": []},
+            "output_data": {"type": "str", "required": False, "validators": []},
         },
         "Radio_Field": {
             "input_field": {"type": "radio", "content": ["Pick", "An", "Option"]},
-            "output_data": {"type": "str", "validators": []},
+            "output_data": {"type": "str", "required": False, "validators": []},
         },
         "Check_Field": {
             "input_field": {"type": "checkbox", "content": ["Pick", "An", "Option"]},
-            "output_data": {"type": "list", "validators": []},
+            "output_data": {"type": "list", "required": False, "validators": []},
         },
         "Date_Field": {
             "input_field": {"type": "date", "content": [datetime.datetime.today().strftime("%Y-%m-%d")]},
-            "output_data": {"type": "date", "validators": []},
+            # "input_field": {"type": "date", "content": []},
+            "output_data": {"type": "date", "required": False, "validators": []},
         },
         "Hidden_Field": {
             "input_field": {"type": "hidden", "content": ["This field is hidden"]},
-            "output_data": {"type": "str", "validators": []},
+            "output_data": {"type": "str", "required": False, "validators": []},
         },
         "Float_Field": {
             "input_field": {"type": "number", "content": [0]},
-            "output_data": {"type": "float", "validators": []},
+            "output_data": {"type": "float", "required": False, "validators": []},
         }, 
         "Int_Field": {
             "input_field": {"type": "number", "content": [0]},
-            "output_data": {"type": "int", "validators": []},
+            "output_data": {"type": "int", "required": False, "validators": []},
         }, 
 #         "File_Field": {
 #             "input_field": {"type": "file", "content": [None]}, # still need to review https://flask.palletsprojects.com/en/2.1.x/patterns/fileuploads/
@@ -69,7 +70,7 @@ forms = {
             "type": "scatter",      # this is a highly powerful feature but requires
             "fields": {             # some knowledge of plotly dashboards; currently
                 "x": "Timestamp",   # only line charts with limited features supported
-                "y": "Num_Field", 
+                "y": "Int_Field", 
                 "color": "Text_Field"
             }
         },

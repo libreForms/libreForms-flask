@@ -1,4 +1,4 @@
-from flask import Flask, flash, render_template, url_for, request, redirect
+from flask import Flask, flash, render_template, url_for, request, redirect, jsonify
 import os, re, datetime, json
 import plotly
 import plotly.express as px
@@ -18,36 +18,43 @@ def parse_form_fields(form=False):
         if field.startswith("_"):
             pass
         elif form_src.forms[form][field]['output_data']['type'] == "str":
-            FORM_ARGS[field] = fields.Str()
+            FORM_ARGS[field] = fields.Str(
+                        required=form_src.forms[form][field]['output_data']['required'],
+                        validators=form_src.forms[form][field]['output_data']['validators'],)
         elif form_src.forms[form][field]['output_data']['type'] == "float":
-            FORM_ARGS[field] = fields.Float()
+            FORM_ARGS[field] = fields.Float(
+                        required=form_src.forms[form][field]['output_data']['required'],
+                        validators=form_src.forms[form][field]['output_data']['validators'],)
+        elif form_src.forms[form][field]['output_data']['type'] == "list":
+            FORM_ARGS[field] = fields.List(fields.String(),
+                        required=form_src.forms[form][field]['output_data']['required'],
+                        validators=form_src.forms[form][field]['output_data']['validators'],)
         elif form_src.forms[form][field]['output_data']['type'] == "int":
-            FORM_ARGS[field] = fields.Int()
+            FORM_ARGS[field] = fields.Int(
+                        required=form_src.forms[form][field]['output_data']['required'],
+                        validators=form_src.forms[form][field]['output_data']['validators'],)
         elif form_src.forms[form][field]['output_data']['type'] == "date":
             # FORM_ARGS[field] = fields.Date()
-            FORM_ARGS[field] = fields.Str()
+            FORM_ARGS[field] = fields.Str(
+                        required=form_src.forms[form][field]['output_data']['required'],
+                        validators=form_src.forms[form][field]['output_data']['validators'],)
         else:
-            FORM_ARGS[field] = fields.Str()
+            FORM_ARGS[field] = fields.Str(
+                        required=form_src.forms[form][field]['output_data']['required'],
+                        validators=form_src.forms[form][field]['output_data']['validators'],)
 
     return FORM_ARGS
 
 # this function creates a list of the form fields 
 # we want to pass to the web application
 def progagate_forms(form=False):
-
-    try: 
         
-        list_fields = form_src.forms[form]
+    list_fields = form_src.forms[form]
 
-        # here we drop the meta data fields
-        for field in list_fields.keys():
-            if field.startswith("_"):
-                list_fields.pop(field, None)
-
-        return list_fields
-
-    except: 
-        return "Form not found"
+    # here we drop the meta data fields    
+    [list_fields.pop(field) for field in list(list_fields.keys()) if field.startswith("_")]
+    
+    return list_fields
 
 # placeholder, will be used to parse options for a given form
 def parse_options(form=False):
@@ -78,28 +85,34 @@ app = Flask(__name__)
 app.config["SECRET_KEY"] = "this is the secret key"
 
 
+# read database password file, if it exists
+if os.path.exists ("dbpw"):
+    with open("dbpw", "r+") as f:
+        dbpw = f.read().strip()
+else:  
+    dbpw=None
+
 # initialize mongodb database
-db = db.MongoDB()
+db = db.MongoDB(dbpw)
 
 # define a home route
 @app.route('/')
 def home():
-    homepage_msg = "Welcome to libreForms, an extensible Python/Flask application and form building API. \
-                    Select a view from above to get started. \
+    homepage_msg = "Welcome to libreForms, an extensible form building abstraction \
+                    layer implemented in Flask. Select a view from above to get started. \
                     Review the docs at https://github.com/signebedi/libreForms."
 
     return render_template('index.html', 
         homepage_msg=homepage_msg,
         type="home",
         name="libreForms",
-        # menu=[x for x in form_src.forms.keys()],
     )
 
 
 @app.route(f'/forms/')
 def forms_home():
     return render_template('index.html', 
-            homepage_msg="Select a form the left",
+            homepage_msg="Select a table from the left-hand menu.",
             name="Form",
             type="forms",
             menu=[x for x in form_src.forms.keys()],
@@ -108,7 +121,7 @@ def forms_home():
 @app.route(f'/tables/')
 def table_home():
     return render_template('index.html', 
-            homepage_msg="Select a table the left",
+            homepage_msg="Select a table from the left-hand menu.",
             name="Table",
             type="table",
             menu=[x for x in form_src.forms.keys()],
@@ -117,7 +130,7 @@ def table_home():
 @app.route(f'/dashboards/')
 def dashboard_home():
     return render_template('index.html', 
-            homepage_msg="Select a dashboard the left",
+            homepage_msg="Select a dashboard from the left-hand menu.",
             name="Dashboard",
             type="dashboard",
             menu=[x for x in form_src.forms.keys()],
@@ -127,24 +140,23 @@ def dashboard_home():
 # this creates the route to each of the forms
 @app.route(f'/forms/<form_name>', methods=['GET', 'POST'])
 def forms(form_name):
+
     try:
         forms = progagate_forms(form_name)
-    except:
-        return "Form not found"
 
-    if request.method == 'POST':
-        parsed_args = flaskparser.parser.parse(parse_form_fields(form_name), request, location="form")
-        db.write_document_to_collection(parsed_args, form_name)
-        flash(str(parsed_args))
-    try:
+        if request.method == 'POST':
+            parsed_args = flaskparser.parser.parse(parse_form_fields(form_name), request, location="form")
+            db.write_document_to_collection(parsed_args, form_name)
+            flash(str(parsed_args))
+
         return render_template('index.html', 
             context=forms,                                          # this passes the form fields as the primary 'context' variable
             name=form_name,                                         # this sets the name of the page for the page header
-            display_default_values=True,                            # unused, but will eventually toggle whether to pre-fill default values
             menu=[x for x in form_src.forms.keys()],                # this returns the forms in libreform/forms to display in the lefthand menu
-            # allow_repeat=allow_repeat(form_name),                 # this determines whether to let the user add add'l rows to the form
-            type="forms",
-         )
+            type="forms",       
+            options=parse_options(form=form_name),                      # here we pass the _options defined in libreforms/forms/__init__.py
+            )
+
     except Exception as e:
         return render_template('index.html', 
             form_not_found=True,
@@ -164,8 +176,6 @@ def table(form_name):
         df = pd.DataFrame(list(data))
         df.drop(columns=["_id"], inplace=True)
         df.columns = [x.replace("_", " ") for x in df.columns]
-        # the below sort code may not be necessary due to how find() works in mongodb
-        # df['timestamp'] = pd.to_datetime(df["timestamp"], format="%Y%m%d:%H:%M:%S.%f").sort_values()
     except Exception as e:
         df = pd.DataFrame(columns=["Error"], data=[{"Error":e}])
 
@@ -181,39 +191,41 @@ def table(form_name):
 @app.route(f'/dashboards/<form_name>')
 def dashboard(form_name):
 
-    if hasattr(form_src.forms[form_name], '_dashboard'):
-        try:
-            data = db.read_documents_from_collection(form_name)
-            df = pd.DataFrame(list(data))
-            fig = px.line(df, 
-                        x=form_src.forms[form_name]["_dashboard"]['fields']['x'], 
-                        y=form_src.forms[form_name]["_dashboard"]['fields']['y'], 
-                        color=form_src.forms[form_name]["_dashboard"]['fields']['color'])
-            graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+    
+    data = db.read_documents_from_collection(form_name)
+    df = pd.DataFrame(list(data))
+    ref = form_src.forms[form_name]["_dashboard"]['fields']
 
-            return render_template('index.html', 
-                graphJSON=graphJSON,
-                name=form_name,
-                type="dashboard",
-                menu=[x for x in form_src.forms.keys()],
-            )
-        except Exception as e:
-            return render_template('index.html', 
-                form_not_found=True,
-                name="401",
-                msg=e,
-                type="dashboard",
-                menu=[x for x in form_src.forms.keys()],
-            )
+    # here we allow the user to specify the field they want to use, 
+    # overriding the default y-axis field defined in libreforms/forms.
+    # warning, this may be buggy
+    if request.args.get("y"):
+        y_context = request.args.get("y")
 
     else:
-        return render_template('index.html', 
-            form_not_found=True,
-            name="404",
-            type="dashboard",
-            menu=[x for x in form_src.forms.keys()],
-        )
+        y_context = ref['y']
 
+    fig = px.line(df, 
+                x=ref['x'], 
+                y=y_context, 
+                color=ref['color'])
+    graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+
+    return render_template('index.html', 
+        graphJSON=graphJSON,
+        name=form_name,
+        type="dashboard",
+        menu=[x for x in form_src.forms.keys()],
+    )
+        # return render_template('index.html', 
+        #     form_not_found=True,
+        #     msg="No dashboard has been configured for this form.",
+        #     name="404",
+        #     type="forms",
+        #     menu=[x for x in form_src.forms.keys()],
+        # )
+
+        
 if __name__ == "__main__":
     app.run(debug=True, host= '0.0.0.0', port='8000')
     
