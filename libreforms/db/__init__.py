@@ -5,9 +5,10 @@ from pymongo import MongoClient
 import datetime
 
 class MongoDB:
-    def __init__(self):
+    def __init__(self, dbpw=None):
         from pymongo import MongoClient
         import datetime
+        conn = MongoClient(f'mongodb://root:{dbpw}@localhost:27017/')
         self.client = MongoClient('localhost', 27017)
         self.db = self.client['libreforms']
 
