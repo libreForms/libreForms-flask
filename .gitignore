@@ -131,3 +131,4 @@ dmypy.json
 # project specific files
 gunicorn.error
 gunicorn.access
+add_ons.py

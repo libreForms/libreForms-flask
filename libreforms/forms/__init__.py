@@ -48,7 +48,7 @@ forms = {
         "Date_Field": {
             "input_field": {"type": "date", "content": [datetime.datetime.today().strftime("%Y-%m-%d")]},
             # "input_field": {"type": "date", "content": []},
-            "output_data": {"type": "date", "required": False, "validators": []},
+            "output_data": {"type": "str", "required": False, "validators": []},
         },
         "Hidden_Field": {
             "input_field": {"type": "hidden", "content": ["This field is hidden"]},
@@ -79,129 +79,54 @@ forms = {
         "_allow_csv_templates": False, # defaults to False
         "_suppress_default_values": False, # defaults to False
     },
-    "perstat": {
-        "Unit": {
-            "input_field": {"type": "radio", "content": ["687", "980", "753", "826"]},
-            "output_data": {"type": "str", "required": True, "validators": []},
-        },
-        "Authorized":{
-            "input_field": {"type": "number", "content": [0]},
-            "output_data": {"type": "float", "required": True, "validators": []},
-        },
-        "On_Hand":{
-            "input_field": {"type": "number", "content": [0]},
-            "output_data": {"type": "float", "required": True, "validators": []},
-        },
-        "Gains":{
-            "input_field": {"type": "number", "content": [0]},
-            "output_data": {"type": "float", "required": True, "validators": []},
-        },
-        "Replacements":{
-            "input_field": {"type": "number", "content": [0]},
-            "output_data": {"type": "float", "required": True, "validators": []},
-        },
-        "Returned_to_Duty":{
-            "input_field": {"type": "number", "content": [0]},
-            "output_data": {"type": "float", "required": True, "validators": []},
-        },
-        "Killed":{
-            "input_field": {"type": "number", "content": [0]},
-            "output_data": {"type": "float", "required": True, "validators": []},
-        },
-        "Wounded":{
-            "input_field": {"type": "number", "content": [0]},
-            "output_data": {"type": "float", "required": True, "validators": []},
-        },
-        "Nonbattle_Loss":{
-            "input_field": {"type": "number", "content": [0]},
-            "output_data": {"type": "float", "required": True, "validators": []},
-        },
-        "Missing":{
-            "input_field": {"type": "number", "content": [0]},
-            "output_data": {"type": "float", "required": True, "validators": []},
-        },
-        "Deserters":{
-            "input_field": {"type": "number", "content": [0]},
-            "output_data": {"type": "float", "required": True, "validators": []},
-        },
-        "AWOL":{
-            "input_field": {"type": "number", "content": [0]},
-            "output_data": {"type": "float", "required": True, "validators": []},
-        },
-        "Captured":{
-            "input_field": {"type": "number", "content": [0]},
-            "output_data": {"type": "float", "required": True, "validators": []},
-        },
-        "Narrative":{
-            "input_field": {"type": "text", "content": ["NA"]},
-            "output_data": {"type": "str", "required": True, "validators": []},
-        },
-        "Reporter":{
-            "input_field": {"type": "text", "content": ["NA"]},
-            "output_data": {"type": "str", "required": True, "validators": []},
-        },
-        "_dashboard": { 
-            "type": "line",  
-            "fields": {
-                "x": "Timestamp",   
-                "y": "On_Hand", 
-                "color": "Unit"
-            }
-        },
-        "_allow_repeat": False, 
-        "_allow_uploads": False, 
-        "_allow_csv_templates": False, 
-        "_suppress_default_values": False,
-    },
-    "sitrep": { 
-        "Unit": {
-            "input_field": {"type": "radio", "content": ["687", "980", "753", "826"]},
-            "output_data": {"type": "str", "required": True, "validators": []},
-        },
-        "Present_Location":{
-            "input_field": {"type": "text", "content": ["NA"]},
-            "output_data": {"type": "str", "required": False, "validators": []},
-        },
-        "Activity":{
-            "input_field": {"type": "text", "content": ["NA"]},
-            "output_data": {"type": "str", "required": False, "validators": []},
-        },
-        "Effective":{
-            "input_field": {"type": "number", "content": [0]},
-            "output_data": {"type": "float", "required": False, "validators": []},
-        },
-        "Own_Disposition":{
-            "input_field": {"type": "text", "content": ["NA"]},
-            "output_data": {"type": "str", "required": False, "validators": []},
-        },
-        "Situation":{
-            "input_field": {"type": "text", "content": ["NA"]},
-            "output_data": {"type": "str", "required": False, "validators": []},
-        },
-        "Operations":{
-            "input_field": {"type": "text", "content": ["NA"]},
-            "output_data": {"type": "str", "required": False, "validators": []},
-        },
-        "Intelligence":{
-            "input_field": {"type": "text", "content": ["NA"]},
-            "output_data": {"type": "str", "required": False, "validators": []},
-        },
-        "Logistics":{
-            "input_field": {"type": "text", "content": ["NA"]},
-            "output_data": {"type": "str", "required": False, "validators": []},
-        },
-        "Communications":{
-            "input_field": {"type": "text", "content": ["NA"]},
-            "output_data": {"type": "str", "required": False, "validators": []},
-        },
-        "Personnel":{
-            "input_field": {"type": "text", "content": ["NA"]},
-            "output_data": {"type": "str", "required": False, "validators": []},
-        },
-        "_dashboard": False,
-        "_allow_repeat": False, 
-        "_allow_uploads": False, 
-        "_allow_csv_templates": False, 
-        "_suppress_default_values": False, 
-    },
 }
+
+# read forms from file as add_ons
+# overwrite/append add_ons to forms in this file
+try:
+    import libreforms.forms.add_ons as add_ons
+    forms_appended = dict(forms)            # this creates a copy of the original dictionary, to
+    forms_appended.update(add_ons.forms)    # which we will append the add_ons data
+    forms = add_ons.forms # this is the default behavior, which overwrites the default behavior   
+except: # if anything above fails, we skip 
+    pass
+
+# this function can be run to debug the forms located in this 
+# file and any additional form data passed through forms.d/
+def lint(forms=forms):
+    for form in forms.keys():
+        print(form)
+
+        for field in forms[form].keys():
+            print(field)
+
+            if field.startswith("_"):
+                break
+
+            # verify that the input_field key is defined for each field
+            assert forms[form][field]["input_field"]
+
+            # verify that the type employed conforms to one of the acceptable form fields
+            assert forms[form][field]["input_field"]["type"] in ["text", "password", "radio", "checkbox" , "date", "hidden", "number", "file"]
+
+            # verify that the form content is is a list data type
+            assert isinstance(forms[form][field]["input_field"]["content"], list)
+
+            # verify that the output_data key is defined for each field
+            assert forms[form][field]["output_data"]
+
+            # verify that the type employed conforms to one of the acceptable form fields
+            assert forms[form][field]["output_data"]["type"] in ["str", "float", "int", "list"]
+
+            # verify that required is set to true or false
+            assert forms[form][field]["output_data"]['required'] in [True, False]
+
+            # verify that the form validators key a list data type
+            assert isinstance(forms[form][field]["output_data"]["validators"], list)
+
+        # if field == "_dashboard":
+        #     assert forms[form]["_dashboard"]
+        # assert forms[form]["_allow_repeat"]
+        # assert forms[form]["_allow_uploads"]
+        # assert forms[form]["_allow_csv_templates"]
+        # assert forms[form]["_suppress_default_values"]
