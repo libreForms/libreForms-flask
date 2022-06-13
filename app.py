@@ -167,11 +167,22 @@ def forms(form_name):
 @app.route(f'/tables/<form_name>', methods=['GET', 'POST'])
 def table(form_name): 
 
+
     try:
         pd.set_option('display.max_colwidth', 0)
         data = db.read_documents_from_collection(form_name)
         df = pd.DataFrame(list(data))
         df.drop(columns=["_id"], inplace=True)
+        
+        # here we allow the user to select fields they want to use, 
+        # overriding the default view-all.
+        # warning, this may be buggy
+
+        for col in df.columns:
+            if request.args.get(col):
+                # prevent type-mismatch by casting both fields as strings
+                df = df.loc[df[col].astype("string") == str(request.args.get(col))] 
+
         df.columns = [x.replace("_", " ") for x in df.columns]
     except Exception as e:
         df = pd.DataFrame(columns=["Error"], data=[{"Error":e}])
