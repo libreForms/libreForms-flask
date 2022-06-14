@@ -134,3 +134,4 @@ gunicorn.access
 add_ons.py
 api_keys
 site_overrides.py
+secret_key

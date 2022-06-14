@@ -79,7 +79,12 @@ def parse_options(form=False):
 
 # create app object
 app = Flask(__name__)
-app.config["SECRET_KEY"] = "this is the secret key"
+
+if os.path.exists ("secret_key"):
+    with open("secret_key", "r+") as f:
+        app.config["SECRET_KEY"] = f.read().strip()
+else:  
+    app.config["SECRET_KEY"] = "this is the secret key"
 
 
 # read database password file, if it exists
