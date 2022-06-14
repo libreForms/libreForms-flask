@@ -92,6 +92,11 @@ else:
 # initialize mongodb database
 db = db.MongoDB(dbpw)
 
+
+# here we read the current list of acceptible api keys into memory
+# users should define this file as it does not ship with the git repo
+api_keys = pd.read_csv("api_keys")
+
 # define a home route
 @app.route('/')
 def home():
@@ -236,7 +241,42 @@ def dashboard(form_name):
         options=parse_options(form=form_name),
     )
 
-        
+
+
+
+# here we add the api route v1
+@app.route('/api/v1/<api_key>/<form_name>')
+def api(form_name, api_key):
+
+    # here we capture the string-ified API key passed by the user
+    api_key = str(api_key)
+    
+    # we added the strip() method to remove trailing whitespace from the api keys
+    if api_key in (api_keys.api_keys.str.strip()).values: 
+        try: 
+
+            data = db.read_documents_from_collection(form_name)
+            df = pd.DataFrame(list(data))
+            df.drop(columns=["_id"], inplace=True)
+            
+            # here we allow the user to select fields they want to use, 
+            # overriding the default view-all.
+            # warning, this may be buggy
+
+            for col in df.columns:
+                if request.args.get(col):
+                    # prevent type-mismatch by casting both fields as strings
+                    df = df.loc[df[col].astype("string") == str(request.args.get(col))] 
+
+            return df.to_dict()
+
+        except Exception as e:
+            return {"form_error":"invalid form"}
+
+    else:
+        return {"api_error":"invalid api key"}
+
+
 if __name__ == "__main__":
     app.run(debug=True, host= '0.0.0.0', port='8000')
     
