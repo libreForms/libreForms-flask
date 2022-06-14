@@ -3,9 +3,13 @@ an open form manager API
 
 ## features
 
-- A form-building API based on Python dictionaries
-- Gunicorn web server (http://x.x.x.x:8000/) that works well with Apache, Nginx, and other reverse-proxies
-- MongoDB backend
+libreForms is intended to run in your organization's intranet or closed network and provides the following features:
+
+- a form-building API based on Python dictionaries
+- a Gunicorn web server (http://x.x.x.x:8000/) that works well behind Apache, Nginx, and other reverse-proxies
+- a MongoDB backend
+- \[future\] local and SAML authentication systems
+- \[future\] routing lists for form review, approvals, and notifications
 
 ## Installation
 
