@@ -111,9 +111,11 @@ systemctl enable --now libreforms
 
 ## API
 
-The purpose of the libreForms project is to provide a simple but highly extensible method of form building and management in Python, leveraging Flask's doctrine of 'simplicity and extensibility.' As a result, the application provides an API for storing all the information it needs to generate a browser-based form within a Python dictionary. The application then translates these form fields into data structures intended to be stored in a database. Given the project's emphasis on supporting arbitrary data structures, it writes data to a MongoDB database, creating a separate collection for each unique form with the presumption that the documents contained therein will adhere to a data structure that contains some set of common fields upon which data may be collated.
+The purpose of the libreForms project is to provide a simple but highly extensible method of form building in Python, leveraging Flask's doctrine of 'simplicity and extensibility' to give significant control and flexibility to organizations to design forms and data that meet their needs. 
 
-libreForms defines a robust abstraction layer (the config file for which is located at ```libreforms/forms/__init__.py```) between (1) the types of form fields that are used to collect user data and (2) the data type that the content of these form fields take, once submitted by the user, and (3) the underlying data structure of form responses, which the system stores in a JSON-like database well suited to integration with useful data science tools like pandas, as well as visualization libraries like plotly. Specifically, this API supports the following form fields:
+The application provides an API for storing all the information it needs to generate a browser-based form within a Python dictionary. Given the project's emphasis on supporting arbitrary data structures, it translates these form fields into data structures intended to be stored in a JSON-like Document database like MongoDB, which it supports out-of-the-box, and creates a separate collection for each unique form with the presumption that the documents contained therein will adhere to a data structure that contains some set of common fields upon which data may be collated.
+
+libreForms defines a robust abstraction layer (the config file for which is located at ```libreforms/forms/__init__.py```, which can be overwritten and/or extended by adding a file called ```libreforms/forms/add_ons.py```) between (1) the types of form fields that are used to collect user data and (2) the data type that the content of these form fields take, once submitted by the user, and (3) the underlying data structure of form responses, which the system stores in a JSON-like database well suited to integration with useful data science tools like pandas, as well as visualization libraries like plotly. Specifically, this API supports the following types of HTML form fields:
 
 - "text"
 - "password"
@@ -194,19 +196,18 @@ forms = {
 ```
 
 ## extensibility
-If you'd like to extend the content of ```libreforms/forms/__init__.py```, you can do so by adding a file called ```libreforms/forms/add_ons.py```. This file should replicate the structure of __init__.py by defining a dictionary called ```forms``` conforming to the above API. The default behavior is for this dictionary to overwrite the ```forms``` dictionary defined in __init__.py. However, if for some reason it is preferrable to append the dictionary, this is stored in a dictionary called forms_appended (which can be called by importing from libreforms.forms.forms_appended instead of libreforms.forms.forms).
+If you'd like to extend the content of ```libreforms/forms/__init__.py```, you can do so by adding a file called ```libreforms/forms/add_ons.py```. This file should replicate the structure of `__init__.py` by defining a dictionary called ```forms``` conforming to the above API. The default behavior is for this dictionary to overwrite the ```forms``` dictionary defined in `__init__.py`. However, if for some reason it is preferrable to append the dictionary, this is stored in a dictionary called forms_appended (which can be called by importing from libreforms.forms.forms_appended instead of libreforms.forms.forms).
 
 ## selectors
-
-libreForms allows users to tailor the data in their dashboards and tables using GET variabes. For example, when you define a dashboard for a given form, you need to set a dependent variable. However, this can be overridden by passing the ```?y=field_name``` GET variable in the browser. Likewise, you can tailor tabular data by passing the ```?FIELD_NAME=VALUE``` GET variable in the browser. Put another way, if a table has a field called ```Sub-Unit``` and another called Fiscal_Year, and you would like to tailor the table to only show data for the Finance sub-unit in the 2021 fiscal year, then you could pass the following GET variables: ```?Sub-Unit=Finance&Fiscal_Year=2021``` to select only this data.
+libreForms allows users to tailor the data in their dashboards and tables using GET variabes as selectors. For example, when you define a dashboard for a given form, you need to set a dependent variable. However, this can be overridden by passing the ```?y=field_name``` GET variable in the browser. Likewise, you can tailor tabular data by passing the ```?FIELD_NAME=VALUE``` GET variable in the browser. Put another way, if a table has a field called ```Sub-Unit``` and another called Fiscal_Year, and you would like to tailor the table to only show data for the Finance sub-unit in the 2021 fiscal year, then you could pass the following GET variables: ```?Sub-Unit=Finance&Fiscal_Year=2021``` to select only this data.
 
 ## database
 If you elect to password protect your database, which is recommended, you should drop a file in the application home directory named ```dbpw``` and ensure that the ```libreforms``` user has read access.
 
+## dashboards
 Right now, only line graphs are supported. In the future, the project plans to allow arbitrary dashboard configurations.
 
 ## dependencies
-
 This application has a few dependencies that, in its current form, may be prone to obsolescence; there is an issue in the backlog to test for, among other things, obsolete dependencies. In addition to the standard requirements, like Python3, Python3-Pip, Python3-Venv, and MongoDB, here is a list of dependencies that ship with the application under the static/ directory:
 
 ```
@@ -245,7 +246,6 @@ zipp==3.8.0
 ```
 
 ## Copyright
-
 ```
 libreForms is an open form manager API
 Copyright (C) 2022 Sig Janoska-Bedi
