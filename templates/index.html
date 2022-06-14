@@ -44,6 +44,10 @@
 		    {% if homepage_msg %}
 			  {{ homepage_msg }}
 		    {% endif %}
+		    {% if warning_banner %}
+			  <br/><br/>
+			  {{ warning_banner }}
+		    {% endif %}
 		    {% if form_not_found %}
 			    Form not found, go <a href="{{ url_for( 'home' ) }}">home</a>. {% if msg %}{{ msg }}{% endif %}
 		    {% endif %}
