@@ -8,8 +8,9 @@ libreForms is intended to run in your organization's intranet or closed network 
 - a form-building API based on Python dictionaries
 - a Gunicorn web server (http://x.x.x.x:8000/) that works well behind Apache, Nginx, and other reverse-proxies
 - a MongoDB backend
-- \[future\] local and SAML authentication systems
-- \[future\] routing lists for form review, approvals, and notifications
+- \[future\] a RESTful database query API
+- \[future\] a local and SAML authentication systems
+- \[future\] a routing lists for form review, approvals, and notifications
 
 ## Installation
 
