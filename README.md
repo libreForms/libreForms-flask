@@ -58,7 +58,6 @@ useradd --no-create-home --system libreforms
 chown -R libreforms:libreforms /opt/libreForms
 ```
 
-
 4. Systemd service
 
 ```
