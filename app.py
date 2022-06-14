@@ -89,6 +89,29 @@ if os.path.exists ("dbpw"):
 else:  
     dbpw=None
 
+
+# define default page display and,
+# if a site_overrides file exists, 
+# use it to overwrite defaults
+
+display = {}
+display['site_name'] = "libreForms"
+display['homepage_msg'] = "Welcome to libreForms, an extensible form building abstraction \
+                            layer implemented in Flask. Select a view from above to get started. \
+                            Review the docs at https://github.com/signebedi/libreForms."
+display['warning_banner'] = "" 
+display['theme'] = "" # unused
+display['favicon'] = "" # unused
+display['image'] = "" # unused
+
+
+if os.path.exists ("site_overrides.py"):
+    import site_overrides
+    for config in site_overrides.display.keys():
+        display[config] = site_overrides.display[config]
+
+
+
 # initialize mongodb database
 db = db.MongoDB(dbpw)
 
@@ -100,23 +123,22 @@ api_keys = pd.read_csv("api_keys")
 # define a home route
 @app.route('/')
 def home():
-    homepage_msg = "Welcome to libreForms, an extensible form building abstraction \
-                    layer implemented in Flask. Select a view from above to get started. \
-                    Review the docs at https://github.com/signebedi/libreForms."
-
     return render_template('index.html', 
-        homepage_msg=homepage_msg,
+        homepage_msg=display['homepage_msg'],
+        warning_banner=display['warning_banner'],
+        site_name=display['site_name'],
         type="home",
-        name="libreForms",
+        name=display['site_name'],
     )
 
 
 @app.route(f'/forms/')
 def forms_home():
     return render_template('index.html', 
-            homepage_msg="Select a table from the left-hand menu.",
+            homepage_msg="Select a form from the left-hand menu.",
             name="Form",
             type="forms",
+            site_name=display['site_name'],
             menu=[x for x in form_src.forms.keys()],
         ) 
         
@@ -126,6 +148,7 @@ def table_home():
             homepage_msg="Select a table from the left-hand menu.",
             name="Table",
             type="table",
+            site_name=display['site_name'],
             menu=[x for x in form_src.forms.keys()],
         ) 
 
@@ -135,6 +158,7 @@ def dashboard_home():
             homepage_msg="Select a dashboard from the left-hand menu.",
             name="Dashboard",
             type="dashboard",
+            site_name=display['site_name'],        
             menu=[x for x in form_src.forms.keys()],
         ) 
 
@@ -156,6 +180,7 @@ def forms(form_name):
             name=form_name,                                         # this sets the name of the page for the page header
             menu=[x for x in form_src.forms.keys()],                # this returns the forms in libreform/forms to display in the lefthand menu
             type="forms",       
+            site_name=display['site_name'],
             options=parse_options(form=form_name),                      # here we pass the _options defined in libreforms/forms/__init__.py
             )
 
@@ -165,6 +190,7 @@ def forms(form_name):
             msg=e,
             name="404",
             type="forms",
+            site_name=display['site_name'],
             menu=[x for x in form_src.forms.keys()],
         )
 
@@ -197,6 +223,7 @@ def table(form_name):
         type="table",
         name=form_name,
         is_table=True,
+        site_name=display['site_name'],
         options=parse_options(form=form_name),
         menu=[x for x in form_src.forms.keys()],
     )
@@ -211,6 +238,7 @@ def dashboard(form_name):
             msg="No dashboard has been configured for this form.",
             name="404",
             type="dashboard",
+            site_name=display['site_name'],
             menu=[x for x in form_src.forms.keys()],
         )
 
@@ -237,6 +265,7 @@ def dashboard(form_name):
         graphJSON=graphJSON,
         name=form_name,
         type="dashboard",
+        site_name=display['site_name'],
         menu=[x for x in form_src.forms.keys()],
         options=parse_options(form=form_name),
     )

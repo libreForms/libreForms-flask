@@ -14,14 +14,14 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" />
     <link rel='shortcut icon' type='image/x-icon' href='{{ url_for('static', filename="favicon.ico") }}' />
-    <title>libreForms {{ name }}</title>      
+    <title>{{ site_name }} {{ name }}</title>      
   </head>
 
   <body>        
     <nav class="navbar navbar-default">
       <div class="container-fluid">
         <div class="navbar-header">
-        <a class="navbar-brand" href=" {{ url_for('home') }}">libreForms</a>
+        <a class="navbar-brand" href=" {{ url_for('home') }}">{{ site_name }}</a>
       </div>
       <ul class="nav navbar-nav">
         <li {% if context %}class="active"{% endif %}><a href="{{ url_for( 'forms_home' ) }}">Forms</a></li>
