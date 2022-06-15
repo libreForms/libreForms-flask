@@ -207,6 +207,17 @@ If you elect to password protect your database, which is recommended, you should
 ## dashboards
 Right now, only line graphs are supported. In the future, the project plans to allow arbitrary dashboard configurations.
 
+## overrides
+You can override some of the default site display options by adding a file called `site_overrides.py` to the project home directory. This file should contain a dictionary object with key-value attributes that you want to override. 
+
+```
+display = {
+    'site_name':"My-Site",
+    'homepage_msg': "Welcome to My-Site. Select a view from above to get started.",
+    'warning_banner':"Please be mindful of the data you post on this system.",
+}
+```
+
 ## dependencies
 This application has a few dependencies that, in its current form, may be prone to obsolescence; there is an issue in the backlog to test for, among other things, obsolete dependencies. In addition to the standard requirements, like Python3, Python3-Pip, Python3-Venv, and MongoDB, here is a list of dependencies that ship with the application under the static/ directory:
 
