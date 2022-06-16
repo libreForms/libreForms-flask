@@ -134,6 +134,7 @@ def home():
         site_name=display['site_name'],
         type="home",
         name=display['site_name'],
+        display=display,
     )
 
 
@@ -145,6 +146,7 @@ def forms_home():
             type="forms",
             site_name=display['site_name'],
             menu=[x for x in form_src.forms.keys()],
+            display=display,
         ) 
         
 @app.route(f'/tables/')
@@ -155,6 +157,7 @@ def table_home():
             type="table",
             site_name=display['site_name'],
             menu=[x for x in form_src.forms.keys()],
+            display=display,
         ) 
 
 @app.route(f'/dashboards/')
@@ -165,6 +168,7 @@ def dashboard_home():
             type="dashboard",
             site_name=display['site_name'],        
             menu=[x for x in form_src.forms.keys()],
+            display=display,
         ) 
 
 
@@ -187,6 +191,7 @@ def forms(form_name):
             type="forms",       
             site_name=display['site_name'],
             options=parse_options(form=form_name),                      # here we pass the _options defined in libreforms/forms/__init__.py
+            display=display,
             )
 
     except Exception as e:
@@ -197,6 +202,7 @@ def forms(form_name):
             type="forms",
             site_name=display['site_name'],
             menu=[x for x in form_src.forms.keys()],
+            display=display,
         )
 
 # this creates the route to each of the tables
@@ -231,6 +237,7 @@ def table(form_name):
         site_name=display['site_name'],
         options=parse_options(form=form_name),
         menu=[x for x in form_src.forms.keys()],
+        display=display,
     )
 
 # this creates the route to each of the dashboards
@@ -245,6 +252,7 @@ def dashboard(form_name):
             type="dashboard",
             site_name=display['site_name'],
             menu=[x for x in form_src.forms.keys()],
+            display=display,
         )
 
     data = db.read_documents_from_collection(form_name)
@@ -273,6 +281,7 @@ def dashboard(form_name):
         site_name=display['site_name'],
         menu=[x for x in form_src.forms.keys()],
         options=parse_options(form=form_name),
+        display=display,
     )
 
 
