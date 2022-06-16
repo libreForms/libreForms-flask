@@ -1,7 +1,7 @@
 ![header img](docs/header_img_large.png)
 
 # libreForms
-an open form manager API
+liberate your forms
 
 ## Table of Contents
 1. [features](#features)
@@ -22,7 +22,7 @@ an open form manager API
 
 ## features
 
-libreForms is intended to run in your organization's intranet or closed network and provides the following features:
+libreForms is an open form manager API that's intended to run in your organization's intranet or closed network and provides the following features:
 
 - a form-building API based on Python dictionaries
 - a Gunicorn web server (http://x.x.x.x:8000/) that works well behind Apache, Nginx, and other reverse-proxies
