@@ -41,7 +41,7 @@ Liberate your forms with libreForms, an open form manager API that's intended to
 
 ## installation
 
-In most cases, the following commans must be run with root privileges.
+In most cases, the following commands must be run with root privileges.
 
 ### RHEL 8
 

@@ -123,7 +123,10 @@ db = db.MongoDB(dbpw)
 
 # here we read the current list of acceptible api keys into memory
 # users should define this file as it does not ship with the git repo
-api_keys = pd.read_csv("api_keys")
+if os.path.exists ("api_keys"):
+    api_keys = pd.read_csv("api_keys")
+else:
+    api_keys = pd.DataFrame({'api_keys':['t32HDBcKAAIVBBPbjBADCbCh']}) # this will be the default key
 
 # define a home route
 @app.route('/')
