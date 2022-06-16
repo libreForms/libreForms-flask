@@ -3,6 +3,23 @@
 # libreForms
 an open form manager API
 
+## Table of Contents
+1. [features](#features)
+2. [installation](#installation)
+
+    a. [RHEL8](#RHEL-8)
+
+    b. [Ubuntu-20.04](#Ubuntu-20.04)
+
+3. [API](#API)
+4. [features](#features)
+5. [extensibility](#extensibility)
+6. [selectors](#selectors)
+7. [database](#database)
+8. [dashboards](#dashboards)
+9. [dependencies](#dependencies)
+10. [copyright](#copyright)
+
 ## features
 
 libreForms is intended to run in your organization's intranet or closed network and provides the following features:
@@ -14,11 +31,11 @@ libreForms is intended to run in your organization's intranet or closed network 
 - \[future\] a local and SAML authentication systems
 - \[future\] a routing lists for form review, approvals, and notifications
 
-## Installation
+## installation
 
 In most cases, the runtime commands below must be run with root privileges.
 
-### Red Hat Enterprise Linux 8
+### RHEL-8
 
 0. install dependencies
 
@@ -68,7 +85,7 @@ systemctl daemon-reload
 systemctl enable --now libreforms
 ```
 
-### Ubuntu 20.04
+### Ubuntu-20.04
 
 0. install dependencies
 
@@ -258,7 +275,7 @@ Werkzeug==2.1.2
 zipp==3.8.0
 ```
 
-## Copyright
+## copyright
 ```
 libreForms is an open form manager API
 Copyright (C) 2022 Sig Janoska-Bedi
