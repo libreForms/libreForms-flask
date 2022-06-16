@@ -6,7 +6,7 @@ an open form manager API
 ## Table of Contents
 1. [about](#about)
 
-    a. [usecase](#usecase)
+    a. [usecase](#use case)
 
     b. [features](#features)
 
@@ -29,7 +29,7 @@ an open form manager API
 
 Liberate your forms with libreForms, an open form manager API that's intended to run in your organization's intranet. Most browser-based form managers lack key features, direct control over the underlying application, self-hosting support, a viable cost/licensing model, or lightweight footprints. The libreForms project, first and foremost, defines a simple but highly extensible abstraction layer that matches form fields to backend data structures. It adds a browser-based application, document-oriented database, and RESTful API on top of this. 
 
-### usecase
+### use case
 
 - You are a small enterprise that has been using Google Forms for your organization's internal forms because it is low-cost, but you dislike the lack of features and direct control over your data.
 
