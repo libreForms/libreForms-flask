@@ -3,18 +3,18 @@
 # libreForms
 an open form manager API
 
-## Table of Contents
+## contents
 1. [about](#about)
 
-    a. [usecase](#use case)
+    a. [use cases](#use-cases)
 
     b. [features](#features)
 
 2. [installation](#installation)
 
-    a. [RHEL8](#RHEL-8)
+    a. [RHEL 8](#RHEL-8)
 
-    b. [Ubuntu-20.04](#Ubuntu-20.04)
+    b. [Ubuntu 20.04](#Ubuntu-20.04)
 
 3. [API](#API)
 4. [features](#features)
@@ -22,14 +22,15 @@ an open form manager API
 6. [selectors](#selectors)
 7. [database](#database)
 8. [dashboards](#dashboards)
-9. [dependencies](#dependencies)
-10. [copyright](#copyright)
+9. [display overrides](#display-overrides)
+10. [dependencies](#dependencies)
+11. [copyright](#copyright)
 
 ## about
 
 Liberate your forms with libreForms, an open form manager API that's intended to run in your organization's intranet. Most browser-based form managers lack key features, direct control over the underlying application, self-hosting support, a viable cost/licensing model, or lightweight footprints. The libreForms project, first and foremost, defines a simple but highly extensible abstraction layer that matches form fields to backend data structures. It adds a browser-based application, document-oriented database, and RESTful API on top of this. 
 
-### use case
+### use cases
 
 - You are a small enterprise that has been using Google Forms for your organization's internal forms because it is low-cost, but you dislike the lack of features and direct control over your data.
 
@@ -49,7 +50,7 @@ Liberate your forms with libreForms, an open form manager API that's intended to
 
 In most cases, the following commans must be run with root privileges.
 
-### RHEL-8
+### RHEL 8
 
 0. install dependencies
 
@@ -99,7 +100,7 @@ systemctl daemon-reload
 systemctl enable --now libreforms
 ```
 
-### Ubuntu-20.04
+### Ubuntu 20.04
 
 0. install dependencies
 
@@ -240,7 +241,7 @@ If you elect to password protect your database, which is recommended, you should
 ## dashboards
 Right now, only line graphs are supported. In the future, the project plans to allow arbitrary dashboard configurations.
 
-## overrides
+## display overrides
 You can override some of the default site display options by adding a file called `site_overrides.py` to the project home directory. This file should contain a dictionary object with key-value attributes that you want to override. 
 
 ```
@@ -248,6 +249,7 @@ display = {
     'site_name':"My-Site",
     'homepage_msg': "Welcome to My-Site. Select a view from above to get started.",
     'warning_banner':"Please be mindful of the data you post on this system.",
+    'favicon':"my_new_favicon.ico",
 }
 ```
 
