@@ -230,6 +230,17 @@ forms = {
 }
 ```
 
+## REST API
+
+There is a RESTful API that allows users to complete read and, in the future, write operations against the MongoDB database. This requires API keys. You can create a file in the application home directory called `api_keys` structured as:
+
+```
+api_keys
+t32HDBcKAAIVBBPbjBADCbCh
+```
+
+But if you don't, the default test key will be `t32HDBcKAAIVBBPbjBADCbCh`. 
+
 ## extensibility
 
 If you'd like to extend the content of ```libreforms/forms/__init__.py```, you can do so by adding a file called ```libreforms/forms/add_ons.py```. This file should replicate the structure of `__init__.py` by defining a dictionary called ```forms``` conforming to the above API. The default behavior is for this dictionary to overwrite the ```forms``` dictionary defined in `__init__.py`. However, if for some reason it is preferrable to append the dictionary, this is stored in a dictionary called forms_appended (which can be called by importing from libreforms.forms.forms_appended instead of libreforms.forms.forms).
