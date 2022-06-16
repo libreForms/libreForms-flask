@@ -5,17 +5,11 @@ an open form manager API
 
 ## contents
 1. [about](#about)
-
-    a. [use cases](#use-cases)
-
-    b. [features](#features)
-
+    - [use cases](#use-cases)
+    - [features](#features)
 2. [installation](#installation)
-
-    a. [RHEL 8](#RHEL-8)
-
-    b. [Ubuntu 20.04](#Ubuntu-20.04)
-
+    - [RHEL 8](#RHEL-8)
+    - [Ubuntu 20.04](#Ubuntu-20.04)
 3. [API](#API)
 4. [extensibility](#extensibility)
 5. [selectors](#selectors)
@@ -270,6 +264,7 @@ plotly-v1.58.5.min.js
 ```
 
 As well as the application's python requirements:
+
 ```
 click==8.1.3
 Flask==2.1.2
