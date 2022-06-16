@@ -32,11 +32,11 @@ Liberate your forms with libreForms, an open form manager API that's intended to
 
 ### use cases
 
-- You are a small enterprise that has been using Google Forms for your organization's internal forms because it is low-cost, but you dislike the lack of features and direct control over your data.
+- You are a small enterprise that has been using Google Forms for your organization's internal forms because it is low-cost, but you dislike the restricted features and lack of direct control over your data.
 
-- You are a medium-sized enterprise that wants a simple, low-cost tool to manage their internal forms. You don't mind self-hosting the application, and you have staff with rudimentary experience using Python to help deploy and maintain the system.
+- You are a medium-sized enterprise that wants a simple, low-cost tool to manage their internal forms. You don't mind self-hosting the application, and you have staff with rudimentary experience using Python to deploy and maintain the system.
 
-- You are a large enterprise with significant technical staff that routinely host and maintain applications for use on your organization's intranet. You have assessed options for form managers on the market and determined that proprietary options provide little direct control over the application source code, or otherwise fail to provide a viable licensing model.
+- You are a large enterprise with significant technical staff that routinely host and maintain applications for use on your organization's intranet. You have assessed options for form managers on the market and determined that proprietary services provide little direct control over the application source code, or otherwise fail to provide a viable licensing model.
 
 ### features
 
@@ -76,7 +76,7 @@ tar -xvf v0.0.1-alpha.tar.gz
 mv libreforms-v0.0.1-alpha libreForms
 ```
 
-2. Install Python virtual environment
+2. install Python virtual environment
 
 ```
 cd /opt/libreForms
@@ -92,7 +92,7 @@ useradd --no-create-home --system libreforms
 chown -R libreforms:libreforms /opt/libreForms
 ```
 
-4. Systemd service
+4. systemd service
 
 ```
 cp /opt/libreForms/gunicorn/libreforms.service /etc/systemd/system
@@ -118,7 +118,7 @@ tar -xvf v0.0.1-alpha.tar.gz
 mv libreforms-v0.0.1-alpha libreForms
 ```
 
-2. Install Python virtual environment
+2. install Python virtual environment
 
 ```
 cd /opt/libreForms
@@ -134,7 +134,7 @@ useradd --no-create-home --system libreforms
 chown -R libreforms:libreforms /opt/libreForms
 ```
 
-4. Systemd service
+4. systemd service
 
 ```
 cp /opt/libreForms/gunicorn/libreforms.service /etc/systemd/system
@@ -230,18 +230,23 @@ forms = {
 ```
 
 ## extensibility
+
 If you'd like to extend the content of ```libreforms/forms/__init__.py```, you can do so by adding a file called ```libreforms/forms/add_ons.py```. This file should replicate the structure of `__init__.py` by defining a dictionary called ```forms``` conforming to the above API. The default behavior is for this dictionary to overwrite the ```forms``` dictionary defined in `__init__.py`. However, if for some reason it is preferrable to append the dictionary, this is stored in a dictionary called forms_appended (which can be called by importing from libreforms.forms.forms_appended instead of libreforms.forms.forms).
 
 ## selectors
+
 libreForms allows users to tailor the data in their dashboards and tables using GET variabes as selectors. For example, when you define a dashboard for a given form, you need to set a dependent variable. However, this can be overridden by passing the ```?y=field_name``` GET variable in the browser. Likewise, you can tailor tabular data by passing the ```?FIELD_NAME=VALUE``` GET variable in the browser. Put another way, if a table has a field called ```Sub-Unit``` and another called Fiscal_Year, and you would like to tailor the table to only show data for the Finance sub-unit in the 2021 fiscal year, then you could pass the following GET variables: ```?Sub-Unit=Finance&Fiscal_Year=2021``` to select only this data.
 
 ## database
+
 If you elect to password protect your database, which is recommended, you should drop a file in the application home directory named ```dbpw``` and ensure that the ```libreforms``` user has read access.
 
 ## dashboards
+
 Right now, only line graphs are supported. In the future, the project plans to allow arbitrary dashboard configurations.
 
 ## display overrides
+
 You can override some of the default site display options by adding a file called `site_overrides.py` to the project home directory. This file should contain a dictionary object with key-value attributes that you want to override. 
 
 ```
@@ -254,6 +259,7 @@ display = {
 ```
 
 ## dependencies
+
 This application has a few dependencies that, in its current form, may be prone to obsolescence; there is an issue in the backlog to test for, among other things, obsolete dependencies. In addition to the standard requirements, like Python3, Python3-Pip, Python3-Venv, and MongoDB, here is a list of dependencies that ship with the application under the static/ directory:
 
 ```
@@ -292,6 +298,7 @@ zipp==3.8.0
 ```
 
 ## copyright
+
 ```
 libreForms is an open form manager API
 Copyright (C) 2022 Sig Janoska-Bedi
