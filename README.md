@@ -10,7 +10,7 @@ an open form manager API
 2. [installation](#installation)
     - [RHEL 8](#rhel-8)
     - [Ubuntu 20.04](#ubuntu-2004)
-3. [API](#API)
+3. [API](#api)
 4. [extensibility](#extensibility)
 5. [selectors](#selectors)
 6. [database](#database)
