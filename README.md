@@ -17,14 +17,13 @@ an open form manager API
     b. [Ubuntu 20.04](#Ubuntu-20.04)
 
 3. [API](#API)
-4. [features](#features)
-5. [extensibility](#extensibility)
-6. [selectors](#selectors)
-7. [database](#database)
-8. [dashboards](#dashboards)
-9. [display overrides](#display-overrides)
-10. [dependencies](#dependencies)
-11. [copyright](#copyright)
+4. [extensibility](#extensibility)
+5. [selectors](#selectors)
+6. [database](#database)
+7. [dashboards](#dashboards)
+8. [display overrides](#display-overrides)
+9. [dependencies](#dependencies)
+10. [copyright](#copyright)
 
 ## about
 
