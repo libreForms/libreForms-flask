@@ -57,7 +57,7 @@ enabled=1
 gpgkey=https://www.mongodb.org/static/pgp/server-5.0.asc" | tee /etc/yum.repos.d/mongodb-org-5.0.repo
 yum update -y
 yum install python3.8 mongodb-org -y
-systemctl enable --now mongod
+systemctl enable --now mongodb
 ```
 
 1. Download the last stable release of this repository into the opt directory:
@@ -100,7 +100,7 @@ systemctl enable --now libreforms
 ```
 apt update -y && apt upgrade -y
 apt install -y mongodb python3-pip python3-venv # for the most up to date version of mongodb, see https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-ubuntu/
-systemctl enable --now mongod
+systemctl enable --now mongodb
 ```
 
 1. Download the last stable release of this repository into the opt directory:
