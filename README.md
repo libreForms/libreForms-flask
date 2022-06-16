@@ -57,7 +57,7 @@ enabled=1
 gpgkey=https://www.mongodb.org/static/pgp/server-5.0.asc" | tee /etc/yum.repos.d/mongodb-org-5.0.repo
 yum update -y
 yum install python3.8 mongodb-org -y
-systemctl enable --now mongod
+systemctl enable --now mongodb
 ```
 
 1. Download the last stable release of this repository into the opt directory:
@@ -98,8 +98,9 @@ systemctl enable --now libreforms
 0. install dependencies
 
 ```
-apt install -y mongodb-org # for the most up to date version of mongodb, see https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-ubuntu/
-systemctl enable --now mongod
+apt update -y && apt upgrade -y
+apt install -y mongodb python3-pip python3-venv # for the most up to date version of mongodb, see https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-ubuntu/
+systemctl enable --now mongodb
 ```
 
 1. Download the last stable release of this repository into the opt directory:
@@ -115,7 +116,7 @@ mv libreforms-v0.0.1-alpha libreForms
 
 ```
 cd /opt/libreForms
-python -m venv venv
+python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 ```
@@ -133,6 +134,13 @@ chown -R libreforms:libreforms /opt/libreForms
 cp /opt/libreForms/gunicorn/libreforms.service /etc/systemd/system
 systemctl daemon-reload
 systemctl enable --now libreforms
+```
+
+if you experience a failure when you check `systemctl status libreforms`, then try chowning the program files and restarting the application.
+
+```
+chown -R libreforms:libreforms /opt/libreForms
+systemctl restart libreforms
 ```
 
 
