@@ -98,7 +98,8 @@ systemctl enable --now libreforms
 0. install dependencies
 
 ```
-apt install -y mongodb-org # for the most up to date version of mongodb, see https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-ubuntu/
+apt update -y && apt upgrade -y
+apt install -y mongodb python3-pip python3-venv # for the most up to date version of mongodb, see https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-ubuntu/
 systemctl enable --now mongod
 ```
 
