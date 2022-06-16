@@ -267,7 +267,6 @@ bootstrap-3.4.1.min.js
 jquery-3.2.1.slim.min.js
 jquery-3.5.1.min.js
 plotly-v1.58.5.min.js
-
 ```
 
 As well as the application's python requirements:
