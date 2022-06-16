@@ -1,4 +1,4 @@
-![header img](docs/Screenshot_20220615_200410.png)
+![header img](docs/header_img_large.png)
 
 # libreForms
 an open form manager API
