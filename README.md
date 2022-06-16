@@ -60,13 +60,20 @@ yum install python3.8 mongodb-org -y
 systemctl enable --now mongodb
 ```
 
-1. Download the last stable release of this repository into the opt directory:
+1a. Download the last stable release of this repository into the opt directory:
 
 ```
 cd /opt
 wget https://github.com/signebedi/libreForms/archive/refs/tags/v0.0.1-alpha.tar.gz
 tar -xvf v0.0.1-alpha.tar.gz
 mv libreforms-v0.0.1-alpha libreForms
+```
+
+1b. Download the cutting-edge git repository into the opt directory:
+
+```
+cd /opt
+git clone https://github.com/signebedi/libreForms.git
 ```
 
 2. install Python virtual environment
@@ -103,13 +110,20 @@ apt install -y mongodb python3-pip python3-venv # for the most up to date versio
 systemctl enable --now mongodb
 ```
 
-1. Download the last stable release of this repository into the opt directory:
+1a. Download the last stable release of this repository into the opt directory:
 
 ```
 cd /opt
 wget https://github.com/signebedi/libreForms/archive/refs/tags/v0.0.1-alpha.tar.gz
 tar -xvf v0.0.1-alpha.tar.gz
 mv libreforms-v0.0.1-alpha libreForms
+```
+
+1b. Download the cutting-edge git repository into the opt directory:
+
+```
+cd /opt
+git clone https://github.com/signebedi/libreForms.git
 ```
 
 2. install Python virtual environment
