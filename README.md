@@ -136,6 +136,13 @@ systemctl daemon-reload
 systemctl enable --now libreforms
 ```
 
+if you experience a failure when you check `systemctl status libreforms`, then try chowning the program files and restarting the application.
+
+```
+chown -R libreforms:libreforms /opt/libreForms
+systemctl restart libreforms
+```
+
 
 ## API
 
