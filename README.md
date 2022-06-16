@@ -60,16 +60,18 @@ yum install python3.8 mongodb-org -y
 systemctl enable --now mongodb
 ```
 
-1a. Download the last stable release of this repository into the opt directory:
+1. Download this repository into the opt directory:
+
+#### Method 1: `wget` stable release
 
 ```
 cd /opt
-wget https://github.com/signebedi/libreForms/archive/refs/tags/v0.0.1-alpha.tar.gz
-tar -xvf v0.0.1-alpha.tar.gz
-mv libreforms-v0.0.1-alpha libreForms
+wget https://github.com/signebedi/libreForms/archive/refs/tags/X.X.X.tar.gz
+tar -xvf libreforms-*.*.*.tar.gz
+mv libreforms-*.*.* libreForms
 ```
 
-1b. Download the cutting-edge git repository into the opt directory:
+#### Method 2: `git clone` cutting edge repository
 
 ```
 cd /opt
@@ -110,16 +112,18 @@ apt install -y mongodb python3-pip python3-venv # for the most up to date versio
 systemctl enable --now mongodb
 ```
 
-1a. Download the last stable release of this repository into the opt directory:
+1. Download this repository into the opt directory:
+
+#### Method 1: `wget` stable release
 
 ```
 cd /opt
-wget https://github.com/signebedi/libreForms/archive/refs/tags/v0.0.1-alpha.tar.gz
-tar -xvf v0.0.1-alpha.tar.gz
-mv libreforms-v0.0.1-alpha libreForms
+wget https://github.com/signebedi/libreForms/archive/refs/tags/X.X.X.tar.gz
+tar -xvf libreforms-*.*.*.tar.gz
+mv libreforms-*.*.* libreForms
 ```
 
-1b. Download the cutting-edge git repository into the opt directory:
+#### Method 2: `git clone` cutting edge repository
 
 ```
 cd /opt
