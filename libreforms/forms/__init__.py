@@ -84,7 +84,7 @@ forms = {
 # read forms from file as add_ons
 # overwrite/append add_ons to forms in this file
 try:
-    import libreforms.forms.add_ons as add_ons
+    import forms.add_ons as add_ons
     forms_appended = dict(forms)            # this creates a copy of the original dictionary, to
     forms_appended.update(add_ons.forms)    # which we will append the add_ons data
     forms = add_ons.forms # this is the default behavior, which overwrites the default behavior   
