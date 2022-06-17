@@ -5,6 +5,9 @@
 		<div class="col-sm-3 hidden-xs">
 		  <h3>{{ name }}  <small class="text-muted">{% if context %}form{% elif is_table %}table{% elif graphJSON %}dashboard{% elif homepage_msg %}home{% endif %}</small></h3><hr/>
 		  <ul class="nav nav-pills nav-stacked">
+			{% if current_user.is_authenticated %}
+			<li>Currently logged in as <small class="text-muted">{{ username }}</small>.</li>
+			{% endif %}
 			{% for item in menu %}
 			<li {% if name == item %}class="active"{% endif %}><a href="{{ url_for( type, form_name=item ) }}">{{ item }}</a></li>
 			{% endfor %}
@@ -43,6 +46,65 @@
 			  </table>
 			</form>
 			{% endif %}
+			{% if signup %}
+				{% with messages = get_flashed_messages() %}
+				{% if messages %}
+					<div class="notification is-danger">
+						{{ messages[0] }}. Go to <a href="{{ url_for('auth.login') }}">login page</a>.
+					</div>
+				{% endif %}
+				{% endwith %}
+				<form method="POST" action="/signup">
+					<div class="field">
+						<div class="control">
+							<input class="input is-large" type="email" name="email" placeholder="Email" autofocus="">
+						</div>
+					</div>
+		
+					<div class="field">
+						<div class="control">
+							<input class="input is-large" type="text" name="name" placeholder="Name" autofocus="">
+						</div>
+					</div>
+		
+					<div class="field">
+						<div class="control">
+							<input class="input is-large" type="password" name="password" placeholder="Password">
+						</div>
+					</div>
+		
+					<button class="button is-block is-info is-large is-fullwidth">Sign Up</button>
+				</form>
+			{% endif %}
+		    {% if login %}
+				{% with messages = get_flashed_messages() %}
+				{% if messages %}
+					<div class="notification is-danger">
+						{{ messages[0] }}
+					</div>
+				{% endif %}
+				{% endwith %}
+				<form method="POST" action="/login">
+					<div class="field">
+						<div class="control">
+							<input class="input is-large" type="email" name="email" placeholder="Your Email" autofocus="">
+						</div>
+					</div>
+		
+					<div class="field">
+						<div class="control">
+							<input class="input is-large" type="password" name="password" placeholder="Your Password">
+						</div>
+					</div>
+					<div class="field">
+						<label class="checkbox">
+							<input type="checkbox" name="remember">
+							Remember me
+						</label>
+					</div>
+					<button class="button is-block is-info is-large is-fullwidth">Login</button>
+				</form>
+		    {% endif %}
 		    {% if homepage_msg %}
 			  {{ homepage_msg }}
 		    {% endif %}
