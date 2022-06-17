@@ -21,17 +21,19 @@
 			    {% for field in context.keys() %}
 				{% if context[field].input_field.type == "radio" or context[field].input_field.type == "checkbox" %}
 				<tr>
-					<td><label for="">{{ field | replace('_', ' ')}}</label></td>
+					<td><label class="form-field" for="">{{ field | replace('_', ' ')}}</label></td>
 					<td>
+					<table>
 					{% for item in context[field].input_field.content %}
-					<input type="{{ context[field].input_field.type }}" value="{{ item }}" id="{{ field }} {{ item }}" name="{{ field }}" {% if context[field].output_data.required==true %}required{% endif %}/><label for="">{{ item }}</label>
+					<tr><td><input type="{{ context[field].input_field.type }}" value="{{ item }}" id="{{ field }} {{ item }}" name="{{ field }} {{ item }}" {% if context[field].output_data.required==true %}required{% endif %}/></td><td><label class='multi-select' for="{{ field }} {{ item }}">{{ item }}</label></td></tr>
 					{% endfor %}
+					</table>
 					</td>
 				</tr>
 				{% elif context[field].input_field.type == "hidden" %}
 				{% else %}
 				<tr>
-				  <td><label for="{{ field }}">{{ field | replace('_', ' ')}}</label></td>
+				  <td><label class="form-field" for="{{ field }}">{{ field | replace('_', ' ')}}</label></td>
 				  <td><input type="{{ context[field].input_field.type }}" value="{{ context[field].input_field.content[0] }}" id="{{ field }}" name="{{ field }}" {% if context[field].output_data.required==true %}required{% endif %}/></td>
 				</tr>
 				{% endif %}
