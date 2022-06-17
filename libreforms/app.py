@@ -79,13 +79,20 @@ def parse_options(form=False):
 
 
 # create app object
-app = Flask(__name__)
+app = Flask(__name__, instance_relative_config=True)
+
+
+# ensure the instance folder exists
+try:
+    os.makedirs(app.instance_path)
+except OSError:
+    pass
 
 if os.path.exists ("secret_key"):
     with open("secret_key", "r+") as f:
         app.config["SECRET_KEY"] = f.read().strip()
 else:  
-    app.config["SECRET_KEY"] = "this is the secret key"
+    app.config["SECRET_KEY"] = "dev"
 
 
 # read database password file, if it exists

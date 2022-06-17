@@ -25,7 +25,7 @@
 					<td>
 					<table>
 					{% for item in context[field].input_field.content %}
-					<tr><td><input type="{{ context[field].input_field.type }}" value="{{ item }}" id="{{ field }} {{ item }}" name="{{ field }} {{ item }}" {% if context[field].output_data.required==true %}required{% endif %}/></td><td><label class='multi-select' for="{{ field }} {{ item }}">{{ item }}</label></td></tr>
+					<tr><td><input type="{{ context[field].input_field.type }}" value="{{ item }}" id="{{ field }} {{ item }}" name="{{ field }}" {% if context[field].output_data.required==true %}required{% endif %}/></td><td><label class='multi-select' for="{{ field }} {{ item }}">{{ item }}</label></td></tr>
 					{% endfor %}
 					</table>
 					</td>
