@@ -272,7 +272,7 @@ libreForms allows users to tailor the data in their dashboards and tables using 
 
 ## database
 
-If you elect to password protect your database, which is recommended, you should drop a file in the application home directory named ```dbpw``` and ensure that the ```libreforms``` user has read access.
+If you elect to password protect your database, which is recommended, you should drop a file in the application home directory named ```mongodb_pw``` and ensure that the ```libreforms``` user has read access.
 
 ## dashboards
 
