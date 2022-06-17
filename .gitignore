@@ -133,6 +133,7 @@ gunicorn.error
 gunicorn.access
 add_ons.py
 api_keys
+secret_key
 site_overrides.py
 secret_key
 *.sqlite
