@@ -258,6 +258,7 @@ def dashboard(form_name):
             display=display,
         )
 
+    
     data = db.read_documents_from_collection(form_name)
     df = pd.DataFrame(list(data))
     ref = form_src.forms[form_name]["_dashboard"]['fields']
@@ -265,11 +266,9 @@ def dashboard(form_name):
     # here we allow the user to specify the field they want to use, 
     # overriding the default y-axis field defined in libreforms/forms.
     # warning, this may be buggy
-    if request.args.get("y"):
-        y_context = request.args.get("y")
 
-    else:
-        y_context = ref['y']
+    # if request.args.get("y") and request.args.get("y") in form.keys(): # alternative if we want to verify the field exists
+    y_context = request.args.get("y") if request.args.get("y") else ref['y']
 
     fig = px.line(df, 
                 x=ref['x'], 
