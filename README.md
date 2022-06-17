@@ -36,10 +36,11 @@ Liberate your forms with libreForms, an open form manager API that's intended to
 ### features
 
 - a form-building abstraction layer based on Python dictionaries
-- a flask web application (http://x.x.x.x:8000/) that employs pandas dataframes and plotly dashboards for data visualization & works well with most standard reverse-proxies
+- a flask web application (http://x.x.x.x:8000/) that will work well behind most standard reverse-proxies 
+- plotly dashboards for data visualization
 - a document-oriented database to store form data 
 - \[future\] local and SAML authentication options
-- \[future\] support for lookups in form fields, and routing lists for form review, approvals, and notifications
+- \[future\] support for lookups in form fields & routing lists for form review, approvals, and notifications
 
 ## installation
 
