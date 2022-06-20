@@ -81,13 +81,15 @@ cd /opt
 git clone https://github.com/signebedi/libreForms.git
 ```
 
-2. install Python virtual environment
+2. install Python virtual environment and initialize flask
 
 ```
 cd /opt/libreForms
 python3.8 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
+export FLASK_APP=app
+flask init-db
 ```
 
 3. libreforms user
@@ -133,13 +135,15 @@ cd /opt
 git clone https://github.com/signebedi/libreForms.git
 ```
 
-2. install Python virtual environment
+2. install Python virtual environment and initialize flask
 
 ```
 cd /opt/libreForms
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
+export FLASK_APP=app
+flask init-db
 ```
 
 3. libreforms user
