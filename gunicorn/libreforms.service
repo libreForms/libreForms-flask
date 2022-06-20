@@ -7,7 +7,7 @@ User=libreforms
 Group=libreforms
 WorkingDirectory=/opt/libreForms/
 Environment="PATH=/opt/libreForms/venv/bin"
-ExecStart=/opt/libreForms/venv/bin/gunicorn --bind 0.0.0.0:8000 wsgi:app --config /opt/libreForms/gunicorn/gunicorn.conf.py
+ExecStart=/opt/libreForms/venv/bin/gunicorn --bind 0.0.0.0:8000 app:create_app() --config /opt/libreForms/gunicorn/gunicorn.conf.py
 
 [Install]
 WantedBy=multi-user.target

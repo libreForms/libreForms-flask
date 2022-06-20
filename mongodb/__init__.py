@@ -1,21 +1,31 @@
 # db/__init__.py: defines the class MongoDB used for database operations in the libreForm application.
 
-
 from pymongo import MongoClient
-import datetime
+import datetime, os
 
 class MongoDB:
     def __init__(self, dbpw=None):
         from pymongo import MongoClient
         import datetime
+
+        # read database password file, if it exists
+        if os.path.exists ("mongodb_pw"):
+            with open("mongodb_pw", "r+") as f:
+                mongodb_pw = f.read().strip()
+        elif dbpw:  
+            pass
+        else:
+            mongodb_pw=None
+
         conn = MongoClient(f'mongodb://root:{dbpw}@localhost:27017/')
         self.client = MongoClient('localhost', 27017)
         self.db = self.client['libreforms']
 
-    def write_document_to_collection(self, data, collection_name):
+    def write_document_to_collection(self, data, collection_name, reporter=None):
         import datetime
         collection = self.db[collection_name]
         data['Timestamp'] = str(datetime.datetime.utcnow())
+        data['Reporter'] = str(reporter) if reporter else None
         collection.insert_one(data).inserted_id
 
     def read_documents_from_collection(self, collection_name):
