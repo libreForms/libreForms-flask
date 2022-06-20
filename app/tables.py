@@ -35,7 +35,6 @@ def tables_home():
             homepage_msg="Select a table from the left-hand menu.",
             name="Table",
             type="tables.table",
-            site_name=display['site_name'],
             menu=[x for x in form_src.forms.keys()],
             display=display,
         ) 
@@ -69,7 +68,6 @@ def table(form_name):
         type="tables.table",
         name=form_name,
         is_table=True,
-        site_name=display['site_name'],
         options=parse_options(form=form_name),
         menu=[x for x in form_src.forms.keys()],
         display=display,

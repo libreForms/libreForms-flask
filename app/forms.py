@@ -102,7 +102,6 @@ def forms_home():
             homepage_msg="Select a form from the left-hand menu.",
             name="Form",
             type="forms.forms",
-            site_name=display['site_name'],
             menu=[x for x in form_src.forms.keys()],
             display=display,
         ) 
@@ -126,7 +125,6 @@ def forms(form_name):
             name=form_name,                                         # this sets the name of the page for the page header
             menu=[x for x in form_src.forms.keys()],                # this returns the forms in libreform/forms to display in the lefthand menu
             type="forms.forms",       
-            site_name=display['site_name'],
             options=parse_options(form=form_name),                      # here we pass the _options defined in libreforms/forms/__init__.py
             display=display,
             )
@@ -137,7 +135,6 @@ def forms(form_name):
             msg=e,
             name="404",
             type="forms.forms",
-            site_name=display['site_name'],
             menu=[x for x in form_src.forms.keys()],
             display=display,
         )
