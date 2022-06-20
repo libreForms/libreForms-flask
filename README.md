@@ -296,7 +296,6 @@ display = {
 By default, this application employs an sqlite user database. The default login credentials are 
 
 ```
-Email: libreforms@example.com
 User: libreforms
 Pass: libreforms
 ```
@@ -316,34 +315,30 @@ plotly-v1.58.5.min.js
 As well as the application's python requirements:
 
 ```
-certifi==2022.5.18.1
-charset-normalizer==2.0.12
+attrs==21.4.0
 click==8.1.3
+coverage==6.4.1
 Flask==2.1.2
-Flask-Login==0.6.1
-Flask-SQLAlchemy==2.5.1
-greenlet==1.1.2
-gunicorn==20.1.0
-idna==3.3
 importlib-metadata==4.11.4
+iniconfig==1.1.1
 itsdangerous==2.1.2
 Jinja2==3.1.2
 MarkupSafe==2.1.1
 marshmallow==3.16.0
-numpy==1.21.6
+numpy==1.22.4
 packaging==21.3
-pandas==1.3.5
-plotly==5.8.0
+pandas==1.4.2
+plotly==5.8.2
+pluggy==1.0.0
+py==1.11.0
 pymongo==4.1.1
 pyparsing==3.0.9
+pytest==7.1.2
 python-dateutil==2.8.2
 pytz==2022.1
-requests==2.27.1
 six==1.16.0
-SQLAlchemy==1.4.37
 tenacity==8.0.1
-typing-extensions==4.2.0
-urllib3==1.26.9
+tomli==2.0.1
 webargs==8.1.0
 Werkzeug==2.1.2
 zipp==3.8.0
