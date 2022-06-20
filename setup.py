@@ -13,6 +13,7 @@ setup(
         'plotly',
         'pymongo',
         'pytest',
+        'coverage',
         'webargs',
     ],
 )
