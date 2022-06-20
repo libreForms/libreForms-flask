@@ -55,6 +55,14 @@
       <br>
       <div class="col-sm-9">
         <div class="well">
+          {% if get_flashed_messages() %}
+          <br/>
+          <div style="height: auto; resize: none;" class='well' id='form_data'>
+            {% for message in get_flashed_messages() %}
+              <div class="flash">{{ message }}</div>
+            {% endfor %}
+          </div>  
+          {% endif %}
           {% block content %}{% endblock %}
        </div>
   <script src="{{ url_for('static', filename='jquery-3.2.1.slim.min.js') }}"></script>

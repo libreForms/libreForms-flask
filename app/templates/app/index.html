@@ -98,18 +98,6 @@
 		    {% if form_not_found %}
 			    Form not found, go <a href="{{ url_for( 'forms.forms_home' ) }}">home</a>. {% if msg %}{{ msg }}{% endif %}
 		    {% endif %}
-		    {% with messages = get_flashed_messages() %}
-			{% if messages %}
-			  <br/>
-			  <div style="height: auto; resize: none;" class='well' id='form_data'>
-			    <dl class=flashes>
-			    {% for message in messages %}
-			      {{ message }}
-			    {% endfor %}
-			    </dl>
-			  </div>
-			{% endif %}
-		    {% endwith %}
 	    	{% if graphJSON %}
 			  <div id='chart' class='chart'”></div>
 			{% endif %}
