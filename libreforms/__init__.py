@@ -25,6 +25,12 @@
 # preceding the key name, like _allow_repeats. All of these are optional fields 
 # and default to a value of False. 
 
+# the application presumes that authentication is set in place & adds the following
+# to each database write:
+    # _id: unique id for each db write
+    # Reporter: the username of the reporting user
+    # Timestamp: the timestamp that the form was submitted
+
 import datetime, os, json
 
 forms = {

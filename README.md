@@ -255,6 +255,13 @@ forms = {
 }
 ```
 
+The application presumes that authentication is set in place & adds the following to each database write:
+
+    - _id: unique id for each db write
+    - Reporter: the username of the reporting user
+    - Timestamp: the timestamp that the form was submitted
+
+
 ## REST API
 
 There is a RESTful API that allows users to complete read and, in the future, write operations against the MongoDB database. This requires API keys. You can create a file in the application home directory called `api_keys` structured as:
