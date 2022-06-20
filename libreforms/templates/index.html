@@ -5,8 +5,8 @@
 		<div class="col-sm-3 hidden-xs">
 		  <h3>{{ name }}  <small class="text-muted">{% if context %}form{% elif is_table %}table{% elif graphJSON %}dashboard{% elif homepage_msg %}home{% endif %}</small></h3><hr/>
 		  <ul class="nav nav-pills nav-stacked">
-			{% if current_user.is_authenticated %}
-			<li>Currently logged in as <small class="text-muted">{{ username }}</small>.</li>
+			{% if if g.user %}
+			<li>Currently logged in as <small class="text-muted">{{ g.user}}</small>.</li>
 			{% endif %}
 			{% for item in menu %}
 			<li {% if name == item %}class="active"{% endif %}><a href="{{ url_for( type, form_name=item ) }}">{{ item }}</a></li>

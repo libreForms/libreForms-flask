@@ -83,11 +83,6 @@ def parse_options(form=False):
 # init SQLAlchemy so we can use it later in our models
 db = SQLAlchemy()
 
-# ensure the instance folder exists
-try:
-    os.makedirs(app.instance_path)
-except OSError:
-    pass
 
 
 # read database password file, if it exists
@@ -136,6 +131,13 @@ def create_app():
 
     # create app object
     app = Flask(__name__, instance_relative_config=True)
+
+    # ensure the instance folder exists
+    try:
+        os.makedirs(app.instance_path)
+    except OSError:
+        pass
+
 
     if os.path.exists ("secret_key"):
         with open("secret_key", "r+") as f:

@@ -24,14 +24,14 @@
         <a class="navbar-brand" href=" {{ url_for('home') }}">{{ site_name }}</a>
       </div>
       <ul class="nav navbar-nav">
-      {% if current_user.is_authenticated %}
+      {% if g.user %}
         <li {% if context %}class="active"{% endif %}><a href="{{ url_for( 'forms_home' ) }}">Forms</a></li>
         <li {% if is_table %}class="active"{% endif %}><a href="{{ url_for( 'table_home' ) }}">Tables</a></li>
         <li {% if graphJSON %}class="active"{% endif %}><a href="{{ url_for( 'dashboard_home' ) }}">Dashboards</a></li>
-      {% endif %}
-      {% if not current_user.is_authenticated %}
+        <li><a href="{{ url_for( 'auth.logout' ) }}">Logout</a></li>
+      {% else %}
         <li {% if login %}class="active"{% endif %}><a href="{{ url_for( 'auth.login' ) }}">Login</a></li>
-        <li {% if context %}class="active"{% endif %}><a href="{{ url_for( 'auth.signup' ) }}">Signup</a></li>
+        <li {% if context %}class="active"{% endif %}><a href="{{ url_for( 'auth.register' ) }}">Register</a></li>
       {% endif %}
       </ul>
     </nav>
