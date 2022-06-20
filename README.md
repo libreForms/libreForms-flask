@@ -319,6 +319,7 @@ attrs==21.4.0
 click==8.1.3
 coverage==6.4.1
 Flask==2.1.2
+gunicorn==20.1.0
 importlib-metadata==4.11.4
 iniconfig==1.1.1
 itsdangerous==2.1.2
