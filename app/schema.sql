@@ -7,6 +7,11 @@ CREATE TABLE user (
   password TEXT NOT NULL
 );
 
+INSERT INTO user (id,username,password)
+VALUES 
+   (1,'libreforms','pbkdf2:sha256:260000$nQVWxd59E8lmkruy$13d8c4d408185ccc3549d3629be9cd57267a7d660abef389b3be70850e1bbfbf'
+   );
+
 -- CREATE TABLE post (
 --   id INTEGER PRIMARY KEY AUTOINCREMENT,
 --   author_id INTEGER NOT NULL,
