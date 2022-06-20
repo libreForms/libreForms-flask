@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+	  <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap-3.4.1.min.css') }}">
+	  <script src="{{ url_for('static', filename='jquery-3.5.1.min.js') }}"></script>
+	  <script src="{{ url_for('static', filename='bootstrap-3.4.1.min.js') }}"></script>
+
+    <!-- Remaining header data -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <title>{{ site_name }} {{ name }}</title>      
+  </head>
+
+  <body>        
+    <nav class="navbar navbar-default">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <a class="navbar-brand" href=" {{ url_for('home') }}">{{ site_name }}</a>
+        </div>
+        <ul class="nav navbar-nav">
+        {% if g.user %}
+          <li {% if context %}class="active"{% endif %}><a href="{{ url_for( 'forms.forms_home' ) }}">Forms</a></li>
+          <li {% if is_table %}class="active"{% endif %}><a href="{{ url_for( 'tables.tables_home' ) }}">Tables</a></li>
+          <li {% if graphJSON %}class="active"{% endif %}><a href="{{ url_for( 'dashboards.dashboards_home' ) }}">Dashboards</a></li>
+          <li class="justify-content-end"><a href="{{ url_for( 'auth.logout' ) }}">Logout</a></li>
+        {% else %}
+          <li class="justify-content-end"><a href="{{ url_for( 'auth.login' ) }}">Login</a></li>
+          <li class="justify-content-end"><a href="{{ url_for( 'auth.register' ) }}">Register</a></li>
+        {% endif %}
+        </ul>
+      </div>
+    </nav>
+    <div class="container-fluid">
+      <div class="row content">
+      <div class="col-sm-3 hidden-xs">
+        <h3>{{ name }}  <small class="text-muted">{% if context %}form{% elif is_table %}table{% elif graphJSON %}dashboard{% elif homepage_msg %}home{% endif %}</small></h3><hr/>
+        <ul class="nav nav-pills nav-stacked">  
+          {% if menu %}
+          {% for item in menu %}
+          <li {% if name == item %}class="active"{% endif %}><a href="{{ url_for( type, form_name=item ) }}">{{ item }}</a></li>
+          {% endfor %}
+          {% endif %}    
+          {% if g.user %}
+          <span>Currently logged in as <small class="text-muted">{{ g.user.username }}</small>.</span>
+          {% endif %}
+        </ul>
+      </div>
+      <br>
+      <div class="col-sm-9">
+        <div class="well">
+          {% block content %}{% endblock %}
+       </div>
+  <script src="{{ url_for('static', filename='jquery-3.2.1.slim.min.js') }}"></script>
+  {% if graphJSON %}
+	<script src="{{ url_for('static', filename='plotly-v1.58.5.min.js') }}"></script>
+	<script type='text/javascript'>
+		var graphs = {{graphJSON | safe}};
+		Plotly.plot('chart',graphs,{});
+	</script>
+	{% endif %}
+  </body>
+</html>

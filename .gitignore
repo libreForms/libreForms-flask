@@ -136,4 +136,3 @@ api_keys
 secret_key
 site_overrides.py
 secret_key
-*.sqlite
