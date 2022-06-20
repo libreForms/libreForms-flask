@@ -11,13 +11,15 @@ an open form manager API
     - [RHEL 8](#rhel-8)
     - [Ubuntu 20.04](#ubuntu-2004)
 3. [API](#api)
-4. [extensibility](#extensibility)
-5. [selectors](#selectors)
-6. [database](#database)
-7. [dashboards](#dashboards)
-8. [display overrides](#display-overrides)
-9. [dependencies](#dependencies)
-10. [copyright](#copyright)
+4. [RESTful API](#rest-api)
+5. [extensibility](#extensibility)
+6. [selectors](#selectors)
+7. [database](#database)
+8. [dashboards](#dashboards)
+9. [display overrides](#display-overrides)
+10. [authentication](#authentication)
+11. [dependencies](#dependencies)
+12. [copyright](#copyright)
 
 ## about
 
