@@ -1,4 +1,4 @@
-import functools
+import functools, re
 
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, session, url_for
@@ -8,6 +8,18 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from app.db import get_db
 from app import display
 
+
+def check_proper_regex(regex, msg):
+ 
+    # pass the regular expression
+    # and the string into the fullmatch() method
+    if(re.fullmatch(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', email)):
+        print("Valid Email")
+ 
+    else:
+        print("Invalid Email")
+
+
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
 @bp.route('/register', methods=('GET', 'POST'))
@@ -15,6 +27,10 @@ def register():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
+        email = request.form['email']
+        organization = request.form['organization']
+        phone = request.form['phone']
+
         db = get_db()
         error = None
 
@@ -22,6 +38,10 @@ def register():
             error = 'Username is required.'
         elif not password:
             error = 'Password is required.'
+        elif not re.fullmatch(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', email):
+            error = 'Invalid email.'
+        elif not re.fullmatch(r'^[a-z0-9]{3}-[a-z0-9]{3}-[a-z0-9]{4}$', phone):
+            error = 'Invalid phone number (xxx-xxx-xxxx).'
 
         if error is None:
             try:

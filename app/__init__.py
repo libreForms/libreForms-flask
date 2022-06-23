@@ -17,6 +17,7 @@ display['theme'] = "" # unused
 display['favicon'] = "" # unused
 display['image'] = "" # unused
 display['favicon'] = "default_favicon.ico" 
+display['default_org'] = "" 
 
 if os.path.exists ("site_overrides.py"):
     import site_overrides
