@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+Username: {{ g.user.username }}
+<br/>
+Email: {{ g.user.email }}
+<br/>
+Organization: {{ g.user.organization }}
+<br/>
+Phone: {{ g.user.phone }}
+<br/>
+Created: {{ g.user.created_date }}
+
+{% endblock %}

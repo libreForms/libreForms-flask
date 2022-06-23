@@ -120,3 +120,13 @@ def login_required(view):
         return view(**kwargs)
 
     return wrapped_view
+
+
+@bp.route('/profile')
+@login_required
+def profile():
+    return render_template('app/profile.html', 
+        type="profile",
+        name=display['site_name'],
+        display=display,
+    )
