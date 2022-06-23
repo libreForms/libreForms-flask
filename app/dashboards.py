@@ -32,7 +32,6 @@ def dashboards_home():
             homepage_msg="Select a dashboard from the left-hand menu.",
             name="Dashboard",
             type="dashboards.dashboards",
-            site_name=display['site_name'],        
             menu=[x for x in form_src.forms.keys()],
             display=display,
         ) 
@@ -49,7 +48,6 @@ def dashboards(form_name):
             msg="",
             name="404",
             type="dashboards.dashboards",
-            site_name=display['site_name'],
             menu=[x for x in form_src.forms.keys()],
             display=display,
         )
@@ -62,7 +60,6 @@ def dashboards(form_name):
             msg="No dashboard has been configured for this form.",
             name="404",
             type="dashboards.dashboards",
-            site_name=display['site_name'],
             menu=[x for x in form_src.forms.keys()],
             display=display,
         )
