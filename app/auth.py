@@ -1,4 +1,4 @@
-import functools, re
+import functools, re, datetime
 
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, session, url_for
@@ -30,6 +30,7 @@ def register():
         email = request.form['email']
         organization = request.form['organization']
         phone = request.form['phone']
+        created_date = datetime.datetime.today().strftime("%Y-%m-%d %H:%M:%S")
 
         db = get_db()
         error = None
@@ -46,8 +47,8 @@ def register():
         if error is None:
             try:
                 db.execute(
-                    "INSERT INTO user (username, password) VALUES (?, ?)",
-                    (username, generate_password_hash(password)),
+                    "INSERT INTO user (username, password, organization, created_date, phone, email) VALUES (?, ?, ?, ?, ?, ?)",
+                    (username, generate_password_hash(password), organization, created_date, phone, email),
                 )
                 db.commit()
             except db.IntegrityError:
