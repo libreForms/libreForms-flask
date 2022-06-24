@@ -13,7 +13,7 @@
 # import os
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
-import sphinx_rtd_theme
+import sphinx_rtd_theme, myst_parser
 
 
 # -- Project information -----------------------------------------------------
@@ -33,6 +33,7 @@ release = '0.1.0'
 # ones.
 extensions = [
     'sphinx_rtd_theme',
+    'myst_parser',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -55,3 +56,7 @@ html_theme = 'sphinx_rtd_theme'
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
+
+
+# adding support for markdown, per https://stackoverflow.com/a/33797841
+source_suffix = ['.rst', '.md']
