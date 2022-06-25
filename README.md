@@ -17,7 +17,7 @@ an open form manager API
 7. [database](#database)
 8. [dashboards](#dashboards)
 9. [display overrides](#display-overrides)
-10. [authentication](#authentication)
+10. [auth](#auth)
 11. [dependencies](#dependencies)
 12. [copyright](#copyright)
 
@@ -301,7 +301,7 @@ display = {
 }
 ```
 
-## authentication
+## auth
 
 By default, this application employs an sqlite user database. The default login credentials are 
 
@@ -309,6 +309,8 @@ By default, this application employs an sqlite user database. The default login 
 User: libreforms
 Pass: libreforms
 ```
+
+In addition to username and password fields, the application ships by default with phone number, organization, and email fields. These can be modified by changing the fields defined in app/schema.sql and app/auth.py. Currently, there is no group-based permission sets defined, but these will be added per https://github.com/signebedi/libreForms/issues/16.
 
 ## dependencies
 
