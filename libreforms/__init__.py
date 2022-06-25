@@ -81,8 +81,8 @@ forms = {
             }
         },
         "_allow_repeat": False, # defaults to False
-        "_allow_uploads": False, # defaults to False
-        "_allow_csv_templates": False, # defaults to False
+        "_allow_uploads": True, # defaults to False
+        "_allow_csv_templates": True, # defaults to False
         "_suppress_default_values": False, # defaults to False
     },
 }
