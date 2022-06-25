@@ -1,23 +1,16 @@
 {% extends 'base.html' %}
 
 {% block content %}
-
-<b>Username</b>: {{ g.user.username }}
-<br/>
-<b>Email</b>: {{ g.user.email }}
-<br/>
-<b>Organization</b>: {{ g.user.organization }}
-<br/>
-<b>Phone</b>: {{ g.user.phone }}
-<br/>
-<b>Created</b>: {{ g.user.created_date }}
-<br/>
-<b>Change Password</b>:
-<br/>
-Current: Placeholder
-<br/>
-New: Placeholder
-
+<table>
+<tr><td><b>Username</b>: {{ g.user.username }}</td></tr>
+<tr><td><b>Email</b>: {{ g.user.email }}</td></tr>
+<tr><td><b>Organization</b>: {{ g.user.organization }}</td></tr>
+<tr><td><b>Phone</b>: {{ g.user.phone }}</td></tr>
+<tr><td><b>Created</b>: {{ g.user.created_date }}</td></tr>
+<tr><td><b>Change Password</b>:</td></tr>
+<tr><td></td><td>Current: Placeholder</td></tr>
+<tr><td></td><td>New: Placeholder</td></tr>
+</table>
 
 
 {% endblock %}
