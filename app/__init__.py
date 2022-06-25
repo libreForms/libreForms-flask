@@ -20,10 +20,10 @@ display['image'] = "" # unused
 display['favicon'] = "default_favicon.ico" 
 display['default_org'] = "" 
 
-if os.path.exists ("site_overrides.py"):
-    import site_overrides
-    for config in site_overrides.display.keys():
-        display[config] = site_overrides.display[config]
+if os.path.exists ("app/site_overrides.py"):
+    import app.site_overrides
+    for config in app.site_overrides.display.keys():
+        display[config] = app.site_overrides.display[config]
 
 def create_app(test_config=None):
  

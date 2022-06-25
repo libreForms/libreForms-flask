@@ -1,8 +1,4 @@
-## installation
-
-In most cases, the following commands must be run with root privileges.
-
-### RHEL 8
+## Installation (RHEL 8)
 
 0. install dependencies
 
@@ -63,7 +59,7 @@ systemctl daemon-reload
 systemctl enable --now libreforms
 ```
 
-### Ubuntu 20.04
+### Installation (Ubuntu 20.04)
 
 0. install dependencies
 
