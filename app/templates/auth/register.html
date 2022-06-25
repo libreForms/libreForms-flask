@@ -20,4 +20,8 @@
     <input type="password" name="password" id="password" placeholder="Enter a password" required>
     <input type="submit" value="Register">
   </form>
+  {% if display.warning_banner %}
+  <br/><br/><br/><br/><br/><br/><hr/>
+  {{ display.warning_banner }}
+  {% endif %}
 {% endblock %}

@@ -88,13 +88,13 @@
 					<button class="button is-block is-info is-large is-fullwidth">Login</button>
 				</form>
 		    {% endif %}
-		    {% if homepage_msg %}
-			  {{ homepage_msg }}
+		    {% if display.homepage_msg %}
+			  {{ display.homepage_msg }}
 		    {% endif %}
-		    {% if warning_banner %}
-			  <br/><br/>
-			  {{ warning_banner }}
-		    {% endif %}
+			{% if display.warning_banner %}
+			<hr/>
+			{{ display.warning_banner }}
+			{% endif %}
 		    {% if form_not_found %}
 			    Form not found, go <a href="{{ url_for( 'forms.forms_home' ) }}">home</a>. {% if msg %}{{ msg }}{% endif %}
 		    {% endif %}
