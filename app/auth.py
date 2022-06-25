@@ -52,8 +52,9 @@ def register():
                 )
                 db.commit()
             except db.IntegrityError:
-                error = f"User {username} is already registered."
+                error = f"User is already registered with username \'{username}\' or email \'{email}\'."
             else:
+                flash(f'Successfully created user \'{username}\'.')
                 return redirect(url_for("auth.login"))
 
         flash(error)
@@ -84,6 +85,7 @@ def login():
         if error is None:
             session.clear()
             session['user_id'] = user['id']
+            flash(f'Successfully logged in user \'{username}\'.')
             return redirect(url_for('home'))
 
         flash(error)
