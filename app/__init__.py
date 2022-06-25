@@ -25,6 +25,11 @@ if os.path.exists ("app/site_overrides.py"):
     for config in app.site_overrides.display.keys():
         display[config] = app.site_overrides.display[config]
 
+
+# if application log path doesn't exist, make it
+if not os.path.exists ("log/"):
+    os.mkdir('log/')
+
 def create_app(test_config=None):
  
     # create and configure the app
