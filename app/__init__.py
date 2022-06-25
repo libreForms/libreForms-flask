@@ -55,8 +55,7 @@ def create_app(test_config=None):
     @app.route('/')
     def home():
         return render_template('app/index.html', 
-            homepage_msg=display['homepage_msg'],
-            warning_banner=display['warning_banner'],
+            homepage=True,
             site_name=display['site_name'],
             type="home",
             name=display['site_name'],
