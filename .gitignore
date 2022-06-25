@@ -137,3 +137,4 @@ secret_key
 site_overrides.py
 secret_key
 log/*
+app/static/tmp/*
