@@ -1,16 +1,22 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<h4>Profile</h4>
 <table>
 <tr><td><b>Username</b>: {{ g.user.username }}</td></tr>
 <tr><td><b>Email</b>: {{ g.user.email }}</td></tr>
 <tr><td><b>Organization</b>: {{ g.user.organization }}</td></tr>
 <tr><td><b>Phone</b>: {{ g.user.phone }}</td></tr>
 <tr><td><b>Created</b>: {{ g.user.created_date }}</td></tr>
-<tr><td><b>Change Password</b>:</td></tr>
-<tr><td></td><td>Current: Placeholder</td></tr>
-<tr><td></td><td>New: Placeholder</td></tr>
 </table>
-
+<hr/>
+<h4>Change Password</h4>
+<form method="post">
+<label for="current_password">Current Password</label>
+<input type="password" name="current_password" id="current_password" placeholder="Enter current password" required>
+<label for="new_password">New Password</label>
+<input type="password" name="new_password" id="new_password" placeholder="Enter new password" required>
+<input type="submit" value="Update">
+</form>
 
 {% endblock %}

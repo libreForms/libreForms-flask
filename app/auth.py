@@ -122,9 +122,41 @@ def login_required(view):
     return wrapped_view
 
 
-@bp.route('/profile')
+@bp.route('/profile', methods=('GET', 'POST'))
 @login_required
 def profile():
+
+    if request.method == 'POST':
+        user_id = session.get('user_id')
+        new_password = request.form['new_password']
+        current_password = request.form['current_password']
+        db = get_db()
+        error = None
+        user = db.execute(
+            'SELECT * FROM user WHERE id = ?', (user_id,)
+        ).fetchone()
+    
+        if user is None:
+            error = 'User does not exist.'
+        elif not check_password_hash(user['password'], current_password):
+            error = 'Incorrect password.'
+
+        if error is None:
+
+            try:
+                db.execute(
+                    "UPDATE user SET password=? WHERE id=?",
+                    (generate_password_hash(new_password), user_id),
+                )
+                db.commit()
+                flash("Successfully changed password")
+                return redirect(url_for('auth.profile'))
+            except db.IntegrityError:
+                error = f"There was an error in processing your request."
+            
+        flash(error)
+
+
     return render_template('app/profile.html', 
         type="profile",
         name=display['site_name'],
