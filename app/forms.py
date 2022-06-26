@@ -69,6 +69,35 @@ def parse_form_fields(form=False):
 
     return FORM_ARGS
 
+
+def reconcile_form_data_struct(form=False):
+
+    # this function expencts a progagate_forms() object to be passed as
+    # the form arg, as in `form = progagate_forms(form=form)``
+
+    for field in form.keys():
+
+        if form[field].input_field['type'] in ['radio','checkbox']:
+            if form[field].output_data['type'] in ['str', 'int', 'float']:
+                return len(form[field].output_data['content'])
+            elif form[field].output_data['type'] in ['list']:
+                return len(form[field].output_data['content'])
+
+        # here I opt to explicitly state the allowed other input data types
+        # because I want the system to break when we add other data types 
+        # for now; the API is still unstable, and I would prefer to have
+        # hard checks in place to ensure predictable behavior
+        elif form[field].input_field['type'] in ['text', 'password', 'date', 'hidden', 'number']: 
+            if form[field].output_data['type'] in ['str', 'int', 'float']:
+                return len(form[field].output_data['content'])
+            elif form[field].output_data['type'] in ['list']:
+                return len(form[field].output_data['content'])
+
+        # also: what do we do about 'file' input/output types?
+
+    return None
+
+
 # this function creates a list of the form fields 
 # we want to pass to the web application
 def progagate_forms(form=False):
