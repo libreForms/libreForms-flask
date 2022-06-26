@@ -70,32 +70,38 @@ def parse_form_fields(form=False):
     return FORM_ARGS
 
 
+# this is probably over-engineering and can be merged into other functions
+# in the future. In short, it takes a progagate_forms() object and returns
+# a by-field breakdown of how the data should be treated when collected and
+# then when parsed (eg. take many inputs, parse as many outputs)
 def reconcile_form_data_struct(form=False):
 
     # this function expencts a progagate_forms() object to be passed as
     # the form arg, as in `form = progagate_forms(form=form)``
 
+    MATCH = {}
+
     for field in form.keys():
 
-        if form[field].input_field['type'] in ['radio','checkbox']:
-            if form[field].output_data['type'] in ['str', 'int', 'float']:
-                return len(form[field].output_data['content'])
-            elif form[field].output_data['type'] in ['list']:
-                return len(form[field].output_data['content'])
+        if form[field]['input_field']['type'] in ['radio','checkbox']:
+            if form[field]['output_data']['type'] in ['str', 'int', 'float']:
+                MATCH[field] = {'many-to-one':len(form[field]['input_field']['content'])}
+            elif form[field]['output_data']['type'] in ['list']:
+                MATCH[field] = {'many-to-many':len(form[field]['input_field']['content'])}
 
         # here I opt to explicitly state the allowed other input data types
         # because I want the system to break when we add other data types 
         # for now; the API is still unstable, and I would prefer to have
         # hard checks in place to ensure predictable behavior
-        elif form[field].input_field['type'] in ['text', 'password', 'date', 'hidden', 'number']: 
-            if form[field].output_data['type'] in ['str', 'int', 'float']:
-                return len(form[field].output_data['content'])
-            elif form[field].output_data['type'] in ['list']:
-                return len(form[field].output_data['content'])
+        elif form[field]['input_field']['type'] in ['text', 'password', 'date', 'hidden', 'number']: 
+            if form[field]['output_data']['type'] in ['str', 'int', 'float']:
+                MATCH[field] = {'one-to-one':len(form[field]['input_field']['content'])}
+            elif form[field]['output_data']['type'] in ['list']:
+                MATCH[field] = {'one-to-many':len(form[field]['input_field']['content'])}
 
         # also: what do we do about 'file' input/output types?
 
-    return None
+    return MATCH
 
 
 # this function creates a list of the form fields 
