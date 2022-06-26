@@ -1,15 +1,16 @@
+# import flask-related packages
 from flask import Flask, Blueprint, g, flash, render_template, url_for, request, redirect, jsonify, session
-import os, re, datetime, json, functools
-import plotly
-import plotly.express as px
-import pandas as pd
-import libreforms as form_src
-import mongodb
-from webargs import fields, flaskparser, ValidationError
-from pymongo import MongoClient
-from app.db import get_db
-from app.auth import login_required
+from webargs import fields, flaskparser
+
+# import custom packages from the current repository
+import libreforms, mongodb
 from app import display
+from app.auth import login_required
+
+# and finally, import other packages
+import os
+import pandas as pd
+
 
 def init_tmp_fs():
 # if application tmp/ path doesn't exist, make it
@@ -38,34 +39,34 @@ def parse_form_fields(form=False):
 
     FORM_ARGS = {}           
 
-    for field in form_src.forms[form].keys():
+    for field in libreforms.forms[form].keys():
 
         if field.startswith("_"):
             pass
-        elif form_src.forms[form][field]['output_data']['type'] == "str":
+        elif libreforms.forms[form][field]['output_data']['type'] == "str":
             FORM_ARGS[field] = fields.Str(
-                        required=form_src.forms[form][field]['output_data']['required'],
-                        validators=form_src.forms[form][field]['output_data']['validators'],)
-        elif form_src.forms[form][field]['output_data']['type'] == "float":
+                        required=libreforms.forms[form][field]['output_data']['required'],
+                        validators=libreforms.forms[form][field]['output_data']['validators'],)
+        elif libreforms.forms[form][field]['output_data']['type'] == "float":
             FORM_ARGS[field] = fields.Float(
-                        required=form_src.forms[form][field]['output_data']['required'],
-                        validators=form_src.forms[form][field]['output_data']['validators'],)
-        elif form_src.forms[form][field]['output_data']['type'] == "list":
+                        required=libreforms.forms[form][field]['output_data']['required'],
+                        validators=libreforms.forms[form][field]['output_data']['validators'],)
+        elif libreforms.forms[form][field]['output_data']['type'] == "list":
             FORM_ARGS[field] = fields.List(fields.String(),
-                        required=form_src.forms[form][field]['output_data']['required'],
-                        validators=form_src.forms[form][field]['output_data']['validators'],)
-        elif form_src.forms[form][field]['output_data']['type'] == "int":
+                        required=libreforms.forms[form][field]['output_data']['required'],
+                        validators=libreforms.forms[form][field]['output_data']['validators'],)
+        elif libreforms.forms[form][field]['output_data']['type'] == "int":
             FORM_ARGS[field] = fields.Int(
-                        required=form_src.forms[form][field]['output_data']['required'],
-                        validators=form_src.forms[form][field]['output_data']['validators'],)
-        elif form_src.forms[form][field]['output_data']['type'] == "date":
+                        required=libreforms.forms[form][field]['output_data']['required'],
+                        validators=libreforms.forms[form][field]['output_data']['validators'],)
+        elif libreforms.forms[form][field]['output_data']['type'] == "date":
             FORM_ARGS[field] = fields.Str(
-                        required=form_src.forms[form][field]['output_data']['required'],
-                        validators=form_src.forms[form][field]['output_data']['validators'],)
+                        required=libreforms.forms[form][field]['output_data']['required'],
+                        validators=libreforms.forms[form][field]['output_data']['validators'],)
         else:
             FORM_ARGS[field] = fields.Str(
-                        required=form_src.forms[form][field]['output_data']['required'],
-                        validators=form_src.forms[form][field]['output_data']['validators'],)
+                        required=libreforms.forms[form][field]['output_data']['required'],
+                        validators=libreforms.forms[form][field]['output_data']['validators'],)
 
     return FORM_ARGS
 
@@ -108,7 +109,7 @@ def reconcile_form_data_struct(form=False):
 # we want to pass to the web application
 def progagate_forms(form=False):
         
-    list_fields = form_src.forms[form]
+    list_fields = libreforms.forms[form]
 
     # here we drop the meta data fields    
     [list_fields.pop(field) for field in list(list_fields.keys()) if field.startswith("_")]
@@ -119,7 +120,7 @@ def progagate_forms(form=False):
 def parse_options(form=False):
     
     # we start by reading the user defined forms into memory
-    list_fields = form_src.forms[form]
+    list_fields = libreforms.forms[form]
 
     # we define the default values for application-defined options
     OPTIONS = {
@@ -151,7 +152,7 @@ mongodb = mongodb.MongoDB(mongodb_pw)
 
 # set up form handling
 init_tmp_fs()
-for form in form_src.forms.keys():
+for form in libreforms.forms.keys():
     generate_csv_templates(form)
 
 
@@ -161,10 +162,10 @@ bp = Blueprint('forms', __name__, url_prefix='/forms')
 @login_required
 def forms_home():
     return render_template('app/index.html', 
-            homepage_msg="Select a form from the left-hand menu.",
+            msg="Select a form from the left-hand menu.",
             name="Form",
             type="forms.forms",
-            menu=[x for x in form_src.forms.keys()],
+            menu=[x for x in libreforms.forms.keys()],
             display=display,
         ) 
         
@@ -185,7 +186,7 @@ def forms(form_name):
         return render_template('app/index.html', 
             context=forms,                                          # this passes the form fields as the primary 'context' variable
             name=form_name,                                         # this sets the name of the page for the page header
-            menu=[x for x in form_src.forms.keys()],                # this returns the forms in libreform/forms to display in the lefthand menu
+            menu=[x for x in libreforms.forms.keys()],                # this returns the forms in libreform/forms to display in the lefthand menu
             type="forms.forms",       
             options=parse_options(form=form_name),                      # here we pass the _options defined in libreforms/forms/__init__.py
             display=display,
@@ -197,6 +198,6 @@ def forms(form_name):
             msg=e,
             name="404",
             type="forms.forms",
-            menu=[x for x in form_src.forms.keys()],
+            menu=[x for x in libreforms.forms.keys()],
             display=display,
         )

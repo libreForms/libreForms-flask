@@ -61,6 +61,7 @@ def register():
 
     return render_template('auth/register.html',
         site_name=display['site_name'],
+        display_warning_banner=True,
         name="Register",
         display=display,)
 
@@ -93,6 +94,7 @@ def login():
     return render_template('auth/login.html',
             site_name=display['site_name'],
             name="Login",
+            display_warning_banner=True,   
             display=display,)
 
 @bp.before_app_request

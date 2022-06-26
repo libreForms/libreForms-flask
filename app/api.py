@@ -1,12 +1,15 @@
-from flask import Flask, Blueprint, g, flash, render_template, url_for, request, redirect, jsonify, session
-import os
-import pandas as pd
-import libreforms as form_src
+# import flask-related packages
+from flask import Blueprint, request
+
+# import custom packages from the current repository
 import mongodb
-from pymongo import MongoClient
 from app.db import get_db
 from app.auth import login_required
 from app.forms import display, parse_form_fields, progagate_forms, parse_options
+
+# and finally, import other packages
+import os
+import pandas as pd
 
 
 # read database password file, if it exists

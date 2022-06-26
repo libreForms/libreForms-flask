@@ -64,6 +64,7 @@ def create_app(test_config=None):
             site_name=display['site_name'],
             type="home",
             name=display['site_name'],
+            display_warning_banner=True,
             display=display,
         )
 

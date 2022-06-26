@@ -1,16 +1,16 @@
-from flask import Flask, Blueprint, g, flash, render_template, url_for, request, redirect, jsonify, session
-import os, re, datetime, json, functools
-import plotly
-import plotly.express as px
-import pandas as pd
-import libreforms as form_src
+# import flask-related packages
+from flask import Blueprint, render_template, request
+
+# import custom packages from the current repository
+import libreforms as libreforms
 import mongodb
-from webargs import fields, flaskparser, ValidationError
-from pymongo import MongoClient
-from app.db import get_db
 from app.auth import login_required
-from app.forms import parse_form_fields, progagate_forms, parse_options
+from app.forms import parse_options
 from app import display
+
+# and finally, import other packages
+import os
+import pandas as pd
 
 
 # read database password file, if it exists
@@ -32,10 +32,10 @@ bp = Blueprint('tables', __name__, url_prefix='/tables')
 @login_required
 def tables_home():
     return render_template('app/index.html', 
-            homepage_msg="Select a table from the left-hand menu.",
+            msg="Select a table from the left-hand menu.",
             name="Table",
             type="tables.table",
-            menu=[x for x in form_src.forms.keys()],
+            menu=[x for x in libreforms.forms.keys()],
             display=display,
         ) 
 
@@ -69,6 +69,6 @@ def table(form_name):
         name=form_name,
         is_table=True,
         options=parse_options(form=form_name),
-        menu=[x for x in form_src.forms.keys()],
+        menu=[x for x in libreforms.forms.keys()],
         display=display,
     )

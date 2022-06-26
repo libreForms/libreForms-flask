@@ -1,16 +1,20 @@
-from flask import Flask, Blueprint, g, flash, render_template, url_for, request, redirect, jsonify, session
-import os, re, datetime, json, functools
+# import flask-related packages
+from flask import Blueprint, render_template, request
+
+# import custom packages from the current repository
+import libreforms as libreforms
+import mongodb
+from app.auth import login_required
+from app.forms import parse_options
+from app import display
+
+# and finally, import other packages
+import os, json
 import plotly
 import plotly.express as px
 import pandas as pd
-import libreforms as form_src
-import mongodb
-from webargs import fields, flaskparser, ValidationError
-from pymongo import MongoClient
-from app.db import get_db
-from app.auth import login_required
-from app.forms import parse_form_fields, progagate_forms, parse_options
-from app import display
+
+
 
 # read database password file, if it exists
 if os.path.exists ("mongodb_pw"):
@@ -29,10 +33,10 @@ bp = Blueprint('dashboards', __name__, url_prefix='/dashboards')
 @login_required
 def dashboards_home():
     return render_template('app/index.html', 
-            homepage_msg="Select a dashboard from the left-hand menu.",
+            msg="Select a dashboard from the left-hand menu.",
             name="Dashboard",
             type="dashboards.dashboards",
-            menu=[x for x in form_src.forms.keys()],
+            menu=[x for x in libreforms.forms.keys()],
             display=display,
         ) 
 
@@ -42,13 +46,13 @@ def dashboards_home():
 @login_required
 def dashboards(form_name):
 
-    if form_name not in form_src.forms.keys():
+    if form_name not in libreforms.forms.keys():
         return render_template('app/index.html', 
             form_not_found=True,
             msg="",
             name="404",
             type="dashboards.dashboards",
-            menu=[x for x in form_src.forms.keys()],
+            menu=[x for x in libreforms.forms.keys()],
             display=display,
         )
 
@@ -60,14 +64,14 @@ def dashboards(form_name):
             msg="No dashboard has been configured for this form.",
             name="404",
             type="dashboards.dashboards",
-            menu=[x for x in form_src.forms.keys()],
+            menu=[x for x in libreforms.forms.keys()],
             display=display,
         )
 
     
     data = mongodb.read_documents_from_collection(form_name)
     df = pd.DataFrame(list(data))
-    ref = form_src.forms[form_name]["_dashboard"]['fields']
+    ref = libreforms.forms[form_name]["_dashboard"]['fields']
 
     # here we allow the user to specify the field they want to use, 
     # overriding the default y-axis field defined in libreforms/forms.
@@ -87,7 +91,7 @@ def dashboards(form_name):
         name=form_name,
         type="dashboards.dashboards",
         site_name=display['site_name'],
-        menu=[x for x in form_src.forms.keys()],
+        menu=[x for x in libreforms.forms.keys()],
         options=parse_options(form=form_name),
         display=display,
     )
