@@ -9,17 +9,6 @@ from app.db import get_db
 from app import display, log
 
 
-def check_proper_regex(regex, msg):
- 
-    # pass the regular expression
-    # and the string into the fullmatch() method
-    if(re.fullmatch(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', email)):
-        print("Valid Email")
- 
-    else:
-        print("Invalid Email")
-
-
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
 @bp.route('/register', methods=('GET', 'POST'))
@@ -51,8 +40,10 @@ def register():
                     (username, generate_password_hash(password), organization, created_date, phone, email),
                 )
                 db.commit()
+                log.info(f'registered new user {username} with email {email}.')
             except db.IntegrityError:
                 error = f"User is already registered with username \'{username}\' or email \'{email}\'."
+                log.error(f'failed to register new user {username} with email {email}.')
             else:
                 flash(f'Successfully created user \'{username}\'.')
                 return redirect(url_for("auth.login"))
@@ -81,12 +72,14 @@ def login():
         if user is None:
             error = 'Incorrect username.'
         elif not check_password_hash(user['password'], password):
+            # log.info(f'password failure when logging in user {username}.')
             error = 'Incorrect password.'
 
         if error is None:
             session.clear()
             session['user_id'] = user['id']
             flash(f'Successfully logged in user \'{username}\'.')
+            log.info(f'successfully logged in user {username}.')
             return redirect(url_for('home'))
 
         flash(error)
@@ -154,6 +147,7 @@ def profile():
                 )
                 db.commit()
                 flash("Successfully changed password")
+                # log.info(f'successfully changed password for user {session.get("username")}.')
                 return redirect(url_for('auth.profile'))
             except db.IntegrityError:
                 error = f"There was an error in processing your request."

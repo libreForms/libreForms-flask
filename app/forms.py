@@ -5,7 +5,7 @@ from webargs import fields, flaskparser
 # import custom packages from the current repository
 import libreforms, mongodb
 from app import display, log
-from app.auth import login_required
+from app.auth import login_required, session
 
 
 # and finally, import other packages
@@ -183,6 +183,7 @@ def forms(form_name):
             parsed_args = flaskparser.parser.parse(parse_form_fields(form_name), request, location="form")
             mongodb.write_document_to_collection(parsed_args, form_name, reporter=g.user['username'])
             flash(str(parsed_args))
+            # log.info(f'User {session.get["username"]} submitted form {form_name}.')
 
         return render_template('app/index.html', 
             context=forms,                                          # this passes the form fields as the primary 'context' variable

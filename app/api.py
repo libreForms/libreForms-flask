@@ -61,6 +61,7 @@ def api(form_name, api_key):
                     # prevent type-mismatch by casting both fields as strings
                     df = df.loc[df[col].astype("string") == str(request.args.get(col))] 
 
+            log.info(f'REST API query by {api_key} for form {form_name}.')
             return df.to_dict()
 
         except Exception as e:
