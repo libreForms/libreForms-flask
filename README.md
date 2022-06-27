@@ -31,7 +31,7 @@ Liberate your forms with libreForms, an open form manager API that's intended to
 
 - You are a medium-sized enterprise that wants a simple, low-cost tool to manage their internal forms. You don't mind self-hosting the application, and you have staff with rudimentary experience using Python to deploy and maintain the system.
 
-- You are a large enterprise with significant technical staff that routinely host and maintain applications for use on your organization's intranet. You have assessed options for form managers on the market and determined that proprietary services provide little direct control over the application source code, or otherwise fail to provide a viable licensing model.
+- You are a large enterprise with significant technical staff that routinely host and maintain applications for use on your organization's intranet. You periodically rely on physical or digitized forms, reports, and questionnaires. You have assessed options for form managers on the market and determined that proprietary services provide little direct control over the application source code, or otherwise fail to provide a viable licensing model.
 
 ### features
 - a form-building abstraction layer based on Python dictionaries

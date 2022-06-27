@@ -53,7 +53,7 @@
 			{{ display.warning_banner }}
 			{% endif %}
 		    {% if form_not_found %}
-			    Form not found, go <a href="{{ url_for( 'home' ) }}">home</a>. {% if msg %}{{ msg }}{% endif %}
+			    Page not found, go <a href="{{ url_for( 'home' ) }}">home</a>.
 		    {% endif %}
 	    	{% if graphJSON %}
 			  <div id='chart' class='chart'”></div>

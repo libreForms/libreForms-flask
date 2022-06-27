@@ -2,7 +2,7 @@
 import os
 from flask import Flask, render_template
 import app.log_functions
-
+from flask_admin import Admin
 
 # if application log path doesn't exist, make it
 if not os.path.exists ("log/"):
@@ -44,7 +44,13 @@ def create_app(test_config=None):
     app.config.from_mapping(
         SECRET_KEY='dev',
         DATABASE=os.path.join(app.instance_path, 'app.sqlite'),
+        FLASK_ADMIN_SWATCH='darkly',
     )
+
+
+    admin = Admin(app, name='libreForms', template_mode='bootstrap4')
+    # Add administrative views here
+
 
     if os.path.exists ("secret_key"):
         with open("secret_key", "r+") as f:
