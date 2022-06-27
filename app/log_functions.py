@@ -51,7 +51,8 @@ def set_logger(file_path, module, log_level=logging.INFO):
         ],
         level=log_level,
         format="%(asctime)s -  %(levelname)s - %(message)s",
-        datefmt='%Y-%m-%dT%H:%M:%S')
+        # datefmt='%Y-%m-%dT%H:%M:%S',
+        )
 
     # we return the logging object
     return log
