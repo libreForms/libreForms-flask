@@ -56,9 +56,3 @@ def set_logger(file_path, module, log_level=logging.INFO):
 
     # we return the logging object
     return log
-
-
-
-
-def clean_log():
-    pass
