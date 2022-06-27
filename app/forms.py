@@ -1,12 +1,13 @@
 # import flask-related packages
-from flask import Blueprint, g, flash, render_template, request
+from cmath import e
+from fileinput import filename
+from flask import Blueprint, g, flash, render_template, request, send_from_directory
 from webargs import fields, flaskparser
 
 # import custom packages from the current repository
 import libreforms, mongodb
 from app import display, log
 from app.auth import login_required, session
-
 
 # and finally, import other packages
 import os
@@ -18,6 +19,7 @@ def init_tmp_fs():
     if  os.path.exists ("app/static/tmp/"):
         os.system("rm -rf app/static/tmp/")
     os.mkdir('app/static/tmp/')    
+    log.info('created static/tmp directory.')
 
 
 def generate_csv_templates(form=None):
@@ -29,6 +31,7 @@ def generate_csv_templates(form=None):
             # placeholder for nesting
             # placeholder for repetition
             df.to_csv(f'app/static/tmp/{form.lower().replace(" ","")}.csv', index=False)
+            log.info(f'created app/static/tmp/{form.lower().replace(" ","")}.csv.')
     else:
         pass
 
@@ -109,17 +112,22 @@ def reconcile_form_data_struct(form=False):
 # this function creates a list of the form fields 
 # we want to pass to the web application
 def progagate_forms(form=False):
-        
+    
     list_fields = libreforms.forms[form]
 
-    # here we drop the meta data fields    
-    [list_fields.pop(field) for field in list(list_fields.keys()) if field.startswith("_")]
-    
-    return list_fields
+    VALUES = {}
 
-# placeholder, will be used to parse options for a given form
-def parse_options(form=False):
+    # here we drop the meta data fields   
     
+    for field in list_fields.keys():
+        if not field.startswith("_"): 
+            VALUES[field] = list_fields[field]
+    
+    return VALUES
+
+# will be used to parse options for a given form
+def parse_options(form=False):
+        
     # we start by reading the user defined forms into memory
     list_fields = libreforms.forms[form]
 
@@ -139,7 +147,6 @@ def parse_options(form=False):
             OPTIONS[field] = list_fields[field]
     
     return OPTIONS
-
 
 # read database password file, if it exists
 if os.path.exists ("mongodb_pw"):
@@ -177,6 +184,7 @@ def forms_home():
 def forms(form_name):
 
     try:
+        options = parse_options(form_name)
         forms = progagate_forms(form_name)
 
         if request.method == 'POST':
@@ -188,10 +196,11 @@ def forms(form_name):
         return render_template('app/index.html', 
             context=forms,                                          # this passes the form fields as the primary 'context' variable
             name=form_name,                                         # this sets the name of the page for the page header
-            menu=[x for x in libreforms.forms.keys()],                # this returns the forms in libreform/forms to display in the lefthand menu
+            menu=[x for x in libreforms.forms.keys()],              # this returns the forms in libreform/forms to display in the lefthand menu
             type="forms.forms",       
-            options=parse_options(form=form_name),                      # here we pass the _options defined in libreforms/forms/__init__.py
+            options=options, 
             display=display,
+            filename = f'{form_name.lower().replace(" ","")}.csv' if options['_allow_csv_templates'] else False
             )
 
     except Exception as e:
@@ -203,3 +212,9 @@ def forms(form_name):
             menu=[x for x in libreforms.forms.keys()],
             display=display,
         )
+
+# this is the download link for files in the static/tmp directory
+@bp.route('/download/<path:filename>')
+def download_file(filename):
+    return send_from_directory('static/tmp',
+                               filename, as_attachment=True)

@@ -2,7 +2,7 @@
 from flask import Blueprint, render_template, request
 
 # import custom packages from the current repository
-import libreforms as libreforms
+import libreforms
 import mongodb
 from app.auth import login_required
 from app.forms import parse_options

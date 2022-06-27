@@ -24,12 +24,25 @@
 				</tr>
 				{% endif %}
 				{% endfor %}
-
-				<tr><td><input type=submit value=Submit></td></tr>
+				<tr><td><input type=submit value="Submit"></td></tr>
 			  </table>
 			</form>
 			{% endif %}
-		    {% if homepage %}
+
+
+			{% if filename %}
+			<br/>
+			<table>
+			  <tr><td>
+				<a href="{{ url_for('forms.download_file', filename = filename) }}">download a CSV template of this form</a>
+				<!-- <form action="{{ url_for('forms.download_file', filename = filename) }}">
+					<input type=submit value="Template">
+				</form> -->
+			  </td></tr>
+			</table>
+		    {% endif %}
+
+			{% if homepage %}
 			  {{ display.homepage_msg }}
 		    {% endif %}
 		    {% if msg %}
