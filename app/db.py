@@ -3,6 +3,7 @@ import sqlite3
 import click
 from flask import current_app, g
 from flask.cli import with_appcontext
+from app import display, log
 
 
 def get_db():

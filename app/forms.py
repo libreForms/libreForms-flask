@@ -1,11 +1,12 @@
 # import flask-related packages
-from flask import Flask, Blueprint, g, flash, render_template, url_for, request, redirect, jsonify, session
+from flask import Blueprint, g, flash, render_template, request
 from webargs import fields, flaskparser
 
 # import custom packages from the current repository
 import libreforms, mongodb
-from app import display
+from app import display, log
 from app.auth import login_required
+
 
 # and finally, import other packages
 import os

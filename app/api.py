@@ -3,9 +3,9 @@ from flask import Blueprint, request
 
 # import custom packages from the current repository
 import mongodb
-from app.db import get_db
 from app.auth import login_required
-from app.forms import display, parse_form_fields, progagate_forms, parse_options
+from app.forms import parse_form_fields, progagate_forms, parse_options
+from app import display, log
 
 # and finally, import other packages
 import os

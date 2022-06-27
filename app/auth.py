@@ -6,7 +6,7 @@ from flask import (
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from app.db import get_db
-from app import display
+from app import display, log
 
 
 def check_proper_regex(regex, msg):
