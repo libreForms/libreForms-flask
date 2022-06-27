@@ -1,6 +1,6 @@
 import os, logging, logging.handlers
 
-# we append the PID to the logfile, eee https://stackoverflow.com/a/48019592
+# we append the PID to the logfile 
 class PIDFileHandler(logging.handlers.WatchedFileHandler):
 
     def __init__(self, filename, mode='a', encoding=None, delay=0):
@@ -35,8 +35,13 @@ def set_logger(file_path, module, log_level=logging.INFO):
     # set log level as directed by end user
     log.setLevel(level=log_level)
 
+    # add the concurrency file handlers
     fh = PIDFileHandler(file_path)
     log.addHandler(fh)
+
+    # set a log rotator the will create up to 10 log files of 10mb (max size) each
+    rotation_handler = logging.handlers.RotatingFileHandler(file_path, mode='a', maxBytes=10*1024*1024, backupCount=10)
+    log.addHandler(rotation_handler)
 
     # we return the logging object
     return log
