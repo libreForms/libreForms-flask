@@ -31,7 +31,8 @@ Liberate your forms with libreForms, an open form manager API written in Python 
 - a flask web application (http://x.x.x.x:8000/) that will work well behind most standard reverse-proxies 
 - plotly dashboards for data visualization
 - a document-oriented database to store form data 
-- \[future\] local and SAML authentication options
+- basic local authentication
+- \[future\] SAML authentication support
 - \[future\] support for lookups in form fields & routing lists for form review, approvals, and notifications
 
 ## Installation
@@ -163,95 +164,22 @@ systemctl restart libreforms
 
 ## Abstraction Layer
 
-The purpose of the libreForms project is to provide a simple but highly extensible method of form building in Python, leveraging Flask's doctrine of 'simplicity and extensibility' to give significant control and flexibility to organizations to design forms and data that meet their needs. 
+libreForms provides a simple but highly extensible method of form building in Python, leveraging Flask's doctrine of 'simplicity and extensibility' to give significant control and flexibility to organizations to design forms and data that meet their needs. To accomplish this, the application is built on an abstraction layer that stores all the information needed to generate a browser-based form and parse form data into a cohesive data structure.
 
-The application provides an API for storing all the information it needs to generate a browser-based form within a Python dictionary. Given the project's emphasis on supporting arbitrary data structures, it translates these form fields into data structures intended to be stored in a JSON-like Document database like MongoDB, which it supports out-of-the-box, and creates a separate collection for each unique form with the presumption that the documents contained therein will adhere to a data structure that contains some set of common fields upon which data may be collated.
+The libreForms abstraction layer is defined in ```libreforms/forms/__init__.py``` and expects organizations to overwrite the default form by adding a file called ```libreforms/add_ons.py```. At this time, the abstraction layer can handle the "text", "password", "radio", "checkbox", "date", "hidden", and "number" input types, and can write to Python's str, float, int, and list data types. 
 
-libreForms defines a robust abstraction layer (the config file for which is located at ```libreforms/forms/__init__.py```, which can be overwritten and/or extended by adding a file called ```libreforms/forms/add_ons.py```) between (1) the types of form fields that are used to collect user data and (2) the data type that the content of these form fields take, once submitted by the user, and (3) the underlying data structure of form responses, which the system stores in a JSON-like database well suited to integration with useful data science tools like pandas, as well as visualization libraries like plotly. Specifically, this API supports the following types of HTML form fields:
+The abstraction layer breaks down individual forms into fields and configurations. A field must have a unique name, which must employ underscores instead of spaces ("My Form Field" would not work, but "My_Form_Field" is a correct field name). Configuration names are preceded by an underscore (eg. "_dashboard" or "_allow_repeats") and allow form administrators to define unique form behavior. All built in configurations default to a value of False.
 
-- "text"
-- "password"
-- "radio"
-- "checkbox"
-- "date"
-- "hidden"
-- "number"
-- "file"
+## Database
 
-as well as the following output data types:
-
-- str
-- float
-- int
-- list
-
-The “input_field” key refers only to the structure of the markup field that will be used to collect the data; all the information regarding the typing and validation of the data exists in the “output_data” key. for each form, optional, non-form-field data is defined with an underscore (_) preceding the key name, like _allow_repeats. All of these are optional fields and default to a value of False.
-
-Here is an example form “sample-form” with all the allowed form fields given as examples:
-
-```python
-# libreforms/forms/__init__.py: the source for form field data in the libreForms application.
-import datetime
- 
-forms = {
-"sample-form": {
-    "Text_Field": {
-        "input_field": {"type": "text", "content": ["NA"]},
-        "output_data": {"type": "str", "validators": [lambda p: len(p) >= 6]},
-       },
-    "Pass_Field": {
-        "input_field": {"type": "password", "content": [""]},
-        "output_data": {"type": "str", "validators": []},
-       },
-    "Radio_Field": {
-        "input_field": {"type": "radio", "content": ["Pick", "An", "Option"]},
-        "output_data": {"type": "str", "validators": []},
-       },
-    "Check_Field": {
-        "input_field": {"type": "checkbox", "content": ["Pick", "An", "Option"]},
-        "output_data": {"type": "list", "validators": []},
-       },
-    "Date_Field": {
-        "input_field": {"type": "date", "content": [datetime.datetime.today().strftime("%Y-%m-%d")]},
-           # "input_field": {"type": "date", "content": []},
-        "output_data": {"type": "date", "validators": []},
-       },
-    "Hidden_Field": {
-        "input_field": {"type": "hidden", "content": ["This field is hidden"]},
-        "output_data": {"type": "str", "validators": []},
-       },
-    "Float_Field": {
-        "input_field": {"type": "number", "content": [0]},
-        "output_data": {"type": "float", "validators": []},
-       },
-    "Int_Field": {
-        "input_field": {"type": "number", "content": [0]},
-        "output_data": {"type": "int", "validators": []},
-       },
-#      "File_Field": {
-#          "input_field": {"type": "file", "content": [None]}, # still need to review https://flask.palletsprojects.com/en/2.1.x/patterns/fileuploads/
-#          "output_data": {"type": TBD, "validators": []},
-#         },
-    "_dashboard": {             # defaults to False
-        "type": "scatter",      # this is a highly powerful feature but requires
-        "fields": {             # some knowledge of plotly dashboards; currently
-            "x": "Timestamp",   # only line charts with limited features supported
-            "y": "Num_Field",
-            "color": "Text_Field"
-           }
-       },
-    "_allow_repeat": False, # defaults to False
-    "_allow_uploads": False, # defaults to False
-    "_allow_csv_templates": False, # defaults to False
-   },
-}
-```
-
-The application presumes that authentication is set in place & adds the following to each database write:
+When data is written from the web application to the database backend, it appends the following fields:
 
     - _id: unique id for each db write
     - Reporter: the username of the reporting user
     - Timestamp: the timestamp that the form was submitted
+
+If you elect to password protect your database, which is recommended, you should drop a file in the application home directory named ```mongodb_pw``` and ensure that the ```libreforms``` user has read access to this file.
+
 
 ## Dependencies
 

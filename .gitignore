@@ -135,6 +135,6 @@ add_ons.py
 api_keys
 secret_key
 site_overrides.py
-secret_key
+mongodb_pw
 log/*
 app/static/tmp/*
