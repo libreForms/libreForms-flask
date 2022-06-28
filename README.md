@@ -324,24 +324,25 @@ jquery-3.5.1.min.js
 plotly-v1.58.5.min.js
 ```
 
-As well as the application's python requirements:
+As well as the application's python requirements, which are the result of `pip install pandas plotly flask flask-admin webargs gunicorn pymongo pytest` and these package repositories.
 
 ```
 attrs==21.4.0
 click==8.1.3
-coverage==6.4.1
 Flask==2.1.2
+Flask-Admin==1.6.0
 gunicorn==20.1.0
-importlib-metadata==4.11.4
+importlib-metadata==4.12.0
 iniconfig==1.1.1
 itsdangerous==2.1.2
 Jinja2==3.1.2
 MarkupSafe==2.1.1
-marshmallow==3.16.0
-numpy==1.22.4
+marshmallow==3.17.0
+numpy==1.23.0
 packaging==21.3
-pandas==1.4.2
-plotly==5.8.2
+pandas==1.4.3
+pkg_resources==0.0.0
+plotly==5.9.0
 pluggy==1.0.0
 py==1.11.0
 pymongo==4.1.1
@@ -354,6 +355,7 @@ tenacity==8.0.1
 tomli==2.0.1
 webargs==8.1.0
 Werkzeug==2.1.2
+WTForms==3.0.1
 zipp==3.8.0
 ```
 
