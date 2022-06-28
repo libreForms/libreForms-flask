@@ -83,7 +83,8 @@ def dashboards(form_name):
     fig = px.line(df, 
                 x=ref['x'], 
                 y=y_context, 
-                color=ref['color'])
+                color=ref['color'],
+                template='plotly_dark')
     graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
 
     return render_template('app/index.html', 
