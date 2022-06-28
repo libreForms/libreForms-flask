@@ -10,4 +10,3 @@ python:
       path: .
 sphinx:
   builder: dirhtml
-  fail_on_warning: true
