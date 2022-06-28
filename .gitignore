@@ -138,3 +138,4 @@ site_overrides.py
 mongodb_pw
 log/*
 app/static/tmp/*
+update_release.sh
