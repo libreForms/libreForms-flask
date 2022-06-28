@@ -170,6 +170,80 @@ The libreForms abstraction layer is defined in ```libreforms/forms/__init__.py``
 
 The abstraction layer breaks down individual forms into fields and configurations. A field must have a unique name, which must employ underscores instead of spaces ("My Form Field" would not work, but "My_Form_Field" is a correct field name). Configuration names are preceded by an underscore (eg. "_dashboard" or "_allow_repeats") and allow form administrators to define unique form behavior. All built in configurations default to a value of False.
 
+Here is an overview of the abstraction layer in versions below 1.0.0. Specifically, the following snippet defines a single form called `sample-form` with a handful of fields like `Text_Field`, `Pass_Field`, etc. and add a dashboard view for the form using the `_dashboard` configuration.
+
+```python
+forms = {
+    "sample-form": {
+        "Text_Field": {
+            "input_field": {"type": "text", "content": ["NA"]},
+            "output_data": {"type": "str", "required": False, "validators": [lambda p: len(p) >= 6]},
+        },
+        "Pass_Field": {
+            "input_field": {"type": "password", "content": [""]},
+            "output_data": {"type": "str", "required": False, "validators": []},
+        },
+        "Radio_Field": {
+            "input_field": {"type": "radio", "content": ["Pick", "An", "Option"]},
+            "output_data": {"type": "str", "required": False, "validators": []},
+        },
+        "Check_Field": {
+            "input_field": {"type": "checkbox", "content": ["Pick", "An", "Option"]},
+            "output_data": {"type": "list", "required": False, "validators": []},
+        },
+        "Date_Field": {
+            "input_field": {"type": "date", "content": [datetime.datetime.today().strftime("%Y-%m-%d")]},
+            # "input_field": {"type": "date", "content": []},
+            "output_data": {"type": "str", "required": False, "validators": []},
+        },
+        "Hidden_Field": {
+            "input_field": {"type": "hidden", "content": ["This field is hidden"]},
+            "output_data": {"type": "str", "required": False, "validators": []},
+        },
+        "Float_Field": {
+            "input_field": {"type": "number", "content": [0]},
+            "output_data": {"type": "float", "required": False, "validators": []},
+        }, 
+        "Int_Field": {
+            "input_field": {"type": "number", "content": [0]},
+            "output_data": {"type": "int", "required": False, "validators": []},
+        }, 
+        "_dashboard": {             # defaults to False
+            "type": "scatter",      # this is a highly powerful feature but requires
+            "fields": {             # some knowledge of plotly dashboards; currently
+                "x": "Timestamp",   # only line charts with limited features supported
+                "y": "Int_Field", 
+                "color": "Text_Field"
+            }
+        },
+        "_allow_repeat": False, # defaults to False
+        "_allow_uploads": True, # defaults to False
+        "_allow_csv_templates": True, # defaults to False
+        "_suppress_default_values": False, # defaults to False
+    },
+}
+```
+
+Versions above 1.0.0 will introduce compatibility-breaking changes that are intended to simplify the abstraction layer. For more information, see the [discussion](https://github.com/signebedi/libreForms/issues/27) about these changes.
+
+```python
+forms = {
+    "sample-form": {
+        "Text_Field": {
+            "input_data_type": "text", 
+            "content": ["NA"],
+            "output_data_type": "str", 
+            "options": {
+                 "validators": [lambda p: len(p) >= 6],
+                 "required": True,
+                 "PLACEHOLDER_FOR_REPETITION_LOGIC":  True, 
+                 "INSERT_OTHER_ARBITRARY_KWARGS_HERE": True,
+            },
+        },
+    },
+}
+```
+
 ## Database
 
 When data is written from the web application to the database backend, it appends the following fields:
