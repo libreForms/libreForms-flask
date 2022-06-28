@@ -3,37 +3,30 @@
 # libreForms
 an open form manager API
 
-## contents
+## Contents
 1. [about](#about)
     - [use cases](#use-cases)
     - [features](#features)
 2. [installation](#installation)
     - [RHEL 8](#rhel-8)
     - [Ubuntu 20.04](#ubuntu-2004)
-3. [API](#api)
-4. [RESTful API](#rest-api)
-5. [extensibility](#extensibility)
-6. [selectors](#selectors)
-7. [database](#database)
-8. [dashboards](#dashboards)
-9. [display overrides](#display-overrides)
-10. [auth](#auth)
-11. [dependencies](#dependencies)
-12. [copyright](#copyright)
+3. [Abstraction Layer](#abstraction-layer)
+4. [dependencies](#dependencies)
+5. [copyright](#copyright)
 
-## about
-Liberate your forms with libreForms, an open form manager API that's intended to run in your organization's intranet. Most browser-based form managers lack key features, direct control over the underlying application, self-hosting support, a viable cost/licensing model, or lightweight footprints. The libreForms project, first and foremost, defines a simple but highly extensible abstraction layer that matches form fields to data structures. It adds a browser-based application, document-oriented database, and data visualizations and a RESTful API on top of this. 
+## About
+Liberate your forms with libreForms, an open form manager API written in Python and intended to run in your organization's intranet. Most browser-based form managers lack key features, provide little direct control over the underlying application, self-hosting support, a viable cost/licensing model, or lightweight footprints. The libreForms project, first and foremost, defines a simple but highly extensible abstraction layer that matches form fields to data structures. It adds a browser-based application, document-oriented database, and data visualizations and a RESTful API on top of this. 
 
 ![abstraction layer](docs/source/libreForms_abstraction_layer.drawio.svg)
 
-### use cases
+### Use Cases
 - You are a small enterprise that has been using Google Forms for your organization's internal forms because it is low-cost, but you dislike the restricted features and lack of direct control over your data.
 
 - You are a medium-sized enterprise that wants a simple, low-cost tool to manage their internal forms. You don't mind self-hosting the application, and you have staff with rudimentary experience using Python to deploy and maintain the system.
 
 - You are a large enterprise with significant technical staff that routinely host and maintain applications for use on your organization's intranet. You periodically rely on physical or digitized forms, reports, and questionnaires. You have assessed options for form managers on the market and determined that proprietary services provide little direct control over the application source code, or otherwise fail to provide a viable licensing model.
 
-### features
+### Features
 - a form-building abstraction layer based on Python dictionaries
 - a flask web application (http://x.x.x.x:8000/) that will work well behind most standard reverse-proxies 
 - plotly dashboards for data visualization
@@ -41,7 +34,7 @@ Liberate your forms with libreForms, an open form manager API that's intended to
 - \[future\] local and SAML authentication options
 - \[future\] support for lookups in form fields & routing lists for form review, approvals, and notifications
 
-## installation
+## Installation
 
 In most cases, the following commands must be run with root privileges.
 
@@ -168,7 +161,7 @@ systemctl restart libreforms
 ```
 
 
-## API
+## Abstraction Layer
 
 The purpose of the libreForms project is to provide a simple but highly extensible method of form building in Python, leveraging Flask's doctrine of 'simplicity and extensibility' to give significant control and flexibility to organizations to design forms and data that meet their needs. 
 
@@ -260,59 +253,7 @@ The application presumes that authentication is set in place & adds the followin
     - Reporter: the username of the reporting user
     - Timestamp: the timestamp that the form was submitted
 
-
-## REST API
-
-There is a RESTful API that allows users to complete read and, in the future, write operations against the MongoDB database. This requires API keys. You can create a file in the application home directory called `api_keys` structured as:
-
-```
-api_keys
-t32HDBcKAAIVBBPbjBADCbCh
-```
-
-But if you don't, the default test key will be `t32HDBcKAAIVBBPbjBADCbCh`. 
-
-## extensibility
-
-If you'd like to extend the content of ```libreforms/forms/__init__.py```, you can do so by adding a file called ```libreforms/forms/add_ons.py```. This file should replicate the structure of `__init__.py` by defining a dictionary called ```forms``` conforming to the above API. The default behavior is for this dictionary to overwrite the ```forms``` dictionary defined in `__init__.py`. However, if for some reason it is preferrable to append the dictionary, this is stored in a dictionary called forms_appended (which can be called by importing from libreforms.forms.forms_appended instead of libreforms.forms.forms).
-
-## selectors
-
-libreForms allows users to tailor the data in their dashboards and tables using GET variabes as selectors. For example, when you define a dashboard for a given form, you need to set a dependent variable. However, this can be overridden by passing the ```?y=field_name``` GET variable in the browser. Likewise, you can tailor tabular data by passing the ```?FIELD_NAME=VALUE``` GET variable in the browser. Put another way, if a table has a field called ```Sub-Unit``` and another called Fiscal_Year, and you would like to tailor the table to only show data for the Finance sub-unit in the 2021 fiscal year, then you could pass the following GET variables: ```?Sub-Unit=Finance&Fiscal_Year=2021``` to select only this data.
-
-## database
-
-If you elect to password protect your database, which is recommended, you should drop a file in the application home directory named ```mongodb_pw``` and ensure that the ```libreforms``` user has read access.
-
-## dashboards
-
-Right now, only line graphs are supported. In the future, the project plans to allow arbitrary dashboard configurations.
-
-## display overrides
-
-You can override some of the default site display options by adding a file called `site_overrides.py` to the project home directory. This file should contain a dictionary object with key-value attributes that you want to override. 
-
-```
-display = {
-    'site_name':"My-Site",
-    'homepage_msg': "Welcome to My-Site. Select a view from above to get started.",
-    'warning_banner':"Please be mindful of the data you post on this system.",
-    'favicon':"my_new_favicon.ico",
-}
-```
-
-## auth
-
-By default, this application employs an sqlite user database. The default login credentials are 
-
-```
-User: libreforms
-Pass: libreforms
-```
-
-In addition to username and password fields, the application ships by default with phone number, organization, and email fields. These can be modified by changing the fields defined in app/schema.sql and app/auth.py. Currently, there is no group-based permission sets defined, but these will be added per https://github.com/signebedi/libreForms/issues/16.
-
-## dependencies
+## Dependencies
 
 This application has a few dependencies that, in its current form, may be prone to obsolescence; there is an issue in the backlog to test for, among other things, obsolete dependencies. In addition to the standard requirements, like Python3, Python3-Pip, Python3-Venv, and MongoDB, here is a list of dependencies that ship with the application under the static/ directory:
 
@@ -337,7 +278,15 @@ pymongo==4.1.1
 pytest==7.1.2
 ```
 
-## copyright
+In the development requirements file, we add the following requirements:
+
+```
+SQLAlchemy
+Flask-Login
+Flask-Bootstrap
+```
+
+## Copyright
 
 ```
 libreForms is an open form manager API
