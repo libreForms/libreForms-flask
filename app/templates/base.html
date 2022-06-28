@@ -23,14 +23,14 @@
           <div class="navbar-collapse collapse" id="navbarResponsive">
             <ul class="nav navbar-nav">
               {% if g.user %}
-                <li class="nav-item"><a href="{{ url_for( 'forms.forms_home' ) }}">Forms</a></li>
-                <li class="nav-item"><a href="{{ url_for( 'tables.tables_home' ) }}">Tables</a></li>
-                <li class="nav-item"><a href="{{ url_for( 'dashboards.dashboards_home' ) }}">Dashboards</a></li>
-                <li><a href="{{ url_for( 'auth.profile' ) }}">Profile</a></li>
-                <li><a href="{{ url_for( 'auth.logout' ) }}">Logout</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for( 'forms.forms_home' ) }}">Forms</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for( 'tables.tables_home' ) }}">Tables</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for( 'dashboards.dashboards_home' ) }}">Dashboards</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for( 'auth.profile' ) }}">Profile</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for( 'auth.logout' ) }}">Logout</a></li>
               {% else %}
-                <li class="justify-content-end"><a href="{{ url_for( 'auth.login' ) }}">Login</a></li>
-                <li class="justify-content-end"><a href="{{ url_for( 'auth.register' ) }}">Register</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for( 'auth.login' ) }}">Login</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for( 'auth.register' ) }}">Register</a></li>
               {% endif %}
               </ul>
             </div>
