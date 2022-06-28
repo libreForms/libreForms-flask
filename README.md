@@ -3,6 +3,8 @@
 # libreForms
 an open form manager API
 
+Read the docs at [https://libreforms.readthedocs.io/en/latest/](https://libreforms.readthedocs.io/en/latest/).
+
 ## Contents
 1. [about](#about)
     - [use cases](#use-cases)
