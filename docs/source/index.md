@@ -310,7 +310,7 @@ In the development requirements file, we add the following requirements:
 ```
 SQLAlchemy
 Flask-Login
-Flask-Bootstrap
+Bootstrap-Flask
 ```
 
 ## Copyright
