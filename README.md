@@ -65,9 +65,9 @@ yum install python3.8 mongodb-org -y
 systemctl enable --now mongodb
 ```
 
-1. Download this repository into the opt directory:
+1. Download this repository into the opt directory.
 
-#### Method 1: `wget` stable release
+Either download a stable release of the application.
 
 ```
 cd /opt
@@ -76,7 +76,7 @@ tar -xvf libreforms-*.*.*.tar.gz
 mv libreforms-*.*.* libreForms
 ```
 
-#### Method 2: `git clone` cutting edge repository
+Or install the cutting-edge version of the application using Git.
 
 ```
 cd /opt
@@ -121,7 +121,7 @@ systemctl enable --now mongodb
 
 1. Download this repository into the opt directory:
 
-#### Method 1: `wget` stable release
+Either download a stable release of the application.
 
 ```
 cd /opt
@@ -130,7 +130,7 @@ tar -xvf libreforms-*.*.*.tar.gz
 mv libreforms-*.*.* libreForms
 ```
 
-#### Method 2: `git clone` cutting edge repository
+Or install the cutting-edge version of the application using Git.
 
 ```
 cd /opt
