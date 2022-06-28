@@ -23,7 +23,7 @@ copyright = '2022, Sig Janoska-Bedi'
 author = 'Sig Janoska-Bedi'
 
 # The full version, including alpha/beta/rc tags
-release = '0.2.0'
+release = '0.3.0'
 
 
 # -- General configuration ---------------------------------------------------
