@@ -21,6 +21,12 @@ def register():
         phone = request.form['phone']
         created_date = datetime.datetime.today().strftime("%Y-%m-%d %H:%M:%S")
 
+        if phone == "":
+            phone = None
+        
+        if email == "":
+            email = None
+
         db = get_db()
         error = None
 
@@ -28,9 +34,9 @@ def register():
             error = 'Username is required.'
         elif not password:
             error = 'Password is required.'
-        elif not email == "" or re.fullmatch(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', email):
+        elif email and re.fullmatch(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', email):
             error = 'Invalid email.'
-        elif not phone == "" or re.fullmatch(r'^[a-z0-9]{3}-[a-z0-9]{3}-[a-z0-9]{4}$', phone):
+        elif phone and re.fullmatch(r'^[a-z0-9]{3}-[a-z0-9]{3}-[a-z0-9]{4}$', phone):
             error = 'Invalid phone number (xxx-xxx-xxxx).'
 
         if error is None:
@@ -42,7 +48,7 @@ def register():
                 db.commit()
                 log.info(f'registered new user {username} with email {email}.')
             except db.IntegrityError:
-                error = f"User is already registered with username \'{username}\' or email \'{email}\'."
+                error = f"User is already registered with username \'{username}\' or email \'{email}\'." if email else f"User is already registered with username \'{username}\'."
                 log.error(f'failed to register new user {username} with email {email}.')
             else:
                 flash(f'Successfully created user \'{username}\'.')
