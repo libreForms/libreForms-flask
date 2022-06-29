@@ -10,6 +10,7 @@
 	  <script src="{{ url_for('static', filename='bootstrap-5.0.2.bundle.min.js') }}"></script>
 
     <!-- Remaining header data -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="shortcut icon" href='{{ url_for('static', filename=display.favicon) }}' />
     <link rel='shortcut icon' type='image/x-icon' href='{{ url_for('static', filename=display.favicon) }}' />
 
@@ -17,10 +18,10 @@
   </head>
 
   <body>        
+    <div class="container">
       <nav class="navbar navbar-expand-lg fixed-top navbar-dark bg-primary">
         <div class="container">
           <a href="{{ url_for('home') }}" class="navbar-brand">{{ display['site_name'] }}</a>    
-          <div class="navbar-collapse collapse" id="navbarResponsive">
             <ul class="nav navbar-nav">
               {% if g.user %}
                 <li class="nav-item"><a class="nav-link" href="{{ url_for( 'forms.forms_home' ) }}">Forms</a></li>
@@ -33,31 +34,32 @@
                 <li class="nav-item"><a class="nav-link" href="{{ url_for( 'auth.register' ) }}">Register</a></li>
               {% endif %}
               </ul>
-            </div>
-            <button class="navbar-toggler collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
-              <span class="navbar-toggler-icon"></span>
-            </button>
-          </div>
-    
           </nav>
-          
-          </div>
-    <div class="container-fluid">
-      <div class="row content">
-      <div class="col-sm-3 hidden-xs">
-        <h3>{{ name }}  <small class="text-muted">{% if context %}form{% elif is_table %}table{% elif graphJSON %}dashboard{% elif homepage_msg %}home{% endif %}</small></h3><hr/>
-        <ul class="nav nav-pills nav-stacked">  
-          {% if menu %}
-          {% for item in menu %}
-          <li {% if name == item %}class="active"{% endif %}><a href="{{ url_for( type, form_name=item ) }}">{{ item }}</a></li>
-          {% endfor %}
-          {% endif %}    
-          {% if g.user %}
-          <span>Currently logged in as <small class="text-muted">{{ g.user.username }}</small>.</span>
-          {% endif %}
-        </ul>
       </div>
-      <br>
+
+
+
+
+
+      <div class="container-fluid">
+        <div class="bs-component">
+          <ul class="nav nav-pills flex-column">
+            <h3>{{ name }}  <small class="text-muted">{% if context %}form{% elif is_table %}table{% elif graphJSON %}dashboard{% elif homepage_msg %}home{% endif %}</small></h3><hr/>          
+            <li class="nav-item">
+              {% if menu %}
+              {% for item in menu %}
+              <a href="{{ url_for( type, form_name=item ) }}">{{ item }}</a>
+              {% endfor %}
+              {% endif %}    
+              {% if g.user %}
+              <span>Currently logged in as <small class="text-muted">{{ g.user.username }}</small>.</span>
+              {% endif %}          
+            </li>
+            <li class="nav-item"><a class="nav-link" href="{{ url_for( type, form_name=item ) }}">{{ item }}</a></li>
+          </ul>
+        </div>
+      </div>
+  <br>
       <div class="col-sm-9">
         <div class="well">
           {% if get_flashed_messages() %}

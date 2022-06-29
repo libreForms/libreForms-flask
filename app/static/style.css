@@ -5,7 +5,7 @@
 
 /* Set gray background color and 100% height */
 .sidenav {
-    background-color: #f1f1f1;
+    /* background-color: #f1f1f1; */
     height: 100%;
 }
 
@@ -22,7 +22,7 @@
 .well {
     height: 790px;
     z-index: 0;
-    background-color: white;
+    /* background-color: white; */
     resize: vertical;
     overflow: hidden;
 
