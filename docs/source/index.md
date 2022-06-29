@@ -285,10 +285,8 @@ If you elect to password protect your database, which is recommended, you should
 This application has a few dependencies that, in its current form, may be prone to obsolescence; there is an issue in the backlog to test for, among other things, obsolete dependencies. In addition to the standard requirements, like Python3, Python3-Pip, Python3-Venv, and MongoDB, here is a list of dependencies that ship with the application under the static/ directory:
 
 ```
-bootstrap-3.4.1.min.css
-bootstrap-3.4.1.min.js
-jquery-3.2.1.slim.min.js
-jquery-3.5.1.min.js
+bootstrap-darkly-5.1.3.min.css
+bootstrap-5.1.3.bundle.min.js
 plotly-v1.58.5.min.js
 ```
 
