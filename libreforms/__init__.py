@@ -1,13 +1,4 @@
-__title__       = 'libreForms'
-__description__ = 'an open form manager API'
-__version__     = '0.3.0'
-__url__         = 'https://github.com/signebedi/libreForms'
-__author__      = 'Sig Janoska-Bedi'
-__author_email__= 'signe@siftingwinnowing.com'
-__maintainer__  = 'Sig Janoska-Bedi'
-__license__     = 'AGPL-3.0'
-__copyright__   = '(c) 2022 Sig Janoska-Bedi'
-
+# libreforms/__init__.py: this script defines the libreForms abstraction layer.
 # libreForms provides a simple but highly extensible method of form building in Python, 
 # leveraging Flask's doctrine of 'simplicity and extensibility' to give significant 
 # control and flexibility to organizations to design forms and data that meet their 
@@ -27,6 +18,16 @@ __copyright__   = '(c) 2022 Sig Janoska-Bedi'
 # names are preceded by an underscore (eg. "_dashboard" or "_allow_repeats") and allow 
 # form administrators to define unique form behavior. All built in configurations default 
 # to a value of False.
+
+__title__       = 'libreForms'
+__description__ = 'an open form manager API'
+__version__     = '0.3.0'
+__url__         = 'https://github.com/signebedi/libreForms'
+__author__      = 'Sig Janoska-Bedi'
+__author_email__= 'signe@siftingwinnowing.com'
+__maintainer__  = 'Sig Janoska-Bedi'
+__license__     = 'AGPL-3.0'
+__copyright__   = '(c) 2022 Sig Janoska-Bedi'
 
 import datetime, os, json
 
