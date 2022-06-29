@@ -21,7 +21,7 @@
 
 __title__       = 'libreForms'
 __description__ = 'an open form manager API'
-__version__     = '0.3.0'
+__version__     = '0.4.0'
 __url__         = 'https://github.com/signebedi/libreForms'
 __author__      = 'Sig Janoska-Bedi'
 __author_email__= 'signe@siftingwinnowing.com'
