@@ -302,7 +302,7 @@ If you elect to password protect your database, which is recommended, you should
 
 ## Dependencies
 
-This application has a few dependencies that, in its current form, may be prone to obsolescence; there is an issue in the backlog to test for, among other things, obsolete dependencies. In addition to the standard requirements, like Python3, Python3-Pip, Python3-Venv, and MongoDB, here is a list of dependencies that ship with the application under the static/ directory:
+The flask application has a few dependencies that, in its current form, may be prone to obsolescence; there is an issue in the backlog to test for, among other things, obsolete and vulnerable dependencies. In addition to the standard requirements, like Python3, Python3-Pip, Python3-Venv, and MongoDB, here is a list of dependencies that ship with the application under the static/ directory:
 
 ```
 bootstrap-darkly-5.1.3.min.css
@@ -320,7 +320,6 @@ Flask-Admin==1.6.0
 webargs==8.1.0
 gunicorn==20.1.0
 pymongo==4.1.1
-pytest==7.1.2
 ```
 
 In the development requirements file, we add the following requirements:
@@ -329,6 +328,13 @@ In the development requirements file, we add the following requirements:
 SQLAlchemy
 Flask-Login
 Bootstrap-Flask
+```
+
+In the tests requirements file, we add the following requirements
+
+```
+coverage
+pytest
 ```
 
 ## Copyright
