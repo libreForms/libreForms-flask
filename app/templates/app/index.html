@@ -2,30 +2,32 @@
 {% block content %}
 			{% if context %}
 			<form method=post>
-			  <table>
-
-			    {% for field in context.keys() %}
-				{% if context[field].input_field.type == "radio" or context[field].input_field.type == "checkbox" %}
-				<tr>
-					<td><label class="form-field" for="">{{ field | replace('_', ' ')}}</label></td>
-					<td>
-					<table>
-					{% for item in context[field].input_field.content %}
-					<tr><td><input type="{{ context[field].input_field.type }}" value="{{ item }}" id="{{ field }} {{ item }}" name="{{ field }}" {% if context[field].output_data.required==true %}required{% endif %}/></td><td><label class='multi-select' for="{{ field }} {{ item }}">{{ item }}</label></td></tr>
+				<fieldset>
+					{% for field in context.keys() %}
+					{% if context[field].input_field.type == "radio" or context[field].input_field.type == "checkbox" %}
+	
+					<div class="form-group">
+						<label class="mt-4" for="">{{ field | replace('_', ' ')}}</label>
+						{% for item in context[field].input_field.content %}
+						<div class="form-check">
+							<label class='form-check-label' for="{{ field }} {{ item }}">{{ item }}
+								<input class="form-check-input" type="{{ context[field].input_field.type }}" value="{{ item }}" id="{{ field }} {{ item }}" name="{{ field }}" {% if context[field].output_data.required==true %}required{% endif %}/>
+							</label>
+						</div>
 					{% endfor %}
-					</table>
-					</td>
-				</tr>
-				{% elif context[field].input_field.type == "hidden" %}
-				{% else %}
-				<tr>
-				  <td><label class="form-field" for="{{ field }}">{{ field | replace('_', ' ')}}</label></td>
-				  <td><input type="{{ context[field].input_field.type }}" value="{{ context[field].input_field.content[0] }}" id="{{ field }}" name="{{ field }}" {% if context[field].output_data.required==true %}required{% endif %}/></td>
-				</tr>
-				{% endif %}
-				{% endfor %}
-				<tr><td><input type=submit value="Submit"></td></tr>
-			  </table>
+					</div>
+					{% elif context[field].input_field.type == "hidden" %}
+					{% else %}
+					<div class="form-group">
+						<label class="form-label mt-4" for="{{ field }}">{{ field | replace('_', ' ')}}</label></td>
+						<input class="form-control" type="{{ context[field].input_field.type }}" value="{{ context[field].input_field.content[0] }}" id="{{ field }}" name="{{ field }}" {% if context[field].output_data.required==true %}required{% endif %}/>
+					</div>
+	
+					{% endif %}
+					{% endfor %}
+					<input class="btn btn-primary" type=submit value="Submit"></td></tr>
+
+				</fieldset>
 			</form>
 			{% endif %}
 
@@ -60,5 +62,6 @@
 			{% endif %}
 			{% if is_table %}
 			  {{ table.to_html(index=False) | safe}}
-			{% endif %}		
+			{% endif %}	
+			
 {% endblock %}

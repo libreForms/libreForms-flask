@@ -10,7 +10,6 @@
 	  <script src="{{ url_for('static', filename='bootstrap-5.0.2.bundle.min.js') }}"></script>
 
     <!-- Remaining header data -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="shortcut icon" href='{{ url_for('static', filename=display.favicon) }}' />
     <link rel='shortcut icon' type='image/x-icon' href='{{ url_for('static', filename=display.favicon) }}' />
 
@@ -18,9 +17,7 @@
   </head>
 
   <body>        
-    <div class="container">
-      <nav class="navbar navbar-expand-lg fixed-top navbar-dark bg-primary">
-        <div class="container">
+      <nav class="navbar navbar-expand-lg fixed-top navbar-dark bg-primary" style="padding-left: 30px;">
           <a href="{{ url_for('home') }}" class="navbar-brand">{{ display['site_name'] }}</a>    
             <ul class="nav navbar-nav">
               {% if g.user %}
@@ -34,44 +31,32 @@
                 <li class="nav-item"><a class="nav-link" href="{{ url_for( 'auth.register' ) }}">Register</a></li>
               {% endif %}
               </ul>
-          </nav>
-      </div>
 
+              <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                {% if g.user %}<li class="nav-link me-auto" style="padding-right: 30px;">Currently logged in as <small class="text-muted">{{ g.user.username }}</small>.</li>{% endif %} 
+              </ul>
+          </nav>      
 
-
-
-
-      <div class="container-fluid">
-        <div class="bs-component">
-          <ul class="nav nav-pills flex-column">
-            <h3>{{ name }}  <small class="text-muted">{% if context %}form{% elif is_table %}table{% elif graphJSON %}dashboard{% elif homepage_msg %}home{% endif %}</small></h3><hr/>          
-            <li class="nav-item">
+        <div class="d-grid gap-2" style="max-width:18%; padding-top: 100px; padding-left: 30px;"> 
+          <ul class="nav nav-pills nav-stacked flex-column">
+            <h3 class="nav-link border-bottom">{{ name }} <small class="text-muted">{% if context %}form{% elif is_table %}table{% elif graphJSON %}dashboard{% elif homepage_msg %}home{% endif %}</small></h3>        
               {% if menu %}
-              {% for item in menu %}
-              <a href="{{ url_for( type, form_name=item ) }}">{{ item }}</a>
+              {% for item in menu %} 
+              <li class="nav-item"><a class="nav-link" href="{{ url_for( type, form_name=item ) }}">{{ item }}</a></li>
               {% endfor %}
-              {% endif %}    
-              {% if g.user %}
-              <span>Currently logged in as <small class="text-muted">{{ g.user.username }}</small>.</span>
-              {% endif %}          
-            </li>
-            <li class="nav-item"><a class="nav-link" href="{{ url_for( type, form_name=item ) }}">{{ item }}</a></li>
+              {% endif %}                           
           </ul>
         </div>
-      </div>
-  <br>
-      <div class="col-sm-9">
-        <div class="well">
-          {% if get_flashed_messages() %}
-          <br/>
-          <div style="height: auto; resize: none;" class='well' id='form_data'>
-            {% for message in get_flashed_messages() %}
-              <div class="flash">{{ message }}</div>
-            {% endfor %}
-          </div>  
-          {% endif %}
-          {% block content %}{% endblock %}
-       </div>
+          <div class="d-grid gap-2 position-absolute top-0 start-50 translate-middle-x" style="width:50%; padding-top: 120px; padding-bottom: 20px;">
+            {% if get_flashed_messages() %}
+            <div class="alert alert-dismissible alert-primary">
+              <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+              <strong>{% for message in get_flashed_messages() %}{{ message }}{% endfor %}</strong>
+            </div>
+            {% endif %}
+
+            {% block content %}{% endblock %}
+          </div>
   <script src="{{ url_for('static', filename='jquery-3.2.1.slim.min.js') }}"></script>
   {% if graphJSON %}
 	<script src="{{ url_for('static', filename='plotly-v1.58.5.min.js') }}"></script>
