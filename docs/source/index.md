@@ -54,8 +54,8 @@ Either download a stable release of the application.
 ```
 cd /opt
 wget https://github.com/signebedi/libreForms/archive/refs/tags/X.X.X.tar.gz
-tar -xvf libreforms-*.*.*.tar.gz
-mv libreforms-*.*.* libreForms
+tar -xvf *.*.*.tar.gz
+mv libreForms-*.*.*/ libreForms/
 ```
 
 Or install the cutting-edge version of the application using Git.
@@ -108,8 +108,8 @@ Either download a stable release of the application.
 ```
 cd /opt
 wget https://github.com/signebedi/libreForms/archive/refs/tags/X.X.X.tar.gz
-tar -xvf libreforms-*.*.*.tar.gz
-mv libreforms-*.*.* libreForms
+tar -xvf *.*.*.tar.gz
+mv libreForms-*.*.*/ libreForms/
 ```
 
 Or install the cutting-edge version of the application using Git.
