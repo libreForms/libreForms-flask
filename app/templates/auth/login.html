@@ -6,11 +6,19 @@
 
 {% block content %}
   <form method="post">
-    <label for="username">Username</label>
-    <input name="username" id="username" required>
-    <label for="password">Password</label>
-    <input type="password" name="password" id="password" required>
-    <input type="submit" value="Log In">
+    <fieldset>
+      <div class="form-group">
+        <label class="form-label mt-4" for="username">Username</label>
+        <input class="form-control" name="username" id="username" required>
+      </div>
+      <div class="form-group">
+      <label class="form-label mt-4" for="password">Password</label>
+      <input class="form-control" type="password" name="password" id="password" required>
+      </div>
+      <div class="form-group mt-4">
+      <input class="btn btn-primary" type="submit" value="Log In">
+      </div>
+    </fieldset>
   </form>
   {% if display.warning_banner %}
   <br/><hr/>
@@ -18,3 +26,4 @@
   {% endif %}
 
 {% endblock %}
+
