@@ -243,9 +243,7 @@ A Flask web application sits atop the libreForms abstraction layer defined above
 
 The application provides table and dashboard views for form data. Right now, line graphs are the only supported form of Plotly dashboard but, in the future, the project plans to allow arbitrary dashboard configurations using kwargs in the `_dashboard` configuration in the abstraction layer. The application allows users to tailor the data in their dashboards and tables using GET variabes as selectors. For example, when you define a dashboard for a given form, you need to set a dependent variable. However, this can be overridden by passing the ```?y=field_name``` GET variable in the browser. Likewise, you can tailor tabular data by passing the ```?FIELD_NAME=VALUE``` GET variable in the browser. Put another way, if a table has a field called ```Sub-Unit``` and another called Fiscal_Year, and you would like to tailor the table to only show data for the Finance sub-unit in the 2021 fiscal year, then you could pass the following GET variables: ```?Sub-Unit=Finance&Fiscal_Year=2021``` to select only this data.
 
-### Display Overrides
-
-The default site display options can be overridden by adding a file called `site_overrides.py` to the `app/` directory. This file should contain a dictionary object with key-value attributes that you want to override. 
+In addition, the default site display options can be overridden by adding a file called `site_overrides.py` to the `app/` directory. This file should contain a dictionary object with key-value attributes that you want to override. 
 
 ```
 display = {
