@@ -1,35 +1,32 @@
-# libreforms/forms/__init__.py: the source for form field data in the libreForms application.
-# libreForms defines a robust abstraction layer between (1) the types of form fields that are 
-# used to collect user data and (2) the data type that the content of these form fields take, 
-# once submitted by the user, and (3) the underlying data structure of form responses, which 
-# the system stores in a JSON-like database well suited to integration with useful data science 
-# tools like pandas, as well as visualization libraries like plotly. Specifically, this API
-# supports the following form fields:
-    # "text"
-    # "password"
-    # "radio"
-    # "checkbox" 
-    # "date"
-    # "hidden"
-    # "number"
-    # "file"
-# as well as the following output data types:
-    # str
-    # float
-    # int
-    # list
-# input_field refers only to the structure of the markup field that will be used
-# to collect the data; all the information regarding the typing and validation
-# of the data exists in output_data.
-# for each form, optional, non-form-field data is defined with an underscore (_)
-# preceding the key name, like _allow_repeats. All of these are optional fields 
-# and default to a value of False. 
+__title__       = 'libreForms'
+__description__ = 'an open form manager API'
+__version__     = '0.3.0'
+__url__         = 'https://github.com/signebedi/libreForms'
+__author__      = 'Sig Janoska-Bedi'
+__author_email__= 'signe@siftingwinnowing.com'
+__maintainer__  = 'Sig Janoska-Bedi'
+__license__     = 'AGPL-3.0'
+__copyright__   = '(c) 2022 Sig Janoska-Bedi'
 
-# the application presumes that authentication is set in place & adds the following
-# to each database write:
-    # _id: unique id for each db write
-    # Reporter: the username of the reporting user
-    # Timestamp: the timestamp that the form was submitted
+# libreForms provides a simple but highly extensible method of form building in Python, 
+# leveraging Flask's doctrine of 'simplicity and extensibility' to give significant 
+# control and flexibility to organizations to design forms and data that meet their 
+# needs. To accomplish this, the application is built on an abstraction layer that stores 
+# all the information needed to generate a browser-based form and parse form data into a 
+# cohesive data structure.
+
+# The libreForms abstraction layer is defined in ```libreforms/forms/__init__.py``` 
+# and expects organizations to overwrite the default form by adding a file called 
+# ```libreforms/add_ons.py```. At this time, the abstraction layer can handle the 
+# "text", "password", "radio", "checkbox", "date", "hidden", and "number" input types, 
+# and can write to Python's str, float, int, and list data types. 
+
+# The abstraction layer breaks down individual forms into fields and configurations. A 
+# field must have a unique name, which must employ underscores instead of spaces ("My 
+# Form Field" would not work, but "My_Form_Field" is a correct field name). Configuration 
+# names are preceded by an underscore (eg. "_dashboard" or "_allow_repeats") and allow 
+# form administrators to define unique form behavior. All built in configurations default 
+# to a value of False.
 
 import datetime, os, json
 
@@ -90,7 +87,7 @@ forms = {
 # read forms from file as add_ons
 # overwrite/append add_ons to forms in this file
 try:
-    import libreforms.add_ons as add_ons
+    import add_ons as add_ons
     forms_appended = dict(forms)            # this creates a copy of the original dictionary, to
     forms_appended.update(add_ons.forms)    # which we will append the add_ons data
     forms = add_ons.forms # this is the default behavior, which overwrites the default behavior   
