@@ -34,10 +34,10 @@ def register():
             error = 'Username is required.'
         elif not password:
             error = 'Password is required.'
-        elif email and re.fullmatch(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', email):
-            error = 'Invalid email.'
-        elif phone and re.fullmatch(r'^[a-z0-9]{3}-[a-z0-9]{3}-[a-z0-9]{4}$', phone):
-            error = 'Invalid phone number (xxx-xxx-xxxx).'
+        elif email and not re.fullmatch(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', email):
+            error = 'Invalid email.' 
+        elif phone and not re.fullmatch(r'^[a-z0-9]{3}-[a-z0-9]{3}-[a-z0-9]{4}$', phone):
+            error = 'Invalid phone number (xxx-xxx-xxxx).' 
 
         if error is None:
             try:
