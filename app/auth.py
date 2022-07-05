@@ -40,7 +40,7 @@ def register():
         elif email and User.query.filter_by(email=email).first():
             error = 'Email is already registered.' 
         elif User.query.filter_by(username=username.lower()).first():
-            error = 'Username is already registered.' 
+            error = f'Username {username.lower()} is already registered.' 
 
         if error is None:
             try:
@@ -56,10 +56,10 @@ def register():
                 db.session.commit()
                 log.info(f'{username.upper()} - successfully registered with email {email}.')
             except:
-                error = f"User is already registered with username \'{username}\' or email \'{email}\'." if email else f"User is already registered with username \'{username}\'."
-                log.error(f'GUEST - failed to register new user {username} with email {email}.')
+                error = f"User is already registered with username \'{username.lower()}\' or email \'{email}\'." if email else f"User is already registered with username \'{username}\'."
+                log.error(f'GUEST - failed to register new user {username.lower()} with email {email}.')
             else:
-                flash(f'Successfully created user \'{username}\'.')
+                flash(f'Successfully created user \'{username.lower()}\'.')
                 return redirect(url_for("auth.login"))
 
         flash(error)
@@ -91,7 +91,7 @@ def login():
 
         if error is None:
             login_user(user, remember=remember)
-            flash(f'Successfully logged in user \'{username}\'.')
+            flash(f'Successfully logged in user \'{username.lower()}\'.')
             log.info(f'{username.upper()} - successfully logged in.')
             return redirect(url_for('home'))
 
