@@ -8,6 +8,7 @@ from flask_login import LoginManager, current_user
 
 db = SQLAlchemy()
 
+
 # if application log path doesn't exist, make it
 if not os.path.exists ("log/"):
     os.mkdir('log/')
@@ -47,7 +48,6 @@ def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
         SECRET_KEY='dev',
-        # DATABASE=os.path.join(app.instance_path, 'app.sqlite'),
         SQLALCHEMY_DATABASE_URI = f'sqlite:///{os.path.join(app.instance_path, "app.sqlite")}',
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
         # FLASK_ADMIN_SWATCH='darkly',
@@ -90,9 +90,26 @@ def create_app(test_config=None):
             user=current_user if current_user.is_authenticated else None,
         )
 
-    # from . import db
-    db.init_app(app)
 
+    # initialize the database
+    db.init_app(app=app)
+
+    # create the database if it doesn't exist
+    db.create_all(app=app) if not os.path.exists(os.path.join('instance','app.sqlite')) else None
+
+    from app.models import User
+
+    # create default user if doesn't exist
+    with app.app_context():
+        if db.session.query(User).filter_by(username='libreforms').count() < 1:
+            initial_user = User(
+                    id=1,
+                    username='libreforms', 
+                    password='pbkdf2:sha256:260000$nQVWxd59E8lmkruy$13d8c4d408185ccc3549d3629be9cd57267a7d660abef389b3be70850e1bbfbf',
+                    created_date='2022-06-01 00:00:00',
+                )
+            db.session.add(initial_user)
+            db.session.commit()
 
     login_manager = LoginManager()
     login_manager.login_view = 'auth.login'
