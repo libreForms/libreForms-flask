@@ -20,7 +20,7 @@ def init_tmp_fs():
     if  os.path.exists ("app/static/tmp/"):
         os.system("rm -rf app/static/tmp/")
     os.mkdir('app/static/tmp/')    
-    log.info('SYSTEM - created static/tmp directory.')
+    log.info('LIBREFORMS - created static/tmp directory.')
 
 
 def generate_csv_templates(form=None):
