@@ -139,6 +139,7 @@ def parse_options(form=False):
         "_allow_uploads": False, 
         "_allow_csv_templates": False,
         "_suppress_default_values": False,  
+        "_allow_external_access": False,  
     }
 
     for field in list_fields.keys():
