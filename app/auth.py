@@ -54,10 +54,10 @@ def register():
                         )
                 db.session.add(new_user)
                 db.session.commit()
-                log.info(f'{username.upper()} - registered with email {email}.')
+                log.info(f'{username.upper()} - successfully registered with email {email}.')
             except:
                 error = f"User is already registered with username \'{username}\' or email \'{email}\'." if email else f"User is already registered with username \'{username}\'."
-                log.error(f'LIBREFORMS - failed to register new user {username} with email {email}.')
+                log.error(f'GUEST - failed to register new user {username} with email {email}.')
             else:
                 flash(f'Successfully created user \'{username}\'.')
                 return redirect(url_for("auth.login"))
