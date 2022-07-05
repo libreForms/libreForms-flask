@@ -1,13 +1,12 @@
 
 import os
-from flask import Flask, render_template
+from flask import Flask, render_template, session
 import app.log_functions
 # from flask_admin import Admin
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager
+from flask_login import LoginManager, current_user
 
 db = SQLAlchemy()
-
 
 # if application log path doesn't exist, make it
 if not os.path.exists ("log/"):
@@ -88,6 +87,7 @@ def create_app(test_config=None):
             name=display['site_name'],
             display_warning_banner=True,
             display=display,
+            user=current_user if current_user.is_authenticated else None,
         )
 
     # from . import db

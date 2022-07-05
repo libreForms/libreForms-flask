@@ -37,7 +37,7 @@ def register():
             error = 'Invalid email.' 
         elif phone and not re.fullmatch(r'^[a-z0-9]{3}-[a-z0-9]{3}-[a-z0-9]{4}$', phone):
             error = 'Invalid phone number (xxx-xxx-xxxx).' 
-        elif User.query.filter_by(email=email).first():
+        elif email and User.query.filter_by(email=email).first():
             error = 'Email is already registered.' 
         elif User.query.filter_by(username=username).first():
             error = 'Username is already registered.' 
@@ -55,7 +55,7 @@ def register():
                 db.session.add(new_user)
                 db.session.commit()
                 log.info(f'registered new user {username} with email {email}.')
-            except db.IntegrityError:
+            except:
                 error = f"User is already registered with username \'{username}\' or email \'{email}\'." if email else f"User is already registered with username \'{username}\'."
                 log.error(f'failed to register new user {username} with email {email}.')
             else:
@@ -105,7 +105,7 @@ def login():
 
 @bp.before_app_request
 def load_logged_in_user():
-    user_id = session.get('user_id')
+    user_id = current_user.get_id()
 
     if user_id is None:
         user = None
@@ -125,7 +125,7 @@ def logout():
 def profile():
 
     if request.method == 'POST':
-        user_id = session.get('user_id')
+        user_id = current_user.get_id()
         new_password = request.form['new_password']
         current_password = request.form['current_password']
 
@@ -135,21 +135,20 @@ def profile():
     
         if user is None:
             error = 'User does not exist.'
-        elif not check_password_hash(user['password'], current_password):
+        elif not check_password_hash(user.password, current_password):
             error = 'Incorrect password.'
 
         if error is None:
 
             try:
-                db.execute(
-                    "UPDATE user SET password=? WHERE id=?",
-                    (generate_password_hash(new_password), user_id),
-                )
-                db.commit()
+                user.password=generate_password_hash(new_password, method='sha256')
+                # db.session.add(user)
+                db.session.commit()
+
                 flash("Successfully changed password")
-                # log.info(f'successfully changed password for user {session.get("username")}.')
+                log.info(f'successfully changed password for user {user.username}.')
                 return redirect(url_for('auth.profile'))
-            except db.IntegrityError:
+            except:
                 error = f"There was an error in processing your request."
             
         flash(error)
