@@ -70,7 +70,7 @@ def external_forms(form_name, signed_url):
 
             if request.method == 'POST':
                 parsed_args = flaskparser.parser.parse(parse_form_fields(form_name), request, location="form")
-                mongodb.write_document_to_collection(parsed_args, form_name, reporter=current_user.username)
+                mongodb.write_document_to_collection(parsed_args, form_name, reporter=signed_url)
                 flash(str(parsed_args))
 
                 # possibly exchange the section below for an actual email/name depending on the
