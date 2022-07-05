@@ -39,14 +39,14 @@ def register():
             error = 'Invalid phone number (xxx-xxx-xxxx).' 
         elif email and User.query.filter_by(email=email).first():
             error = 'Email is already registered.' 
-        elif User.query.filter_by(username=username).first():
+        elif User.query.filter_by(username=username.lower()).first():
             error = 'Username is already registered.' 
 
         if error is None:
             try:
                 new_user = User(
                             email=email, 
-                            username=username, 
+                            username=username.lower(), 
                             password=generate_password_hash(password, method='sha256'),
                             organization=organization,
                             phone=phone,
@@ -81,7 +81,7 @@ def login():
         remember = True if request.form.get('remember') else False
 
         error = None
-        user = User.query.filter_by(username=username).first()
+        user = User.query.filter_by(username=username.lower()).first()
 
         if not user:
             error = 'Incorrect username.'
