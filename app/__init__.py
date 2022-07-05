@@ -2,7 +2,12 @@
 import os
 from flask import Flask, render_template
 import app.log_functions
-from flask_admin import Admin
+# from flask_admin import Admin
+from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager
+
+db = SQLAlchemy()
+
 
 # if application log path doesn't exist, make it
 if not os.path.exists ("log/"):
@@ -43,12 +48,14 @@ def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
         SECRET_KEY='dev',
-        DATABASE=os.path.join(app.instance_path, 'app.sqlite'),
-        FLASK_ADMIN_SWATCH='darkly',
+        # DATABASE=os.path.join(app.instance_path, 'app.sqlite'),
+        SQLALCHEMY_DATABASE_URI = f'sqlite:///{os.path.join(app.instance_path, "app.sqlite")}',
+        SQLALCHEMY_TRACK_MODIFICATIONS=False,
+        # FLASK_ADMIN_SWATCH='darkly',
     )
 
 
-    admin = Admin(app, name='libreForms', template_mode='bootstrap4')
+    # admin = Admin(app, name='libreForms', template_mode='bootstrap4')
     # Add administrative views here
 
 
@@ -83,8 +90,19 @@ def create_app(test_config=None):
             display=display,
         )
 
-    from . import db
+    # from . import db
     db.init_app(app)
+
+
+    login_manager = LoginManager()
+    login_manager.login_view = 'auth.login'
+    login_manager.init_app(app)
+
+    from .models import User
+
+    @login_manager.user_loader
+    def load_user(id):
+        return User.query.get(int(id))  
 
     from . import auth
     app.register_blueprint(auth.bp)

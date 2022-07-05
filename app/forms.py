@@ -3,6 +3,7 @@ from cmath import e
 from fileinput import filename
 from flask import Blueprint, g, flash, render_template, request, send_from_directory
 from webargs import fields, flaskparser
+from flask_login import current_user
 
 # import custom packages from the current repository
 import libreforms, mongodb
@@ -175,6 +176,7 @@ def forms_home():
             type="forms.forms",
             menu=[x for x in libreforms.forms.keys()],
             display=display,
+            user=current_user,
         ) 
         
 
@@ -189,7 +191,7 @@ def forms(form_name):
 
         if request.method == 'POST':
             parsed_args = flaskparser.parser.parse(parse_form_fields(form_name), request, location="form")
-            mongodb.write_document_to_collection(parsed_args, form_name, reporter=g.user['username'])
+            mongodb.write_document_to_collection(parsed_args, form_name, reporter=user['username'])
             flash(str(parsed_args))
             # log.info(f'User {session.get["username"]} submitted form {form_name}.')
 
@@ -200,7 +202,8 @@ def forms(form_name):
             type="forms.forms",       
             options=options, 
             display=display,
-            filename = f'{form_name.lower().replace(" ","")}.csv' if options['_allow_csv_templates'] else False
+            filename = f'{form_name.lower().replace(" ","")}.csv' if options['_allow_csv_templates'] else False,
+            user=current_user,
             )
 
     except Exception as e:
@@ -211,6 +214,7 @@ def forms(form_name):
             type="forms.forms",
             menu=[x for x in libreforms.forms.keys()],
             display=display,
+            user=current_user,
         )
 
 # this is the download link for files in the static/tmp directory

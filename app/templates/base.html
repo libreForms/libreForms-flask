@@ -22,7 +22,7 @@
       <nav class="navbar navbar-expand-lg fixed-top navbar-dark bg-dark border-bottom" style="padding-left: 30px;z-index:999999 !important;">
           <a href="{{ url_for('home') }}" class="navbar-brand">{{ display['site_name'] }}</a>    
             <ul class="nav navbar-nav">
-              {% if g.user %}
+              {% if user %}
                 <li class="nav-item"><a class="nav-link" href="{{ url_for( 'forms.forms_home' ) }}">Forms</a></li>
                 <li class="nav-item"><a class="nav-link" href="{{ url_for( 'tables.tables_home' ) }}">Tables</a></li>
                 <li class="nav-item"><a class="nav-link" href="{{ url_for( 'dashboards.dashboards_home' ) }}">Dashboards</a></li>
@@ -35,7 +35,7 @@
               </ul>
 
               <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                {% if g.user %}<li class="nav-link me-auto" style="padding-right: 30px;">Currently logged in as <small class="text-muted">{{ g.user.username }}</small>.</li>{% endif %} 
+                {% if user %}<li class="nav-link me-auto" style="padding-right: 30px;">Currently logged in as <small class="text-muted">{{ user.username }}</small>.</li>{% endif %} 
               </ul>
           </nav>      
 

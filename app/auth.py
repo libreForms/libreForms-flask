@@ -5,9 +5,9 @@ from flask import (
 )
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from app.db import get_db
-from app import display, log
-
+from app import display, log, db
+from app.models import User
+from flask_login import login_required, current_user, login_user
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -20,14 +20,13 @@ def register():
         organization = request.form['organization']
         phone = request.form['phone']
         created_date = datetime.datetime.today().strftime("%Y-%m-%d %H:%M:%S")
-
+        
         if phone == "":
             phone = None
         
         if email == "":
             email = None
 
-        db = get_db()
         error = None
 
         if not username:
@@ -38,14 +37,23 @@ def register():
             error = 'Invalid email.' 
         elif phone and not re.fullmatch(r'^[a-z0-9]{3}-[a-z0-9]{3}-[a-z0-9]{4}$', phone):
             error = 'Invalid phone number (xxx-xxx-xxxx).' 
+        elif User.query.filter_by(email=email).first():
+            error = 'Email is already registered.' 
+        elif User.query.filter_by(username=username).first():
+            error = 'Username is already registered.' 
 
         if error is None:
             try:
-                db.execute(
-                    "INSERT INTO user (username, password, organization, created_date, phone, email) VALUES (?, ?, ?, ?, ?, ?)",
-                    (username, generate_password_hash(password), organization, created_date, phone, email),
-                )
-                db.commit()
+                new_user = User(
+                            email=email, 
+                            username=username, 
+                            password=generate_password_hash(password, method='sha256'),
+                            organization=organization,
+                            phone=phone,
+                            created_date=created_date,
+                        )
+                db.session.add(new_user)
+                db.session.commit()
                 log.info(f'registered new user {username} with email {email}.')
             except db.IntegrityError:
                 error = f"User is already registered with username \'{username}\' or email \'{email}\'." if email else f"User is already registered with username \'{username}\'."
@@ -69,21 +77,20 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        db = get_db()
-        error = None
-        user = db.execute(
-            'SELECT * FROM user WHERE username = ?', (username,)
-        ).fetchone()
 
-        if user is None:
+        remember = True if request.form.get('remember') else False
+
+        error = None
+        user = User.query.filter_by(username=username).first()
+
+        if not user:
             error = 'Incorrect username.'
-        elif not check_password_hash(user['password'], password):
+        elif not check_password_hash(user.password, password):
             # log.info(f'password failure when logging in user {username}.')
             error = 'Incorrect password.'
 
         if error is None:
-            session.clear()
-            session['user_id'] = user['id']
+            login_user(user, remember=remember)
             flash(f'Successfully logged in user \'{username}\'.')
             log.info(f'successfully logged in user {username}.')
             return redirect(url_for('home'))
@@ -101,11 +108,9 @@ def load_logged_in_user():
     user_id = session.get('user_id')
 
     if user_id is None:
-        g.user = None
+        user = None
     else:
-        g.user = get_db().execute(
-            'SELECT * FROM user WHERE id = ?', (user_id,)
-        ).fetchone()
+        user = User.query.filter_by(id=user_id).first()
 
 
 @bp.route('/logout')
@@ -113,16 +118,6 @@ def logout():
     session.clear()
     return redirect(url_for('home'))
 
-
-def login_required(view):
-    @functools.wraps(view)
-    def wrapped_view(**kwargs):
-        if g.user is None:
-            return redirect(url_for('auth.login'))
-
-        return view(**kwargs)
-
-    return wrapped_view
 
 
 @bp.route('/profile', methods=('GET', 'POST'))
@@ -133,11 +128,10 @@ def profile():
         user_id = session.get('user_id')
         new_password = request.form['new_password']
         current_password = request.form['current_password']
-        db = get_db()
+
         error = None
-        user = db.execute(
-            'SELECT * FROM user WHERE id = ?', (user_id,)
-        ).fetchone()
+
+        user = User.query.filter_by(id=user_id).first()
     
         if user is None:
             error = 'User does not exist.'
@@ -165,4 +159,5 @@ def profile():
         type="profile",
         name=display['site_name'],
         display=display,
+        user=current_user,
     )

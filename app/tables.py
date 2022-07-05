@@ -1,5 +1,6 @@
 # import flask-related packages
 from flask import Blueprint, render_template, request
+from flask_login import current_user
 
 # import custom packages from the current repository
 import libreforms as libreforms
@@ -37,6 +38,7 @@ def tables_home():
             type="tables.table",
             menu=[x for x in libreforms.forms.keys()],
             display=display,
+            user=current_user,
         ) 
 
 # this creates the route to each of the tables
@@ -71,4 +73,5 @@ def table(form_name):
         options=parse_options(form=form_name),
         menu=[x for x in libreforms.forms.keys()],
         display=display,
+        user=current_user,
     )

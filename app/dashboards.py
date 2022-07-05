@@ -1,5 +1,6 @@
 # import flask-related packages
 from flask import Blueprint, render_template, request
+from flask_login import current_user
 
 # import custom packages from the current repository
 import libreforms
@@ -38,6 +39,7 @@ def dashboards_home():
             type="dashboards.dashboards",
             menu=[x for x in libreforms.forms.keys()],
             display=display,
+            user=current_user,
         ) 
 
 
@@ -54,6 +56,7 @@ def dashboards(form_name):
             type="dashboards.dashboards",
             menu=[x for x in libreforms.forms.keys()],
             display=display,
+            user=current_user,
         )
 
 
@@ -66,6 +69,7 @@ def dashboards(form_name):
             type="dashboards.dashboards",
             menu=[x for x in libreforms.forms.keys()],
             display=display,
+            user=current_user,
         )
 
     
@@ -95,6 +99,7 @@ def dashboards(form_name):
         menu=[x for x in libreforms.forms.keys()],
         options=parse_options(form=form_name),
         display=display,
+        user=current_user,
     )
 
 
