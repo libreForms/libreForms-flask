@@ -13,6 +13,12 @@ bp = Blueprint('auth', __name__, url_prefix='/auth')
 
 @bp.route('/register', methods=('GET', 'POST'))
 def register():
+
+    # we only make this view visible if the user isn't logged in
+    if current_user.is_authenticated:
+        return redirect(url_for('home'))
+
+
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
@@ -74,6 +80,12 @@ def register():
 
 @bp.route('/login', methods=('GET', 'POST'))
 def login():
+
+    # we only make this view visible if the user isn't logged in
+    if current_user.is_authenticated:
+        return redirect(url_for('home'))
+
+
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
