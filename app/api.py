@@ -37,7 +37,7 @@ bp = Blueprint('api', __name__, url_prefix='/api')
 
 # here we add the api route v1
 @bp.route('/v1/<api_key>/<form_name>')
-@login_required
+# @login_required
 def api(form_name, api_key):
 
     # here we capture the string-ified API key passed by the user
@@ -60,7 +60,7 @@ def api(form_name, api_key):
                     # prevent type-mismatch by casting both fields as strings
                     df = df.loc[df[col].astype("string") == str(request.args.get(col))] 
 
-            log.info(f'REST {api_key} - REST API query for form {form_name}.')
+            log.info(f'REST {api_key} - REST API query for form \'{form_name}.\'')
             return df.to_dict()
 
         except Exception as e:
