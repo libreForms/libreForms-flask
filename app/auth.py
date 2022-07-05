@@ -54,10 +54,10 @@ def register():
                         )
                 db.session.add(new_user)
                 db.session.commit()
-                log.info(f'registered new user {username} with email {email}.')
+                log.info(f'{username.upper()} - registered with email {email}.')
             except:
                 error = f"User is already registered with username \'{username}\' or email \'{email}\'." if email else f"User is already registered with username \'{username}\'."
-                log.error(f'failed to register new user {username} with email {email}.')
+                log.error(f'LIBREFORMS - failed to register new user {username} with email {email}.')
             else:
                 flash(f'Successfully created user \'{username}\'.')
                 return redirect(url_for("auth.login"))
@@ -86,13 +86,13 @@ def login():
         if not user:
             error = 'Incorrect username.'
         elif not check_password_hash(user.password, password):
-            # log.info(f'password failure when logging in user {username}.')
+            log.info(f'{username.upper()} - password failure when logging in.')
             error = 'Incorrect password.'
 
         if error is None:
             login_user(user, remember=remember)
             flash(f'Successfully logged in user \'{username}\'.')
-            log.info(f'successfully logged in user {username}.')
+            log.info(f'{username.upper()} - successfully logged in.')
             return redirect(url_for('home'))
 
         flash(error)
@@ -146,7 +146,7 @@ def profile():
                 db.session.commit()
 
                 flash("Successfully changed password")
-                log.info(f'successfully changed password for user {user.username}.')
+                log.info(f'{user.username.upper()} - successfully changed password.')
                 return redirect(url_for('auth.profile'))
             except:
                 error = f"There was an error in processing your request."

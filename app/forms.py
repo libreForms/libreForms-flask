@@ -20,7 +20,7 @@ def init_tmp_fs():
     if  os.path.exists ("app/static/tmp/"):
         os.system("rm -rf app/static/tmp/")
     os.mkdir('app/static/tmp/')    
-    log.info('created static/tmp directory.')
+    log.info('SYSTEM - created static/tmp directory.')
 
 
 def generate_csv_templates(form=None):
@@ -32,7 +32,7 @@ def generate_csv_templates(form=None):
             # placeholder for nesting
             # placeholder for repetition
             df.to_csv(f'app/static/tmp/{form.lower().replace(" ","")}.csv', index=False)
-            log.info(f'created app/static/tmp/{form.lower().replace(" ","")}.csv.')
+            log.info(f'LIBREFORMS - created app/static/tmp/{form.lower().replace(" ","")}.csv.')
     else:
         pass
 
@@ -193,7 +193,7 @@ def forms(form_name):
             parsed_args = flaskparser.parser.parse(parse_form_fields(form_name), request, location="form")
             mongodb.write_document_to_collection(parsed_args, form_name, reporter=current_user.username)
             flash(str(parsed_args))
-            log.info(f'User \'{current_user.username}\' submitted form \'{form_name}.\'')
+            log.info(f'{current_user.username.upper()} - submitted \'{form_name}\' form.')
 
         return render_template('app/index.html', 
             context=forms,                                          # this passes the form fields as the primary 'context' variable

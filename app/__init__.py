@@ -17,7 +17,7 @@ if not os.path.exists ("log/"):
 # we'll propagate across the app
 
 log = app.log_functions.set_logger('log/libreforms.log',__name__)
-log.info('started libreforms web application.')
+log.info('LIBREFORMS - started libreforms web application.')
 
 # define default page display and,
 # if a site_overrides file exists, 
@@ -39,7 +39,7 @@ if os.path.exists ("app/site_overrides.py"):
     import app.site_overrides
     for config in app.site_overrides.display.keys():
         display[config] = app.site_overrides.display[config]
-    log.info('found a site overrides file.')
+    log.info('LIBREFORMS - found a site overrides file.')
 
 
 def create_app(test_config=None):
@@ -61,7 +61,7 @@ def create_app(test_config=None):
     if os.path.exists ("secret_key"):
         with open("secret_key", "r+") as f:
             app.config["SECRET_KEY"] = f.read().strip()
-        log.info('found a secret key file.')
+        log.info('LIBREFORMS - found a secret key file.')
 
 
     if test_config is None:
