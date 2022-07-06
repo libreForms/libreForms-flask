@@ -66,7 +66,12 @@ def api(form_name, api_key):
         except Exception as e:
             return {"form_error":"invalid form"}
 
+            # abort(404)
+            # return None
+
     else:
         return {"api_error":"invalid api key"}
+        # abort(404)
+        # return None
 
 
