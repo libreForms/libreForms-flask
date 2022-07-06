@@ -25,13 +25,6 @@ else:
 # initialize mongodb database
 mongodb = mongodb.MongoDB(mongodb_pw)
 
-
-def generate_signed_url(form=None):
-    # placeholder for the logic of generating 
-    # and propagating the signed URLs for a given form.
-    pass
-
-
 # here we read the current list of acceptible signed urls; 
 # in the future, this should be a database, not a text file;
 # this section is here mostly for debugging purposes.
@@ -39,6 +32,29 @@ if os.path.exists ("signed_urls"):
     signed_urls = pd.read_csv("signed_urls")
 else:
     signed_urls = pd.DataFrame({'signed_urls':['t32HDBcKAAIVBBPbjBADCbCh']}) # this will be the default key
+
+# here we add them in a format that makes them easily readable
+signed_urls = (signed_urls.signed_urls.str.strip()).values
+
+
+def generate_signed_url(form=None):
+    # placeholder for the logic of generating 
+    # and propagating the signed URLs for a given form.
+    pass
+
+
+# we employ this function to abstract the verification process
+# for signed URLs
+def verify_signed_url(signed_url, signed_urls=signed_urls):
+
+    # if "_allow_external_access" == True in form.options: 
+    # we added the strip() method to remove trailing whitespace from the api keys
+    if str(signed_url).strip() in signed_urls: 
+        return True
+
+    else:
+        return False
+
 
 
 # this forks forms.py to provide slightly different functionality; yes, it allows you 
@@ -55,14 +71,11 @@ bp = Blueprint('external', __name__, url_prefix='/external')
 @bp.route(f'/<form_name>/<signed_url>', methods=['GET', 'POST'])
 def external_forms(form_name, signed_url):
 
-    # if "_allow_external_access" == True in form.options: 
-
-    # else resolve to a not found error
-    # here we capture the string-ified API key passed by the user
     signed_url = str(signed_url)
-    
-    # we added the strip() method to remove trailing whitespace from the api keys
-    if signed_url in (signed_urls.signed_urls.str.strip()).values: 
+
+    # we employ this method to ensure that the provided 
+    # signed URL is a valid payload
+    if verify_signed_url(signed_url): 
 
         try:
             options = parse_options(form_name)
@@ -89,7 +102,7 @@ def external_forms(form_name, signed_url):
                 )
 
         except Exception as e:
-            return "Invalid link"
+            return f"Invalid link. {e}"
 
     else:
         return "Invalid link"
@@ -98,7 +111,8 @@ def external_forms(form_name, signed_url):
 ####
 # leaving this, just in case the different base-route breaks the CSV download feature.
 ####
-@bp.route('/download/<path:filename>')
-def download_file(filename):
-    return send_from_directory('static/tmp',
-                               filename, as_attachment=True)
+@bp.route('/download/<path:filename>/<signed_url>')
+def download_file(filename, signed_url):
+    if verify_signed_url(signed_url):
+        return send_from_directory('static/tmp',
+                                filename, as_attachment=True)

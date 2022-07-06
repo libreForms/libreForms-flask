@@ -42,7 +42,7 @@
 			<br/>
 			<table>
 			  <tr><td>
-				<a href="{{ url_for(type+'.download_file', filename = filename) }}">download a CSV template of this form</a>
+				<a href="{{ url_for(type+'.download_file', filename = filename, signed_url=signed_url) }}">download a CSV template of this form</a>
 				<!-- <form action="{{ url_for('forms.download_file', filename = filename) }}">
 					<input type=submit value="Template">
 				</form> -->
