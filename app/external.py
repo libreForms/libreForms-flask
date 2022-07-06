@@ -1,7 +1,7 @@
 # import flask-related packages
 from cmath import e
 from fileinput import filename
-from flask import Blueprint, g, flash, render_template, request, send_from_directory
+from flask import Blueprint, g, flash, render_template, request, send_from_directory, abort
 from webargs import fields, flaskparser
 from flask_login import current_user
 
@@ -102,10 +102,12 @@ def external_forms(form_name, signed_url):
                 )
 
         except Exception as e:
-            return f"Invalid link. {e}"
+            abort(404)
+            return None
 
     else:
-        return "Invalid link"
+        abort(404)
+        return None
 
 
 ####
@@ -116,3 +118,6 @@ def download_file(filename, signed_url):
     if verify_signed_url(signed_url):
         return send_from_directory('static/tmp',
                                 filename, as_attachment=True)
+    else:
+        abort(404)
+        return None
