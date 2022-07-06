@@ -28,6 +28,7 @@
                 <li class="nav-item"><a class="nav-link" href="{{ url_for( 'dashboards.dashboards_home' ) }}">Dashboards</a></li>
                 <li class="nav-item"><a class="nav-link" href="{{ url_for( 'auth.profile' ) }}">Profile</a></li>
                 <li class="nav-item"><a class="nav-link" href="{{ url_for( 'auth.logout' ) }}">Logout</a></li>
+              {% elif suppress_navbar %}   
               {% else %}
                 <li class="nav-item"><a class="nav-link" href="{{ url_for( 'auth.login' ) }}">Login</a></li>
                 <li class="nav-item"><a class="nav-link" href="{{ url_for( 'auth.register' ) }}">Register</a></li>
@@ -35,7 +36,11 @@
               </ul>
 
               <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                {% if user %}<li class="nav-link active me-auto" style="padding-right: 30px;">Currently logged in as <small class="text-muted">{{ user.username }}</small>.</li>{% endif %} 
+                {% if user %}
+                <li class="nav-link active me-auto" style="padding-right: 30px;">Currently logged in as <small class="text-muted">{{ user.username }}</small>.</li>
+                {% elif signed_url %}
+                <li class="nav-link active me-auto" style="padding-right: 30px;">You are completing this form as <small class="text-muted">{{ signed_url }}</small>.</li>
+                {% endif %} 
               </ul>
           </nav>      
 

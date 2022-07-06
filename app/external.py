@@ -82,6 +82,8 @@ def external_forms(form_name, signed_url):
                 name=form_name,                                         # this sets the name of the page for the page header
                 options=options, 
                 display=display,
+                suppress_navbar=True,
+                signed_url=signed_url,
                 filename = f'{form_name.lower().replace(" ","")}.csv' if options['_allow_csv_templates'] else False,
                 )
 
@@ -92,10 +94,10 @@ def external_forms(form_name, signed_url):
         return "Invalid link"
 
 
-#####
+####
 # leaving this, just in case the different base-route breaks the CSV download feature.
-#####
-# @bp.route('/download/<path:filename>')
-# def download_file(filename):
-#     return send_from_directory('static/tmp',
-#                                filename, as_attachment=True)
+####
+@bp.route('/download/<path:filename>')
+def download_file(filename):
+    return send_from_directory('static/tmp',
+                               filename, as_attachment=True)
