@@ -220,6 +220,7 @@ def forms(form_name):
 
 # this is the download link for files in the static/tmp directory
 @bp.route('/download/<path:filename>')
+@login_required
 def download_file(filename):
     return send_from_directory('static/tmp',
                                filename, as_attachment=True)
