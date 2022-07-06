@@ -42,7 +42,7 @@
 			<br/>
 			<table>
 			  <tr><td>
-				<a href="{{ url_for('forms.download_file', filename = filename) }}">download a CSV template of this form</a>
+				<a href="{{ url_for(type+'.download_file', filename = filename) }}">download a CSV template of this form</a>
 				<!-- <form action="{{ url_for('forms.download_file', filename = filename) }}">
 					<input type=submit value="Template">
 				</form> -->
@@ -61,7 +61,7 @@
 			{{ display.warning_banner }}
 			{% endif %}
 		    {% if form_not_found %}
-			    Page not found, go <a href="{{ url_for( 'home' ) }}">home</a>.
+			    <p>Go <a href="{{ url_for( 'home' ) }}">home</a>.</p>
 		    {% endif %}
 	    	{% if graphJSON %}
 			  <div id='chart' class='chart'”></div>

@@ -84,6 +84,7 @@ def external_forms(form_name, signed_url):
                 display=display,
                 suppress_navbar=True,
                 signed_url=signed_url,
+                type='external',
                 filename = f'{form_name.lower().replace(" ","")}.csv' if options['_allow_csv_templates'] else False,
                 )
 

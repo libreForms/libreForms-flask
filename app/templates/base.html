@@ -49,7 +49,7 @@
             <h3 class="nav-link border-bottom">{{ name }} <small class="text-muted">{% if context %}form{% elif is_table %}table{% elif graphJSON %}dashboard{% elif homepage_msg %}home{% endif %}</small></h3>        
               {% if menu %}
               {% for item in menu %} 
-              <li class="nav-item"><a class="nav-link" href="{{ url_for( type, form_name=item ) }}">{{ item }}</a></li>
+              <li class="nav-item"><a class="nav-link" href="{{ url_for( type+'.'+type, form_name=item ) }}">{{ item }}</a></li>
               {% endfor %}
               {% endif %}                           
           </ul>

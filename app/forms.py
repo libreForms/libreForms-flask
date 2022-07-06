@@ -174,7 +174,7 @@ def forms_home():
     return render_template('app/index.html', 
             msg="Select a form from the left-hand menu.",
             name="Form",
-            type="forms.forms",
+            type="forms",
             menu=[x for x in libreforms.forms.keys()],
             display=display,
             user=current_user,
@@ -200,7 +200,7 @@ def forms(form_name):
             context=forms,                                          # this passes the form fields as the primary 'context' variable
             name=form_name,                                         # this sets the name of the page for the page header
             menu=[x for x in libreforms.forms.keys()],              # this returns the forms in libreform/forms to display in the lefthand menu
-            type="forms.forms",       
+            type="forms",       
             options=options, 
             display=display,
             filename = f'{form_name.lower().replace(" ","")}.csv' if options['_allow_csv_templates'] else False,
@@ -212,7 +212,7 @@ def forms(form_name):
             form_not_found=True,
             msg=e,
             name="404",
-            type="forms.forms",
+            type="forms",
             menu=[x for x in libreforms.forms.keys()],
             display=display,
             user=current_user,

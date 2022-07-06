@@ -35,7 +35,7 @@ def tables_home():
     return render_template('app/index.html', 
             msg="Select a table from the left-hand menu.",
             name="Table",
-            type="tables.table",
+            type="tables",
             menu=[x for x in libreforms.forms.keys()],
             display=display,
             user=current_user,
@@ -44,7 +44,7 @@ def tables_home():
 # this creates the route to each of the tables
 @bp.route(f'/tables/<form_name>', methods=['GET', 'POST'])
 @login_required
-def table(form_name): 
+def tables(form_name): 
 
     try:
         pd.set_option('display.max_colwidth', 0)
@@ -67,7 +67,7 @@ def table(form_name):
 
     return render_template('app/index.html',
         table=df,
-        type="tables.table",
+        type="tables",
         name=form_name,
         is_table=True,
         options=parse_options(form=form_name),
