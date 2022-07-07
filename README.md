@@ -285,6 +285,15 @@ Pass: libreforms
 
 In addition to username and password fields, the application ships by default with phone number, organization, and email fields. These can be modified by changing the fields defined in app/schema.sql and app/auth.py. Currently, there is no group-based permission sets defined, but these will be added per https://github.com/signebedi/libreForms/issues/16.
 
+### REST
+
+There is a RESTful API that allows users to complete read and, perhaps in the future, write operations against the MongoDB database, see discussion [here](https://github.com/signebedi/libreForms/issues/36). This requires API keys. You can create a file in the application home directory called `api_keys` structured as:
+```
+api_keys
+YOUR_KEY_HERE
+```
+But if you don't, the default test key will be `t32HDBcKAAIVBBPbjBADCbCh`. In the future, we may choose to manage API keys, along with signed URLs, using a database, see [here](https://github.com/signebedi/libreForms/issues/40).
+
 
 ## Database
 
