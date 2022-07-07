@@ -12,7 +12,7 @@ class PIDFileHandler(logging.handlers.WatchedFileHandler):
         path, extension = os.path.splitext(filename)
         return '{0}-{1}{2}'.format(path, pid, extension)
 
-def set_logger(file_path, module, log_level=logging.INFO):
+def set_logger(file_path, module, pid=os.getpid(), log_level=logging.INFO):
 
     # we make sure the log file_path exists
     with open(file_path, "a") as logfile:
@@ -50,7 +50,7 @@ def set_logger(file_path, module, log_level=logging.INFO):
             PIDFileHandler(file_path),
         ],
         level=log_level,
-        format="%(asctime)s - %(levelname)s - %(message)s",
+        format="%(asctime)s - %(levelname)s - %(message)s - "+str(pid),
         datefmt='%Y-%m-%d %H:%M:%S',
         )
 
