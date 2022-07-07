@@ -1,4 +1,4 @@
-import os, logging, logging.handlers
+import os, re, logging, logging.handlers
 
 # we append the PID to the logfile 
 class PIDFileHandler(logging.handlers.WatchedFileHandler):
@@ -56,3 +56,9 @@ def set_logger(file_path, module, pid=os.getpid(), log_level=logging.INFO):
 
     # we return the logging object
     return log
+
+# the current_pids should be a list of the current flask and/or gunicorn pids
+def cleanup_stray_log_handlers(current_pids=None):
+    for log in os.listdir('log'):
+        if re.fullmatch(r"libreforms-[0-9]+.log", log):
+                os.remove (os.path.join('log', log))
