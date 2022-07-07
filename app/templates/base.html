@@ -14,7 +14,14 @@
     <link rel="shortcut icon" href='{{ url_for('static', filename=display.favicon) }}' />
     <link rel='shortcut icon' type='image/x-icon' href='{{ url_for('static', filename=display.favicon) }}' />
 
-    <title>{{ display['site_name'] }} {{ name }}</title>      
+    <title>{{ display['site_name'] }} {{ name }}</title>
+    <style>
+    .required::before {
+      content: "*";
+      color: red;
+    }
+    </style>
+  
   </head>
 
   <body>        

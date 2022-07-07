@@ -7,7 +7,7 @@
 					{% if context[field].input_field.type == "radio" or context[field].input_field.type == "checkbox" %}
 	
 					<div class="form-group">
-						<label class="mt-4" for="">{{ field | replace('_', ' ')}}</label>
+						<label class="form-label mt-4{% if context[field].output_data.required==true %} required{% endif %}" for="">{{ field | replace('_', ' ')}}</label>
 						{% for item in context[field].input_field.content %}
 						<div class="form-check">
 							<label class='form-check-label' for="{{ field }} {{ item }}">{{ item }}
@@ -19,7 +19,7 @@
 					{% elif context[field].input_field.type == "hidden" %}
 					{% else %}
 					<div class="form-group">
-						<label class="form-label mt-4" for="{{ field }}">{{ field | replace('_', ' ')}}</label></td>
+						<label class="form-label mt-4{% if context[field].output_data.required==true %} required{% endif %}" for="{{ field }}">{{ field | replace('_', ' ')}}</label></td>
 						<input class="form-control" type="{{ context[field].input_field.type }}" value="{{ context[field].input_field.content[0] }}" id="{{ field }}" name="{{ field }}" {% if context[field].output_data.required==true %}required{% endif %}/>
 					</div>
 	
