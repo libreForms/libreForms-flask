@@ -156,7 +156,6 @@ def profile():
 
             try:
                 user.password=generate_password_hash(new_password, method='sha256')
-                # db.session.add(user)
                 db.session.commit()
 
                 flash("Successfully changed password")

@@ -45,11 +45,15 @@ def generate_signed_url(form=None):
 
 # we employ this function to abstract the verification process
 # for signed URLs
-def verify_signed_url(signed_url, signed_urls=signed_urls):
+def validate_signed_url(signed_url, signed_urls=signed_urls):
 
     # if "_allow_external_access" == True in form.options: 
+
     # we added the strip() method to remove trailing whitespace from the api keys
     if str(signed_url).strip() in signed_urls: 
+        # in essence, the below pseudocode asks if the signed URL in question allows access to this particular form
+        # if form == signed_urls.loc[signed_url == signed_url].form 
+        
         return True
 
     else:
@@ -75,7 +79,7 @@ def external_forms(form_name, signed_url):
 
     # we employ this method to ensure that the provided 
     # signed URL is a valid payload
-    if verify_signed_url(signed_url): 
+    if validate_signed_url(signed_url): 
 
         try:
             options = parse_options(form_name)
@@ -115,7 +119,7 @@ def external_forms(form_name, signed_url):
 ####
 @bp.route('/download/<path:filename>/<signed_url>')
 def download_file(filename, signed_url):
-    if verify_signed_url(signed_url):
+    if validate_signed_url(signed_url):
         return send_from_directory('static/tmp',
                                 filename, as_attachment=True)
     else:
