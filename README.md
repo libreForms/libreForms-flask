@@ -36,14 +36,23 @@ The libreForms project, first and foremost, defines a simple but highly extensib
 
 - You are a large enterprise with significant technical staff that routinely host and maintain applications for use on your organization's intranet. You periodically rely on physical or digitized forms, reports, and questionnaires. You have assessed options for form managers on the market and determined that proprietary services provide little direct control over the application source code, or otherwise fail to provide a viable licensing model.
 
+### Architecture
+
+libreForms is meant to run within an corporate network or enterprise intranet, presumably behind a reverse proxy. It does not currently support high availability, but does spawn multiple workers on the system upon which it is deployed. See this [discussion](https://github.com/signebedi/libreForms/issues/43) about accounting for enterprise requirements. 
+
+In addition, libreForms provides out-of-box support for external-facing forms. These forms employ signed URLs, rather than local authentication, to control access to forms. These are intended to also run behind a reverse proxy that points to whatever external network (eg. the internet or another organization's network) you'd like to provide access.
+
+![example architecture](docs/source/libreForms_with_reverse_proxy.drawio.svg)
+
+
 ### Features
 - a form-building abstraction layer based on Python dictionaries
-- a flask web application (http://x.x.x.x:8000/) that will work well behind most standard reverse-proxies 
-- plotly dashboards for data visualization
-- a document-oriented database to store form data 
-- basic local authentication
-- \[future\] SAML authentication support
-- \[future\] support for lookups in form fields & routing lists for form review, approvals, and notifications
+- a flask web application (http://x.x.x.x:8000/) that will work well behind most standard reverse-proxies, as well as the following features:
+    - plotly dashboards for data visualization
+    - a document-oriented database to store form data 
+    - basic local authentication
+    - \[future\] SAML authentication support
+    - \[future\] support for lookups in form fields & routing lists for form review, approvals, and notifications
 
 ## Installation
 
