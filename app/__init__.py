@@ -5,6 +5,7 @@ import app.log_functions
 # from flask_admin import Admin
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, current_user
+from libreforms import __version__
 
 db = SQLAlchemy()
 
@@ -34,6 +35,7 @@ display['favicon'] = "" # unused
 display['image'] = "" # unused
 display['favicon'] = "default_favicon.ico" 
 display['default_org'] = "" 
+display['version'] =__version__
 
 if os.path.exists ("app/site_overrides.py"):
     import app.site_overrides
