@@ -69,6 +69,19 @@ def create_app(test_config=None):
             user=current_user if current_user.is_authenticated else None,
         )
 
+
+        # define a home route
+    @app.route('/privacy')
+    def privacy():
+        return render_template('app/privacy.html', 
+            site_name=display['site_name'],
+            type="home",
+            name='privacy',
+            display=display,
+            user=current_user if current_user.is_authenticated else None,
+        )
+
+
     from .models import User
 
     # initialize the database
