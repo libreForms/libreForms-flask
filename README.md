@@ -247,23 +247,6 @@ forms = {
 
 Versions above `1.0.0` will introduce compatibility-breaking changes that are intended to simplify the abstraction layer. For more information, see the [discussion](https://github.com/signebedi/libreForms/issues/27) about these changes.
 
-```python
-forms = {
-    "sample-form": {
-        "Text_Field": {
-            "input_data_type": "text", 
-            "content": ["NA"],
-            "output_data_type": "str", 
-            "options": {
-                 "validators": [lambda p: len(p) >= 6],
-                 "required": True,
-                 "PLACEHOLDER_FOR_REPETITION_LOGIC":  True, 
-                 "INSERT_OTHER_ARBITRARY_KWARGS_HERE": True,
-            },
-        },
-    },
-}
-```
 
 ## Web Application
 
