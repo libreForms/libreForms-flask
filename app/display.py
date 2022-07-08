@@ -3,13 +3,16 @@
 # use it to overwrite defaults
 import os
 from libreforms import __version__
+from markupsafe import Markup
 
 display = {}
 display['site_name'] = "libreForms"
-display['homepage_msg'] = "<p>Welcome to libreForms, an extensible form building abstraction \
+
+# remove the Markup designation if you don't want to treat this as safe.
+display['homepage_msg'] = Markup("<p>Welcome to libreForms, an extensible form building abstraction \
                             layer implemented in Flask. Select a view from above to get started. \
                             Review the docs at <a href='https://github.com/signebedi/libreForms'> \
-                            https://github.com/signebedi/libreForms</a>.</p>"
+                            https://github.com/signebedi/libreForms</a>.</p>")
 display['warning_banner'] = "" 
 display['theme'] = "" # unused
 display['favicon'] = "" # unused
