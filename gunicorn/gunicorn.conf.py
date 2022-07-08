@@ -7,6 +7,8 @@
 import os, re
 
 def pre_fork(server, worker):
+
+    # cleanup any stray log files prior to forking hte work processes
     for log in os.listdir(logpath):
         if re.fullmatch(r"libreforms-[0-9]+.log", log):
                 os.remove (os.path.join(logpath, log))
