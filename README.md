@@ -334,24 +334,26 @@ pandas==1.4.3
 plotly==5.9.0
 Flask==2.1.2
 Flask-Admin==1.6.0
+Flask-Login==0.6.1
 webargs==8.1.0
 gunicorn==20.1.0
 pymongo==4.1.1
+SQLAlchemy==1.4.39
 ```
 
 In the development requirements file, we add the following requirements:
 
 ```
-SQLAlchemy
-Flask-Login
-Bootstrap-Flask
+Authlib==1.0.1
+Flask-Dance==6.0.0
+oauthlib==3.2.0
 ```
 
 In the tests requirements file, we add the following requirements
 
 ```
-coverage
-pytest
+coverage==6.4.1
+pytest==7.1.2
 ```
 
 ## Copyright

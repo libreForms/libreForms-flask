@@ -51,7 +51,7 @@
 		    {% endif %}
 
 			{% if homepage %}
-			  {{ display.homepage_msg }}
+			  {{ display.homepage_msg|safe }}
 		    {% endif %}
 		    {% if msg %}
 			  {{ msg }}
