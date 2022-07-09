@@ -7,6 +7,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, current_user
 from libreforms import __version__
 from app.display import display
+import pandas as pd
 
 db = SQLAlchemy()
 
@@ -35,6 +36,15 @@ def create_app(test_config=None):
 
     # admin = Admin(app, name='libreForms', template_mode='bootstrap4')
     # Add administrative views here
+
+
+    if os.path.exists ("smtp_creds"):
+        smtp_creds = pd.read_csv("smtp_creds") # expecting the CSV format: smtp_server,port,username,password,from_address
+        SMTP_ENABLED=True # we should do something with this later on
+        log.info('LIBREFORMS - found an SMTP credentials file.')
+
+    else: 
+        log.warning('LIBREFORMS - no SMTP credentials file found, outgoing mail will not be enabled.')
 
 
     if os.path.exists ("secret_key"):
