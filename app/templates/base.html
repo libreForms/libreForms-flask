@@ -71,12 +71,8 @@
 
             {% block content %}{% endblock %}
           </div>
-  {% if graphJSON %}
-	<script type='text/javascript'>
-		var graphs = {{graphJSON | safe}};
-		Plotly.plot('chart',graphs,{});
-	</script>
-	{% endif %}
+
+  {% block addons %}{% endblock %}
 
   </body>
 </html>

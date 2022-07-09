@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block content %}
+
+			{% if homepage %}
+			  {{ display.homepage_msg }}
+		    {% endif %}
+		    {% if msg %}
+			  {{ msg }}
+		    {% endif %}
+			{% if display_warning_banner %}
+			<hr/>
+			{{ display.warning_banner }}
+			{% endif %}
+		    {% if form_not_found %}
+			    <p>Go <a href="{{ url_for( 'home' ) }}">home</a>.</p>
+		    {% endif %}
+			{% if is_table %}
+			  {{ table.to_html(index=False) | safe}}
+			{% endif %}	
+			
+{% endblock %}

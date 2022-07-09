@@ -95,8 +95,8 @@ def external_forms(form_name, signed_url):
                 log.info(f'ANON {signed_url} - submitted \'{form_name}\' form.')
 
             return render_template('app/index.html', 
-                context=forms,                                          # this passes the form fields as the primary 'context' variable
-                name=form_name,                                         # this sets the name of the page for the page header
+                context=forms,
+                name=form_name,             
                 options=options, 
                 display=display,
                 suppress_navbar=True,

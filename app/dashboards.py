@@ -33,7 +33,7 @@ bp = Blueprint('dashboards', __name__, url_prefix='/dashboards')
 @bp.route('/')
 @login_required
 def dashboards_home():
-    return render_template('app/index.html', 
+    return render_template('app/dashboards.html', 
             msg="Select a dashboard from the left-hand menu.",
             name="Dashboard",
             type="dashboards",
@@ -49,7 +49,7 @@ def dashboards_home():
 def dashboards(form_name):
 
     if form_name not in libreforms.forms.keys():
-        return render_template('app/index.html', 
+        return render_template('app/dashboards.html', 
             form_not_found=True,
             msg="",
             name="404",
@@ -62,7 +62,7 @@ def dashboards(form_name):
 
 
     if parse_options(form=form_name)["_dashboard"] == False:
-        return render_template('app/index.html', 
+        return render_template('app/dashboards.html', 
             form_not_found=True,
             msg="No dashboard has been configured for this form.",
             name="404",
@@ -91,7 +91,7 @@ def dashboards(form_name):
                 template='plotly_dark')
     graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
 
-    return render_template('app/index.html', 
+    return render_template('app/dashboards.html', 
         graphJSON=graphJSON,
         name=form_name,
         type="dashboards",
