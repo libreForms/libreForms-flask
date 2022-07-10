@@ -103,7 +103,6 @@ python3.8 -m venv venv
 source venv/bin/activate
 pip install -r requirements/app.txt
 export FLASK_APP=app
-flask init-db
 ```
 
 3. libreforms user
@@ -157,7 +156,6 @@ python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements/app.txt
 export FLASK_APP=app
-flask init-db
 ```
 
 3. libreforms user
