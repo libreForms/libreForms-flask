@@ -171,7 +171,7 @@ bp = Blueprint('forms', __name__, url_prefix='/forms')
 @bp.route(f'/')
 @login_required
 def forms_home():
-    return render_template('app/index.html', 
+    return render_template('app/forms.html', 
             msg="Select a form from the left-hand menu.",
             name="Form",
             type="forms",
@@ -196,7 +196,7 @@ def forms(form_name):
             flash(str(parsed_args))
             log.info(f'{current_user.username.upper()} - submitted \'{form_name}\' form.')
 
-        return render_template('app/index.html', 
+        return render_template('app/forms.html', 
             context=forms,                                          # this passes the form fields as the primary 'context' variable
             name=form_name,                                         # this sets the name of the page for the page header
             menu=[x for x in libreforms.forms.keys()],              # this returns the forms in libreform/forms to display in the lefthand menu
@@ -208,7 +208,7 @@ def forms(form_name):
             )
 
     except Exception as e:
-        return render_template('app/index.html', 
+        return render_template('app/forms.html', 
             form_not_found=True,
             msg=e,
             name="404",

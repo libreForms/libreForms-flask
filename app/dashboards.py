@@ -84,6 +84,18 @@ def dashboards(form_name):
     # if request.args.get("y") and request.args.get("y") in form.keys(): # alternative if we want to verify the field exists
     y_context = request.args.get("y") if request.args.get("y") else ref['y']
 
+
+    if len(df < 1):
+        return render_template('app/dashboards.html', 
+            form_not_found=True,
+            msg="This form has not received any submissions.",
+            name="404",
+            type="dashboards",
+            menu=[x for x in libreforms.forms.keys()],
+            display=display,
+            user=current_user,
+        )
+
     fig = px.line(df, 
                 x=ref['x'], 
                 y=y_context, 
