@@ -101,7 +101,7 @@ git clone https://github.com/signebedi/libreForms.git
 cd /opt/libreForms
 python3.8 -m venv venv
 source venv/bin/activate
-pip install -r requirements.txt
+pip install -r requirements/app.txt
 export FLASK_APP=app
 flask init-db
 ```
@@ -155,7 +155,7 @@ git clone https://github.com/signebedi/libreForms.git
 cd /opt/libreForms
 python3 -m venv venv
 source venv/bin/activate
-pip install -r requirements.txt
+pip install -r requirements/app.txt
 export FLASK_APP=app
 flask init-db
 ```
