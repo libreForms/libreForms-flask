@@ -167,7 +167,7 @@ def profile():
         flash(error)
 
 
-    return render_template('app/profile.html', 
+    return render_template('auth/profile.html', 
         type="profile",
         name=display['site_name'],
         display=display,
