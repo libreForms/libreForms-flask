@@ -1,6 +1,7 @@
 # import flask-related packages
 from flask import Blueprint, render_template, request
 from flask_login import current_user
+from markupsafe import Markup
 
 # import custom packages from the current repository
 import libreforms as libreforms
@@ -32,7 +33,7 @@ bp = Blueprint('tables', __name__, url_prefix='/tables')
 @bp.route(f'/')
 @login_required
 def tables_home():
-    return render_template('app/index.html', 
+    return render_template('app/tables.html', 
             msg="Select a table from the left-hand menu.",
             name="Table",
             type="tables",
@@ -65,8 +66,8 @@ def tables(form_name):
     except Exception as e:
         df = pd.DataFrame(columns=["Error"], data=[{"Error":e}])
 
-    return render_template('app/index.html',
-        table=df,
+    return render_template('app/tables.html',
+        table=Markup(df.to_html(index=False)),
         type="tables",
         name=form_name,
         is_table=True,

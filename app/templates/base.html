@@ -53,7 +53,7 @@
 
         <div class="d-grid gap-2 fixed-top" style="max-width:18%; padding-top: 100px; padding-left: 30px;"> 
           <ul class="nav nav-pills nav-stacked flex-column">
-            <h3 class="nav-link border-bottom">{{ name }} <small class="text-muted">{% if context %}form{% elif is_table %}table{% elif graphJSON %}dashboard{% elif homepage_msg %}home{% endif %}</small></h3>        
+            <h3 class="nav-link border-bottom">{{ name }} <small class="text-muted">{% if context %}form{% elif is_table %}table{% elif graphJSON %}dashboard{% elif homepage %}home{% endif %}</small></h3>        
               {% if menu %}
               {% for item in menu %} 
               <li class="nav-item"><a class="nav-link" href="{{ url_for( type+'.'+type, form_name=item ) }}">{{ item }}</a></li>

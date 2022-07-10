@@ -85,7 +85,7 @@ def dashboards(form_name):
     y_context = request.args.get("y") if request.args.get("y") else ref['y']
 
 
-    if len(df < 1):
+    if len(df.index) < 1:
         return render_template('app/dashboards.html', 
             form_not_found=True,
             msg="This form has not received any submissions.",
