@@ -12,6 +12,7 @@ Read the docs at [https://libreforms.readthedocs.io/en/latest/](https://librefor
 2. [installation](#installation)
     - [RHEL 8](#rhel-8)
     - [Ubuntu 20.04](#ubuntu-2004)
+    - [Common Issues](#common-issues)
 3. [Abstraction Layer](#abstraction-layer)
 4. [Web Application](#web-application)
     - [Views](#views)
@@ -179,6 +180,10 @@ if you experience a failure when you check `systemctl status libreforms`, then t
 chown -R libreforms:libreforms /opt/libreForms
 systemctl restart libreforms
 ```
+
+### Common Issues
+
+`pymongo.errors.AutoReconnect: connection pool paused`: if you receive this error, try restarting the applicataion by running `systemctl stop libreforms; systemctl start libreforms`.
 
 
 ## Abstraction Layer
