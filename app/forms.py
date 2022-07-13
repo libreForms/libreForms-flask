@@ -1,7 +1,7 @@
 # import flask-related packages
 from cmath import e
 from fileinput import filename
-from flask import Blueprint, g, flash, render_template, request, send_from_directory
+from flask import Blueprint, g, flash, render_template, request, send_from_directory, send_file
 from webargs import fields, flaskparser
 from flask_login import current_user
 
@@ -10,34 +10,10 @@ import libreforms, mongodb
 from app import display, log
 from app.auth import login_required, session
 
+
 # and finally, import other packages
 import os
 import pandas as pd
-
-
-def init_tmp_fs():
-# if application tmp/ path doesn't exist, make it
-    if  os.path.exists ("app/static/tmp/"):
-        os.system("rm -rf app/static/tmp/")
-    os.mkdir('app/static/tmp/')    
-    log.info('LIBREFORMS - created static/tmp directory.')
-
-
-def generate_csv_templates(form=None):
-    if form:
-        if parse_options(form=form)['_allow_csv_templates']:
-
-            # this is our first stab at building templates, without accounting for nesting or repetition
-            df = pd.DataFrame (columns=[x for x in progagate_forms(form).keys()])
-            # placeholder for nesting
-            # placeholder for repetition
-            df.to_csv(f'app/static/tmp/{form.lower().replace(" ","")}.csv', index=False)
-            log.info(f'LIBREFORMS - created app/static/tmp/{form.lower().replace(" ","")}.csv.')
-    else:
-        pass
-
-def handle_csv_upload(csv_path, form=None):
-    pass
 
 
 def parse_form_fields(form=False):
@@ -160,11 +136,6 @@ else:
 mongodb = mongodb.MongoDB(mongodb_pw)
 
 
-# set up form handling
-init_tmp_fs()
-for form in libreforms.forms.keys():
-    generate_csv_templates(form)
-
 
 bp = Blueprint('forms', __name__, url_prefix='/forms')
 
@@ -222,5 +193,13 @@ def forms(form_name):
 @bp.route('/download/<path:filename>')
 @login_required
 def download_file(filename):
+
+    # this is our first stab at building templates, without accounting for nesting or repetition
+    df = pd.DataFrame (columns=[x for x in progagate_forms(filename.replace('.csv', '')).keys()])
+
+    df.to_csv(f'app/static/tmp/{filename}', index=False)
+
+    # return send_file(f'static/tmp/', 
+    #                         as_attachment=True, attachment_filename=f"{filename}.csv")
     return send_from_directory('static/tmp',
                                filename, as_attachment=True)

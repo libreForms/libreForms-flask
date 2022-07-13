@@ -94,7 +94,7 @@ def external_forms(form_name, signed_url):
                 # data we store in the signed_urls database.
                 log.info(f'ANON {signed_url} - submitted \'{form_name}\' form.')
 
-            return render_template('app/index.html', 
+            return render_template('app/forms.html', 
                 context=forms,
                 name=form_name,             
                 options=options, 
@@ -120,8 +120,16 @@ def external_forms(form_name, signed_url):
 @bp.route('/download/<path:filename>/<signed_url>')
 def download_file(filename, signed_url):
     if validate_signed_url(signed_url):
+        # this is our first stab at building templates, without accounting for nesting or repetition
+        df = pd.DataFrame (columns=[x for x in progagate_forms(filename.replace('.csv', '')).keys()])
+
+        df.to_csv(f'app/static/tmp/{filename}', index=False)
+
+        # return send_file(f'static/tmp/', 
+        #                         as_attachment=True, attachment_filename=f"{filename}.csv")
         return send_from_directory('static/tmp',
                                 filename, as_attachment=True)
+
     else:
         abort(404)
         return None
