@@ -13,6 +13,7 @@ def init_tmp_fs(delete_first=False):
         if not os.path.exists ("app/static/tmp/"):
             os.mkdir('app/static/tmp/')    
 
+## deprecated by new approach to file downloads
 # def generate_csv_templates(form=None):
 #     if form:
 #         if parse_options(form=form)['_allow_csv_templates']:
