@@ -7,7 +7,7 @@ from flask_login import current_user
 
 # import custom packages from the current repository
 import libreforms, mongodb
-from app import display, log
+from app import display, log, tempfile_path
 from app.auth import login_required, session
 
 
@@ -189,7 +189,7 @@ def forms(form_name):
             user=current_user,
         )
 
-# this is the download link for files in the static/tmp directory
+# this is the download link for files in the temp directory
 @bp.route('/download/<path:filename>')
 @login_required
 def download_file(filename):
@@ -197,9 +197,8 @@ def download_file(filename):
     # this is our first stab at building templates, without accounting for nesting or repetition
     df = pd.DataFrame (columns=[x for x in progagate_forms(filename.replace('.csv', '')).keys()])
 
-    df.to_csv(f'app/static/tmp/{filename}', index=False)
+    fp = os.path.join(tempfile_path, filename)
+    df.to_csv(fp, index=False)
 
-    # return send_file(f'static/tmp/', 
-    #                         as_attachment=True, attachment_filename=f"{filename}.csv")
-    return send_from_directory('static/tmp',
-                               filename, as_attachment=True)
+    return send_from_directory(tempfile_path,
+                            filename, as_attachment=True)

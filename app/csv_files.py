@@ -1,8 +1,14 @@
-import os
+import os, tempfile
 import pandas as pd
 import libreforms
 # from .forms import parse_options, progagate_forms
 
+
+def tempfile_init_tmp_fs():
+    temp_folder = tempfile.mkdtemp()
+    return temp_folder
+
+## deprecated in favor of tempfile_init_tmp_fs()
 def init_tmp_fs(delete_first=False):
     if delete_first:
 # if application tmp/ path doesn't exist, make it

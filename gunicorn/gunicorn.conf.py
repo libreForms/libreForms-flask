@@ -44,7 +44,7 @@ def pre_fork(server, worker):
                 db.session.close()
 
     # destructively initialize a tmp file system for the app 
-    init_tmp_fs(delete_first=True)
+    # init_tmp_fs(delete_first=True)
 
 
 

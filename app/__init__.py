@@ -8,10 +8,11 @@ from flask_login import LoginManager, current_user
 from libreforms import __version__
 from app.display import display
 import pandas as pd
-from app.csv_files import init_tmp_fs
+from app.csv_files import init_tmp_fs, tempfile_init_tmp_fs
 
 db = SQLAlchemy()
 
+tempfile_path = tempfile_init_tmp_fs()
 
 # if application log path doesn't exist, make it
 if not os.path.exists ("log/"):
@@ -23,8 +24,8 @@ if not os.path.exists ("log/"):
 log = app.log_functions.set_logger('log/libreforms.log',__name__)
 log.info('LIBREFORMS - started libreforms web application.')
 
-# non-destructively initialize a tmp file system for the app 
-init_tmp_fs(delete_first=False)
+# # non-destructively initialize a tmp file system for the app 
+# init_tmp_fs(delete_first=False)
 
 def create_app(test_config=None):
  
