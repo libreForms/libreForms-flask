@@ -44,7 +44,7 @@ def dashboards_home():
 
 
 # this creates the route to each of the dashboards
-@bp.route(f'/dashboards/<form_name>')
+@bp.route(f'/<form_name>')
 @login_required
 def dashboards(form_name):
 

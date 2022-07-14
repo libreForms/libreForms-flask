@@ -43,7 +43,7 @@ def tables_home():
         ) 
 
 # this creates the route to each of the tables
-@bp.route(f'/tables/<form_name>', methods=['GET', 'POST'])
+@bp.route(f'/<form_name>', methods=['GET', 'POST'])
 @login_required
 def tables(form_name): 
 
@@ -51,6 +51,18 @@ def tables(form_name):
         pd.set_option('display.max_colwidth', 0)
         data = mongodb.read_documents_from_collection(form_name)
         df = pd.DataFrame(list(data))
+
+        if len(df.index) < 1:
+            return render_template('app/tables.html', 
+                form_not_found=True,
+                msg="This form has not received any submissions.",
+                name="404",
+                type="tables",
+                menu=[x for x in libreforms.forms.keys()],
+                display=display,
+                user=current_user,
+            )
+
         df.drop(columns=["_id"], inplace=True)
         
         # here we allow the user to select fields they want to use, 
