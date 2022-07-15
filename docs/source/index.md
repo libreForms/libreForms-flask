@@ -6,7 +6,7 @@ Liberate your forms with libreForms, an open form manager API written in Python 
 
 Competing browser-based form managers give form administrators little control over form fields, the resulting data, or the underlying web application. Likewise, few options provide both self-hosting support and a viable licensing model.
 
-The libreForms project, first and foremost, defines a simple but highly extensible abstraction layer that matches form fields to data structures. It adds a highly configurable browser-based application and a document-oriented database on top of this abstraction layer. 
+The libreForms project, first and foremost, defines a simple but highly extensible abstraction layer that matches form fields to data structures. It adds a highly configurable browser-based application and a document-oriented database on top of this abstraction layer. In short, the platform allows you to do anything, host anywhere, and control everything about your internal form management system.
 
 ![abstraction layer](libreForms_abstraction_layer.drawio.svg)
 
@@ -17,14 +17,25 @@ The libreForms project, first and foremost, defines a simple but highly extensib
 
 - You are a large enterprise with significant technical staff that routinely host and maintain applications for use on your organization's intranet. You periodically rely on physical or digitized forms, reports, and questionnaires. You have assessed options for form managers on the market and determined that proprietary services provide little direct control over the application source code, or otherwise fail to provide a viable licensing model.
 
+
+### Architecture
+
+libreForms is meant to run within an corporate network or enterprise intranet, presumably behind a reverse proxy. It does not currently support high availability, but does spawn multiple workers on the system upon which it is deployed. See this [discussion](https://github.com/signebedi/libreForms/issues/43) about accounting for enterprise requirements. 
+
+In addition, libreForms provides out-of-box support for external-facing forms. These forms employ signed URLs, rather than local authentication, to control access to forms. These are intended to also run behind a reverse proxy that points to whatever external network (eg. the internet or another organization's network) you'd like to provide access. 
+
+Here is an example diagram for such a deployment:
+
+![example architecture](libreForms_with_reverse_proxy.drawio.svg)
+
 ### Features
 - a form-building abstraction layer based on Python dictionaries
-- a flask web application (http://x.x.x.x:8000/) that will work well behind most standard reverse-proxies 
-- plotly dashboards for data visualization
-- a document-oriented database to store form data 
-- basic local authentication
-- \[future\] SAML authentication support
-- \[future\] support for lookups in form fields & routing lists for form review, approvals, and notifications
+- a flask web application (http://x.x.x.x:8000/) that will work well behind most standard reverse-proxies, as well as the following features:
+    - plotly dashboards for data visualization
+    - a document-oriented database to store form data 
+    - basic local authentication
+    - \[future\] SAML authentication support
+    - \[future\] support for lookups in form fields & routing lists for form review, approvals, and notifications
 
 ## Installation
 
@@ -71,9 +82,8 @@ git clone https://github.com/signebedi/libreForms.git
 cd /opt/libreForms
 python3.8 -m venv venv
 source venv/bin/activate
-pip install -r requirements.txt
+pip install -r requirements/app.txt
 export FLASK_APP=app
-flask init-db
 ```
 
 3. libreforms user
@@ -125,9 +135,8 @@ git clone https://github.com/signebedi/libreForms.git
 cd /opt/libreForms
 python3 -m venv venv
 source venv/bin/activate
-pip install -r requirements.txt
+pip install -r requirements/app.txt
 export FLASK_APP=app
-flask init-db
 ```
 
 3. libreforms user
@@ -151,6 +160,10 @@ if you experience a failure when you check `systemctl status libreforms`, then t
 chown -R libreforms:libreforms /opt/libreForms
 systemctl restart libreforms
 ```
+
+### Common Issues
+
+`pymongo.errors.AutoReconnect: connection pool paused`: if you receive this error, try restarting the applicataion by running `systemctl stop libreforms; systemctl start libreforms`.
 
 
 ## Abstraction Layer
@@ -217,33 +230,11 @@ forms = {
 
 Versions above `1.0.0` will introduce compatibility-breaking changes that are intended to simplify the abstraction layer. For more information, see the [discussion](https://github.com/signebedi/libreForms/issues/27) about these changes.
 
-```python
-forms = {
-    "sample-form": {
-        "Text_Field": {
-            "input_data_type": "text", 
-            "content": ["NA"],
-            "output_data_type": "str", 
-            "options": {
-                 "validators": [lambda p: len(p) >= 6],
-                 "required": True,
-                 "PLACEHOLDER_FOR_REPETITION_LOGIC":  True, 
-                 "INSERT_OTHER_ARBITRARY_KWARGS_HERE": True,
-            },
-        },
-    },
-}
-```
-
-## Web Application
-
-A Flask web application sits atop the libreForms abstraction layer defined above. This application includes basic authentication, provides access to forms, tables of form responses, and dashboards when these have been defined in the abstraction layer.
-
 ### Views
 
 The application provides table and dashboard views for form data. Right now, line graphs are the only supported form of Plotly dashboard but, in the future, the project plans to allow arbitrary dashboard configurations using kwargs in the `_dashboard` configuration in the abstraction layer. The application allows users to tailor the data in their dashboards and tables using GET variabes as selectors. For example, when you define a dashboard for a given form, you need to set a dependent variable. However, this can be overridden by passing the ```?y=field_name``` GET variable in the browser. Likewise, you can tailor tabular data by passing the ```?FIELD_NAME=VALUE``` GET variable in the browser. Put another way, if a table has a field called ```Sub-Unit``` and another called Fiscal_Year, and you would like to tailor the table to only show data for the Finance sub-unit in the 2021 fiscal year, then you could pass the following GET variables: ```?Sub-Unit=Finance&Fiscal_Year=2021``` to select only this data.
 
-In addition, the default site display options can be overridden by adding a file called `display_overrides.py` to the `app/` directory. This file should contain a dictionary object with key-value attributes that you want to override. 
+In addition, the default site display options can be overridden by adding a file called `.py` to the `app/` directory. This file should contain a dictionary object with key-value attributes that you want to override. 
 
 ```
 display = {
@@ -265,6 +256,15 @@ Pass: libreforms
 ```
 
 In addition to username and password fields, the application ships by default with phone number, organization, and email fields. These can be modified by changing the fields defined in app/schema.sql and app/auth.py. Currently, there is no group-based permission sets defined, but these will be added per https://github.com/signebedi/libreForms/issues/16.
+
+### REST
+
+There is a RESTful API that allows users to complete read and, perhaps in the future, write operations against the MongoDB database, see discussion [here](https://github.com/signebedi/libreForms/issues/36). This requires API keys. You can create a file in the application home directory called `api_keys` structured as:
+```
+api_keys
+YOUR_KEY_HERE
+```
+But if you don't, the default test key will be `t32HDBcKAAIVBBPbjBADCbCh`. In the future, we may choose to manage API keys, along with signed URLs, using a database, see [here](https://github.com/signebedi/libreForms/issues/40).
 
 
 ## Database
@@ -295,24 +295,26 @@ pandas==1.4.3
 plotly==5.9.0
 Flask==2.1.2
 Flask-Admin==1.6.0
+Flask-Login==0.6.1
 webargs==8.1.0
 gunicorn==20.1.0
 pymongo==4.1.1
+SQLAlchemy==1.4.39
 ```
 
 In the development requirements file, we add the following requirements:
 
 ```
-SQLAlchemy
-Flask-Login
-Bootstrap-Flask
+Authlib==1.0.1
+Flask-Dance==6.0.0
+oauthlib==3.2.0
 ```
 
 In the tests requirements file, we add the following requirements
 
 ```
-coverage
-pytest
+coverage==6.4.1
+pytest==7.1.2
 ```
 
 ## Copyright

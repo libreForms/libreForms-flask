@@ -26,7 +26,8 @@ Liberate your forms with libreForms, an open form manager API written in Python 
 
 Competing browser-based form managers give form administrators little control over form fields, the resulting data, or the underlying web application. Likewise, few options provide both self-hosting support and a viable licensing model.
 
-The libreForms project, first and foremost, defines a simple but highly extensible abstraction layer that matches form fields to data structures. It adds a highly configurable browser-based application and a document-oriented database on top of this abstraction layer. 
+The libreForms project, first and foremost, defines a simple but highly extensible abstraction layer that matches form fields to data structures. It adds a highly configurable browser-based application and a document-oriented database on top of this abstraction layer. In short, the platform allows you to do anything, host anywhere, and control everything about your internal form management system.
+
 
 ![abstraction layer](docs/source/libreForms_abstraction_layer.drawio.svg)
 
