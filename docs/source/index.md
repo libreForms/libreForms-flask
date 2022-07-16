@@ -154,17 +154,18 @@ systemctl daemon-reload
 systemctl enable --now libreforms
 ```
 
-if you experience a failure when you check `systemctl status libreforms`, then try chowning the program files and restarting the application.
+
+### Common Issues
+
+
+**Failure to start Systemd Unit**: if you experience a failure when you check `systemctl status libreforms`, then try chowning the program files and restarting the application.
 
 ```
 chown -R libreforms:libreforms /opt/libreForms
 systemctl restart libreforms
 ```
 
-### Common Issues
-
-`pymongo.errors.AutoReconnect: connection pool paused`: if you receive this error, try restarting the applicataion by running `systemctl stop libreforms; systemctl start libreforms`.
-
+**pymongo.errors.AutoReconnect: connection pool paused**: if you receive this error, try restarting the applicataion by running `systemctl stop libreforms; systemctl start libreforms`.
 
 ## Abstraction Layer
 
