@@ -24,7 +24,7 @@ Read the docs at [https://libreforms.readthedocs.io/en/latest/](https://librefor
 ## About
 Liberate your forms with libreForms, an open form manager API written in Python for organizations. 
 
-Competing browser-based form managers give form administrators little control over form fields, the resulting data, or the underlying web application. Likewise, few options provide both self-hosting support and a viable licensing model.
+Competing browser-based form managers give form administrators little control over form fields, the resulting data, or the underlying web application. Likewise, few proprietary options provide both self-hosting support and a viable licensing model.
 
 The libreForms project, first and foremost, defines a simple but highly extensible abstraction layer that matches form fields to data structures. It adds a highly configurable browser-based application and a document-oriented database on top of this abstraction layer. In short, the platform allows you to do anything, host anywhere, and control everything about your internal form management system.
 
@@ -51,12 +51,13 @@ Here is an example diagram for such a deployment:
 
 ### Features
 - a form-building abstraction layer based on Python dictionaries
-- a flask web application (http://x.x.x.x:8000/) that will work well behind most standard reverse-proxies, as well as the following features:
+- a flask web application (http://x.x.x.x:8000/) that will work well behind most standard reverse-proxies & ships with the following features:
     - plotly dashboards for data visualization
     - a document-oriented database to store form data 
     - basic local authentication
-    - \[future\] SAML authentication support
-    - \[future\] support for lookups in form fields & routing lists for form review, approvals, and notifications
+    - \[future\] external identity providers
+    - \[future\] database lookups in form fields
+    - \[future\] user groups and routing lists for form review, approval, and notifications
 
 ## Installation
 
@@ -190,13 +191,13 @@ systemctl restart libreforms
 
 ## Abstraction Layer
 
-libreForms provides a simple but highly extensible method of form building in Python, leveraging Flask's doctrine of 'simplicity and extensibility' to give significant control and flexibility to organizations to design forms and data that meet their needs. To accomplish this, the application is built on an abstraction layer that stores all the information needed to generate a browser-based form and parse form data into a cohesive data structure.
+libreForms is a set of rules, or an abstraction layer, that provide a simple but highly extensible method of building browser-based forms in Python. To accomplish this, libreForms defines the structure of a configuration file to store all the information needed to generate a browser-based form and parse form data into a cohesive data structure while accounting for additional features an organization might want to add.
 
-The libreForms abstraction layer is defined in ```libreforms/forms/__init__.py``` and expects organizations to overwrite the default form by adding a file called ```libreforms/add_ons.py```. At this time, the abstraction layer can handle the "text", "password", "radio", "checkbox", "date", "hidden", and "number" input types, and can write to Python's str, float, int, and list data types. 
+The libreForms abstraction layer is defined in ```libreforms/__init__.py``` and, when used in conjuction with the web application, it expects organizations will overwrite the default form used to illustrate the rules by adding a file called ```libreforms/add_ons.py```. At this time, the abstraction layer can handle the "text", "password", "radio", "checkbox", "date", "hidden", and "number" input types, and can write to Python's str, float, int, and list data types. 
 
-The abstraction layer breaks down individual forms into fields and configurations. A field must have a unique name, which must employ underscores instead of spaces ("My Form Field" would not work, but "My_Form_Field" is a correct field name). Configuration names are preceded by an underscore (eg. "_dashboard" or "_allow_repeats") and allow form administrators to define unique form behavior. All built in configurations default to a value of False.
+At a high level, the abstraction layer breaks down individual forms into fields and configurations. A field must have a unique name, which must employ underscores instead of spaces ("My Form Field" would not work, but "My_Form_Field" is a correct field name). Configuration names are preceded by an underscore (eg. "_dashboard" or "_allow_repeats") and allow form administrators to define unique, custom form behavior. All built-in configurations default to a value of False.
 
-Here is an overview of the abstraction layer in versions below `1.0.0`. Specifically, the following snippet defines a single form called `sample-form` with a handful of fields like `Text_Field`, `Pass_Field`, etc. and add a dashboard view for the form using the `_dashboard` configuration.
+Here is an overview of the abstraction layer in versions `<1.0.0`. Specifically, the following snippet defines a single form called `sample-form` with a handful of fields like `Text_Field`, `Pass_Field`, etc. and a dashboard view for the form using the `_dashboard` configuration.
 
 ```python
 forms = {
@@ -255,7 +256,7 @@ Versions above `1.0.0` will introduce compatibility-breaking changes that are in
 
 ## Web Application
 
-A Flask web application sits atop the libreForms abstraction layer defined above. This application includes basic authentication, provides access to forms, tables of form responses, and dashboards when these have been defined in the abstraction layer.
+In this repository, a web application written in Flask sits atop the libreForms abstraction layer defined above. This application includes basic authentication, provides access to forms, tabular views of form responses, and dashboards when these have been defined in the abstraction layer.
 
 ### Views
 
