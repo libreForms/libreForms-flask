@@ -35,36 +35,36 @@ forms = {
     "sample-form": {
         "Text_Field": {
             "input_field": {"type": "text", "content": ["NA"]},
-            "output_data": {"type": "str", "required": False, "validators": [lambda p: len(p) >= 6]},
+            "output_data": {"type": "str", "required": False, "validators": [lambda p: len(p) >= 6], 'description': "this is a text field"},
         },
         "Pass_Field": {
             "input_field": {"type": "password", "content": [""]},
-            "output_data": {"type": "str", "required": False, "validators": []},
+            "output_data": {"type": "str", "required": False, "validators": [], 'description': "this is a password field"},
         },
         "Radio_Field": {
             "input_field": {"type": "radio", "content": ["Pick", "An", "Option"]},
-            "output_data": {"type": "str", "required": False, "validators": []},
+            "output_data": {"type": "str", "required": False, "validators": [], 'description': "this is a radio field"},
         },
         "Check_Field": {
             "input_field": {"type": "checkbox", "content": ["Pick", "An", "Option"]},
-            "output_data": {"type": "list", "required": False, "validators": []},
+            "output_data": {"type": "list", "required": False, "validators": [], 'description': "this is a checkbox field"},
         },
         "Date_Field": {
             "input_field": {"type": "date", "content": [datetime.datetime.today().strftime("%Y-%m-%d")]},
             # "input_field": {"type": "date", "content": []},
-            "output_data": {"type": "str", "required": False, "validators": []},
+            "output_data": {"type": "str", "required": False, "validators": [], 'description': "this is a date field"},
         },
         "Hidden_Field": {
             "input_field": {"type": "hidden", "content": ["This field is hidden"]},
-            "output_data": {"type": "str", "required": False, "validators": []},
+            "output_data": {"type": "str", "required": False, "validators": [], 'description': "this is a hidden field"},
         },
         "Float_Field": {
             "input_field": {"type": "number", "content": [0]},
-            "output_data": {"type": "float", "required": False, "validators": []},
+            "output_data": {"type": "float", "required": False, "validators": [], 'description': "this is a float field"},
         }, 
         "Int_Field": {
             "input_field": {"type": "number", "content": [0]},
-            "output_data": {"type": "int", "required": False, "validators": []},
+            "output_data": {"type": "int", "required": False, "validators": [], 'description': "this is an int field"},
         }, 
 #         "File_Field": {
 #             "input_field": {"type": "file", "content": [None]}, # still need to review https://flask.palletsprojects.com/en/2.1.x/patterns/fileuploads/
