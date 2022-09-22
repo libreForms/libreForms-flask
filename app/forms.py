@@ -111,6 +111,7 @@ def parse_options(form=False):
     # we define the default values for application-defined options
     OPTIONS = {
         "_dashboard": False,
+        "_description": False,
         "_allow_repeat": False, 
         "_allow_uploads": False, 
         "_allow_csv_templates": False,
