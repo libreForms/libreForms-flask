@@ -23,7 +23,7 @@ class sendMail():
 
         try:
             # creating an unsecure smtp connection
-            with smtplib.SMTP(self.mail_server,self.port) as server :
+            with smtplib.SMTP(self.mail_server,self.port) as server:
 
                 msg = MIMEMultipart()
                 msg['Subject'] = subject
