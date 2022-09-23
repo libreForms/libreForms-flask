@@ -26,8 +26,7 @@ Liberate your forms with libreForms, an open form manager API written in Python 
 
 Competing browser-based form managers give form administrators little control over form fields, the resulting data, or the underlying web application. Likewise, few proprietary options provide both self-hosting support and a viable licensing model.
 
-The libreForms project, first and foremost, defines a simple but highly extensible abstraction layer that matches form fields to data structures. It adds a highly configurable browser-based application and a document-oriented database on top of this abstraction layer. In short, the platform allows you to do anything, host anywhere, and control everything about your internal form management system.
-
+The libreForms project, first and foremost, defines a simple but highly extensible abstraction layer that matches form fields to data structures. On top of this specification, it builds a highly configurable browser-based application and a document-oriented database. In short, the platform allows you to do anything, host anywhere, and control everything about your internal form management system.
 
 ![abstraction layer](docs/source/libreForms_abstraction_layer.drawio.svg)
 
@@ -39,7 +38,6 @@ The libreForms project, first and foremost, defines a simple but highly extensib
 - You are a large enterprise with significant technical staff that routinely host and maintain applications for use on your organization's intranet. You periodically rely on physical or digitized forms, reports, and questionnaires. You have assessed options for form managers on the market and determined that proprietary services provide little direct control over the application source code, or otherwise fail to provide a viable licensing model.
 
 ### Architecture
-
 libreForms is meant to run within an enterprise's intranet behind a reverse proxy. It does not currently support high availability, but does spawn multiple workers on the system upon which it is deployed. See this [discussion](https://github.com/signebedi/libreForms/issues/43) about accounting for enterprise requirements. 
 
 While intended primarily for internal use, libreForms provides out-of-the-box support for external-facing forms. These forms employ signed URLs, rather than local authentication, to control access to forms. These are intended to also run behind a reverse proxy that points to whatever external network (eg. the internet or another organization's network) you'd like to provide access. 
@@ -48,9 +46,8 @@ Here is an example diagram for such a deployment:
 
 ![example architecture](docs/source/libreForms_with_reverse_proxy.drawio.svg)
 
-
 ### Features
-- a form-building abstraction layer based on Python dictionaries
+- a form-building specification based on Python dictionaries
 - a flask web application (http://x.x.x.x:8000/) that will work well behind most standard reverse-proxies & ships with the following features:
     - plotly dashboards for data visualization
     - a document-oriented database to store form data 
@@ -190,10 +187,9 @@ systemctl restart libreforms
 
 
 ## Abstraction Layer
+libreForms constitutes a set of rules, or an abstraction layer, that can be used to build browser-based forms in Python. To accomplish this, the specification describes a configuration file that stores all the information needed to generate forms and parse form data into a cohesive data structure while accounting for additional features an organization might want to add.
 
-libreForms is a set of rules, or an abstraction layer, that provide a simple but highly extensible method of building browser-based forms in Python. To accomplish this, libreForms defines the structure of a configuration file to store all the information needed to generate a browser-based form and parse form data into a cohesive data structure while accounting for additional features an organization might want to add.
-
-The libreForms abstraction layer is defined in ```libreforms/__init__.py``` and, when used in conjuction with the web application, it expects organizations will overwrite the default form used to illustrate the rules by adding a file called ```libreforms/add_ons.py```. At this time, the abstraction layer can handle the "text", "password", "radio", "checkbox", "date", "hidden", and "number" input types, and can write to Python's str, float, int, and list data types. 
+The libreForms specification is defined in ```libreforms/__init__.py``` and, when used in conjuction with the web application, it expects administrators will overwrite the default form used to illustrate the rules by adding a file called ```libreforms/add_ons.py```. At this time, the specification can handle the "text", "password", "radio", "checkbox", "date", "hidden", and "number" input types, and can write to Python's str, float, int, and list data types. 
 
 At a high level, the abstraction layer breaks down individual forms into fields and configurations. A field must have a unique name, which must employ underscores instead of spaces ("My Form Field" would not work, but "My_Form_Field" is a correct field name). Configuration names are preceded by an underscore (eg. "_dashboard" or "_allow_repeats") and allow form administrators to define unique, custom form behavior. All built-in configurations default to a value of False.
 
