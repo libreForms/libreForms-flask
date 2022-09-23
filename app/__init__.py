@@ -1,4 +1,3 @@
-
 import os
 from flask import Flask, render_template, session
 import app.log_functions
@@ -9,6 +8,7 @@ from libreforms import __version__
 from app.display import display
 import pandas as pd
 from app.csv_files import init_tmp_fs, tempfile_init_tmp_fs
+from app import smtp_config
 
 db = SQLAlchemy()
 
@@ -44,9 +44,16 @@ def create_app(test_config=None):
 
 
     if os.path.exists ("smtp_creds"):
-        smtp_creds = pd.read_csv("smtp_creds") # expecting the CSV format: smtp_server,port,username,password,from_address
+        smtp_creds = pd.read_csv("smtp_creds", dtype=str) # expecting the CSV format: smtp_server,port,username,password,from_address
         SMTP_ENABLED=True # we should do something with this later on
-        log.info('LIBREFORMS - found an SMTP credentials file.')
+        log.info(f'LIBREFORMS - found an SMTP credentials file using {smtp_creds.mail_server[0]}.')
+
+        mailer = smtp_config.sendMail(mail_server=smtp_creds.mail_server[0],
+                            port = smtp_creds.port[0],
+                            username = smtp_creds.username[0],
+                            password = smtp_creds.password[0],
+                            from_address = smtp_creds.from_address[0])
+        # mailer.send_mail(subject="online", content="online", to_address='', logfile=log)
 
     else: 
         log.warning('LIBREFORMS - no SMTP credentials file found, outgoing mail will not be enabled.')

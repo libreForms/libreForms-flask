@@ -2,29 +2,46 @@ import os
 import ssl
 import smtplib 
 import datetime as dt
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
-# borrowed shamelessly from 
-# https://www.aabidsofi.com/posts/sending-emails-with-aws-ses-and-python/
+class sendMail():
+    def __init__(self, mail_server=None, port=None, 
+                        username=None, password=None, from_address=None):
 
-def send_email_with_ses(from_address, to_address, content,
-                            mail_server, port,username, password):
+        # setting up ssl context
+        self.context = ssl.create_default_context()
+        self.mail_server = mail_server
+        self.port = port
+        self.username = username
+        self.password = password
+        self.from_address = from_address
 
-# getting the credentials fron evironemnt
-# host = os.environ.get("SES_HOST_ADDRESS")
-# user = os.environ.get("SES_USER_ID")
-# password = os.environ.get("SES_PASSWORD")
+    # borrowed shamelessly from 
+    # https://www.aabidsofi.com/posts/sending-emails-with-aws-ses-and-python/
+    def send_mail(self, subject=None, content=None, to_address=None, logfile=None):
 
-    # setting up ssl context
-    context = ssl.create_default_context()
+        try:
+            # creating an unsecure smtp connection
+            with smtplib.SMTP(self.mail_server,self.port) as server :
 
-    # creating an unsecure smtp connection
-    with smtplib.SMTP(mail_server,port) as server :
+                msg = MIMEMultipart()
+                msg['Subject'] = subject
+                msg['From'] = self.from_address
+                msg['To'] = to_address
+                msg.attach(MIMEText(content))
 
-        # securing using tls
-        server.starttls(context=context)
+                # securing using tls
+                server.starttls(context=self.context)
 
-        # authenticating with the server to prove our identity
-        server.login(username, password)
+                # authenticating with the server to prove our identity
+                server.login(self.username, self.password)
 
-        # sending a plain text email
-        server.sendmail(from_address, to_address, content)
+                # sending a plain text email
+                server.sendmail(self.from_address, to_address, msg.as_string())
+
+                if logfile: logfile.info(f'successfully sent an email to {to_address}\n')
+
+        except Exception as e:
+            if logfile: logfile.error(f'could not send an email to {to_address} - {e}\n')
+
