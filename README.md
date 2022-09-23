@@ -17,6 +17,10 @@ Read the docs at [https://libreforms.readthedocs.io/en/latest/](https://librefor
 4. [Web Application](#web-application)
     - [Views](#views)
     - [Auth](#auth)
+    - [Database](#database)
+    - [REST](#rest)
+    - [Mail](#mail)
+    - [Web Server](#web-server)
 4. [Database](#database)
 5. [Dependencies](#dependencies)
 6. [Copyright](#copyright)
@@ -301,6 +305,26 @@ When data is written from the web application to the database backend, it append
 
 If you elect to password protect your database, which is recommended, you should drop a file in the application home directory named ```mongodb_creds``` and ensure that the ```libreforms``` user has read access to this file.
 
+## Mail
+
+
+The web application will authenticate a mail server when you add a file called `smtp_creds` to the working directory. This file should conform to the following format:
+
+```csv
+mail_server,port,username,password,from_address
+smtp-server.example.com,587,USERNAME,PASSWORD,libreForms <libreforms@example.com>
+```
+
+## Web Server
+
+You can set up a web server on the same system running libreForms, or externalize it. We provide an example Nginx config that you can adapt to meet your needs. After installing Nginx using your system package manager, you can run the following to set up a web server with SSL/TLS.
+
+```
+cp /opt/libreforms/gunicorn/example-nginx.libreforms.conf /etc/nginx/sites-available/libreforms.conf
+sudo ln -s /etc/nginx/sites-available/libreforms.conf /etc/nginx/sites-enabled/libreforms.conf
+mkdir /opt/libreforms/certificates
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /opt/libreforms/certificates/libreforms.example.com.key -out /opt/libreforms/certificates/libreforms.example.com.pem
+```
 
 ## Dependencies
 
