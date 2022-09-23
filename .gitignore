@@ -135,7 +135,7 @@ add_ons.py
 api_keys
 secret_key
 display_overrides.py
-mongodb_pw
+mongodb_creds
 log/*
 app/static/tmp/*
 update_release.sh

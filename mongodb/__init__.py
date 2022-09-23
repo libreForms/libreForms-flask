@@ -9,13 +9,13 @@ class MongoDB:
         import datetime
 
         # read database password file, if it exists
-        if os.path.exists ("mongodb_pw"):
-            with open("mongodb_pw", "r+") as f:
-                mongodb_pw = f.read().strip()
+        if os.path.exists ("mongodb_creds"):
+            with open("mongodb_creds", "r+") as f:
+                mongodb_creds = f.read().strip()
         elif dbpw:  
             pass
         else:
-            mongodb_pw=None
+            mongodb_creds=None
 
         conn = MongoClient(f'mongodb://root:{dbpw}@localhost:27017/')
         self.client = MongoClient('localhost', 27017)

@@ -18,13 +18,13 @@ import pandas as pd
 
 
 # read database password file, if it exists
-if os.path.exists ("mongodb_pw"):
-    with open("mongodb_pw", "r+") as f:
-        mongodb_pw = f.read().strip()
+if os.path.exists ("mongodb_creds"):
+    with open("mongodb_creds", "r+") as f:
+        mongodb_creds = f.read().strip()
 else:  
-    mongodb_pw=None
+    mongodb_creds=None
 # initialize mongodb database
-mongodb = mongodb.MongoDB(mongodb_pw)
+mongodb = mongodb.MongoDB(mongodb_creds)
 
 
 bp = Blueprint('dashboards', __name__, url_prefix='/dashboards')

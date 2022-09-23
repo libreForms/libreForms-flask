@@ -299,7 +299,7 @@ When data is written from the web application to the database backend, it append
     - Reporter: the username of the reporting user
     - Timestamp: the timestamp that the form was submitted
 
-If you elect to password protect your database, which is recommended, you should drop a file in the application home directory named ```mongodb_pw``` and ensure that the ```libreforms``` user has read access to this file.
+If you elect to password protect your database, which is recommended, you should drop a file in the application home directory named ```mongodb_creds``` and ensure that the ```libreforms``` user has read access to this file.
 
 
 ## Dependencies
