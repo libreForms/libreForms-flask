@@ -295,7 +295,7 @@ YOUR_KEY_HERE
 But if you don't, the default test key will be `t32HDBcKAAIVBBPbjBADCbCh`. In the future, we may choose to manage API keys, along with signed URLs, using a database, see [here](https://github.com/signebedi/libreForms/issues/40).
 
 
-## Database
+### Database
 
 When data is written from the web application to the database backend, it appends the following fields:
 
@@ -305,7 +305,7 @@ When data is written from the web application to the database backend, it append
 
 If you elect to password protect your database, which is recommended, you should drop a file in the application home directory named ```mongodb_creds``` and ensure that the ```libreforms``` user has read access to this file.
 
-## Mail
+### Mail
 
 
 The web application will authenticate a mail server when you add a file called `smtp_creds` to the working directory. This file should conform to the following format:
@@ -315,7 +315,7 @@ mail_server,port,username,password,from_address
 smtp-server.example.com,587,USERNAME,PASSWORD,libreForms <libreforms@example.com>
 ```
 
-## Web Server
+### Web Server
 
 You can set up a web server on the same system running libreForms, or externalize it. We provide an example Nginx config that you can adapt to meet your needs. After installing Nginx using your system package manager, you can run the following to set up a web server with SSL/TLS.
 
