@@ -66,7 +66,7 @@ In most cases, the following commands must be run with root privileges.
 
 ### RHEL 8
 
-0. install dependencies (**note that RHEL installation instructions lack a required package: python3-ldap**)
+0. install dependencies
 
 ```
 # see https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-red-hat/
@@ -77,7 +77,7 @@ gpgcheck=1
 enabled=1 
 gpgkey=https://www.mongodb.org/static/pgp/server-5.0.asc" | tee /etc/yum.repos.d/mongodb-org-5.0.repo
 yum update -y
-yum install python3.8 mongodb-org -y
+yum install python3.8 python3-ldap mongodb-org -y
 systemctl enable --now mongodb
 ```
 
