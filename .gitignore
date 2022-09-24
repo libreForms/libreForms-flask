@@ -140,3 +140,4 @@ log/*
 app/static/tmp/*
 update_release.sh
 smtp_creds
+ldap_creds
