@@ -66,7 +66,7 @@ In most cases, the following commands must be run with root privileges.
 
 ### RHEL 8
 
-0. install dependencies
+0. install dependencies (**note that RHEL installation instructions lack a required package: python3-ldap**)
 
 ```
 # see https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-red-hat/
@@ -130,7 +130,7 @@ systemctl enable --now libreforms
 
 ```
 apt update -y && apt upgrade -y
-apt install -y mongodb python3-pip python3-venv # for the most up to date version of mongodb, see https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-ubuntu/
+apt install -y mongodb python3-pip python3-ldap python3-venv # for the most up to date version of mongodb, see https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-ubuntu/
 systemctl enable --now mongodb
 ```
 
@@ -328,7 +328,7 @@ openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /opt/libreforms/cert
 
 ## Dependencies
 
-The flask application has a few dependencies that, in its current form, may be prone to obsolescence; there is an issue in the backlog to test for, among other things, obsolete and vulnerable dependencies. In addition to the standard requirements, like Python3, Python3-Pip, Python3-Venv, and MongoDB, here is a list of dependencies that ship with the application under the static/ directory:
+The flask application has a few dependencies that, in its current form, may be prone to obsolescence; there is an issue in the backlog to test for, among other things, obsolete and vulnerable dependencies. In addition to the standard requirements, like Python3, Python3-Pip, Python3-Venv, Python3-LDAP, and MongoDB, here is a list of dependencies that ship with the application under the static/ directory:
 
 ```
 bootstrap-darkly-5.1.3.min.css
