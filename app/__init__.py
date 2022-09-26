@@ -56,9 +56,9 @@ def create_app(test_config=None):
         # mailer.send_mail(subject="online", content="online", to_address='', logfile=log)
 
     if os.path.exists ("ldap_creds"):
-        ldap_creds = pd.read_csv("smtp_creds", dtype=str) # expecting the CSV format: smtp_server,port,username,password,from_address
-        SMTP_ENABLED=True # we should do something with this later on
-        log.info(f'LIBREFORMS - found an SMTP credentials file using {smtp_creds.mail_server[0]}.')
+        ldap_creds = pd.read_csv("ldap_creds", dtype=str) # expecting CSV format
+        LDAP_ENABLED=True # we should do something with this later on
+        log.info(f'LIBREFORMS - found an LDAP credentials file using {ldap_creds.ldap_server[0]}.')
 
         mailer = smtp_config.sendMail(mail_server=smtp_creds.mail_server[0],
                             port = smtp_creds.port[0],
