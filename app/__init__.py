@@ -55,22 +55,16 @@ def create_app(test_config=None):
                             from_address = smtp_creds.from_address[0])
         # mailer.send_mail(subject="online", content="online", to_address='', logfile=log)
 
-    if os.path.exists ("ldap_creds"):
-        ldap_creds = pd.read_csv("ldap_creds", dtype=str) # expecting CSV format
-        LDAP_ENABLED=True # we should do something with this later on
-        log.info(f'LIBREFORMS - found an LDAP credentials file using {ldap_creds.ldap_server[0]}.')
-
-        mailer = smtp_config.sendMail(mail_server=smtp_creds.mail_server[0],
-                            port = smtp_creds.port[0],
-                            username = smtp_creds.username[0],
-                            password = smtp_creds.password[0],
-                            from_address = smtp_creds.from_address[0])
-        # mailer.send_mail(subject="online", content="online", to_address='', logfile=log)
+    # if os.path.exists ("ldap_creds"):
+        # ldap_creds = pd.read_csv("ldap_creds", dtype=str) # expecting CSV format
+        # LDAP_ENABLED=True # we should do something with this later on
+        # log.info(f'LIBREFORMS - found an LDAP credentials file using {ldap_creds.ldap_server[0]}.')
 
 
 
-    else: 
-        log.warning('LIBREFORMS - no SMTP credentials file found, outgoing mail will not be enabled.')
+
+    # else: 
+    #     log.warning('LIBREFORMS - no SMTP credentials file found, outgoing mail will not be enabled.')
 
 
     if os.path.exists ("secret_key"):
