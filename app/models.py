@@ -1,5 +1,7 @@
 from flask_login import UserMixin
 from app import db
+# from app.display import display
+
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True) # primary keys are required by SQLAlchemy
@@ -10,3 +12,19 @@ class User(UserMixin, db.Model):
     phone = db.Column(db.String(1000))
     created_date = db.Column(db.String(1000))
 
+
+## trying to add support for arbitary user form fields defined in overrides file
+# class User(UserMixin, db.Model):
+#     def __init__(self, user_registration_fields=display.user_registration_fields):    
+#         self.id = db.Column(db.Integer, primary_key=True) # primary keys are required by SQLAlchemy
+#         self.email = db.Column(db.String(100))
+#         self.password = db.Column(db.String(100))
+#         self.username = db.Column(db.String(100), unique=True)
+#         self.organization = db.Column(db.String(1000))
+#         self.phone = db.Column(db.String(1000))
+#         self.created_date = db.Column(db.String(1000))
+
+#         if display.user_registration_fields:
+#             for key in display.user_registration_fields.keys():
+#                 self[key] = db.Column(db.String(100)) if isinstance(display.user_registration_fields[key], [str, list, tuple]) else None
+#                 self[key] = db.Column(db.Int(100)) if isinstance(display.user_registration_fields[key], [int]) else None

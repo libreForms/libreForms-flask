@@ -21,6 +21,7 @@ display['favicon'] = "default_favicon.ico"
 display['default_org'] = "" 
 display['version'] = __version__
 display['privacy_policy'] = ''
+display['user_registration_fields'] = None
 
 if os.path.exists ("app/display_overrides.py"):
     import app.display_overrides
