@@ -1,6 +1,5 @@
 ![header img](header_img_large.png)
 
-
 ## About
 Liberate your forms with libreForms, an open form manager API written in Python for organizations. 
 
