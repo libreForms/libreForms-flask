@@ -16,6 +16,19 @@ import os
 import pandas as pd
 
 
+
+# signed URLs allow people to request / be invited to complete a form. 
+# Scenario 1 (self initiated): anon. user goes to form page, provides email, and receives a signed link to complete. 
+# Scenario 2 (invitation): current user invites another (by email) to complete a form, and the system sends a signed link over email
+
+# Structure of the signed URL 
+# 1. signature
+# 2. timestamp
+# 3. expiration
+# 4. email address
+# 5. form name
+# 
+
 # read database password file, if it exists
 if os.path.exists ("mongodb_creds"):
     with open("mongodb_creds", "r+") as f:
@@ -70,6 +83,15 @@ def validate_signed_url(signed_url, signed_urls=signed_urls):
 # one-time use -- like a questionnaire, petition, or voting system.
 
 bp = Blueprint('external', __name__, url_prefix='/external')
+
+
+# this creates a route to request access
+@bp.route(f'/<form_name>', methods=['GET', 'POST'])
+def request_external_forms(form_name):
+    # eventually, this view will enable users to request signed URLs.
+    pass
+
+
 
 # this creates the route to each of the forms
 @bp.route(f'/<form_name>/<signed_url>', methods=['GET', 'POST'])

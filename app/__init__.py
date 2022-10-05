@@ -62,7 +62,6 @@ def create_app(test_config=None):
 
 
 
-
     # else: 
     #     log.warning('LIBREFORMS - no SMTP credentials file found, outgoing mail will not be enabled.')
 
