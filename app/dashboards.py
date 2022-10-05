@@ -97,7 +97,6 @@ def dashboards(form_name):
         )
 
     viz_type = libreforms.forms[form_name]["_dashboard"]['type']
-
     if viz_type == "scatter":
         fig = px.scatter(df, 
                     x=ref['x'], 
@@ -134,6 +133,7 @@ def dashboards(form_name):
                     color=ref['color'],
                     template='plotly_dark')
         graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+
 
     return render_template('app/dashboards.html', 
         graphJSON=graphJSON,
