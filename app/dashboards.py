@@ -96,12 +96,36 @@ def dashboards(form_name):
             user=current_user,
         )
 
-    fig = px.line(df, 
-                x=ref['x'], 
-                y=y_context, 
-                color=ref['color'],
-                template='plotly_dark')
-    graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+    viz_type = libreforms.forms[form_name]["_dashboard"]['type']
+
+    if viz_type == "scatter":
+        fig = px.scatter(df, 
+                    x=ref['x'], 
+                    y=y_context, 
+                    color=ref['color'],
+                    template='plotly_dark')
+        graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+
+    elif viz_type == "bar":
+        fig = px.histogram(df, 
+                    x=ref['x'], 
+                    y=y_context, 
+                    barmode='group',
+                    color=ref['color'],
+                    template='plotly_dark')
+        graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+
+
+    elif viz_type == "table":
+        pass
+
+    else: # default to line graph
+        fig = px.line(df, 
+                    x=ref['x'], 
+                    y=y_context, 
+                    color=ref['color'],
+                    template='plotly_dark')
+        graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
 
     return render_template('app/dashboards.html', 
         graphJSON=graphJSON,

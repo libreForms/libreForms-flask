@@ -73,10 +73,14 @@ forms = {
         "_dashboard": {             # defaults to False
             "type": "scatter",      # this is a highly powerful feature but requires
             "fields": {             # some knowledge of plotly dashboards; currently
-                "x": "Timestamp",   # only line charts with limited features supported
-                "y": "Int_Field", 
+                "x": "Timestamp",   # scatter, histogram, table, and line charts with 
+                "y": "Int_Field",   # limited features supported
                 "color": "Text_Field"
-            }
+            },
+            "access": [  # defaults to False, meaning no access controls are in place
+                "default", 
+                "admins"
+                ]
         },
         "_allow_repeat": False, # defaults to False
         "_description": False, # defaults to False
