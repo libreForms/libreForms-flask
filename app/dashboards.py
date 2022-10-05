@@ -115,6 +115,14 @@ def dashboards(form_name):
                     template='plotly_dark')
         graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
 
+    elif viz_type == "histogram":
+        fig = px.histogram(df, 
+                    x=ref['x'], 
+                    y=y_context, 
+                    color=ref['color'],
+                    template='plotly_dark')
+        graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+
 
     elif viz_type == "table":
         pass
