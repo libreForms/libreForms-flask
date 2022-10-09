@@ -11,6 +11,7 @@ Read the docs at [https://libreforms.readthedocs.io/en/latest/](https://librefor
     - [features](#features)
 2. [installation](#installation)
     - [RHEL 8](#rhel-8)
+    - [Amazon Linux 2](#amazon-linux-2)
     - [Ubuntu 20.04](#ubuntu-2004)
     - [Common Issues](#common-issues)
 3. [Abstraction Layer](#abstraction-layer)
