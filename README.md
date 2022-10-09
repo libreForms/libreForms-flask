@@ -78,7 +78,7 @@ enabled=1
 gpgkey=https://www.mongodb.org/static/pgp/server-5.0.asc" | tee /etc/yum.repos.d/mongodb-org-5.0.repo
 yum update -y
 yum install python3.8 python3-ldap mongodb-org -y
-systemctl enable --now mongodb
+systemctl enable --now mongod
 ```
 
 1. Download this repository into the opt directory.
@@ -123,6 +123,67 @@ cp /opt/libreForms/gunicorn/libreforms.service /etc/systemd/system
 systemctl daemon-reload
 systemctl enable --now libreforms
 ```
+
+### Amazon Linux 2
+
+0. install dependencies
+
+```
+echo "[mongodb-org-6.0]
+name=MongoDB Repository
+baseurl=https://repo.mongodb.org/yum/amazon/2/mongodb-org/6.0/x86_64/
+gpgcheck=1
+enabled=1
+gpgkey=https://www.mongodb.org/static/pgp/server-6.0.asc" | tee /etc/yum.repos.d/mongodb-org-6.0.repo 
+yum update
+yum install mongodb-org
+amazon-linux-extras install python3.8
+systemctl enable --now mongod
+```
+
+1. Download this repository into the opt directory.
+
+Either download a stable release of the application.
+
+```
+cd /opt
+wget https://github.com/signebedi/libreForms/archive/refs/tags/X.X.X.tar.gz
+tar -xvf *.*.*.tar.gz
+mv libreForms-*.*.*/ libreForms/
+```
+
+Or install the cutting-edge version of the application using Git.
+
+```
+cd /opt
+git clone https://github.com/signebedi/libreForms.git
+```
+
+2. install Python virtual environment and initialize flask
+
+```
+cd /opt/libreForms
+python3.8 -m venv venv
+source venv/bin/activate
+pip install -r requirements/app.txt
+export FLASK_APP=app
+```
+
+3. libreforms user
+
+```
+useradd --no-create-home --system libreforms
+chown -R libreforms:libreforms /opt/libreForms
+```
+
+4. systemd service
+
+```
+cp /opt/libreForms/gunicorn/libreforms.service /etc/systemd/system
+systemctl daemon-reload
+systemctl enable --now libreforms
+```
+
 
 ### Ubuntu 20.04
 
@@ -325,6 +386,8 @@ sudo ln -s /etc/nginx/sites-available/libreforms.conf /etc/nginx/sites-enabled/l
 mkdir /opt/libreforms/certificates
 openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /opt/libreforms/certificates/libreforms.example.com.key -out /opt/libreforms/certificates/libreforms.example.com.pem
 ```
+
+If you'd like to install Let's Encrypt certificates, follow your distribution's instructions for installing eg. using certbot.
 
 ## Dependencies
 
