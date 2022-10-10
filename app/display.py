@@ -22,6 +22,7 @@ display['default_org'] = ""
 display['version'] = __version__
 display['privacy_policy'] = ''
 display['user_registration_fields'] = None
+display['allow_anonymous_registration'] = True
 
 if os.path.exists ("app/display_overrides.py"):
     import app.display_overrides
