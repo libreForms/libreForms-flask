@@ -53,9 +53,16 @@ if display['allow_anonymous_form_submissions']:
 
 
     def generate_signed_url(form=None):
-        # placeholder for the logic of generating 
-        # and propagating the signed URLs for a given form.
-        pass
+        key = ''
+        while True:
+            temp = os.urandom(1)
+            if temp.isdigit() or temp.isalpha():
+                key = key + temp.decode("utf-8") 
+            if len(key) == 24:
+                # MAKE SURE THIS ISN'T in the database
+
+                return key
+
 
 
     # we employ this function to abstract the verification process
