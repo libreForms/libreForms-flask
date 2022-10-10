@@ -22,14 +22,23 @@ def forgot_password():
             error = f'Email {email.lower()} is not registered.' 
         else:
             pass
+            ### PLACEHOLDER: SIGNED URL NEEDED
+            # send_mail(self, subject=None, content=None, to_address=None, logfile=None)
 
 
+    if display["smtp_enabled"]
+        return render_template('auth/forgot_password.html',
+            site_name=display['site_name'],
+            display_warning_banner=True,
+            name="Forgot Password", 
+            display=display)
+    else:
+        return render_template('404.html',
+            site_name=display['site_name'],
+            display_warning_banner=True,
+            name="404", 
+            display=display)
 
-    return render_template('auth/forgot_password.html',
-        site_name=display['site_name'],
-        display_warning_banner=True,
-        name="Forgot Password", 
-        display=display)
 
     # if X && app.config["SMTP_ENABLED"]:
     #     send_mail(self, subject=None, content=None, to_address=None, logfile=None):
