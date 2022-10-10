@@ -46,8 +46,8 @@ def register():
             error = 'Username is required.'
         elif not password:
             error = 'Password is required.'
-        elif not re.fullmatch(r"^\w\w\w\w\w\w+$", username) or len(username) > 36:
-            error = 'username does not formatting standards, length 6 - 36 characters, alphanumeric and underscore characters only.'
+        elif not re.fullmatch(r"^\w\w\w\w+$", username) or len(username) > 36:
+            error = 'username does not formatting standards, length 4 - 36 characters, alphanumeric and underscore characters only.'
         elif email and not re.fullmatch(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', email):
             error = 'Invalid email.' 
         elif phone and not re.fullmatch(r'^[a-z0-9]{3}-[a-z0-9]{3}-[a-z0-9]{4}$', phone):
