@@ -1,6 +1,5 @@
 import ldap
 
-
 class initLDAP():
     def __init__(self, server=None, port=None):
         try:

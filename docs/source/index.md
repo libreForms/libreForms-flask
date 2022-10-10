@@ -3,9 +3,9 @@
 ## About
 Liberate your forms with libreForms, an open form manager API written in Python for organizations. 
 
-Competing browser-based form managers give form administrators little control over form fields, the resulting data, or the underlying web application. Likewise, few options provide both self-hosting support and a viable licensing model.
+Competing browser-based form managers give form administrators little control over form fields, the resulting data, or the underlying web application. Likewise, few proprietary options provide both self-hosting support and a viable licensing model.
 
-The libreForms project, first and foremost, defines a simple but highly extensible abstraction layer that matches form fields to data structures. It adds a highly configurable browser-based application and a document-oriented database on top of this abstraction layer. In short, the platform allows you to do anything, host anywhere, and control everything about your internal form management system.
+The libreForms project, first and foremost, defines a simple but highly extensible abstraction layer that matches form fields to data structures. On top of this specification, it builds a highly configurable browser-based application and a document-oriented database. In short, the platform allows you to do anything, host anywhere, and control everything about your internal form management system.
 
 ![abstraction layer](libreForms_abstraction_layer.drawio.svg)
 
@@ -28,13 +28,14 @@ Here is an example diagram for such a deployment:
 ![example architecture](libreForms_with_reverse_proxy.drawio.svg)
 
 ### Features
-- a form-building abstraction layer based on Python dictionaries
-- a flask web application (http://x.x.x.x:8000/) that will work well behind most standard reverse-proxies, as well as the following features:
+- a form-building specification based on Python dictionaries
+- a flask web application (http://x.x.x.x:8000/) that will work well behind most standard reverse-proxies & ships with the following features:
     - plotly dashboards for data visualization
     - a document-oriented database to store form data 
     - basic local authentication
-    - \[future\] SAML authentication support
-    - \[future\] support for lookups in form fields & routing lists for form review, approvals, and notifications
+    - \[future\] external identity providers
+    - \[future\] database lookups in form fields
+    - \[future\] user groups and routing lists for form review, approval, and notifications
 
 ## Installation
 
@@ -53,8 +54,8 @@ gpgcheck=1
 enabled=1 
 gpgkey=https://www.mongodb.org/static/pgp/server-5.0.asc" | tee /etc/yum.repos.d/mongodb-org-5.0.repo
 yum update -y
-yum install python3.8 mongodb-org -y
-systemctl enable --now mongodb
+yum install python3.8 python3-ldap mongodb-org -y
+systemctl enable --now mongod
 ```
 
 1. Download this repository into the opt directory.
@@ -100,13 +101,74 @@ systemctl daemon-reload
 systemctl enable --now libreforms
 ```
 
+### Amazon Linux 2
+
+0. install dependencies
+
+```
+echo "[mongodb-org-6.0]
+name=MongoDB Repository
+baseurl=https://repo.mongodb.org/yum/amazon/2/mongodb-org/6.0/x86_64/
+gpgcheck=1
+enabled=1
+gpgkey=https://www.mongodb.org/static/pgp/server-6.0.asc" | tee /etc/yum.repos.d/mongodb-org-6.0.repo 
+yum update
+yum install mongodb-org
+amazon-linux-extras install python3.8
+systemctl enable --now mongod
+```
+
+1. Download this repository into the opt directory.
+
+Either download a stable release of the application.
+
+```
+cd /opt
+wget https://github.com/signebedi/libreForms/archive/refs/tags/X.X.X.tar.gz
+tar -xvf *.*.*.tar.gz
+mv libreForms-*.*.*/ libreForms/
+```
+
+Or install the cutting-edge version of the application using Git.
+
+```
+cd /opt
+git clone https://github.com/signebedi/libreForms.git
+```
+
+2. install Python virtual environment and initialize flask
+
+```
+cd /opt/libreForms
+python3.8 -m venv venv
+source venv/bin/activate
+pip install -r requirements/app.txt
+export FLASK_APP=app
+```
+
+3. libreforms user
+
+```
+useradd --no-create-home --system libreforms
+chown -R libreforms:libreforms /opt/libreForms
+```
+
+4. systemd service
+
+```
+cp /opt/libreForms/gunicorn/libreforms.service /etc/systemd/system
+systemctl daemon-reload
+systemctl enable --now libreforms
+```
+
+
 ### Ubuntu 20.04
 
 0. install dependencies
 
 ```
 apt update -y && apt upgrade -y
-apt install -y mongodb python3-pip python3-venv # for the most up to date version of mongodb, see https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-ubuntu/
+apt install -y mongodb python3-pip python3-ldap python3-venv # for the most up to date version of mongodb, see https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-ubuntu/
 systemctl enable --now mongodb
 ```
 
@@ -153,7 +215,6 @@ systemctl daemon-reload
 systemctl enable --now libreforms
 ```
 
-
 ### Common Issues
 
 
@@ -168,13 +229,13 @@ systemctl restart libreforms
 
 ## Abstraction Layer
 
-libreForms provides a simple but highly extensible method of form building in Python, leveraging Flask's doctrine of 'simplicity and extensibility' to give significant control and flexibility to organizations to design forms and data that meet their needs. To accomplish this, the application is built on an abstraction layer that stores all the information needed to generate a browser-based form and parse form data into a cohesive data structure.
+libreForms constitutes a set of rules, or an abstraction layer, that can be used to build browser-based forms in Python. To accomplish this, the specification describes a configuration file that stores all the information needed to generate forms and parse form data into a cohesive data structure while accounting for additional features an organization might want to add.
 
-The libreForms abstraction layer is defined in ```libreforms/forms/__init__.py``` and expects organizations to overwrite the default form by adding a file called ```libreforms/add_ons.py```. At this time, the abstraction layer can handle the "text", "password", "radio", "checkbox", "date", "hidden", and "number" input types, and can write to Python's str, float, int, and list data types. 
+The libreForms specification is defined in ```libreforms/__init__.py``` and, when used in conjuction with the web application, it expects administrators will overwrite the default form used to illustrate the rules by adding a file called ```libreforms/add_ons.py```. At this time, the specification can handle the "text", "password", "radio", "checkbox", "date", "hidden", and "number" input types, and can write to Python's str, float, int, and list data types. 
 
-The abstraction layer breaks down individual forms into fields and configurations. A field must have a unique name, which must employ underscores instead of spaces ("My Form Field" would not work, but "My_Form_Field" is a correct field name). Configuration names are preceded by an underscore (eg. "_dashboard" or "_allow_repeats") and allow form administrators to define unique form behavior. All built in configurations default to a value of False.
+At a high level, the abstraction layer breaks down individual forms into fields and configurations. A field must have a unique name, which must employ underscores instead of spaces ("My Form Field" would not work, but "My_Form_Field" is a correct field name). Configuration names are preceded by an underscore (eg. "_dashboard" or "_allow_repeats") and allow form administrators to define unique, custom form behavior. All built-in configurations default to a value of False.
 
-Here is an overview of the abstraction layer in versions below `1.0.0`. Specifically, the following snippet defines a single form called `sample-form` with a handful of fields like `Text_Field`, `Pass_Field`, etc. and add a dashboard view for the form using the `_dashboard` configuration.
+Here is an overview of the abstraction layer in versions `<1.0.0`. Specifically, the following snippet defines a single form called `sample-form` with a handful of fields like `Text_Field`, `Pass_Field`, etc. and a dashboard view for the form using the `_dashboard` configuration.
 
 ```python
 forms = {
@@ -230,6 +291,10 @@ forms = {
 
 Versions above `1.0.0` will introduce compatibility-breaking changes that are intended to simplify the abstraction layer. For more information, see the [discussion](https://github.com/signebedi/libreForms/issues/27) about these changes.
 
+## Web Application
+
+In this repository, a web application written in Flask sits atop the libreForms abstraction layer defined above. This application includes basic authentication, provides access to forms, tabular views of form responses, and dashboards when these have been defined in the abstraction layer.
+
 ### Views
 
 The application provides table and dashboard views for form data. Right now, line graphs are the only supported form of Plotly dashboard but, in the future, the project plans to allow arbitrary dashboard configurations using kwargs in the `_dashboard` configuration in the abstraction layer. The application allows users to tailor the data in their dashboards and tables using GET variabes as selectors. For example, when you define a dashboard for a given form, you need to set a dependent variable. However, this can be overridden by passing the ```?y=field_name``` GET variable in the browser. Likewise, you can tailor tabular data by passing the ```?FIELD_NAME=VALUE``` GET variable in the browser. Put another way, if a table has a field called ```Sub-Unit``` and another called Fiscal_Year, and you would like to tailor the table to only show data for the Finance sub-unit in the 2021 fiscal year, then you could pass the following GET variables: ```?Sub-Unit=Finance&Fiscal_Year=2021``` to select only this data.
@@ -267,7 +332,7 @@ YOUR_KEY_HERE
 But if you don't, the default test key will be `t32HDBcKAAIVBBPbjBADCbCh`. In the future, we may choose to manage API keys, along with signed URLs, using a database, see [here](https://github.com/signebedi/libreForms/issues/40).
 
 
-## Database
+### Database
 
 When data is written from the web application to the database backend, it appends the following fields:
 
@@ -277,10 +342,32 @@ When data is written from the web application to the database backend, it append
 
 If you elect to password protect your database, which is recommended, you should drop a file in the application home directory named ```mongodb_creds``` and ensure that the ```libreforms``` user has read access to this file.
 
+### Mail
+
+
+The web application will authenticate a mail server when you add a file called `smtp_creds` to the working directory. This file should conform to the following format:
+
+```csv
+mail_server,port,username,password,from_address
+smtp-server.example.com,587,USERNAME,PASSWORD,libreForms <libreforms@example.com>
+```
+
+### Web Server
+
+You can set up a web server on the same system running libreForms, or externalize it. We provide an example Nginx config that you can adapt to meet your needs. After installing Nginx using your system package manager, you can run the following to set up a web server with SSL/TLS.
+
+```
+cp /opt/libreforms/gunicorn/example-nginx.libreforms.conf /etc/nginx/sites-available/libreforms.conf
+sudo ln -s /etc/nginx/sites-available/libreforms.conf /etc/nginx/sites-enabled/libreforms.conf
+mkdir /opt/libreforms/certificates
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /opt/libreforms/certificates/libreforms.example.com.key -out /opt/libreforms/certificates/libreforms.example.com.pem
+```
+
+If you'd like to install Let's Encrypt certificates, follow your distribution's instructions for installing eg. using certbot.
 
 ## Dependencies
 
-The flask application has a few dependencies that, in its current form, may be prone to obsolescence; there is an issue in the backlog to test for, among other things, obsolete and vulnerable dependencies. In addition to the standard requirements, like Python3, Python3-Pip, Python3-Venv, and MongoDB, here is a list of dependencies that ship with the application under the static/ directory:
+The flask application has a few dependencies that, in its current form, may be prone to obsolescence; there is an issue in the backlog to test for, among other things, obsolete and vulnerable dependencies. In addition to the standard requirements, like Python3, Python3-Pip, Python3-Venv, Python3-LDAP, and MongoDB, here is a list of dependencies that ship with the application under the static/ directory:
 
 ```
 bootstrap-darkly-5.1.3.min.css
@@ -335,12 +422,4 @@ GNU Affero General Public License for more details.
 
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
-```
-
-
-```{toctree}
----
-maxdepth: 2
-numbered: 0
----
 ```
