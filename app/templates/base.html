@@ -38,7 +38,9 @@
               {% elif suppress_navbar %}   
               {% else %}
                 <li class="nav-item"><a class="nav-link" href="{{ url_for( 'auth.login' ) }}">Login</a></li>
+                {% if display.allow_anonymous_registration %}
                 <li class="nav-item"><a class="nav-link" href="{{ url_for( 'auth.register' ) }}">Register</a></li>
+                {% endif %}
               {% endif %}
               </ul>
 
