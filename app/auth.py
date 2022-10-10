@@ -11,6 +11,16 @@ from flask_login import login_required, current_user, login_user
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
+
+@bp.route('/forgot_password')
+def forgot_password():
+    return render_template('auth/forgot_password.html',
+        site_name=display['site_name'],
+        display_warning_banner=True,
+        name="Forgot Password", 
+        display=display)
+
+
 @bp.route('/register', methods=('GET', 'POST'))
 def register():
 
