@@ -5,20 +5,35 @@ from flask import (
 )
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from app import display, log, db
+from app import display, log, db, app
 from app.models import User
 from flask_login import login_required, current_user, login_user
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
 
-@bp.route('/forgot_password')
+@bp.route('/forgot_password', methods=('GET', 'POST'))
 def forgot_password():
+
+    if request.method == 'POST' and display["smtp_enabled"]:
+        email = request.form['email']
+
+        if not User.query.filter_by(email=email.lower()).first():
+            error = f'Email {email.lower()} is not registered.' 
+        else:
+            pass
+
+
+
     return render_template('auth/forgot_password.html',
         site_name=display['site_name'],
         display_warning_banner=True,
         name="Forgot Password", 
         display=display)
+
+    # if X && app.config["SMTP_ENABLED"]:
+    #     send_mail(self, subject=None, content=None, to_address=None, logfile=None):
+
 
 
 @bp.route('/register', methods=('GET', 'POST'))
