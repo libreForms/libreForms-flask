@@ -26,7 +26,7 @@ def forgot_password():
             # send_mail(self, subject=None, content=None, to_address=None, logfile=None)
 
 
-    if display["smtp_enabled"]
+    if display["smtp_enabled"]:
         return render_template('auth/forgot_password.html',
             site_name=display['site_name'],
             display_warning_banner=True,
