@@ -24,6 +24,27 @@ if not os.path.exists ("log/"):
 log = app.log_functions.set_logger('log/libreforms.log',__name__)
 log.info('LIBREFORMS - started libreforms web application.')
 
+
+if os.path.exists ("smtp_creds"):
+    smtp_creds = pd.read_csv("smtp_creds", dtype=str) # expecting the CSV format: smtp_server,port,username,password,from_address
+    if display['smtp_enabled'] == True: # we should do something with this later on
+        log.info(f'LIBREFORMS - found an SMTP credentials file using {smtp_creds.mail_server[0]}.')
+
+        mailer = smtp_config.sendMail(mail_server=smtp_creds.mail_server[0],
+                            port = smtp_creds.port[0],
+                            username = smtp_creds.username[0],
+                            password = smtp_creds.password[0],
+                            from_address = smtp_creds.from_address[0])
+        # mailer.send_mail(subject="online", content="online", to_address='', logfile=log)
+else: 
+    log.warning('LIBREFORMS - no SMTP credentials file found, outgoing mail will not be enabled.')
+
+# if os.path.exists ("ldap_creds"):
+    # ldap_creds = pd.read_csv("ldap_creds", dtype=str) # expecting CSV format
+    # if display['ldap_enabled'] == True: # we should do something with this later on
+        # log.info(f'LIBREFORMS - found an LDAP credentials file using {ldap_creds.ldap_server[0]}.')
+
+
 # # non-destructively initialize a tmp file system for the app 
 # init_tmp_fs(delete_first=False)
 
@@ -41,30 +62,6 @@ def create_app(test_config=None):
 
     # admin = Admin(app, name='libreForms', template_mode='bootstrap4')
     # Add administrative views here
-
-
-    if os.path.exists ("smtp_creds"):
-        smtp_creds = pd.read_csv("smtp_creds", dtype=str) # expecting the CSV format: smtp_server,port,username,password,from_address
-        if display['smtp_enabled'] == True: # we should do something with this later on
-            log.info(f'LIBREFORMS - found an SMTP credentials file using {smtp_creds.mail_server[0]}.')
-
-            mailer = smtp_config.sendMail(mail_server=smtp_creds.mail_server[0],
-                                port = smtp_creds.port[0],
-                                username = smtp_creds.username[0],
-                                password = smtp_creds.password[0],
-                                from_address = smtp_creds.from_address[0])
-            # mailer.send_mail(subject="online", content="online", to_address='', logfile=log)
-
-    # if os.path.exists ("ldap_creds"):
-        # ldap_creds = pd.read_csv("ldap_creds", dtype=str) # expecting CSV format
-        # if display['ldap_enabled'] == True: # we should do something with this later on
-            # log.info(f'LIBREFORMS - found an LDAP credentials file using {ldap_creds.ldap_server[0]}.')
-
-
-
-    # else: 
-    #     log.warning('LIBREFORMS - no SMTP credentials file found, outgoing mail will not be enabled.')
-
 
     if os.path.exists ("secret_key"):
         with open("secret_key", "r+") as f:

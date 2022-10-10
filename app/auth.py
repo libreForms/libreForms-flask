@@ -5,7 +5,7 @@ from flask import (
 )
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from app import display, log, db, app
+from app import display, log, db, mailer
 from app.models import User
 from flask_login import login_required, current_user, login_user
 
@@ -38,11 +38,6 @@ def forgot_password():
             display_warning_banner=True,
             name="404", 
             display=display)
-
-
-    # if X && app.config["SMTP_ENABLED"]:
-    #     send_mail(self, subject=None, content=None, to_address=None, logfile=None):
-
 
 
 @bp.route('/register', methods=('GET', 'POST'))
@@ -109,6 +104,7 @@ def register():
                 log.error(f'GUEST - failed to register new user {username.lower()} with email {email}.')
             else:
                 flash(f'Successfully created user \'{username.lower()}\'.')
+                mailer.send_mail(subject=f"Successfully Registered {username}", content=f"This is a notification that {username} has been successfully registered for libreforms.", to_address=email, logfile=log)
                 return redirect(url_for("auth.login"))
 
         flash(error)
