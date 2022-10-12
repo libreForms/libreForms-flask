@@ -21,13 +21,42 @@ import pandas as pd
 # Scenario 1 (self initiated): anon. user goes to form page, provides email, and receives a signed link to complete. 
 # Scenario 2 (invitation): current user invites another (by email) to complete a form, and the system sends a signed link over email
 
-# Structure of the signed URL 
-# 1. signature
-# 2. timestamp
-# 3. expiration
-# 4. email address
-# 5. form name
-# 
+# we also want to consider the use case for API keys, which will be sufficiently similar to signed URLs to justify handling them
+# in the same database. Signed URLs are single use, while API keys are multi use (meaning we can expect there will be fewer of them
+# in circulation at any given time).
+
+# Structure of the signed URL / API key
+# 1. signature - nXhcCzeeY179SemdGtbRyWUC
+# 2. timestamp - time of creation
+# 3. expiration - 1 year default for API keys, 24 hours for signing keys . Do we want this to be relative (one year) or absolute (august 3rd, 2023, at 4:32.41 Zulu)
+# 4. email address - yourName@example.com
+# 5. scope - what resources does this give access to? form name? API? Read / Write?
+
+
+# here we generate a 
+def generate_key(length=24):
+    key = ''
+    while True:
+        temp = os.urandom(1)
+        if temp.isdigit() or temp.isalpha():
+            key = key + temp.decode("utf-8") 
+        if len(key) == length:
+            return key
+
+
+def write_key_to_database(form=None, api_key=False, expiration=None):
+    key = generate_key()
+    # open the database
+    # MAKE SURE THIS ISN'T in the database
+
+# this is a placeholder function that will periodically
+# scan the keys in the database and flush any that have
+# expired.
+def flush_key_db():
+    pass
+
+def init_key_db():
+    pass
 
 if display['allow_anonymous_form_submissions']:
 
@@ -50,20 +79,6 @@ if display['allow_anonymous_form_submissions']:
 
     # here we add them in a format that makes them easily readable
     signed_urls = (signed_urls.signed_urls.str.strip()).values
-
-
-    def generate_signed_url(form=None):
-        key = ''
-        while True:
-            temp = os.urandom(1)
-            if temp.isdigit() or temp.isalpha():
-                key = key + temp.decode("utf-8") 
-            if len(key) == 24:
-                # MAKE SURE THIS ISN'T in the database
-
-                return key
-
-
 
     # we employ this function to abstract the verification process
     # for signed URLs
