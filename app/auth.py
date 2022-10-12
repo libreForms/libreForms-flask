@@ -44,7 +44,6 @@ def forgot_password():
         if error is None:
             key = signing.write_key_to_database(scope='forgot_password', email=email)
 
-            # content = None
             content = f"A password reset request has been submitted for your account. Please follow this link to complete the reset. {display['domain']}/auth/forgot_password/{key}"
 
             mailer.send_mail(subject=f'{display["site_name"]} Password Reset', content=content, to_address=email, logfile=log)
