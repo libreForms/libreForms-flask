@@ -8,7 +8,7 @@ from libreforms import __version__
 from app.display import display
 import pandas as pd
 from app.csv_files import init_tmp_fs, tempfile_init_tmp_fs
-from app import smtp_config
+from app import smtp
 
 db = SQLAlchemy()
 
@@ -30,7 +30,7 @@ if os.path.exists ("smtp_creds"):
     if display['smtp_enabled'] == True: # we should do something with this later on
         log.info(f'LIBREFORMS - found an SMTP credentials file using {smtp_creds.mail_server[0]}.')
 
-        mailer = smtp_config.sendMail(mail_server=smtp_creds.mail_server[0],
+        mailer = smtp.sendMail(mail_server=smtp_creds.mail_server[0],
                             port = smtp_creds.port[0],
                             username = smtp_creds.username[0],
                             password = smtp_creds.password[0],
