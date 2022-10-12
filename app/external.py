@@ -25,6 +25,9 @@ import pandas as pd
 # in the same database. Signed URLs are single use, while API keys are multi use (meaning we can expect there will be fewer of them
 # in circulation at any given time).
 
+# finally, there are all sort of other use cases for signing keys, like new user email verification and 'forgot password' functionality
+# where it would make sense to have a much shorter expiry
+
 # Structure of the signed URL / API key
 # 1. signature - nXhcCzeeY179SemdGtbRyWUC
 # 2. timestamp - time of creation
@@ -44,8 +47,10 @@ def generate_key(length=24):
         if len(key) == length:
             return key
 
-
-def write_key_to_database(form=None, api_key=False, expiration=None):
+# where `expiration` should be set to a relative time in hours
+# where `scope` should be set to some subset of options like 'form - [form_name]', 
+# 'api_key - [r/w]', 'email_verification', or 'forgot_password'
+def write_key_to_database(scope=None, expiration=None):
     key = generate_key()
     # write to db if no collision
 
