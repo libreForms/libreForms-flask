@@ -34,9 +34,10 @@ def generate_key(length=24):
 # where `expiration` should be set to a relative time in hours
 # where `scope` should be set to some subset of options like 'form - [form_name]', 
 # 'api_key - [r/w]', 'email_verification', or 'forgot_password'
-def write_key_to_database(scope=None, expiration=None):
+def write_key_to_database(scope=None, expiration=None, email=None):
     key = generate_key()
     # write to db if no collision
+    return key
 
 # this is a function that will periodically scan
 # the keys in the database and flush any that have

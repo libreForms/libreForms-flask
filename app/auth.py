@@ -6,6 +6,7 @@ from flask import (
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from app import display, log, db, mailer
+import app.signing as signing
 from app.models import User
 from flask_login import login_required, current_user, login_user
 
@@ -23,9 +24,13 @@ def forgot_password():
         else: error = None
 
         if error is None:
-            ### PLACEHOLDER: SIGNED URL NEEDED
-            # send_mail(self, subject=None, content=None, to_address=None, logfile=None)
-            flash("This feature is still under development")
+            key = signing.write_key_to_database(scope='forgot_password', email=email)
+
+            # content = None
+            content = f"A password reset request has been submitted for your account. Please follow this link to complete the reset. {display['domain']}/auth/forgot_password/{key}"
+
+            mailer.send_mail(subject=f'{display["site_name"]} Password Reset', content=content, to_address=email, logfile=log)
+            flash("Password reset link successfully sent.")
             
         else:
             flash(error)
@@ -36,6 +41,7 @@ def forgot_password():
             display_warning_banner=True,
             name="Forgot Password", 
             display=display)
+
     else:
         return render_template('404.html',
             site_name=display['site_name'],

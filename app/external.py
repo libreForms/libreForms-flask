@@ -10,7 +10,7 @@ import libreforms, mongodb
 from app import display, log, tempfile_path
 from app.auth import login_required, session
 from app.forms import parse_form_fields, reconcile_form_data_struct, progagate_forms, parse_options
-from app import signing
+import app.signing as signing
 
 
 # and finally, import other packages

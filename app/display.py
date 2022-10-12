@@ -26,7 +26,7 @@ display['allow_anonymous_registration'] = True
 display['smtp_enabled'] = False
 display['ldap_enabled'] = False
 display['allow_anonymous_form_submissions'] = True
-
+display['domain'] = None
 
 if os.path.exists ("app/display_overrides.py"):
     import app.display_overrides
