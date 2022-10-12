@@ -13,8 +13,25 @@ from flask_login import login_required, current_user, login_user
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
 
+@bp.route('/forgot_password/<signature>', methods=('GET', 'POST'))
+def reset_password(signature):
+    flash(f'This feature has not been enabled by your system administrator. {signature}.')
+    return redirect(url_for('auth.forgot_password'))
+
+    ## First, we run a db check to see if the key exists
+    # if so, we pull the corresponding email & user account details
+    # we then populate the page fields with these details
+
+    # if the details were not found, or the key does not exist, we redirect with a flashed msg.
+
+
+
 @bp.route('/forgot_password', methods=('GET', 'POST'))
 def forgot_password():
+
+    # we only make this view visible if the user isn't logged in
+    if current_user.is_authenticated:
+        return redirect(url_for('home'))
 
     if request.method == 'POST' and display["smtp_enabled"]:
         email = request.form['email']
@@ -43,12 +60,8 @@ def forgot_password():
             display=display)
 
     else:
-        return render_template('404.html',
-            site_name=display['site_name'],
-            display_warning_banner=True,
-            name="404", 
-            display=display)
-
+        flash('This feature has not been enabled by your system administrator.')
+        return redirect(url_for('auth.login'))
 
 @bp.route('/register', methods=('GET', 'POST'))
 def register():
