@@ -31,7 +31,7 @@ import pandas as pd
 # 3. expiration - 1 year default for API keys, 24 hours for signing keys . Do we want this to be relative (one year) or absolute (august 3rd, 2023, at 4:32.41 Zulu)
 # 4. email address - yourName@example.com
 # 5. scope - what resources does this give access to? form name? API? Read / Write?
-# 6. active - bool, has this been marked expired? we want to keep it in the database for some time to avoid premature re-use.
+# 6. active - bool, has this been marked expired? we want to keep it in the database for some time to avoid premature re-use and collision.
 
 
 # here we generate a 
@@ -47,8 +47,7 @@ def generate_key(length=24):
 
 def write_key_to_database(form=None, api_key=False, expiration=None):
     key = generate_key()
-    # open the database
-    # MAKE SURE THIS ISN'T in the database
+    # write to db if no collision
 
 # this is a placeholder function that will periodically
 # scan the keys in the database and flush any that have

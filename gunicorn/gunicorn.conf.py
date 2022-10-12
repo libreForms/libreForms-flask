@@ -15,13 +15,13 @@ def pre_fork(server, worker):
         if re.fullmatch(r"libreforms-[0-9]+.log", log):
                 os.remove (os.path.join(logpath, log))
 
-    # create the database if it doesn't exist
+    # create the app database if it doesn't exist
     if not os.path.exists(os.path.join('instance','app.sqlite')):
-
-        # create the user database if one doesn't exist
         from app import create_app    
         from app.models import User
         from flask_sqlalchemy import SQLAlchemy
+
+        # create the database if one doesn't exist
         db = SQLAlchemy()
 
         app=create_app()
@@ -42,6 +42,7 @@ def pre_fork(server, worker):
                 db.session.add(initial_user)
                 db.session.commit()
                 db.session.close()
+
 
     # destructively initialize a tmp file system for the app 
     # init_tmp_fs(delete_first=True)
