@@ -20,11 +20,15 @@ def forgot_password():
 
         if not User.query.filter_by(email=email.lower()).first():
             error = f'Email {email.lower()} is not registered.' 
-        else:
-            pass
+        else: error = None
+
+        if error is None:
             ### PLACEHOLDER: SIGNED URL NEEDED
             # send_mail(self, subject=None, content=None, to_address=None, logfile=None)
-
+            flash("This feature is still under development")
+            
+        else:
+            flash(error)
 
     if display["smtp_enabled"]:
         return render_template('auth/forgot_password.html',
