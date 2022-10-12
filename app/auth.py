@@ -20,9 +20,10 @@ def reset_password(signature):
 
     ## First, we run a db check to see if the key exists
     # if so, we pull the corresponding email & user account details
-    # we then populate the page fields with these details
+    # we then populate the page fields with these details (or redirect to a separate page with the signature excluded)
+    # we also expire the signature key at this point.
 
-    # if the details were not found, or the key does not exist, we redirect with a flashed msg.
+    # if the details were not found, or the key does not exist, we redirect with a flashed msg and write the the access log.
 
 
 
