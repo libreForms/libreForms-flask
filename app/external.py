@@ -49,14 +49,22 @@ def write_key_to_database(form=None, api_key=False, expiration=None):
     key = generate_key()
     # write to db if no collision
 
-# this is a placeholder function that will periodically
-# scan the keys in the database and flush any that have
+# this is a function that will periodically scan
+# the keys in the database and flush any that have
 # expired.
 def flush_key_db():
+    # for row in db:
+        # if row.expired == IN_THE_PAST:
+            # row.active := 0;
     pass
 
-def init_key_db():
+# here we create the interface where keys are expired, or rather, their 'active'
+# column is set to 0. 
+def expire_key(key=None):
+    # key_to_expire = db.search_for_first_instance_of_key if key else None
+    # set key_to_expire.active := 0
     pass
+
 
 if display['allow_anonymous_form_submissions']:
 
