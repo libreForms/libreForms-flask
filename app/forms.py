@@ -181,7 +181,7 @@ def forms(form_name):
             )
 
     except Exception as e:
-        flash('This form does not exists.')
+        flash('This form does not exist.')
         return redirect(url_for('forms.forms_home'))
 
 

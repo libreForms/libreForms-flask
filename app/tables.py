@@ -47,6 +47,10 @@ def tables_home():
 @login_required
 def tables(form_name): 
 
+    if form_name not in libreforms.forms.keys():
+        flash('This form does not exist.')
+        return redirect(url_for('tables.tables_home'))
+
     try:
         pd.set_option('display.max_colwidth', 0)
         data = mongodb.read_documents_from_collection(form_name)
@@ -70,7 +74,7 @@ def tables(form_name):
 
         df.columns = [x.replace("_", " ") for x in df.columns]
     except Exception as e:
-        flash('This form does not exists.')
+        flash('This form does not exist.')
         return redirect(url_for('tables.tables_home'))
 
     return render_template('app/tables.html',

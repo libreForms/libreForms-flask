@@ -49,7 +49,7 @@ def dashboards_home():
 def dashboards(form_name):
 
     if form_name not in libreforms.forms.keys():
-        flash('This form does not exists.')
+        flash('This form does not exist.')
         return redirect(url_for('dashboards.dashboards_home'))
 
 
