@@ -1,5 +1,5 @@
 # import flask-related packages
-from flask import Blueprint, render_template, request
+from flask import Blueprint, render_template, request, redirect, flash, url_for
 from flask_login import current_user
 
 # import custom packages from the current repository
@@ -49,28 +49,14 @@ def dashboards_home():
 def dashboards(form_name):
 
     if form_name not in libreforms.forms.keys():
-        return render_template('app/dashboards.html', 
-            form_not_found=True,
-            msg="",
-            name="404",
-            type="dashboards",
-            menu=[x for x in libreforms.forms.keys()],
-            display=display,
-            user=current_user,
-        )
+        flash('This form does not exists.')
+        return redirect(url_for('dashboards.dashboards_home'))
 
 
 
     if parse_options(form=form_name)["_dashboard"] == False:
-        return render_template('app/dashboards.html', 
-            form_not_found=True,
-            msg="No dashboard has been configured for this form.",
-            name="404",
-            type="dashboards",
-            menu=[x for x in libreforms.forms.keys()],
-            display=display,
-            user=current_user,
-        )
+        flash('Your system administrator has not enabled any dashboards for this form.')
+        return redirect(url_for('dashboards.dashboards_home'))
 
     
     data = mongodb.read_documents_from_collection(form_name)
@@ -86,15 +72,8 @@ def dashboards(form_name):
 
 
     if len(df.index) < 1:
-        return render_template('app/dashboards.html', 
-            form_not_found=True,
-            msg="This form has not received any submissions.",
-            name="404",
-            type="dashboards",
-            menu=[x for x in libreforms.forms.keys()],
-            display=display,
-            user=current_user,
-        )
+        flash('This form has not received any submissions.')
+        return redirect(url_for('dashboards.dashboards_home'))
 
     viz_type = libreforms.forms[form_name]["_dashboard"]['type']
     if viz_type == "scatter":

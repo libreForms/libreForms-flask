@@ -67,11 +67,8 @@ def forgot_password():
 def register():
 
     if not display['allow_anonymous_registration']:
-        return render_template('404.html',
-            site_name=display['site_name'],
-            display_warning_banner=True,
-            name="404", 
-            display=display)
+        flash('This feature has not been enabled by your system administrator.')
+        return redirect(url_for('auth.login'))
 
     # we only make this view visible if the user isn't logged in
     if current_user.is_authenticated:

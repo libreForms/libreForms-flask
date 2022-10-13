@@ -1,7 +1,7 @@
 # import flask-related packages
 from cmath import e
 from fileinput import filename
-from flask import Blueprint, g, flash, render_template, request, send_from_directory, send_file
+from flask import Blueprint, g, flash, render_template, request, send_from_directory, send_file, redirect, url_for
 from webargs import fields, flaskparser
 from flask_login import current_user
 
@@ -181,15 +181,9 @@ def forms(form_name):
             )
 
     except Exception as e:
-        return render_template('app/forms.html', 
-            form_not_found=True,
-            msg=e,
-            name="404",
-            type="forms",
-            menu=[x for x in libreforms.forms.keys()],
-            display=display,
-            user=current_user,
-        )
+        flash('This form does not exists.')
+        return redirect(url_for('forms.forms_home'))
+
 
 # this is the download link for files in the temp directory
 @bp.route('/download/<path:filename>')

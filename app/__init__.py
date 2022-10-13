@@ -37,6 +37,7 @@ if os.path.exists ("smtp_creds"):
                             from_address = smtp_creds.from_address[0])
         # mailer.send_mail(subject="online", content="online", to_address='', logfile=log)
 else: 
+    display['smtp_enabled'] = False
     log.warning('LIBREFORMS - no SMTP credentials file found, outgoing mail will not be enabled.')
 
 # if os.path.exists ("ldap_creds"):

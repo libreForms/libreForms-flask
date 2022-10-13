@@ -1,5 +1,5 @@
 # import flask-related packages
-from flask import Blueprint, render_template, request
+from flask import Blueprint, render_template, request, flash, redirect, url_for
 from flask_login import current_user
 from markupsafe import Markup
 
@@ -53,15 +53,9 @@ def tables(form_name):
         df = pd.DataFrame(list(data))
 
         if len(df.index) < 1:
-            return render_template('app/tables.html', 
-                form_not_found=True,
-                msg="This form has not received any submissions.",
-                name="404",
-                type="tables",
-                menu=[x for x in libreforms.forms.keys()],
-                display=display,
-                user=current_user,
-            )
+            flash('This form has not received any submissions.')
+            return redirect(url_for('tables.tables_home'))
+
 
         df.drop(columns=["_id"], inplace=True)
         
@@ -76,7 +70,8 @@ def tables(form_name):
 
         df.columns = [x.replace("_", " ") for x in df.columns]
     except Exception as e:
-        df = pd.DataFrame(columns=["Error"], data=[{"Error":e}])
+        flash('This form does not exists.')
+        return redirect(url_for('tables.tables_home'))
 
     return render_template('app/tables.html',
         table=Markup(df.to_html(index=False)),
