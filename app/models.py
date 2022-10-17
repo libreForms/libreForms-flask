@@ -1,9 +1,10 @@
 from flask_login import UserMixin
 from app import db
-# from app.display import display
+from app.display import display
 
 
 class User(UserMixin, db.Model):
+
     id = db.Column(db.Integer, primary_key=True) # primary keys are required by SQLAlchemy
     email = db.Column(db.String(100))
     password = db.Column(db.String(100))

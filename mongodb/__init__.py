@@ -4,7 +4,7 @@ from pymongo import MongoClient
 import datetime, os
 
 class MongoDB:
-    def __init__(self, dbpw=None):
+    def __init__(self, user='root', host='localhost', port=27017, dbpw=None):
         from pymongo import MongoClient
         import datetime
 
@@ -17,8 +17,8 @@ class MongoDB:
         else:
             mongodb_creds=None
 
-        conn = MongoClient(f'mongodb://root:{dbpw}@localhost:27017/')
-        self.client = MongoClient('localhost', 27017)
+        conn = MongoClient(f'mongodb://{host}:{dbpw}@{host}:{str(port)}/')
+        self.client = MongoClient(host, port)
         self.db = self.client['libreforms']
 
     def write_document_to_collection(self, data, collection_name, reporter=None):
