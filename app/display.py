@@ -25,6 +25,7 @@ display['user_registration_fields'] = None
 display['allow_anonymous_registration'] = True
 display['smtp_enabled'] = False
 display['ldap_enabled'] = False
+display['custom_sql_db'] = False
 display['allow_anonymous_form_submissions'] = True
 display['domain'] = None
 
