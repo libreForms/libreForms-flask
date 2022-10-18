@@ -111,6 +111,9 @@ def create_app(test_config=None):
 
     from .models import User
 
+    # getting started on allowing other SQL databases than SQLite. 
+    # engine = db.create_engine('dialect+driver://user:pass@host:port/db')
+
     # initialize the database
     db.init_app(app=app)
 
