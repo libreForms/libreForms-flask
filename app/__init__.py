@@ -25,6 +25,20 @@ log = app.log_functions.set_logger('log/libreforms.log',__name__)
 log.info('LIBREFORMS - started libreforms web application.')
 
 
+if display['custom_sql_db'] == True:
+    if os.path.exists ("user_db_creds"):
+        user_db_creds = pd.read_csv("user_db_creds", dtype=str) # expecting the CSV format: db_driver,db_user, db_pw, db_host, db_port
+        db_driver = None
+        db_user = None
+        db_pw = None
+        db_host = None
+        db_port = None
+
+    else:
+        display['custom_sql_db'] = False
+        log.warning('LIBREFORMS - no user db credentials file found, custom sql database will not be enabled.')
+
+
 if os.path.exists ("smtp_creds"):
     smtp_creds = pd.read_csv("smtp_creds", dtype=str) # expecting the CSV format: smtp_server,port,username,password,from_address
     if display['smtp_enabled'] == True: # we should do something with this later on
@@ -56,7 +70,7 @@ def create_app(test_config=None):
     app.config.from_mapping(
         SECRET_KEY='dev',
         # getting started on allowing other SQL databases than SQLite. 
-        # SQLALCHEMY_DATABASE_URI = f'{driver}://{host}:{dbpw}@{host}:{str(port)}/}',
+        SQLALCHEMY_DATABASE_URI = f'{db_driver}://{db_host}:{db_pw}@{host}:{str(db_port)}/' if display['custom_sql_db'] == True else f'sqlite:///{os.path.join(app.instance_path, "app.sqlite")}',
         SQLALCHEMY_DATABASE_URI = f'sqlite:///{os.path.join(app.instance_path, "app.sqlite")}',
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
         # FLASK_ADMIN_SWATCH='darkly',
