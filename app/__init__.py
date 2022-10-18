@@ -71,7 +71,7 @@ def create_app(test_config=None):
         SECRET_KEY='dev',
         # getting started on allowing other SQL databases than SQLite. 
         SQLALCHEMY_DATABASE_URI = f'{db_driver}://{db_host}:{db_pw}@{host}:{str(db_port)}/' if display['custom_sql_db'] == True else f'sqlite:///{os.path.join(app.instance_path, "app.sqlite")}',
-        SQLALCHEMY_DATABASE_URI = f'sqlite:///{os.path.join(app.instance_path, "app.sqlite")}',
+        # SQLALCHEMY_DATABASE_URI = f'sqlite:///{os.path.join(app.instance_path, "app.sqlite")}',
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
         # FLASK_ADMIN_SWATCH='darkly',
     )
