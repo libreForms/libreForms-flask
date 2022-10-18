@@ -13,7 +13,7 @@ class User(UserMixin, db.Model):
     phone = db.Column(db.String(1000))
     created_date = db.Column(db.String(1000))
 
-class Signing(UserMixin, db.Model):
+class Signing(db.Model):
     # id = db.Column(db.Integer, primary_key=True) # primary keys are required by SQLAlchemy
     signature = db.Column(db.String, primary_key=True) # by making the signature the primary key, can we solve for collisions?
     email = db.Column(db.String(100))

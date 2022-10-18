@@ -55,11 +55,12 @@ def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
         SECRET_KEY='dev',
+        # getting started on allowing other SQL databases than SQLite. 
+        # SQLALCHEMY_DATABASE_URI = f'{driver}://{host}:{dbpw}@{host}:{str(port)}/}',
         SQLALCHEMY_DATABASE_URI = f'sqlite:///{os.path.join(app.instance_path, "app.sqlite")}',
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
         # FLASK_ADMIN_SWATCH='darkly',
     )
-
 
     # admin = Admin(app, name='libreForms', template_mode='bootstrap4')
     # Add administrative views here
@@ -110,9 +111,6 @@ def create_app(test_config=None):
 
 
     from .models import User
-
-    # getting started on allowing other SQL databases than SQLite. 
-    # engine = db.create_engine('dialect+driver://user:pass@host:port/db')
 
     # initialize the database
     db.init_app(app=app)
