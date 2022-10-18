@@ -99,8 +99,8 @@ try:
     forms_appended = dict(forms)            # this creates a copy of the original dictionary, to
     forms_appended.update(add_ons.forms)    # which we will append the add_ons data
     forms = add_ons.forms # this is the default behavior, which overwrites the default behavior   
-except: # if anything above fails, we skip 
-    pass
+except Exception as e: # if anything above fails, we skip 
+    print (e)
 
 # this function can be run to debug the forms located in this 
 # file and any additional form data passed through forms.d/
