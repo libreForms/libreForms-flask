@@ -5,7 +5,18 @@
 				<fieldset>
 					{% if options._description %}<label>{{ options._description }}</label><hr>{% endif %}
 					{% for field in context.keys() %}
-					{% if context[field].input_field.type == "radio" or context[field].input_field.type == "checkbox" %}
+
+					{% if context[field].input_field.type == "select" %}
+						<label class="form-label mt-4{% if context[field].output_data.required==true %} required{% endif %}" for="" {% if context[field].output_data.description %}data-bs-toggle="tooltip" data-bs-placement="right" title="{{context[field].output_data.description}}"{% endif %}>{{ field | replace('_', ' ')}}</label>
+						<select class="form-select">
+						{% for item in context[field].input_field.content %}
+							<label class='form-check-label' for="{{ field }} {{ item }}">{{ item }}
+								<option value="{{ item }}" id="{{ field }} {{ item }}" name="{{ field }}" {% if context[field].output_data.required==true %}required{% endif %}/>
+							</label>
+						{% endfor %}
+						</select>
+
+					{% elif context[field].input_field.type == "radio" or context[field].input_field.type == "checkbox" %}
 					<div class="form-group">
 						<label class="form-label mt-4{% if context[field].output_data.required==true %} required{% endif %}" for="" {% if context[field].output_data.description %}data-bs-toggle="tooltip" data-bs-placement="right" title="{{context[field].output_data.description}}"{% endif %}>{{ field | replace('_', ' ')}}</label>
 						{% for item in context[field].input_field.content %}
