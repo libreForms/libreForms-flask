@@ -37,6 +37,14 @@ def generate_key(length=24):
 def write_key_to_database(scope=None, expiration=None, email=None):
     key = generate_key()
     # write to db if no collision
+
+    while True:
+        try:
+            # db.write
+            break
+        except:
+            pass
+
     return key
 
 # this is a function that will periodically scan
