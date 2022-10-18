@@ -28,11 +28,11 @@ log.info('LIBREFORMS - started libreforms web application.')
 if display['custom_sql_db'] == True:
     if os.path.exists ("user_db_creds"):
         user_db_creds = pd.read_csv("user_db_creds", dtype=str) # expecting the CSV format: db_driver,db_user, db_pw, db_host, db_port
-        db_driver = None
-        db_user = None
-        db_pw = None
-        db_host = None
-        db_port = None
+        db_driver = user_db_creds.db_driver[0] # eg. postgres, mysql
+        db_user = user_db_creds.db_user[0]
+        db_pw = user_db_creds.db_pw[0] # in the future, support other way to store secrets
+        db_host = user_db_creds.db_host[0]
+        db_port = user_db_creds.db_port[0]
 
     else:
         display['custom_sql_db'] = False
