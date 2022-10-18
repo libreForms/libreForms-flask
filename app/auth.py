@@ -15,15 +15,54 @@ bp = Blueprint('auth', __name__, url_prefix='/auth')
 
 @bp.route('/forgot_password/<signature>', methods=('GET', 'POST'))
 def reset_password(signature):
+
+    if current_user.is_authenticated:
+        return redirect(url_for('home'))
+
+
     flash(f'This feature has not been enabled by your system administrator. {signature}.')
     return redirect(url_for('auth.forgot_password'))
 
+
+    if request.method == 'POST':
+        password = request.form['password']
+
+
+
+        if not User.query.filter_by(email=email.lower()).first():
+            error = f'Email {email.lower()} is not registered.' 
+        elif not password:
+            error = 'Password is required.'
+
+        else: error = None
+
+        if error is None:
+            try:
+                user = User.query.filter_by(id=user_id).first() ## get email from Signing table & collate to User table 
+                user.password=generate_password_hash(new_password, method='sha256')
+                db.session.commit()
+
+                flash("Successfully changed password")
+                log.info(f'{user.username.upper()} - successfully changed password.')
+                return redirect(url_for('auth.profile'))
+            except:
+                error = f"There was an error in processing your request."
+            
+        else:
+            flash(error)
     ## First, we run a db check to see if the key exists
     # if so, we pull the corresponding email & user account details
     # we then populate the page fields with these details (or redirect to a separate page with the signature excluded)
     # we also expire the signature key at this point.
 
     # if the details were not found, or the key does not exist, we redirect with a flashed msg and write the the access log.
+    
+    return render_template('auth/forgot_password.html',
+        site_name=display['site_name'],
+        display_warning_banner=True,
+        name="Reset Password", 
+        reset=True,
+        display=display)
 
 
 
@@ -42,12 +81,13 @@ def forgot_password():
         else: error = None
 
         if error is None:
-            key = signing.write_key_to_database(scope='forgot_password', email=email)
-
-            content = f"A password reset request has been submitted for your account. Please follow this link to complete the reset. {display['domain']}/auth/forgot_password/{key}"
-
-            mailer.send_mail(subject=f'{display["site_name"]} Password Reset', content=content, to_address=email, logfile=log)
-            flash("Password reset link successfully sent.")
+            try: 
+                key = signing.write_key_to_database(scope='forgot_password', email=email)
+                content = f"A password reset request has been submitted for your account. Please follow this link to complete the reset. {display['domain']}/auth/forgot_password/{key}"
+                mailer.send_mail(subject=f'{display["site_name"]} Password Reset', content=content, to_address=email, logfile=log)
+                flash("Password reset link successfully sent.")
+            except Exception as e:
+                flash(e)
             
         else:
             flash(error)
