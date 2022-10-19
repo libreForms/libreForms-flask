@@ -1,12 +1,25 @@
 {% extends 'base.html' %}
 {% block content %}
 			{% if context %}
-			<form method=post>
+			<form method="post" autocomplete="off">
 				<fieldset>
 					{% if options._description %}<label>{{ options._description }}</label><hr>{% endif %}
 					{% for field in context.keys() %}
 
-					{% if context[field].input_field.type == "select" %}
+					{% if context[field].input_field.type == "autocomplete" %}
+
+					<div class="form-group">
+						<label class="form-label mt-4{% if context[field].output_data.required==true %} required{% endif %}" for="{{ field }}" {% if context[field].output_data.description %}data-bs-toggle="tooltip" data-bs-placement="right" title="{{context[field].output_data.description}}"{% endif %}>{{ field | replace('_', ' ')}}</label>
+						<input class="autocomplete form-control" type="text" value="{{ item }}" id="{{ field }}" name="{{ field }}" {% if context[field].output_data.required==true %}required{% endif %}/>
+					</div>
+
+					<script>
+						/*An array containing all the country names in the world:*/
+						var {{ field }} = {{ context[field].input_field.content | safe }};
+						autocomplete(document.getElementById("{{ field }}"), {{ field }});
+					</script>
+				
+					{% elif context[field].input_field.type == "select" %}
 					<div class="form-group">
 						<label class="form-label mt-4{% if context[field].output_data.required==true %} required{% endif %}" for="{{ field }}" {% if context[field].output_data.description %}data-bs-toggle="tooltip" data-bs-placement="right" title="{{context[field].output_data.description}}"{% endif %}>{{ field | replace('_', ' ')}}</label>
 						<select name="{{ field }}" class="form-select" {% if context[field].output_data.required==true %}required{% endif %}>
