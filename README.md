@@ -6,10 +6,10 @@ an open form manager API
 Read the docs at [https://libreforms.readthedocs.io/en/latest/](https://libreforms.readthedocs.io/en/latest/).
 
 ## Contents
-1. [about](#about)
-    - [use cases](#use-cases)
-    - [features](#features)
-2. [installation](#installation)
+1. [About](#about)
+    - [Use Cases](#use-cases)
+    - [Features](#features)
+2. [Installation](#installation)
     - [RHEL 8](#rhel-8)
     - [Amazon Linux 2](#amazon-linux-2)
     - [Ubuntu 20.04](#ubuntu-2004)
