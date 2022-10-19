@@ -15,6 +15,7 @@ Read the docs at [https://libreforms.readthedocs.io/en/latest/](https://librefor
     - [Ubuntu 20.04](#ubuntu-2004)
     - [Common Issues](#common-issues)
 3. [Abstraction Layer](#abstraction-layer)
+    - [Database Lookups](#database-lookups)
 4. [Web Application](#web-application)
     - [Views](#views)
     - [Auth](#auth)
@@ -315,6 +316,45 @@ forms = {
 
 Versions above `1.0.0` will introduce compatibility-breaking changes that are intended to simplify the abstraction layer. For more information, see the [discussion](https://github.com/signebedi/libreForms/issues/27) about these changes.
 
+
+### Database Lookups
+
+You can configure the database lookups in the abstraction layer with some relatively straightforward hacking. For example, if you wanted the possible values of some field X in form Y to be drawn from the stored values for field A in form B, then you could add the following code to your `libreforms/add_ons.py` file.
+
+```python
+import os
+import mongodb
+import pandas as pd
+
+mongodb = mongodb.MongoDB(mongodb_creds)
+
+def _db_lookup(collection, *args, combine=False):
+    df = pd.DataFrame(list(mongodb.read_documents_from_collection(collection)))
+    new_df = pd.DataFrame()
+    if args:
+        for a in args:
+            new_df[a] = df[a]
+        if combine:
+            new_df['combine'] = ""
+            for a in args:
+                new_df['combine'] = new_df['combine'] + df[a] + " "
+        return new_df
+    else:
+        return df
+```
+
+Then, when you're constructing the form field described above, you can define is as follows.
+
+```python
+forms = {
+    "Form_Y": {
+        "Field_X": {
+            "input_field": {"type": "select", "content": [r'{}'.format(x) for x in _db_lookup("Form_B")['Field_A']]},
+            "output_data": {"type": "str", "required": True, "validators": [], "description": "Select one of the available options",},
+        },
+    }
+}
+```
 
 ## Web Application
 
