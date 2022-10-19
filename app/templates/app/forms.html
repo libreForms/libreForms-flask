@@ -11,9 +11,7 @@
 						<label class="form-label mt-4{% if context[field].output_data.required==true %} required{% endif %}" for="{{ field }}" {% if context[field].output_data.description %}data-bs-toggle="tooltip" data-bs-placement="right" title="{{context[field].output_data.description}}"{% endif %}>{{ field | replace('_', ' ')}}</label>
 						<select name="{{ field }}" class="form-select" {% if context[field].output_data.required==true %}required{% endif %}>
 						{% for item in context[field].input_field.content %}
-							<label class='form-check-label' for="{{ field }} {{ item }}">{{ item }}
-								<option value="{{ item }}" id="{{ field }} {{ item }}" name="{{ field }}"/>
-							</label>
+								<option value="{{ item }}" id="{{ field }} {{ item }}" name="{{ field }}">{{ item }}</option>
 						{% endfor %}
 						</select>
 					</div>
