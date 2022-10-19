@@ -7,15 +7,16 @@
 					{% for field in context.keys() %}
 
 					{% if context[field].input_field.type == "select" %}
-						<label class="form-label mt-4{% if context[field].output_data.required==true %} required{% endif %}" for="" {% if context[field].output_data.description %}data-bs-toggle="tooltip" data-bs-placement="right" title="{{context[field].output_data.description}}"{% endif %}>{{ field | replace('_', ' ')}}</label>
-						<select class="form-select">
+					<div class="form-group">
+						<label class="form-label mt-4{% if context[field].output_data.required==true %} required{% endif %}" for="{{ field }}" {% if context[field].output_data.description %}data-bs-toggle="tooltip" data-bs-placement="right" title="{{context[field].output_data.description}}"{% endif %}>{{ field | replace('_', ' ')}}</label>
+						<select name="{{ field }}" class="form-select" {% if context[field].output_data.required==true %}required{% endif %}>
 						{% for item in context[field].input_field.content %}
 							<label class='form-check-label' for="{{ field }} {{ item }}">{{ item }}
-								<option value="{{ item }}" id="{{ field }} {{ item }}" name="{{ field }}" {% if context[field].output_data.required==true %}required{% endif %}/>
+								<option value="{{ item }}" id="{{ field }} {{ item }}" name="{{ field }}"/>
 							</label>
 						{% endfor %}
 						</select>
-
+					</div>
 					{% elif context[field].input_field.type == "radio" or context[field].input_field.type == "checkbox" %}
 					<div class="form-group">
 						<label class="form-label mt-4{% if context[field].output_data.required==true %} required{% endif %}" for="" {% if context[field].output_data.description %}data-bs-toggle="tooltip" data-bs-placement="right" title="{{context[field].output_data.description}}"{% endif %}>{{ field | replace('_', ' ')}}</label>
