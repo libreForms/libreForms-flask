@@ -47,12 +47,12 @@ In most cases, the following commands must be run with root privileges.
 
 ```
 # see https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-red-hat/
-echo "[mongodb-org-5.0] 
-name=MongoDB Repository 
-baseurl=https://repo.mongodb.org/yum/redhat/$releasever/mongodb-org/5.0/x86_64/ 
-gpgcheck=1 
-enabled=1 
-gpgkey=https://www.mongodb.org/static/pgp/server-5.0.asc" | tee /etc/yum.repos.d/mongodb-org-5.0.repo
+echo "[mongodb-org-6.0]
+name=MongoDB Repository
+baseurl=https://repo.mongodb.org/yum/redhat/$releasever/mongodb-org/6.0/x86_64/
+gpgcheck=1
+enabled=1
+gpgkey=https://www.mongodb.org/static/pgp/server-6.0.asc" | tee /etc/yum.repos.d/mongodb-org-6.0.repo
 yum update -y
 yum install python3.8 python3-ldap mongodb-org -y
 systemctl enable --now mongod
