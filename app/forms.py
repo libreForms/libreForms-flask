@@ -65,7 +65,7 @@ def reconcile_form_data_struct(form=False):
 
     for field in form.keys():
 
-        if form[field]['input_field']['type'] in ['radio','checkbox']:
+        if form[field]['input_field']['type'] in ['radio','checkbox', 'select']:
             if form[field]['output_data']['type'] in ['str', 'int', 'float']:
                 MATCH[field] = {'many-to-one':len(form[field]['input_field']['content'])}
             elif form[field]['output_data']['type'] in ['list']:
@@ -181,7 +181,7 @@ def forms(form_name):
             )
 
     except Exception as e:
-        flash('This form does not exist.')
+        flash(f'This form does not exist. {e}')
         return redirect(url_for('forms.forms_home'))
 
 

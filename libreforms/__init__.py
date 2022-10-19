@@ -9,8 +9,8 @@
 # The libreForms abstraction layer is defined in ```libreforms/forms/__init__.py``` 
 # and expects organizations to overwrite the default form by adding a file called 
 # ```libreforms/add_ons.py```. At this time, the abstraction layer can handle the 
-# "text", "password", "radio", "checkbox", "date", "hidden", and "number" input types, 
-# and can write to Python's str, float, int, and list data types. 
+# "text", "password", "radio", "select", "checkbox", "date", "hidden", and "number" 
+# input types, and can write to Python's str, float, int, and list data types. 
 
 # The abstraction layer breaks down individual forms into fields and configurations. A 
 # field must have a unique name, which must employ underscores instead of spaces ("My 
@@ -44,6 +44,10 @@ forms = {
         "Radio_Field": {
             "input_field": {"type": "radio", "content": ["Pick", "An", "Option"]},
             "output_data": {"type": "str", "required": False, "validators": [], 'description': "this is a radio field"},
+        },
+        "Select_Field": {
+            "input_field": {"type": "select", "content": ["Pick", "An", "Option"]},
+            "output_data": {"type": "str", "required": False, "validators": [], 'description': "this is a select / dropdown field"},
         },
         "Check_Field": {
             "input_field": {"type": "checkbox", "content": ["Pick", "An", "Option"]},
@@ -118,7 +122,7 @@ def lint(forms=forms):
             assert forms[form][field]["input_field"]
 
             # verify that the type employed conforms to one of the acceptable form fields
-            assert forms[form][field]["input_field"]["type"] in ["text", "password", "radio", "checkbox" , "date", "hidden", "number", "file"]
+            assert forms[form][field]["input_field"]["type"] in ["text", "password", "select", "radio", "checkbox" , "date", "hidden", "number", "file"]
 
             # verify that the form content is is a list data type
             assert isinstance(forms[form][field]["input_field"]["content"], list)
