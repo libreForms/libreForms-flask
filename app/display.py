@@ -27,7 +27,7 @@ display['smtp_enabled'] = False
 display['ldap_enabled'] = False
 display['custom_sql_db'] = False
 display['allow_anonymous_form_submissions'] = True
-display['allow_bulk_registration'] = True
+display['allow_bulk_registration'] = False
 display['domain'] = None
 
 if os.path.exists ("app/display_overrides.py"):

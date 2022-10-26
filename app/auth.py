@@ -1,9 +1,11 @@
-import functools, re, datetime
+import functools, re, datetime, tempfile, os
+import pandas as pd
 
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, session, url_for
 )
 from werkzeug.security import check_password_hash, generate_password_hash
+from werkzeug.utils import secure_filename
 
 from app import display, log, db, mailer
 import app.signing as signing
@@ -187,66 +189,77 @@ def bulk_register():
 
 
     if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        email = request.form['email']
-        organization = request.form['organization']
-        phone = request.form['phone']
-        created_date = datetime.datetime.today().strftime("%Y-%m-%d %H:%M:%S")
-        
-        if phone == "":
-            phone = None
-        
-        if email == "":
-            email = None
 
-        error = None
+        file = request.files['file']
+        if file.filename == '':
+            flash("Please select a CSV to upload")
+            return redirect(url_for('auth.bulk_register')) 
 
-        if not username:
-            error = 'Username is required.'
-        elif not password:
-            error = 'Password is required.'
-        elif not re.fullmatch(r"^\w\w\w\w+$", username) or len(username) > 36:
-            error = 'username does not formatting standards, length 4 - 36 characters, alphanumeric and underscore characters only.'
-        elif email and not re.fullmatch(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', email):
-            error = 'Invalid email.' 
-        elif phone and not re.fullmatch(r'^[a-z0-9]{3}-[a-z0-9]{3}-[a-z0-9]{4}$', phone):
-            error = 'Invalid phone number (xxx-xxx-xxxx).' 
-        elif email and User.query.filter_by(email=email).first():
-            error = 'Email is already registered.' 
-        elif User.query.filter_by(username=username.lower()).first():
-            error = f'Username {username.lower()} is already registered.' 
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            # print('created temporary directory', tmpdirname)
 
-        if error is None:
-            try:
-                new_user = User(
-                            email=email, 
-                            username=username.lower(), 
-                            password=generate_password_hash(password, method='sha256'),
-                            organization=organization,
-                            phone=phone,
-                            created_date=created_date,
-                        )
-                db.session.add(new_user)
-                db.session.commit()
-                log.info(f'{username.upper()} - successfully registered with email {email}.')
-            except:
-                error = f"User is already registered with username \'{username.lower()}\' or email \'{email}\'." if email else f"User is already registered with username \'{username}\'."
-                log.error(f'GUEST - failed to register new user {username.lower()} with email {email}.')
+            filepath = secure_filename(file.filename) # first remove any banned chars
+            filepath = os.path.join(tmpdirname, file.filename)
+
+            file.save(filepath)
+
+            error = None
+
+            if not file.filename.lower().endswith(".csv",):
+                error = 'Please upload a CSV file.'
             else:
-                flash(f'Successfully created user \'{username.lower()}\'.')
-                mailer.send_mail(subject=f"Successfully Registered {username}", content=f"This is a notification that {username} has been successfully registered for libreforms.", to_address=email, logfile=log)
-                return redirect(url_for("auth.add_users"))
+                try:
+                    bulk_user_df = pd.read_csv(filepath)
 
-        flash(error)
+                    for x in ["username", "email", "password"]: # a minimalist common sense check
+                        assert x in bulk_user_df.columns
+                
+                except Exception as e:
+                    error = e
+
+            if error is None:
+                # flash(bulk_user_df)
+
+                created_date=datetime.datetime.today().strftime("%Y-%m-%d %H:%M:%S")
+                
+                for index, row in bulk_user_df.iterrows():
+                    try:
+                        # print (row.username, row.email, row.password)
+                        new_user = User(
+                                    email=row.email, 
+                                    username=row.username.lower(), 
+                                    password=generate_password_hash(row.password, method='sha256'),
+                                    # organization=row.organization if row.organization else "",
+                                    # phone=row.phone if row.phone else "",
+                                    created_date=created_date,
+                                )
+                        db.session.add(new_user)
+                        db.session.commit()
+                        log.info(f'{row.username.upper()} - successfully registered with email {row.email}.')
+                    except Exception as e:
+                        # error = f"User is already registered with username \'{row.username.lower()}\' or email \'{row.email}\'." if row.email else f"User is already registered with username \'{row.username}\'. "
+                        flash(e)
+                        log.error(f'GUEST - failed to register new user {row.username.lower()} with email {row.email}.')
+                    # else:
+                    #     flash(f'Successfully created user \'{bulk_user_df.username.lower()}\'.')
+                    #     mailer.send_mail(subject=f"Successfully Registered {username}", content=f"This is a notification that {username} has been successfully registered for libreforms.", to_address=email, logfile=log)
+                    #     return redirect(url_for("auth.add_users"))
+                flash ("Successfully uploaded users from CSV.")
+
+            else:
+                flash(error)
+
+
+            # return f"File saved successfully {filepath}"
+
+
 
     return render_template('auth/add_users.html',
         site_name=display['site_name'],
         display_warning_banner=True,
-        name="Register",
+        name="Bulk Register",
+        user=current_user,
         display=display,)
-
-
 
 
 @bp.route('/login', methods=('GET', 'POST'))
