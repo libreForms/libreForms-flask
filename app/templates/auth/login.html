@@ -21,10 +21,6 @@
     </fieldset>
   </form>
   <a href="{{ url_for('auth.forgot_password') }}"><p>Forgot Password</a></p>
-  {% if display.warning_banner %}
-  <br/><hr/>
-  {{ display.warning_banner }}
-  {% endif %}
 
 {% endblock %}
 
