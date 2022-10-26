@@ -1,13 +1,11 @@
 import functools, re, datetime, tempfile, os
 import pandas as pd
 
-from flask import (
-    Blueprint, flash, g, redirect, render_template, request, session, url_for
-)
+from flask import Blueprint, flash, g, redirect, render_template, request, session, url_for, send_from_directory
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 
-from app import display, log, db, mailer
+from app import display, log, db, mailer, tempfile_path
 import app.signing as signing
 from app.models import User
 from flask_login import login_required, current_user, login_user
@@ -355,3 +353,17 @@ def profile():
         display=display,
         user=current_user,
     )
+
+# this is the download link for files in the temp directory
+@bp.route('/download/<path:filename>')
+@login_required
+def download_bulk_user_template(filename='bulk_user_template.csv'):
+
+    # this is our first stab at building templates, without accounting for nesting or repetition
+    df = pd.DataFrame (columns=["username", "email", "password", "phone", "organization"])
+
+    fp = os.path.join(tempfile_path, filename)
+    df.to_csv(fp, index=False)
+
+    return send_from_directory(tempfile_path,
+                            filename, as_attachment=True)
