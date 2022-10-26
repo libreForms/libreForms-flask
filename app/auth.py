@@ -177,6 +177,78 @@ def register():
 
 
 
+@bp.route('/register/bulk', methods=('GET', 'POST'))
+@login_required
+def bulk_register():
+
+    if not display['allow_bulk_registration']:
+        flash('This feature has not been enabled by your system administrator.')
+        return redirect(url_for('home'))
+
+
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        email = request.form['email']
+        organization = request.form['organization']
+        phone = request.form['phone']
+        created_date = datetime.datetime.today().strftime("%Y-%m-%d %H:%M:%S")
+        
+        if phone == "":
+            phone = None
+        
+        if email == "":
+            email = None
+
+        error = None
+
+        if not username:
+            error = 'Username is required.'
+        elif not password:
+            error = 'Password is required.'
+        elif not re.fullmatch(r"^\w\w\w\w+$", username) or len(username) > 36:
+            error = 'username does not formatting standards, length 4 - 36 characters, alphanumeric and underscore characters only.'
+        elif email and not re.fullmatch(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', email):
+            error = 'Invalid email.' 
+        elif phone and not re.fullmatch(r'^[a-z0-9]{3}-[a-z0-9]{3}-[a-z0-9]{4}$', phone):
+            error = 'Invalid phone number (xxx-xxx-xxxx).' 
+        elif email and User.query.filter_by(email=email).first():
+            error = 'Email is already registered.' 
+        elif User.query.filter_by(username=username.lower()).first():
+            error = f'Username {username.lower()} is already registered.' 
+
+        if error is None:
+            try:
+                new_user = User(
+                            email=email, 
+                            username=username.lower(), 
+                            password=generate_password_hash(password, method='sha256'),
+                            organization=organization,
+                            phone=phone,
+                            created_date=created_date,
+                        )
+                db.session.add(new_user)
+                db.session.commit()
+                log.info(f'{username.upper()} - successfully registered with email {email}.')
+            except:
+                error = f"User is already registered with username \'{username.lower()}\' or email \'{email}\'." if email else f"User is already registered with username \'{username}\'."
+                log.error(f'GUEST - failed to register new user {username.lower()} with email {email}.')
+            else:
+                flash(f'Successfully created user \'{username.lower()}\'.')
+                mailer.send_mail(subject=f"Successfully Registered {username}", content=f"This is a notification that {username} has been successfully registered for libreforms.", to_address=email, logfile=log)
+                return redirect(url_for("auth.add_users"))
+
+        flash(error)
+
+    return render_template('auth/add_users.html',
+        site_name=display['site_name'],
+        display_warning_banner=True,
+        name="Register",
+        display=display,)
+
+
+
+
 @bp.route('/login', methods=('GET', 'POST'))
 def login():
 
