@@ -387,6 +387,8 @@ Pass: libreforms
 
 In addition to username and password fields, the application ships by default with phone number, organization, and email fields. These can be modified by changing the fields defined in app/schema.sql and app/auth.py. Currently, there is no group-based permission sets defined, but these will be added per https://github.com/signebedi/libreForms/issues/16.
 
+Anonymous registration is enabled by default but can be modified by setting display['allow_anonymous_registration'] to False. Bulk registration can be enabled by seeting display['allow_bulk_registration'] to True, which then allows logged-in users to upload a CSV of users to add at `/auth/register/bulk`
+
 ### REST
 
 There is a RESTful API that allows users to complete read and, perhaps in the future, write operations against the MongoDB database, see discussion [here](https://github.com/signebedi/libreForms/issues/36). This requires API keys. You can create a file in the application home directory called `api_keys` structured as:
