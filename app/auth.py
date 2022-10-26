@@ -236,13 +236,13 @@ def bulk_register():
                         log.info(f'{row.username.upper()} - successfully registered with email {row.email}.')
                     except Exception as e:
                         # error = f"User is already registered with username \'{row.username.lower()}\' or email \'{row.email}\'." if row.email else f"User is already registered with username \'{row.username}\'. "
-                        flash(e)
-                        log.error(f'GUEST - failed to register new user {row.username.lower()} with email {row.email}.')
+                        flash(f"Issue registering {row.username.lower()}. {e}")
+                        log.error(f'{current_user.username.upper()} - failed to register new user {row.username.lower()} with email {row.email}.')
                     # else:
                     #     flash(f'Successfully created user \'{bulk_user_df.username.lower()}\'.')
                     #     mailer.send_mail(subject=f"Successfully Registered {username}", content=f"This is a notification that {username} has been successfully registered for libreforms.", to_address=email, logfile=log)
                     #     return redirect(url_for("auth.add_users"))
-                flash ("Successfully uploaded users from CSV.")
+                flash ("Finished uploading users from CSV.")
 
             else:
                 flash(error)
