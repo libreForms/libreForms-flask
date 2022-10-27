@@ -2,20 +2,7 @@ from flask_login import UserMixin
 from app import db
 from app.display import display
 
-
-# class A(object):
-#     def __init__(self, foo, bar=3):
-#         self.foo = foo
-#         self.bar = bar
-
-# class B(A):
-#     def __init__(self, quux=6, **kwargs):
-#         super(B, self).__init__(**kwargs)
-#         self.quux = quux
-
-
 class User(UserMixin, db.Model):
-
     id = db.Column(db.Integer, primary_key=True) # primary keys are required by SQLAlchemy
     email = db.Column(db.String(100))
     password = db.Column(db.String(100))
@@ -23,14 +10,6 @@ class User(UserMixin, db.Model):
     organization = db.Column(db.String(1000))
     phone = db.Column(db.String(1000))
     created_date = db.Column(db.String(1000))
-
-    def __init__(self, **kwargs):
-
-        # super(User, self).__init__(**kwargs)
-
-        for key, value in kwargs.items():
-            self[key] = value
-
 
 
 class Signing(db.Model):
