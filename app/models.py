@@ -12,6 +12,43 @@ class User(UserMixin, db.Model):
     created_date = db.Column(db.String(1000))
 
 
+
+# class User(UserMixin, db.Model):
+#     id = db.Column(db.Integer, primary_key=True) # primary keys are required by SQLAlchemy
+#     email = db.Column(db.String(100))
+#     password = db.Column(db.String(100))
+#     username = db.Column(db.String(100), unique=True)
+#     organization = db.Column(db.String(1000))
+#     phone = db.Column(db.String(1000))
+#     created_date = db.Column(db.String(1000))
+
+#     def __init__(self, addl_configs=display['user_registration_fields'], **kwargs):
+#         super(User, self).__init__(**kwargs)
+
+#         for key, value in kwargs.items():
+#             setattr(self, key, value)
+        
+#         if addl_configs:
+#             for key, value in addl_configs.items():
+
+#                 # might eventually be worth adding support for unique fields...
+#                 if value == str:
+#                     setattr(self, key, db.Column(db.String(1000)))
+#                     print (key, value)
+#                 elif value == int:
+#                     setattr(self, key, db.Column(db.Integer))
+#                     print (key, value)
+
+
+#     def update(self, **kwargs):
+#         for key, value in kwargs.items():
+
+#             # might eventually be worth adding support for unique fields...
+#             if value == str:
+#                 setattr(self, key, db.Column(db.String(1000)))
+#             elif value == int:
+#                 setattr(self, key, db.Column(db.Integer))
+
 class Signing(db.Model):
     # id = db.Column(db.Integer, primary_key=True) # primary keys are required by SQLAlchemy
     signature = db.Column(db.String, primary_key=True) # by making the signature the primary key, can we solve for collisions?
