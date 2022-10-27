@@ -219,22 +219,30 @@ def bulk_register():
                 created_date=datetime.datetime.today().strftime("%Y-%m-%d %H:%M:%S")
                 
                 for index, row in bulk_user_df.iterrows():
-                    try:
-                        new_user = User(
-                                    email=row.email, 
-                                    username=row.username.lower(), 
-                                    password=generate_password_hash(row.password, method='sha256'),
-                                    # organization=row.organization if row.organization else "",
-                                    # phone=row.phone if row.phone else "",
-                                    created_date=created_date,
-                                )
-                        db.session.add(new_user)
-                        db.session.commit()
-                        log.info(f'{row.username.upper()} - successfully registered with email {row.email}.')
-                    except Exception as e:
-                        # error = f"User is already registered with username \'{row.username.lower()}\' or email \'{row.email}\'." if row.email else f"User is already registered with username \'{row.username}\'. "
-                        flash(f"Issue registering {row.username.lower()}. {e}")
-                        log.error(f'{current_user.username.upper()} - failed to register new user {row.username.lower()} with email {row.email}.')
+                    does_user_exist = User.query.filter_by(username=row.username.lower()).first()
+                    does_email_exist =  User.query.filter_by(email=row.email.lower()).first()
+
+                    if does_user_exist or does_email_exist:
+                        flash(f"Could not register {row.username.lower()} under email {row.email.lower()}. User already exists. ")
+
+                    else:
+
+                        try: 
+                            new_user = User(
+                                        email=row.email, 
+                                        username=row.username.lower(), 
+                                        password=generate_password_hash(row.password, method='sha256'),
+                                        # organization=row.organization if row.organization else "",
+                                        # phone=row.phone if row.phone else "",
+                                        created_date=created_date,
+                                    )
+                            db.session.add(new_user)
+                            db.session.commit()
+                            log.info(f'{row.username.upper()} - successfully registered with email {row.email}.')
+                        except Exception as e:
+                            # error = f"User is already registered with username \'{row.username.lower()}\' or email \'{row.email}\'." if row.email else f"User is already registered with username \'{row.username}\'. "
+                            flash(f"Issue registering {row.username.lower()}. {e}")
+                            log.error(f'{current_user.username.upper()} - failed to register new user {row.username.lower()} with email {row.email}.')
                     # else:
                     #     flash(f'Successfully created user \'{bulk_user_df.username.lower()}\'.')
                     #     mailer.send_mail(subject=f"Successfully Registered {username}", content=f"This is a notification that {username} has been successfully registered for libreforms.", to_address=email, logfile=log)
