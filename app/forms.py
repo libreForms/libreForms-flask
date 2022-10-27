@@ -7,7 +7,8 @@ from flask_login import current_user
 
 # import custom packages from the current repository
 import libreforms, mongodb
-from app import display, log, tempfile_path
+from app import display, log, tempfile_path, db
+from app.models import User
 from app.auth import login_required, session
 
 
@@ -15,6 +16,10 @@ from app.auth import login_required, session
 import os
 import pandas as pd
 
+
+def generate_list_of_users(db=db):
+    col = User.query.with_entities(User.username, User.email).distinct()
+    return [(row.email, row.username) for row in col.all()]
 
 def parse_form_fields(form=False):
 
@@ -144,6 +149,8 @@ bp = Blueprint('forms', __name__, url_prefix='/forms')
 @bp.route(f'/')
 @login_required
 def forms_home():
+
+    print(generate_list_of_users()) 
     return render_template('app/forms.html', 
             msg="Select a form from the left-hand menu.",
             name="Form",

@@ -216,13 +216,10 @@ def bulk_register():
                     error = e
 
             if error is None:
-                # flash(bulk_user_df)
-
                 created_date=datetime.datetime.today().strftime("%Y-%m-%d %H:%M:%S")
                 
                 for index, row in bulk_user_df.iterrows():
                     try:
-                        # print (row.username, row.email, row.password)
                         new_user = User(
                                     email=row.email, 
                                     username=row.username.lower(), 
