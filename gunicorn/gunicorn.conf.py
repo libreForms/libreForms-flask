@@ -6,6 +6,7 @@
 
 import os, re
 from app.csv_files import init_tmp_fs
+from app.display import display
 
 # here we add pre-fork tasks that need to be handled prior to setting up concurrent sessions
 def pre_fork(server, worker):
@@ -27,7 +28,20 @@ def pre_fork(server, worker):
         app=create_app()
 
         # initialize the database
-        db.init_app(app=app)        
+        db.init_app(app=app)     
+        
+        # here we append any additional fields described in the display.user_registration_fields variable
+        if display['user_registration_fields']:
+            for key, value in display['user_registration_fields'].items():
+
+                # might eventually be worth adding support for unique fields...
+                if value == str:
+                    setattr(User, key, db.Column(db.String(1000)))
+                    print (key, value)
+                elif value == int:
+                    setattr(User, key, db.Column(db.Integer))
+                    print (key, value)
+   
         
         db.create_all(app=app)
 
