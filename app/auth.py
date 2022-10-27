@@ -158,13 +158,14 @@ def register():
                         )
                 db.session.add(new_user)
                 db.session.commit()
+                mailer.send_mail(subject=f'{display["site_name"]} User Registered', content=f"This email serves to notify you that the user {username} has just been registered for this email address at {display['domain']}.", to_address=email, logfile=log)
                 log.info(f'{username.upper()} - successfully registered with email {email}.')
             except:
                 error = f"User is already registered with username \'{username.lower()}\' or email \'{email}\'." if email else f"User is already registered with username \'{username}\'."
                 log.error(f'GUEST - failed to register new user {username.lower()} with email {email}.')
             else:
                 flash(f'Successfully created user \'{username.lower()}\'.')
-                mailer.send_mail(subject=f"Successfully Registered {username}", content=f"This is a notification that {username} has been successfully registered for libreforms.", to_address=email, logfile=log)
+                # mailer.send_mail(subject=f"Successfully Registered {username}", content=f"This is a notification that {username} has been successfully registered for libreforms.", to_address=email, logfile=log)
                 return redirect(url_for("auth.login"))
 
         flash(error)
@@ -226,7 +227,6 @@ def bulk_register():
                         flash(f"Could not register {row.username.lower()} under email {row.email.lower()}. User already exists. ")
 
                     else:
-
                         try: 
                             new_user = User(
                                         email=row.email, 
@@ -238,6 +238,7 @@ def bulk_register():
                                     )
                             db.session.add(new_user)
                             db.session.commit()
+                            mailer.send_mail(subject=f'{display["site_name"]} User Registered', content=f"This email serves to notify you that the user {row.username} has just been registered for this email address at {display['domain']}.", to_address=row.email, logfile=log)
                             log.info(f'{row.username.upper()} - successfully registered with email {row.email}.')
                         except Exception as e:
                             # error = f"User is already registered with username \'{row.username.lower()}\' or email \'{row.email}\'." if row.email else f"User is already registered with username \'{row.username}\'. "
