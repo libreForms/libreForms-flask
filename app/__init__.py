@@ -137,11 +137,10 @@ def create_app(test_config=None):
             # might eventually be worth adding support for unique fields...
             if value == str:
                 setattr(User, key, db.Column(db.String(1000)))
-                print (key, value)
+                print(key,value)
             elif value == int:
                 setattr(User, key, db.Column(db.Integer))
-                print (key, value)
-    # print(dir(User))
+                print(key,value)
 
 
     # create the database if it doesn't exist
@@ -158,6 +157,37 @@ def create_app(test_config=None):
                                     created_date='2022-06-01 00:00:00',)
                 db.session.add(initial_user)
                 db.session.commit()
+    
+    # borrowed from https://stackoverflow.com/a/17243132
+    if display['user_registration_fields']:
+
+        with app.app_context():
+
+            def add_column(table_name, column, engine=db.engine):
+                column_name = column.compile(dialect=engine.dialect)
+                column_type = column.type.compile(engine.dialect)
+                engine.execute('ALTER TABLE %s ADD COLUMN %s %s' % (table_name, column_name, column_type))
+
+
+            # borrow from https://www.geeksforgeeks.org/python-sqlalchemy-get-column-names-dynamically/
+            with db.engine.connect() as conn:
+                result = conn.execute(f"SELECT * FROM user")
+                cols = []
+                for elem in result.cursor.description:
+                    cols.append(elem[0])
+
+            engine=db.engine
+            for key, value in display['user_registration_fields'].items():
+                    if key not in cols:
+                        if value == str:
+                            column = db.Column(key, db.String(1000))
+                            add_column("user", column)
+
+                        elif value == int:
+                            column = db.Column(key, db.Column(db.Integer), primary_key=True)
+                            add_column("user", column)
+
+
 
     login_manager = LoginManager()
     login_manager.login_view = 'auth.login'
