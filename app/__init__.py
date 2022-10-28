@@ -130,22 +130,22 @@ def create_app(test_config=None):
     db.init_app(app=app)
 
 
+    # here we append any additional fields described in the display.user_registration_fields variable
+    if display['user_registration_fields']:
+        for key, value in display['user_registration_fields'].items():
+
+            # might eventually be worth adding support for unique fields...
+            if value == str:
+                setattr(User, key, db.Column(db.String(1000)))
+                print (key, value)
+            elif value == int:
+                setattr(User, key, db.Column(db.Integer))
+                print (key, value)
+    # print(dir(User))
+
+
     # create the database if it doesn't exist
     if not os.path.exists(os.path.join('instance','app.sqlite')):
-
-        # here we append any additional fields described in the display.user_registration_fields variable
-        if display['user_registration_fields']:
-            for key, value in display['user_registration_fields'].items():
-
-                # might eventually be worth adding support for unique fields...
-                if value == str:
-                    setattr(User, key, db.Column(db.String(1000)))
-                    print (key, value)
-                elif value == int:
-                    setattr(User, key, db.Column(db.Integer))
-                    print (key, value)
-        # print(dir(User))
-
         db.create_all(app=app)
 
         # create default user if doesn't exist
