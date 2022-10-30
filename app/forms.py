@@ -150,7 +150,7 @@ bp = Blueprint('forms', __name__, url_prefix='/forms')
 @login_required
 def forms_home():
 
-    print(generate_list_of_users()) 
+    # print(generate_list_of_users()) 
     return render_template('app/forms.html', 
             msg="Select a form from the left-hand menu.",
             name="Form",

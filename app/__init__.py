@@ -137,10 +137,10 @@ def create_app(test_config=None):
             # might eventually be worth adding support for unique fields...
             if value == str:
                 setattr(User, key, db.Column(db.String(1000)))
-                print(key,value)
+                # print(key,value)
             elif value == int:
                 setattr(User, key, db.Column(db.Integer))
-                print(key,value)
+                # print(key,value)
 
 
     # create the database if it doesn't exist
