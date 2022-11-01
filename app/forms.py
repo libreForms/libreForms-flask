@@ -7,7 +7,7 @@ from flask_login import current_user
 
 # import custom packages from the current repository
 import libreforms, mongodb
-from app import display, log, tempfile_path, db
+from app import display, log, tempfile_path, db, mailer
 from app.models import User
 from app.auth import login_required, session
 
@@ -175,6 +175,7 @@ def forms(form_name):
             mongodb.write_document_to_collection(parsed_args, form_name, reporter=current_user.username)
             flash(str(parsed_args))
             log.info(f'{current_user.username.upper()} - submitted \'{form_name}\' form.')
+            mailer.send_mail(subject=f'{display["site_name"]} {form_name} Submitted', content=f"This email serves to verify that {current_user.username} ({current_user.username}) has just submitted the following form at {display['domain']}: {form_name}.", to_address=current_user.email, logfile=log)
 
         return render_template('app/forms.html', 
             context=forms,                                          # this passes the form fields as the primary 'context' variable
