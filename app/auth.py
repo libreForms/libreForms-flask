@@ -126,8 +126,8 @@ def register():
         TEMP = {}
         for item in display['user_registration_fields'].keys():
             if display['user_registration_fields'][item]['input_type'] != 'hidden':
-                TEMP[item] = request.form[item] 
-        
+                TEMP[item] = request.form[item]
+
         if phone == "":
             phone = None
         

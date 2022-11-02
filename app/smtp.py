@@ -40,7 +40,7 @@ class sendMail():
                 # sending a plain text email
                 server.sendmail(self.from_address, to_address, msg.as_string())
 
-                if logfile: logfile.info(f'successfully sent an email to {to_address}\n')
+                if logfile: logfile.info(f'successfully sent an email to {to_address}')
 
         except Exception as e:
             if logfile: logfile.error(f'could not send an email to {to_address} - {e}\n')
