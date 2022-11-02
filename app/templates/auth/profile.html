@@ -7,6 +7,12 @@
 <tr><td><b>Email</b>: <span ondblclick="this.contentEditable=true;this.className='inEdit';" onblur="this.contentEditable=false;this.className='';" contenteditable="false" class=""> {{ user.email }}</span></td></tr>
 <tr><td><b>Organization</b>: <span ondblclick="this.contentEditable=true;this.className='inEdit';" onblur="this.contentEditable=false;this.className='';" contenteditable="false" class="">{{ user.organization }}</span></td></tr>
 <tr><td><b>Phone</b>: <span ondblclick="this.contentEditable=true;this.className='inEdit';" onblur="this.contentEditable=false;this.className='';" contenteditable="false" class="">{{ user.phone }}</span>
+{% if display['user_registration_fields'] is defined %}
+{% for attribute in display['user_registration_fields'] %}
+<tr><td><b>{{attribute}}</b>: {{ user[attribute] }}</td></tr>
+{% endfor %}
+{% endif %}
+
 </td></tr>
 <tr><td><b>Created</b>: {{ user.created_date }}</td></tr>
 </table>
