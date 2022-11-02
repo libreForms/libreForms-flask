@@ -122,6 +122,11 @@ def register():
         organization = request.form['organization']
         phone = request.form['phone']
         created_date = datetime.datetime.today().strftime("%Y-%m-%d %H:%M:%S")
+
+        TEMP = {}
+        for item in display['user_registration_fields'].keys():
+            if display['user_registration_fields'][item]['input_type'] != 'hidden':
+                TEMP[item] = request.form[item] 
         
         if phone == "":
             phone = None
@@ -155,6 +160,7 @@ def register():
                             organization=organization,
                             phone=phone,
                             created_date=created_date,
+                            **TEMP,
                         )
                 db.session.add(new_user)
                 db.session.commit()
