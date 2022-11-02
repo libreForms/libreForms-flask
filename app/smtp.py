@@ -43,5 +43,5 @@ class sendMail():
                 if logfile: logfile.info(f'successfully sent an email to {to_address}')
 
         except Exception as e:
-            if logfile: logfile.error(f'could not send an email to {to_address} - {e}\n')
+            if logfile: logfile.error(f'could not send an email to {to_address} - {e}')
 
