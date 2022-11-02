@@ -44,7 +44,7 @@
 						{% for item in content %}
 						<div class="form-check">
 							<label class='form-check-label' for="{{ field }} {{ item }}">{{ item }}
-								<input class="form-check-input" type="{{ context[field].input_field.type }}" value="{{ item }}" id="{{ field }} {{ item }}" name="{{ field }}" {% if context[field].output_data.required==true %}required{% endif %}/>
+								<input class="form-check-input" type="{{ context[field].input_field.type }}" value="{{ item }}" id="{{ field }} {{ item }}" name="{{ field }}"/>
 							</label>
 						</div>
 						{% endfor %}

@@ -63,7 +63,7 @@
         {% for item in display['user_registration_fields'][attribute].content %}
         <div class="form-check">
           <label class='form-check-label' for="{{ attribute }} {{ item }}">{{ item }}
-            <input class="form-check-input" type="{{ display['user_registration_fields'][attribute].input_type }}" value="{{ item }}" id="{{ attribute }} {{ item }}" name="{{ attribute }}" {% if display['user_registration_fields'][attribute].required==true %}required{% endif %}/>
+            <input class="form-check-input" type="{{ display['user_registration_fields'][attribute].input_type }}" value="{{ item }}" id="{{ attribute }} {{ item }}" name="{{ attribute }}"/>
           </label>
         </div>
         {% endfor %}
