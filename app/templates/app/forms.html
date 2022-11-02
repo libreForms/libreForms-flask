@@ -6,6 +6,16 @@
 					{% if options._description %}<label>{{ options._description }}</label><hr>{% endif %}
 					{% for field in context.keys() %}
 
+					{# here we assign a local variable called 'content' which either pulls a list of users or the regular field content #}
+					{% if context[field].input_field.lookup is defined  %}
+					{% if context[field].input_field.lookup == "user_list" %}
+					{% set content = user_list %}
+					{% else %}
+					{% set content = context[field].input_field.content %}
+					{% endif %}
+					{% endif %}
+
+
 					{% if context[field].input_field.type == "autocomplete" %}
 
 					<div class="form-group autocomplete">
@@ -14,8 +24,8 @@
 					</div>
 
 					<script>
-						/*An array containing all the country names in the world:*/
-						var {{ field }} = {{ context[field].input_field.content | safe }};
+						/*An array containing all values passed for this field:*/
+						var {{ field }} = {{ content | safe }};
 						autocomplete(document.getElementById("{{ field }}"), {{ field }});
 					</script>
 				
@@ -23,7 +33,7 @@
 					<div class="form-group">
 						<label class="form-label mt-4{% if context[field].output_data.required==true %} required{% endif %}" for="{{ field }}" {% if context[field].output_data.description %}data-bs-toggle="tooltip" data-bs-placement="right" title="{{context[field].output_data.description}}"{% endif %}>{{ field | replace('_', ' ')}}</label>
 						<select name="{{ field }}" class="form-select" {% if context[field].output_data.required==true %}required{% endif %}>
-						{% for item in context[field].input_field.content %}
+						{% for item in content %}
 								<option value="{{ item }}" id="{{ field }} {{ item }}" name="{{ field }}">{{ item }}</option>
 						{% endfor %}
 						</select>
@@ -31,7 +41,7 @@
 					{% elif context[field].input_field.type == "radio" or context[field].input_field.type == "checkbox" %}
 					<div class="form-group">
 						<label class="form-label mt-4{% if context[field].output_data.required==true %} required{% endif %}" for="" {% if context[field].output_data.description %}data-bs-toggle="tooltip" data-bs-placement="right" title="{{context[field].output_data.description}}"{% endif %}>{{ field | replace('_', ' ')}}</label>
-						{% for item in context[field].input_field.content %}
+						{% for item in content %}
 						<div class="form-check">
 							<label class='form-check-label' for="{{ field }} {{ item }}">{{ item }}
 								<input class="form-check-input" type="{{ context[field].input_field.type }}" value="{{ item }}" id="{{ field }} {{ item }}" name="{{ field }}" {% if context[field].output_data.required==true %}required{% endif %}/>

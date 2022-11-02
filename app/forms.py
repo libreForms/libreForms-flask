@@ -17,6 +17,17 @@ import os
 import pandas as pd
 
 
+def collect_list_of_users(**kwargs): # we'll use the kwargs later to override default user fields
+    # query = f'SELECT username,email FROM user'
+    query = f'SELECT username FROM user'
+    with db.engine.connect() as conn:
+    # running the query
+        # user_list = []
+        # for x,y in conn.execute(query).fetchall():
+        #     user_list.append(x,y)
+        return [x[0] for x in conn.execute(query).fetchall()]
+
+
 def generate_list_of_users(db=db):
     col = User.query.with_entities(User.username, User.email).distinct()
     return [(row.email, row.username) for row in col.all()]
@@ -186,6 +197,7 @@ def forms(form_name):
             display=display,
             filename = f'{form_name.lower().replace(" ","")}.csv' if options['_allow_csv_templates'] else False,
             user=current_user,
+            user_list = collect_list_of_users() if display['allow_forms_access_to_user_list'] else [],
             )
 
     except Exception as e:
