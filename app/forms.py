@@ -18,14 +18,15 @@ import pandas as pd
 
 
 def collect_list_of_users(**kwargs): # we'll use the kwargs later to override default user fields
-    # query = f'SELECT username,email FROM user'
-    query = f'SELECT username FROM user'
+    query = f'SELECT username,email FROM user'
+    # query = f'SELECT username FROM user'
     with db.engine.connect() as conn:
     # running the query
         # user_list = []
         # for x,y in conn.execute(query).fetchall():
         #     user_list.append(x,y)
-        return [x[0] for x in conn.execute(query).fetchall()]
+        # return [x[0] for x in conn.execute(query).fetchall()]
+        return [f"{x[0]} ({x[1]})" for x in conn.execute(query).fetchall()]
 
 
 def generate_list_of_users(db=db):
