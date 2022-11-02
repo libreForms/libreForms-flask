@@ -160,8 +160,8 @@ def register():
                             organization=organization,
                             phone=phone,
                             created_date=created_date,
-                            **TEMP,
-                        )
+                            **TEMP, # https://stackoverflow.com/a/5710402
+                        ) 
                 db.session.add(new_user)
                 db.session.commit()
                 mailer.send_mail(subject=f'{display["site_name"]} User Registered', content=f"This email serves to notify you that the user {username} has just been registered for this email address at {display['domain']}.", to_address=email, logfile=log)
