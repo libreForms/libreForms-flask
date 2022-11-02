@@ -12,6 +12,17 @@ from app import smtp
 
 db = SQLAlchemy()
 
+def collect_list_of_users(**kwargs): # we'll use the kwargs later to override default user fields
+    with app.app_context():
+        query = f'SELECT username,email FROM user'
+        with db.engine.connect() as conn:
+        # running the query
+            # user_list = []
+            # for x,y in conn.execute(query).fetchall():
+            #     user_list.append(x,y)
+            return conn.execute(query).fetchall()
+
+
 tempfile_path = tempfile_init_tmp_fs()
 
 # if application log path doesn't exist, make it
@@ -186,7 +197,6 @@ def create_app(test_config=None):
                         elif value == int:
                             column = db.Column(key, db.Column(db.Integer), primary_key=True)
                             add_column("user", column)
-
 
 
     login_manager = LoginManager()
