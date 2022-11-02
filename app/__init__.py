@@ -136,10 +136,10 @@ def create_app(test_config=None):
         for key, value in display['user_registration_fields'].items():
 
             # might eventually be worth adding support for unique fields...
-            if value == str:
+            if value['type'] == str:
                 setattr(User, key, db.Column(db.String(1000)))
                 # print(key,value)
-            elif value == int:
+            elif value['type'] == int:
                 setattr(User, key, db.Column(db.Integer))
                 # print(key,value)
 
@@ -180,11 +180,11 @@ def create_app(test_config=None):
             engine=db.engine
             for key, value in display['user_registration_fields'].items():
                     if key not in cols:
-                        if value == str:
+                        if value['type'] == str:
                             column = db.Column(key, db.String(1000))
                             add_column("user", column)
 
-                        elif value == int:
+                        elif value['type'] == int:
                             column = db.Column(key, db.Column(db.Integer), primary_key=True)
                             add_column("user", column)
 

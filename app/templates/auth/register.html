@@ -28,6 +28,19 @@
         <input class="form-control" name="phone" id="phone" placeholder="Enter your phone number">  
       </div>
 
+      {% if display['user_registration_fields'] is defined %}
+      {% for attribute in display['user_registration_fields'] %}
+      {% if attribute.hidden == true %}
+      <div class="form-group">
+        <label class="form-label mt-4" for="{{attribute}}">{{attribute | capitalize}}</label>
+        <input class="form-control" name="{{attribute}}" value="" id="{{attribute}}">  
+      </div>
+      {% endif %}
+      {% endfor %}
+      {% endif %}
+      
+
+
       <div class="form-group">
         <label class="form-label mt-4" for="password">Password</label>
         <input class="form-control" type="password" name="password" id="password" placeholder="Enter a password" required>  
