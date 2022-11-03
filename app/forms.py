@@ -183,6 +183,26 @@ def forms(form_name):
         forms = progagate_forms(form_name)
 
         if request.method == 'POST':
+            # print(request.form)
+            # temp = request.form.getlist('Select')
+            # print(request.form.getlist('Select'))
+            # x = []
+            # for item in request.form:
+            #     temp = request.form.getlist(item)
+            #     if len(temp) > 1:
+            #         s = (item, request.form.getlist(item))
+            #         print(f"{s}")
+            #     else:
+            #         s = (item, request.form.getlist(item)[0])
+            #     x.append(s)
+            # print(x)
+            
+            # from werkzeug.datastructures import ImmutableMultiDict
+            # request.form = ImmutableMultiDict(x)
+            # print(ImmutableMultiDict(x))
+            # print(request.form)
+
+            # print(request.form.values())     
             parsed_args = flaskparser.parser.parse(parse_form_fields(form_name), request, location="form")
             mongodb.write_document_to_collection(parsed_args, form_name, reporter=current_user.username)
             flash(str(parsed_args))
