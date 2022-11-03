@@ -123,56 +123,11 @@ def register():
         phone = request.form['phone']
         created_date = datetime.datetime.today().strftime("%Y-%m-%d %H:%M:%S")
 
-        TEMP = dict()
+        TEMP = {}
         for item in display['user_registration_fields'].keys():
-            print(request.form[item])
             if display['user_registration_fields'][item]['input_type'] != 'hidden':
-                TEMP[item] = str(request.form[item])
-                # # set the all_multiple tag per https://stackoverflow.com/a/13242681
-                # if display['user_registration_fields'][item]['type'] == str:
-                #     TEMP[item] = str(request.form[item])
-                # else:
-                #     TEMP[item] = float(request.form[item])
+                TEMP[item] = str(request.form[item]) if display['user_registration_fields'][item]['type'] == str else float(request.form[item])
 
-        # from webargs import fields, flaskparser
-
-        # def parse_auth_fields():
-
-        #     FORM_ARGS = {}           
-
-        #     for item in display['user_registration_fields'].keys():
-
-        #         if display['user_registration_fields'][item]['input_type'] == 'hidden':
-        #             pass
-
-        #         if display['user_registration_fields'][item]['input_type'] == "select":
-        #             FORM_ARGS[item] = FORM_ARGS[item] = fields.List(fields.String())
-
-        #         else:
-        #             if display['user_registration_fields'][item]['type'] == str:
-        #                 FORM_ARGS[item] = fields.Str()
-        #             else:
-        #                 FORM_ARGS[item] = fields.Int()
-
-        #     return FORM_ARGS
-
-
-        # TEMP[item] = flaskparser.parser.parse(parse_auth_fields(), request)
-
-        # TEMP = dict()
-        # for item in display['user_registration_fields'].keys():
-        #     if display['user_registration_fields'][item]['input_type'] != 'hidden':
-        #         # set the all_multiple tag per https://stackoverflow.com/a/13242681
-        #         if display['user_registration_fields'][item]['type'] == str:
-        #             # TEMP[item] = str(request.form[item])
-        #             TEMP[item] = flaskparser.parser.parse({item:fields.Str()}, request)
-        #         else:
-        #             # TEMP[item] = float(request.form[item])
-        #             TEMP[item] = flaskparser.parser.parse({item:fields.Float()}, request)
-
-
-        # print(TEMP)
-        
         if phone == "":
             phone = None
         
@@ -211,8 +166,8 @@ def register():
                 db.session.commit()
                 mailer.send_mail(subject=f'{display["site_name"]} User Registered', content=f"This email serves to notify you that the user {username} has just been registered for this email address at {display['domain']}.", to_address=email, logfile=log)
                 log.info(f'{username.upper()} - successfully registered with email {email}.')
-            except Exception as e:
-                error = f"User is already registered with username \'{username.lower()}\' or email \'{email}\'. {e}" if email else f"User is already registered with username \'{username}\'. {e}"
+            except:
+                error = f"User is already registered with username \'{username.lower()}\' or email \'{email}\'." if email else f"User is already registered with username \'{username}\'."
                 log.error(f'GUEST - failed to register new user {username.lower()} with email {email}.')
             else:
                 flash(f'Successfully created user \'{username.lower()}\'.')
