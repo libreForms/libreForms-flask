@@ -47,7 +47,7 @@ def write_key_to_database(scope=None, expiration=1, active=1, email=None):
                     scope=scope.lower() if scope else "",
                     email=email.lower() if email else "", 
                     active=active,
-                    expiration=expiration if expiration else 1,
+                    expiration=(datetime.datetime.today() + datetime.timedelta(hours=expiration)).strftime("%Y-%m-%d %H:%M:%S") if expiration else 0,
                     timestamp=datetime.datetime.today().strftime("%Y-%m-%d %H:%M:%S"),
                 ) 
 
