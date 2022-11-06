@@ -188,6 +188,10 @@ def create_app(test_config=None):
                             column = db.Column(key, db.Column(db.Integer), primary_key=True)
                             add_column("user", column)
 
+    from app import signing
+    with app.app_context():
+        signing.write_key_to_database(scope=None, expiration=1, active=1, email=None)
+
 
     login_manager = LoginManager()
     login_manager.login_view = 'auth.login'

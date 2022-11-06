@@ -17,7 +17,7 @@
 # 5. scope - what resources does this give access to? form name? API? Read / Write?
 # 6. active - bool, has this been marked expired? we want to keep it in the database for some time to avoid premature re-use and collision.
 
-import os
+import os, datetime
 from app import display, log, db, mailer
 from app.models import Signing
 
@@ -34,9 +34,26 @@ def generate_key(length=24):
 # where `expiration` should be set to a relative time in hours
 # where `scope` should be set to some subset of options like 'form - [form_name]', 
 # 'api_key - [r/w]', 'email_verification', or 'forgot_password'
-def write_key_to_database(scope=None, expiration=None, email=None):
+def write_key_to_database(scope=None, expiration=1, active=1, email=None):
     key = generate_key()
     # write to db if no collision
+
+    while True:
+        key = generate_key()
+        if not Signing.query.filter_by(signature=key).first(): break
+    new_key = Signing(
+                    signature=key, 
+                    scope=scope.lower() if scope else "",
+                    email=email.lower() if email else "", 
+                    active=active,
+                    expiration=expiration if expiration else 1,
+                    timestamp=datetime.datetime.today().strftime("%Y-%m-%d %H:%M:%S"),
+                ) 
+
+    db.session.add(new_key)
+    db.session.commit()
+    log.info(f'LIBREFORMS - successfully generated key {key} for {email}.')
+
 
     while True:
         try:
