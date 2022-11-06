@@ -18,6 +18,7 @@
 # 6. active - bool, has this been marked expired? we want to keep it in the database for some time to avoid premature re-use and collision.
 
 import os, datetime
+import pandas as pd
 from app import display, log, db, mailer
 from app.models import Signing
 
@@ -68,10 +69,12 @@ def write_key_to_database(scope=None, expiration=1, active=1, email=None):
 # the keys in the database and flush any that have
 # expired.
 def flush_key_db():
+    table_df = pd.read_sql_table("signing", con=db.engine.connect())
+    return table_df
+  
     # for row in db:
         # if row.expired == IN_THE_PAST:
             # row.active := 0;
-    pass
 
 # here we create the interface where keys are expired, or rather, their 'active'
 # column is set to 0. 
