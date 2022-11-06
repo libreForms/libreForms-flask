@@ -47,9 +47,10 @@ def write_key_to_database(scope=None, expiration=1, active=1, email=None):
                     scope=scope.lower() if scope else "",
                     email=email.lower() if email else "", 
                     active=active,
-                    expiration=(datetime.datetime.today() + datetime.timedelta(hours=expiration)).strftime("%Y-%m-%d %H:%M:%S") if expiration else 0,
-                    timestamp=datetime.datetime.today().strftime("%Y-%m-%d %H:%M:%S"),
-                ) 
+                    expiration_human_readable=(datetime.datetime.utcnow() + datetime.timedelta(hours=expiration)).strftime("%Y-%m-%d %H:%M:%S") if expiration else 0,
+                    timestamp_human_readable=datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"),
+                    timestamp=datetime.datetime.timestamp(datetime.datetime.now()),
+                    expiration=datetime.datetime.timestamp((datetime.datetime.utcnow() + datetime.timedelta(hours=expiration)))),
 
     db.session.add(new_key)
     db.session.commit()
@@ -69,9 +70,13 @@ def write_key_to_database(scope=None, expiration=1, active=1, email=None):
 # the keys in the database and flush any that have
 # expired.
 def flush_key_db():
-    table_df = pd.read_sql_table("signing", con=db.engine.connect())
-    return table_df
+    signing_df = pd.read_sql_table("signing", con=db.engine.connect())
+    signing_df.loc[ signing_df['expiration'] < datetime.datetime.timestamp(datetime.datetime.utcnow().timetuple()), 'active' ] = 0
+
+    # signing_df.to_sql('signing', con=db.engine.connect(), if_exists='replace', index=False)
+    return signing_df
   
+
     # for row in db:
         # if row.expired == IN_THE_PAST:
             # row.active := 0;
