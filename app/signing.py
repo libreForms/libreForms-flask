@@ -50,7 +50,8 @@ def write_key_to_database(scope=None, expiration=1, active=1, email=None):
                     expiration_human_readable=(datetime.datetime.utcnow() + datetime.timedelta(hours=expiration)).strftime("%Y-%m-%d %H:%M:%S") if expiration else 0,
                     timestamp_human_readable=datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"),
                     timestamp=datetime.datetime.timestamp(datetime.datetime.now()),
-                    expiration=datetime.datetime.timestamp((datetime.datetime.utcnow() + datetime.timedelta(hours=expiration)))),
+                    expiration=datetime.datetime.timestamp((datetime.datetime.utcnow() + datetime.timedelta(hours=expiration))) if expiration else 0,
+    )
 
     db.session.add(new_key)
     db.session.commit()
@@ -71,16 +72,14 @@ def write_key_to_database(scope=None, expiration=1, active=1, email=None):
 # expired.
 def flush_key_db():
     signing_df = pd.read_sql_table("signing", con=db.engine.connect())
-    signing_df.loc[ signing_df['expiration'] < datetime.datetime.timestamp(datetime.datetime.utcnow().timetuple()), 'active' ] = 0
 
-    # signing_df.to_sql('signing', con=db.engine.connect(), if_exists='replace', index=False)
+    # This will disable all keys whose 'expiration' timestamp is less than the current time
+    signing_df.loc[ signing_df['expiration'] < datetime.datetime.timestamp(datetime.datetime.now()), 'active' ] = 0
+
+    # this will write the modified dataset to the database
+    signing_df.to_sql('signing', con=db.engine.connect(), if_exists='replace', index=False)
     return signing_df
   
-
-    # for row in db:
-        # if row.expired == IN_THE_PAST:
-            # row.active := 0;
-
 # here we create the interface where keys are expired, or rather, their 'active'
 # column is set to 0. 
 def expire_key(key=None):

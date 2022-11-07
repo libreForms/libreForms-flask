@@ -57,10 +57,10 @@ class Signing(db.Model):
     email = db.Column(db.String(100))
     scope = db.Column(db.String(100))
     active = db.Column(db.Integer)
-    timestamp = db.Column(db.String(100))
-    expiration = db.Column(db.String(100))
-    timestamp_human_readable = db.Column(db.Float)
-    expiration_human_readable = db.Column(db.Float)
+    timestamp_human_readable = db.Column(db.String(100))
+    expiration_human_readable = db.Column(db.String(100))
+    timestamp = db.Column(db.Float)
+    expiration = db.Column(db.Float)
 
 
 ## trying to add support for arbitary user form fields defined in overrides file
