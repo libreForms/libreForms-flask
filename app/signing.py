@@ -57,14 +57,6 @@ def write_key_to_database(scope=None, expiration=1, active=1, email=None):
     db.session.commit()
     log.info(f'LIBREFORMS - successfully generated key {key} for {email}.')
 
-
-    while True:
-        try:
-            # db.write
-            break
-        except:
-            pass
-
     return key
 
 # this is a function that will periodically scan
@@ -80,12 +72,25 @@ def flush_key_db():
     signing_df.to_sql('signing', con=db.engine.connect(), if_exists='replace', index=False)
     return signing_df
   
-# here we create the interface where keys are expired, or rather, their 'active'
-# column is set to 0. 
+# here we create a mechanism to disable keys when they are used
 def expire_key(key=None):
-    # key_to_expire = db.search_for_first_instance_of_key if key else None
-    # set key_to_expire.active := 0
-    pass
+
+    # I wonder if there is a more efficient way to accomplish this ... eg. to simply modify 
+    # the entry at the query stage immediately below...
+    if Signing.query.filter_by(signature=key).first():
+
+        signing_df = pd.read_sql_table("signing", con=db.engine.connect())
+
+        # This will disable the key
+        signing_df.loc[ signing_df['signature'] == key, 'active' ] = 0
+
+        # this will write the modified dataset to the database
+        signing_df.to_sql('signing', con=db.engine.connect(), if_exists='replace', index=False)
+        return signing_df
+    
+    else:
+        log.error(f"LIBREFORMS - attempted to expire key {key} but failed to locate it in the signing database.")
+
 
 
 def distribute_key(key=None):
