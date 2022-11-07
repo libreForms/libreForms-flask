@@ -201,8 +201,7 @@ def forms(form_name):
             # request.form = ImmutableMultiDict(x)
             # print(ImmutableMultiDict(x))
             # print(request.form)
-
-            # print(request.form.values())     
+            
             parsed_args = flaskparser.parser.parse(parse_form_fields(form_name), request, location="form")
             mongodb.write_document_to_collection(parsed_args, form_name, reporter=current_user.username)
             flash(str(parsed_args))
