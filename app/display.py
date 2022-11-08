@@ -23,6 +23,7 @@ display['version'] = __version__
 display['privacy_policy'] = ''
 display['user_registration_fields'] = None
 display['allow_anonymous_registration'] = True
+display['allow_password_resets'] = True
 display['smtp_enabled'] = False
 display['ldap_enabled'] = False
 display['custom_sql_db'] = False

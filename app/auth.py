@@ -7,7 +7,7 @@ from werkzeug.utils import secure_filename
 
 from app import display, log, db, mailer, tempfile_path
 import app.signing as signing
-from app.models import User
+from app.models import User, Signing
 from flask_login import login_required, current_user, login_user
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
@@ -19,34 +19,47 @@ def reset_password(signature):
     if current_user.is_authenticated:
         return redirect(url_for('home'))
 
+    if not display['allow_password_resets']:
+        flash('This feature has not been enabled by your system administrator.')
+        return redirect(url_for('auth.forgot_password'))
 
-    flash(f'This feature has not been enabled by your system administrator. {signature}.')
-    return redirect(url_for('auth.forgot_password'))
+    if not Signing.query.filter_by(signature=signature).first():
+        flash('Invalid request key. ')
+        return redirect(url_for('auth.forgot_password'))
+
+    # if the signing key's expiration time has passed, then set it to inactive 
+    if Signing.query.filter_by(signature=signature).first().expiration < datetime.datetime.timestamp(datetime.datetime.now()):
+        signing.expire_key(signature)
+
+    # if the signing key is set to inactive, then we prevent the user from proceeding
+    # this might be redundant to the above condition - but is a good redundancy for now
+    if Signing.query.filter_by(signature=signature).first().active== 0:
+        flash('Invalid request key. ')
+        return redirect(url_for('auth.forgot_password'))
 
 
     if request.method == 'POST':
         password = request.form['password']
+        signing_df = pd.read_sql_table("signing", con=db.engine.connect())
+        email = signing_df.loc[ signing_df['signature'] == signature ]['email'].iloc[0]
 
-
-
-        if not User.query.filter_by(email=email.lower()).first():
-            error = f'Email {email.lower()} is not registered.' 
-        elif not password:
+        if not password:
             error = 'Password is required.'
 
         else: error = None
 
         if error is None:
             try:
-                user = User.query.filter_by(id=user_id).first() ## get email from Signing table & collate to User table 
-                user.password=generate_password_hash(new_password, method='sha256')
+                user = User.query.filter_by(email=str(email)).first() ## get email from Signing table & collate to User table 
+                user.password=generate_password_hash(password, method='sha256')
                 db.session.commit()
 
-                flash("Successfully changed password")
+                signing.expire_key(signature)
+                flash("Successfully changed password. ")
                 log.info(f'{user.username.upper()} - successfully changed password.')
                 return redirect(url_for('auth.profile'))
-            except:
-                error = f"There was an error in processing your request."
+            except Exception as e:
+                flash (f"There was an error in processing your request. {e}")
             
         else:
             flash(error)
@@ -78,12 +91,13 @@ def forgot_password():
 
         if not User.query.filter_by(email=email.lower()).first():
             error = f'Email {email.lower()} is not registered.' 
+        
         else: error = None
 
         if error is None:
             try: 
-                key = signing.write_key_to_database(scope='forgot_password', email=email)
-                content = f"A password reset request has been submitted for your account. Please follow this link to complete the reset. {display['domain']}/auth/forgot_password/{key}"
+                key = signing.write_key_to_database(scope='forgot_password', expiration=1, active=1, email=email)
+                content = f"A password reset request has been submitted for your account. Please follow this link to complete the reset. {display['domain']}/auth/forgot_password/{key}. Please note this link will expire after one hour."
                 mailer.send_mail(subject=f'{display["site_name"]} Password Reset', content=content, to_address=email, logfile=log)
                 flash("Password reset link successfully sent.")
             except Exception as e:
@@ -350,7 +364,7 @@ def profile():
                 user.password=generate_password_hash(new_password, method='sha256')
                 db.session.commit()
 
-                flash("Successfully changed password")
+                flash("Successfully changed password. ")
                 log.info(f'{user.username.upper()} - successfully changed password.')
                 return redirect(url_for('auth.profile'))
             except:
