@@ -189,13 +189,13 @@ def create_app(test_config=None):
                             add_column("user", column)
 
     # this is just some debug code
-    from app import signing
-    with app.app_context():
+    # from app import signing
+    # with app.app_context():
        
         # signing.write_key_to_database(scope=None, expiration=0, active=1, email=None)
         # print(signing.flush_key_db())
         # signing.expire_key(key="iqmwd44IKhsoE0HWjKGZohaN")
-        print(pd.read_sql_table("signing", con=db.engine.connect()))
+        # print(pd.read_sql_table("signing", con=db.engine.connect()))
 
     login_manager = LoginManager()
     login_manager.login_view = 'auth.login'

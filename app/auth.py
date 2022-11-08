@@ -57,18 +57,12 @@ def reset_password(signature):
                 signing.expire_key(signature)
                 flash("Successfully changed password. ")
                 log.info(f'{user.username.upper()} - successfully changed password.')
-                return redirect(url_for('auth.profile'))
+                return redirect(url_for('auth.login'))
             except Exception as e:
                 flash (f"There was an error in processing your request. {e}")
             
         else:
             flash(error)
-    ## First, we run a db check to see if the key exists
-    # if so, we pull the corresponding email & user account details
-    # we then populate the page fields with these details (or redirect to a separate page with the signature excluded)
-    # we also expire the signature key at this point.
-
-    # if the details were not found, or the key does not exist, we redirect with a flashed msg and write the the access log.
     
     return render_template('auth/forgot_password.html',
         site_name=display['site_name'],
@@ -182,14 +176,15 @@ def register():
                 if display["enable_email_verification"]:
                     key = signing.write_key_to_database(scope='email_verification', expiration=48, active=1, email=email)
                     mailer.send_mail(subject=f'{display["site_name"]} User Registered', content=f"This email serves to notify you that the user {username} has just been registered for this email address at {display['domain']}. Please verify your email by clicking the following link: {display['domain']}/auth/verify_email/{key}. Please note this link will expire after 48 hours.", to_address=email, logfile=log)
+                    flash(f'Successfully created user \'{username.lower()}\'. Please check your email for an activation link. ')
                 else:
                     mailer.send_mail(subject=f'{display["site_name"]} User Registered', content=f"This email serves to notify you that the user {username} has just been registered for this email address at {display['domain']}.", to_address=email, logfile=log)
+                    flash(f'Successfully created user \'{username.lower()}\'.')
                 log.info(f'{username.upper()} - successfully registered with email {email}.')
             except:
                 error = f"User is already registered with username \'{username.lower()}\' or email \'{email}\'." if email else f"User is already registered with username \'{username}\'."
                 log.error(f'GUEST - failed to register new user {username.lower()} with email {email}.')
             else:
-                flash(f'Successfully created user \'{username.lower()}\'.')
                 # mailer.send_mail(subject=f"Successfully Registered {username}", content=f"This is a notification that {username} has been successfully registered for libreforms.", to_address=email, logfile=log)
                 return redirect(url_for("auth.login"))
 
@@ -204,6 +199,47 @@ def register():
 
 @bp.route('/verify_email/<signature>', methods=('GET', 'POST'))
 def verify_email(signature):
+
+    if current_user.is_authenticated:
+        return redirect(url_for('home'))
+
+    if not display['enable_email_verification']:
+        flash('This feature has not been enabled by your system administrator.')
+        return redirect(url_for('auth.login'))
+
+    if not Signing.query.filter_by(signature=signature).first():
+        flash('Invalid request key. ')
+        return redirect(url_for('auth.forgot_password'))
+
+    # if the signing key's expiration time has passed, then set it to inactive 
+    if Signing.query.filter_by(signature=signature).first().expiration < datetime.datetime.timestamp(datetime.datetime.now()):
+        signing.expire_key(signature)
+
+    # if the signing key is set to inactive, then we prevent the user from proceeding
+    # this might be redundant to the above condition - but is a good redundancy for now
+    if Signing.query.filter_by(signature=signature).first().active== 0:
+        flash('Invalid request key. ')
+        return redirect(url_for('auth.forgot_password'))
+
+    signing_df = pd.read_sql_table("signing", con=db.engine.connect())
+    email = signing_df.loc[ signing_df['signature'] == signature ]['email'].iloc[0]
+
+
+    try:
+        user = User.query.filter_by(email=str(email)).first() ## get email from Signing table & collate to User table 
+        user.active=1
+        db.session.commit()
+
+        signing.expire_key(signature)
+        flash(f"Successfully activated user {user.username}. ")
+        log.info(f'{user.username.upper()} - successfully activated user.')
+        return redirect(url_for('auth.login'))
+
+    except Exception as e:
+        flash (f"There was an error in processing your request. {e}")
+        
+    
+    return redirect(url_for('auth.login'))
 
     # if key exists and is active:
     #     register User
@@ -309,6 +345,7 @@ def login():
         return redirect(url_for('home'))
 
 
+
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
@@ -323,6 +360,10 @@ def login():
         elif not check_password_hash(user.password, password):
             log.info(f'{username.upper()} - password failure when logging in.')
             error = 'Incorrect password.'
+        elif user.active == 0:
+            flash('Please check your email for an activation link before logging in. ')
+            return redirect(url_for('home'))
+
 
         if error is None:
             login_user(user, remember=remember)
