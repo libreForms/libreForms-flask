@@ -174,11 +174,16 @@ def register():
                             organization=organization,
                             phone=phone,
                             created_date=created_date,
+                            active=0 if display["enable_email_verification"] else 1,
                             **TEMP, # https://stackoverflow.com/a/5710402
                         ) 
                 db.session.add(new_user)
                 db.session.commit()
-                mailer.send_mail(subject=f'{display["site_name"]} User Registered', content=f"This email serves to notify you that the user {username} has just been registered for this email address at {display['domain']}.", to_address=email, logfile=log)
+                if display["enable_email_verification"]:
+                    key = signing.write_key_to_database(scope='email_verification', expiration=48, active=1, email=email)
+                    mailer.send_mail(subject=f'{display["site_name"]} User Registered', content=f"This email serves to notify you that the user {username} has just been registered for this email address at {display['domain']}. Please verify your email by clicking the following link: {display['domain']}/auth/verify_email/{key}. Please note this link will expire after 48 hours.", to_address=email, logfile=log)
+                else:
+                    mailer.send_mail(subject=f'{display["site_name"]} User Registered', content=f"This email serves to notify you that the user {username} has just been registered for this email address at {display['domain']}.", to_address=email, logfile=log)
                 log.info(f'{username.upper()} - successfully registered with email {email}.')
             except:
                 error = f"User is already registered with username \'{username.lower()}\' or email \'{email}\'." if email else f"User is already registered with username \'{username}\'."
@@ -197,6 +202,16 @@ def register():
         display=display,)
 
 
+@bp.route('/verify_email/<signature>', methods=('GET', 'POST'))
+def verify_email(signature):
+
+    # if key exists and is active:
+    #     register User
+    #     flash them a message
+    #     redirect to login
+
+    # else:
+    #     invalid link
 
 @bp.route('/register/bulk', methods=('GET', 'POST'))
 @login_required
