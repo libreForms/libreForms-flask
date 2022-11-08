@@ -361,7 +361,7 @@ def login():
             log.info(f'{username.upper()} - password failure when logging in.')
             error = 'Incorrect password.'
         elif user.active == 0:
-            flash('Please check your email for an activation link before logging in. ')
+            flash('Your user is currently inactive. If you recently registered, please check your email for a verification link. ')
             return redirect(url_for('home'))
 
 
