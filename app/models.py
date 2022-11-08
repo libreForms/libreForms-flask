@@ -11,6 +11,7 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(100), unique=True)
     organization = db.Column(db.String(1000))
     phone = db.Column(db.String(1000))
+    active = db.Column(db.Integer)
     created_date = db.Column(db.String(1000))
 
 
