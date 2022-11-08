@@ -27,6 +27,7 @@ display['allow_password_resets'] = True
 display['smtp_enabled'] = False
 display['ldap_enabled'] = False
 display['custom_sql_db'] = False
+display['enable_email_verification'] = False
 display['allow_anonymous_form_submissions'] = True
 display['allow_bulk_registration'] = False
 display['domain'] = None
