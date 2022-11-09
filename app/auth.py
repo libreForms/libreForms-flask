@@ -91,8 +91,6 @@ def forgot_password():
         if not User.query.filter_by(email=email.lower()).first():
             error = f'Email {email.lower()} is not registered.' 
         
-        else: error = None
-
         if error is None:
             try: 
                 key = signing.write_key_to_database(scope='forgot_password', expiration=1, active=1, email=email)
