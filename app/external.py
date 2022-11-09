@@ -32,32 +32,34 @@ if display['allow_anonymous_form_submissions']:
     # initialize mongodb database
     mongodb = mongodb.MongoDB(mongodb_creds)
 
-    # here we read the current list of acceptible signed urls; 
-    # in the future, this should be a database, not a text file;
-    # this section is here mostly for debugging purposes.
-    if os.path.exists ("signed_urls"):
-        signed_urls = pd.read_csv("signed_urls")
-    else:
-        signed_urls = pd.DataFrame({'signed_urls':['t32HDBcKAAIVBBPbjBADCbCh']}) # this will be the default key
 
-    # here we add them in a format that makes them easily readable
-    signed_urls = (signed_urls.signed_urls.str.strip()).values
+    # DEPRECATING THIS FUNCTIONALITY IN FAVOR OF SIGNING.PY 
+    # # here we read the current list of acceptible signed urls; 
+    # # in the future, this should be a database, not a text file;
+    # # this section is here mostly for debugging purposes.
+    # if os.path.exists ("signed_urls"):
+    #     signed_urls = pd.read_csv("signed_urls")
+    # else:
+    #     signed_urls = pd.DataFrame({'signed_urls':['t32HDBcKAAIVBBPbjBADCbCh']}) # this will be the default key
 
-    # we employ this function to abstract the verification process
-    # for signed URLs
-    def validate_signed_url(signed_url, signed_urls=signed_urls):
+    # # here we add them in a format that makes them easily readable
+    # signed_urls = (signed_urls.signed_urls.str.strip()).values
 
-        # if "_allow_anonymous_access" == True in form.options: 
+    # # we employ this function to abstract the verification process
+    # # for signed URLs
+    # def validate_signed_url(signed_url, signed_urls=signed_urls):
 
-        # we added the strip() method to remove trailing whitespace from the api keys
-        if str(signed_url).strip() in signed_urls: 
-            # in essence, the below pseudocode asks if the signed URL in question allows access to this particular form
-            # if form == signed_urls.loc[signed_url == signed_url].form 
+    #     # if "_allow_anonymous_access" == True in form.options: 
+
+    #     # we added the strip() method to remove trailing whitespace from the api keys
+    #     if str(signed_url).strip() in signed_urls: 
+    #         # in essence, the below pseudocode asks if the signed URL in question allows access to this particular form
+    #         # if form == signed_urls.loc[signed_url == signed_url].form 
             
-            return True
+    #         return True
 
-        else:
-            return False
+    #     else:
+    #         return False
 
 
 
