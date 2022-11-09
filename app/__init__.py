@@ -113,7 +113,7 @@ def create_app(test_config=None):
         )
 
 
-        # define a home route
+    # define a home route
     @app.route('/privacy')
     def privacy():
         return render_template('app/privacy.html', 

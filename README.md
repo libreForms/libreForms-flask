@@ -46,7 +46,7 @@ The libreForms project, first and foremost, defines a simple but highly extensib
 ### Architecture
 libreForms is meant to run within an enterprise's intranet behind a reverse proxy. It does not currently support high availability, but does spawn multiple workers on the system upon which it is deployed. See this [discussion](https://github.com/signebedi/libreForms/issues/43) about accounting for enterprise requirements. 
 
-While intended primarily for internal use, libreForms provides out-of-the-box support for external-facing forms. These forms employ signed URLs, rather than local authentication, to control access to forms. These are intended to also run behind a reverse proxy that points to whatever external network (eg. the internet or another organization's network) you'd like to provide access. 
+While intended primarily for internal use, libreForms provides out-of-the-box support for external-facing, anonymous forms. These forms employ signed URLs, rather than local authentication, to control access to forms. These are intended to also run behind a reverse proxy that points to whatever external network (eg. the internet or another organization's network) you'd like to provide access. 
 
 Here is an example diagram for such a deployment:
 
