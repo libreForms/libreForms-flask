@@ -92,14 +92,18 @@ if display['allow_anonymous_form_submissions']:
             elif email and not re.fullmatch(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', email):
                 error = 'Invalid email.' 
 
-
-            try: 
-                key = signing.write_key_to_database(scope=f'external_{form_name.lower()}', expiration=1, active=1, email=email)
-                content = f"You may now submit form {form_name} at the following address: {display['domain']}/external/{form_name}/{key}. Please note this link will expire after one hour."
-                mailer.send_mail(subject=f'{display["site_name"]} {form_name} Submission Link', content=content, to_address=email, logfile=log)
-                flash("Form submission link successfully sent.")
-            except Exception as e:
-                flash(e)
+            else:error=None
+            
+            if not error:
+                try: 
+                    key = signing.write_key_to_database(scope=f'external_{form_name.lower()}', expiration=1, active=1, email=email)
+                    content = f"You may now submit form {form_name} at the following address: {display['domain']}/external/{form_name}/{key}. Please note this link will expire after one hour."
+                    mailer.send_mail(subject=f'{display["site_name"]} {form_name} Submission Link', content=content, to_address=email, logfile=log)
+                    flash("Form submission link successfully sent.")
+                except Exception as e:
+                    flash(e)
+            else:
+                flash(error)
                 
         return render_template('app/external_request.html', 
             name=form_name,             
@@ -142,12 +146,18 @@ if display['allow_anonymous_form_submissions']:
 
             if request.method == 'POST':
                 parsed_args = flaskparser.parser.parse(parse_form_fields(form_name), request, location="form")
-                mongodb.write_document_to_collection(parsed_args, form_name, reporter=" ".join(("ANON", signature))) # we add ANON to the front to avoid collission with API keys
+                mongodb.write_document_to_collection(parsed_args, form_name, reporter=" ".join(("ANON", Signing.query.filter_by(signature=signature).first().email, signature))) # we add ANON to the front to avoid collission with API keys
                 flash(str(parsed_args))
 
                 # possibly exchange the section below for an actual email/name depending on the
                 # data we store in the signed_urls database.
                 log.info(f'ANON {Signing.query.filter_by(signature=signature).first().email} {signature} - submitted \'{form_name}\' form.')
+
+                print(Signing.query.filter_by(signature=signature).first().email)
+
+                signing.expire_key(signature)
+
+                return redirect(url_for('home'))
 
             return render_template('app/forms.html', 
                 context=forms,
@@ -161,6 +171,7 @@ if display['allow_anonymous_form_submissions']:
                 )
 
         except Exception as e:
+            print(e)
             abort(404)
             return None
 
@@ -172,19 +183,37 @@ if display['allow_anonymous_form_submissions']:
     ####
     # leaving this, just in case the different base-route breaks the CSV download feature.
     ####
-    @bp.route('/download/<path:filename>/<signed_url>')
-    def download_file(filename, signed_url):
-        if validate_signed_url(signed_url):
-            
-            # this is our first stab at building templates, without accounting for nesting or repetition
-            df = pd.DataFrame (columns=[x for x in progagate_forms(filename.replace('.csv', '')).keys()])
+    @bp.route('/download/<path:filename>/<signature>')
+    def download_file(filename, signature):
 
-            fp = os.path.join(tempfile_path, filename)
-            df.to_csv(fp, index=False)
+        if not display['allow_anonymous_form_submissions']:
+            flash('This feature has not been enabled by your system administrator.')
+            return redirect(url_for('home'))
 
-            return send_from_directory(tempfile_path,
-                                    filename, as_attachment=True)
+        if not Signing.query.filter_by(signature=signature).first():
+            flash('Invalid request key. ')
+            return redirect(url_for('home'))
 
-        else:
+        # if the signing key's expiration time has passed, then set it to inactive 
+        if Signing.query.filter_by(signature=signature).first().expiration < datetime.datetime.timestamp(datetime.datetime.now()):
+            signing.expire_key(signature)
+
+        # if the signing key is set to inactive, then we prevent the user from proceeding
+        # this might be redundant to the above condition - but is a good redundancy for now
+        if Signing.query.filter_by(signature=signature).first().active == 0:
             abort(404)
-            return None
+
+        # if the signing key is not scoped (that is, intended) for this purpose, then 
+        # return an invalid error
+        if not Signing.query.filter_by(signature=signature).first().scope == f'external_{form_name.lower()}':
+            abort(404)
+
+        # this is our first stab at building templates, without accounting for nesting or repetition
+        df = pd.DataFrame (columns=[x for x in progagate_forms(filename.replace('.csv', '')).keys()])
+
+        fp = os.path.join(tempfile_path, filename)
+        df.to_csv(fp, index=False)
+
+        return send_from_directory(tempfile_path,
+                                filename, as_attachment=True)
+
