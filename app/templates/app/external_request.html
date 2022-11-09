@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<label>Enter your email below to access this form</label><hr>
+
+  <form method="post">
+    <fieldset>
+
+      <div class="form-group">
+        <label class="form-label mt-4" for="email">Email</label>
+        <input class="form-control" name="email" id="email" placeholder="Enter your email">  
+      </div>
+
+      <div class="form-group mt-4">
+        <input class="btn btn-primary" type="submit" value="Submit">
+      </div>
+    
+    </fieldset>
+  </form>
+
+{% endblock %}

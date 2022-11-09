@@ -1,16 +1,18 @@
 # import flask-related packages
+import re, datetime
 from cmath import e
 from fileinput import filename
-from flask import Blueprint, g, flash, render_template, request, send_from_directory, abort
+from flask import Blueprint, g, flash, render_template, request, send_from_directory, abort, redirect, url_for
 from webargs import fields, flaskparser
 from flask_login import current_user
 
 # import custom packages from the current repository
 import libreforms, mongodb
-from app import display, log, tempfile_path
+from app import display, log, tempfile_path, mailer
 from app.auth import login_required, session
 from app.forms import parse_form_fields, reconcile_form_data_struct, progagate_forms, parse_options
 import app.signing as signing
+from app.models import Signing
 
 
 # and finally, import other packages
@@ -73,48 +75,94 @@ if display['allow_anonymous_form_submissions']:
     # this creates a route to request access
     @bp.route(f'/<form_name>', methods=['GET', 'POST'])
     def request_external_forms(form_name):
-        # eventually, this view will enable users to request signed URLs.
-        pass
+
+        # first make sure this form existss
+        try:
+            forms = parse_options(form_name)
+        except Exception as e:
+            log.error(f'LIBREFORMS - {e}')
+            abort(404)
+
+        # if the appropriate configurations are set, all us to proceed
+        if request.method == 'POST' and display["allow_anonymous_form_submissions"] and forms['_allow_anonymous_access']:
+            email = request.form['email']
+            
+            if not email:
+                error = f'Please enter a valid email.' 
+            elif email and not re.fullmatch(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', email):
+                error = 'Invalid email.' 
 
 
+            try: 
+                key = signing.write_key_to_database(scope=f'external_{form_name.lower()}', expiration=1, active=1, email=email)
+                content = f"You may now submit form {form_name} at the following address: {display['domain']}/external/{form_name}/{key}. Please note this link will expire after one hour."
+                mailer.send_mail(subject=f'{display["site_name"]} {form_name} Submission Link', content=content, to_address=email, logfile=log)
+                flash("Form submission link successfully sent.")
+            except Exception as e:
+                flash(e)
+                
+        return render_template('app/external_request.html', 
+            name=form_name,             
+            display=display,
+            suppress_navbar=True,
+            type='external',
+            )
 
     # this creates the route to each of the forms
-    @bp.route(f'/<form_name>/<signed_url>', methods=['GET', 'POST'])
-    def external_forms(form_name, signed_url):
+    @bp.route(f'/<form_name>/<signature>', methods=['GET', 'POST'])
+    def external_forms(form_name, signature):
 
-        signed_url = str(signed_url)
+        if not display['allow_anonymous_form_submissions']:
+            flash('This feature has not been enabled by your system administrator.')
+            return redirect(url_for('home'))
 
-        # we employ this method to ensure that the provided 
-        # signed URL is a valid payload
-        if validate_signed_url(signed_url): 
+        if not Signing.query.filter_by(signature=signature).first():
+            flash('Invalid request key. ')
+            return redirect(url_for('home'))
 
-            try:
-                options = parse_options(form_name)
-                forms = progagate_forms(form_name)
+        # if the signing key's expiration time has passed, then set it to inactive 
+        if Signing.query.filter_by(signature=signature).first().expiration < datetime.datetime.timestamp(datetime.datetime.now()):
+            signing.expire_key(signature)
 
-                if request.method == 'POST':
-                    parsed_args = flaskparser.parser.parse(parse_form_fields(form_name), request, location="form")
-                    mongodb.write_document_to_collection(parsed_args, form_name, reporter=" ".join(("ANON", signed_url))) # we add ANON to the front to avoid collission with API keys
-                    flash(str(parsed_args))
+        # if the signing key is set to inactive, then we prevent the user from proceeding
+        # this might be redundant to the above condition - but is a good redundancy for now
+        if Signing.query.filter_by(signature=signature).first().active == 0:
+            flash('Invalid request key. ')
+            return redirect(url_for('home'))
 
-                    # possibly exchange the section below for an actual email/name depending on the
-                    # data we store in the signed_urls database.
-                    log.info(f'ANON {signed_url} - submitted \'{form_name}\' form.')
+        # if the signing key is not scoped (that is, intended) for this purpose, then 
+        # return an invalid error
+        if not Signing.query.filter_by(signature=signature).first().scope == f'external_{form_name.lower()}':
+            flash('Invalid request key. ')
+            return redirect(url_for('home'))
 
-                return render_template('app/forms.html', 
-                    context=forms,
-                    name=form_name,             
-                    options=options, 
-                    display=display,
-                    suppress_navbar=True,
-                    signed_url=signed_url,
-                    type='external',
-                    filename = f'{form_name.lower().replace(" ","")}.csv' if options['_allow_csv_templates'] else False,
-                    )
+        try:
+            options = parse_options(form_name)
+            forms = progagate_forms(form_name)
 
-            except Exception as e:
-                abort(404)
-                return None
+            if request.method == 'POST':
+                parsed_args = flaskparser.parser.parse(parse_form_fields(form_name), request, location="form")
+                mongodb.write_document_to_collection(parsed_args, form_name, reporter=" ".join(("ANON", signature))) # we add ANON to the front to avoid collission with API keys
+                flash(str(parsed_args))
+
+                # possibly exchange the section below for an actual email/name depending on the
+                # data we store in the signed_urls database.
+                log.info(f'ANON {Signing.query.filter_by(signature=signature).first().email} {signature} - submitted \'{form_name}\' form.')
+
+            return render_template('app/forms.html', 
+                context=forms,
+                name=form_name,             
+                options=options, 
+                display=display,
+                suppress_navbar=True,
+                signed_url=signature,
+                type='external',
+                filename = f'{form_name.lower().replace(" ","")}.csv' if options['_allow_csv_templates'] else False,
+                )
+
+        except Exception as e:
+            abort(404)
+            return None
 
         else:
             abort(404)
