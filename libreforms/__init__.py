@@ -89,7 +89,7 @@ forms = {
         "_allow_repeat": False, # defaults to False
         "_description": False, # defaults to False
         "_smtp_notifications": False, # defaults to False
-        "_allow_anon_access": False, # defaults to False
+        "_allow_anonymous_access": False, # defaults to False
         "_allow_uploads": True, # defaults to False
         "_allow_csv_templates": True, # defaults to False
         "_suppress_default_values": False, # defaults to False

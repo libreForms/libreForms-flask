@@ -33,10 +33,15 @@ def reset_password(signature):
 
     # if the signing key is set to inactive, then we prevent the user from proceeding
     # this might be redundant to the above condition - but is a good redundancy for now
-    if Signing.query.filter_by(signature=signature).first().active== 0:
+    if Signing.query.filter_by(signature=signature).first().active == 0:
         flash('Invalid request key. ')
         return redirect(url_for('auth.forgot_password'))
 
+    # if the signing key is not scoped (that is, intended) for this purpose, then 
+    # return an invalid error
+    if not Signing.query.filter_by(signature=signature).first().scope == "forgot_password":
+        flash('Invalid request key. ')
+        return redirect(url_for('auth.forgot_password'))
 
     if request.method == 'POST':
         password = request.form['password']
@@ -220,6 +225,13 @@ def verify_email(signature):
     if Signing.query.filter_by(signature=signature).first().active== 0:
         flash('Invalid request key. ')
         return redirect(url_for('auth.forgot_password'))
+
+    # if the signing key is not scoped (that is, intended) for this purpose, then 
+    # return an invalid error
+    if not Signing.query.filter_by(signature=signature).first().scope == "email_verification":
+        flash('Invalid request key. ')
+        return redirect(url_for('auth.forgot_password'))
+
 
     signing_df = pd.read_sql_table("signing", con=db.engine.connect())
     email = signing_df.loc[ signing_df['signature'] == signature ]['email'].iloc[0]

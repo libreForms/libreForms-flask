@@ -45,7 +45,7 @@ if display['allow_anonymous_form_submissions']:
     # for signed URLs
     def validate_signed_url(signed_url, signed_urls=signed_urls):
 
-        # if "_allow_external_access" == True in form.options: 
+        # if "_allow_anonymous_access" == True in form.options: 
 
         # we added the strip() method to remove trailing whitespace from the api keys
         if str(signed_url).strip() in signed_urls: 
@@ -62,7 +62,7 @@ if display['allow_anonymous_form_submissions']:
     # this forks forms.py to provide slightly different functionality; yes, it allows you 
     # to create forms, like in the regular forms source, but it presumes that the end user
     # for these forms will not have login credentials; instead, you define the form with the
-    # _allow_external_access option set to True, and then the system allows those (in the future,
+    # _allow_anonymous_access option set to True, and then the system allows those (in the future,
     # only those with the correct group/role) to share a signed URL via email. Therefore, there
     # is no home page for external forms; by their very nature, they are intended for single-form,
     # one-time use -- like a questionnaire, petition, or voting system.

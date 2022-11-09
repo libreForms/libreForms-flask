@@ -133,7 +133,7 @@ def parse_options(form=False):
         "_allow_uploads": False, 
         "_allow_csv_templates": False,
         "_suppress_default_values": False,  
-        "_allow_anon_access": False,  
+        "_allow_anonymous_access": False,  
         "_smtp_notifications":False,
     }
 
