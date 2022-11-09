@@ -93,7 +93,7 @@ if display['allow_anonymous_form_submissions']:
                 error = 'Invalid email.' 
 
             else:error=None
-            
+
             if not error:
                 try: 
                     key = signing.write_key_to_database(scope=f'external_{form_name.lower()}', expiration=1, active=1, email=email)
@@ -205,7 +205,7 @@ if display['allow_anonymous_form_submissions']:
 
         # if the signing key is not scoped (that is, intended) for this purpose, then 
         # return an invalid error
-        if not Signing.query.filter_by(signature=signature).first().scope == f'external_{form_name.lower()}':
+        if not Signing.query.filter_by(signature=signature).first().scope == f'external_{(filename.split(".")[0]).lower()}':
             abort(404)
 
         # this is our first stab at building templates, without accounting for nesting or repetition
