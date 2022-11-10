@@ -26,6 +26,7 @@ class MongoDB:
         collection = self.db[collection_name]
         data['Timestamp'] = str(datetime.datetime.utcnow())
         data['Reporter'] = str(reporter) if reporter else None
+        data['Journal'] = {data['Timestamp']:f"{data['Reporter']} created initial submission."}
         collection.insert_one(data).inserted_id
 
     def read_documents_from_collection(self, collection_name):
