@@ -117,12 +117,12 @@ if display['allow_anonymous_form_submissions']:
 
             if request.method == 'POST':
                 parsed_args = flaskparser.parser.parse(parse_form_fields(form_name), request, location="form")
-                mongodb.write_document_to_collection(parsed_args, form_name, reporter=" ".join(("ANON", Signing.query.filter_by(signature=signature).first().email, signature))) # we add ANON to the front to avoid collission with API keys
+                mongodb.write_document_to_collection(parsed_args, form_name, reporter=" ".join((Signing.query.filter_by(signature=signature).first().email, signature))) 
                 flash(str(parsed_args))
 
                 # possibly exchange the section below for an actual email/name depending on the
                 # data we store in the signed_urls database.
-                log.info(f'ANON {Signing.query.filter_by(signature=signature).first().email} {signature} - submitted \'{form_name}\' form.')
+                log.info(f'{Signing.query.filter_by(signature=signature).first().email} {signature} - submitted \'{form_name}\' form.')
 
                 print(Signing.query.filter_by(signature=signature).first().email)
 
