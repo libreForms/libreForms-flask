@@ -317,7 +317,13 @@ def bulk_register():
 
                     for x in ["username", "email", "password"]: # a minimalist common sense check
                         assert x in bulk_user_df.columns
-                
+                    
+                    #verify that, if there are any custom fields that are required, these exist here
+                    if display['user_registration_fields']:
+                        for x in display['user_registration_fields'].keys():
+                            if display['user_registration_fields'][x]['input_type'] != 'hidden' and display['user_registration_fields'][x]['required'] == True:
+                                assert x in bulk_user_df.columns
+
                 except Exception as e:
                     error = e
 
@@ -332,18 +338,34 @@ def bulk_register():
                         flash(f"Could not register {row.username.lower()} under email {row.email.lower()}. User already exists. ")
 
                     else:
+
+                        TEMP = {}
+                        for item in display['user_registration_fields'].keys():
+                            if display['user_registration_fields'][item]['input_type'] != 'hidden':
+                                TEMP[item] = str(row[item]) if display['user_registration_fields'][item]['type'] == str else float(row[item])
+
                         try: 
                             new_user = User(
                                         email=row.email, 
                                         username=row.username.lower(), 
                                         password=generate_password_hash(row.password, method='sha256'),
-                                        # organization=row.organization if row.organization else "",
-                                        # phone=row.phone if row.phone else "",
+                                        organization=row.organization if row.organization else "",
+                                        phone=row.phone if row.phone else "",
                                         created_date=created_date,
+                                        active=0 if display["enable_email_verification"] else 1,
+                                        **TEMP
                                     )
                             db.session.add(new_user)
                             db.session.commit()
-                            mailer.send_mail(subject=f'{display["site_name"]} User Registered', content=f"This email serves to notify you that the user {row.username} has just been registered for this email address at {display['domain']}.", to_address=row.email, logfile=log)
+
+                            if display["enable_email_verification"]:
+                                key = signing.write_key_to_database(scope='email_verification', expiration=48, active=1, email=row.email)
+                                mailer.send_mail(subject=f'{display["site_name"]} User Registered', content=f"This email serves to notify you that the user {row.username} has just been registered for this email address at {display['domain']}. Please verify your email by clicking the following link: {display['domain']}/auth/verify_email/{key}. Please note this link will expire after 48 hours.", to_address=row.email, logfile=log)
+                                flash(f'Successfully created user \'{row.username.lower()}\'. They should check their email for an activation link. ')
+                            else:
+                                mailer.send_mail(subject=f'{display["site_name"]} User Registered', content=f"This email serves to notify you that the user {row.username} has just been registered for this email address at {display['domain']}.", to_address=row.email, logfile=log)
+                                flash(f'Successfully created user \'{row.username.lower()}\'.')
+
                             log.info(f'{row.username.upper()} - successfully registered with email {row.email}.')
                         except Exception as e:
                             # error = f"User is already registered with username \'{row.username.lower()}\' or email \'{row.email}\'." if row.email else f"User is already registered with username \'{row.username}\'. "
@@ -480,8 +502,10 @@ def download_bulk_user_template(filename='bulk_user_template.csv'):
 
     # if we set custom user fields, add these here
     if display['user_registration_fields']:
-        for x in display['user_registration_fields'].keys:
-            df[x] = None
+        if display['user_registration_fields'][x]['input_type'] != 'hidden':
+            for x in display['user_registration_fields'].keys():
+                df[x] = None
+
 
     fp = os.path.join(tempfile_path, filename)
     df.to_csv(fp, index=False)
