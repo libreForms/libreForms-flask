@@ -478,6 +478,11 @@ def download_bulk_user_template(filename='bulk_user_template.csv'):
     # this is our first stab at building templates, without accounting for nesting or repetition
     df = pd.DataFrame (columns=["username", "email", "password", "phone", "organization"])
 
+    # if we set custom user fields, add these here
+    if display['user_registration_fields']:
+        for x in display['user_registration_fields'].keys:
+            df[x] = None
+
     fp = os.path.join(tempfile_path, filename)
     df.to_csv(fp, index=False)
 
