@@ -10,8 +10,13 @@ import pandas as pd
 from app.csv_files import init_tmp_fs, tempfile_init_tmp_fs
 from app import smtp
 
+
 db = SQLAlchemy()
 
+# create hCaptcha object if enabled
+if display['enable_hcaptcha']:
+    from flask_hcaptcha import hCaptcha
+    hcaptcha = hCaptcha()
 
 tempfile_path = tempfile_init_tmp_fs()
 
@@ -75,6 +80,9 @@ def create_app(test_config=None):
         # SQLALCHEMY_DATABASE_URI = f'sqlite:///{os.path.join(app.instance_path, "app.sqlite")}',
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
         # FLASK_ADMIN_SWATCH='darkly',
+        HCAPTCHA_ENABLED = display['enable_hcaptcha'],
+        HCAPTCHA_SITE_KEY = display['hcaptcha_site_key'] if display['hcaptcha_site_key'] else None,
+        HCAPTCHA_SECRET_KEY = display['hcaptcha_secret_key'] if display['hcaptcha_secret_key'] else None,
     )
 
     # admin = Admin(app, name='libreForms', template_mode='bootstrap4')
@@ -124,6 +132,9 @@ def create_app(test_config=None):
             user=current_user if current_user.is_authenticated else None,
         )
 
+    # init hCaptcha if enabled
+    if display['enable_hcaptcha']:
+        hcaptcha.init_app(app)
 
     from .models import User
 

@@ -5,7 +5,7 @@ from flask import Blueprint, flash, g, redirect, render_template, request, sessi
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 
-from app import display, log, db, mailer, tempfile_path
+from app import display, log, db, mailer, tempfile_path, hcaptcha
 import app.signing as signing
 from app.models import User, Signing
 from flask_login import login_required, current_user, login_user
@@ -90,6 +90,12 @@ def forgot_password():
 
         if not User.query.filter_by(email=email.lower()).first():
             error = f'Email {email.lower()} is not registered.' 
+        
+        elif not hcaptcha.verify():
+            if display['enable_hcaptcha']:
+                error = 'Captcha validation error'
+                    
+        else: error=None
         
         if error is None:
             try: 

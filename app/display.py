@@ -32,6 +32,7 @@ display['allow_anonymous_form_submissions'] = False
 display['allow_bulk_registration'] = False
 display['domain'] = None
 display['allow_forms_access_to_user_list'] = False
+display['enable_hcaptcha'] = False
 
 if os.path.exists ("app/display_overrides.py"):
     import app.display_overrides
