@@ -15,6 +15,21 @@ if display['enable_hcaptcha']:
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
+# failsafe code in case we need to pivot away from using Flask-hCaptcha
+def hcaptcha_verify(SECRET_KEY=display['hcaptcha_secret_key'], VERIFY_URL = "https://hcaptcha.com/siteverify"):
+    import json, requests
+    # Retrieve token from post data with key 'h-captcha-response'.
+    token =  request.form.get('h-captcha-response')
+
+    # Build payload with secret key and token.
+    data = { 'secret': SECRET_KEY, 'response': token }
+
+    # Make POST request with data payload to hCaptcha API endpoint.
+    response = requests.post(url=VERIFY_URL, data=data)
+
+    # Parse JSON from response. Check for success or error codes.
+    response_json = json.parse(response.content)
+    return response_json["success"] if response_json.status_code == 200 else False
 
 @bp.route('/forgot_password/<signature>', methods=('GET', 'POST'))
 def reset_password(signature):
