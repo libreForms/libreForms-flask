@@ -449,6 +449,7 @@ pandas==1.4.3
 plotly==5.9.0
 Flask==2.1.2
 Flask-Admin==1.6.0
+Flask-hCaptcha==0.6.0
 Flask-Login==0.6.1
 webargs==8.1.0
 gunicorn==20.1.0
