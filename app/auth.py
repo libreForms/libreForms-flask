@@ -157,8 +157,6 @@ def register():
         organization = request.form['organization']
         phone = request.form['phone']
         created_date = datetime.datetime.today().strftime("%Y-%m-%d %H:%M:%S")
-
-        print (request.form)
         
         TEMP = {}
         for item in display['user_registration_fields'].keys():
@@ -176,6 +174,10 @@ def register():
         
         if email == "":
             email = None
+
+        if display['enable_hcaptcha']:
+            if not hcaptcha.verify():
+                error = 'Captcha validation error.'
 
         error = None
 
