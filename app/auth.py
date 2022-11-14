@@ -285,15 +285,17 @@ def verify_email(signature):
     
     return redirect(url_for('auth.login'))
 
-@bp.route('/register/api', methods=('GET', 'POST'))
-@login_required
-def generate_api_key():
+if display['enable_rest_api']:
 
-    key = signing.write_key_to_database(scope='api_key', expiration=5640, active=1, email=current_user.email)
-    mailer.send_mail(subject=f'{display["site_name"]} API Key Generated', content=f"This email serves to notify you that the user {current_user.username} has just generated an API key for this email address at {display['domain']}. The API key is: {key}. Please note this key will expire after 365 days.", to_address=current_user.email, logfile=log)
-    flash(f'Successfully generated API key {key} for \'{current_user.username.lower()}\'. They should check their email for further instructions. ')
+    @bp.route('/register/api', methods=('GET', 'POST'))
+    @login_required
+    def generate_api_key():
 
-    return redirect(url_for('auth.profile'))
+        key = signing.write_key_to_database(scope='api_key', expiration=5640, active=1, email=current_user.email)
+        mailer.send_mail(subject=f'{display["site_name"]} API Key Generated', content=f"This email serves to notify you that the user {current_user.username} has just generated an API key for this email address at {display['domain']}. The API key is: {key}. Please note this key will expire after 365 days.", to_address=current_user.email, logfile=log)
+        flash(f'Successfully generated API key {key} for \'{current_user.username.lower()}\'. They should check their email for further instructions. ')
+
+        return redirect(url_for('auth.profile'))
 
 @bp.route('/register/bulk', methods=('GET', 'POST'))
 @login_required

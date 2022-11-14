@@ -36,61 +36,63 @@ else:
 
 bp = Blueprint('api', __name__, url_prefix='/api')
 
-
-# here we add the api route v1
-@bp.route('/v1/<signature>/<form_name>')
-# @login_required
-def api(form_name, signature):
-
-    # here we capture the string-ified API key passed by the user
-    signature = str(signature)
-
-    if not display['enable_rest_api']:
-        abort(404)
-        return "This feature has not been enabled by your system administrator."
-
-    if not Signing.query.filter_by(signature=signature).first():
-        abort(404)
-        return "Invalid request key."
-
-    # if the signing key's expiration time has passed, then set it to inactive 
-    if Signing.query.filter_by(signature=signature).first().expiration < datetime.datetime.timestamp(datetime.datetime.now()):
-        signing.expire_key(signature)
-
-    # if the signing key is set to inactive, then we prevent the user from proceeding
-    # this might be redundant to the above condition - but is a good redundancy for now
-    if Signing.query.filter_by(signature=signature).first().active== 0:
-        abort(404)
-        return "Invalid request key."
-
-    # if the signing key is not scoped (that is, intended) for this purpose, then 
-    # return an invalid error
-    if not Signing.query.filter_by(signature=signature).first().scope == "api_key":
-        abort(404)
-        return "Invalid request key."
+if display['enable_rest_api']:
 
 
-    signing_df = pd.read_sql_table("signing", con=db.engine.connect())
-    email = signing_df.loc[ signing_df['signature'] == signature ]['email'].iloc[0]
-    
-    try: 
+    # here we add the api route v1
+    @bp.route('/v1/<signature>/<form_name>')
+    # @login_required
+    def api(form_name, signature):
 
-        data = mongodb.read_documents_from_collection(form_name)
-        df = pd.DataFrame(list(data))
-        df.drop(columns=["_id"], inplace=True)
+        # here we capture the string-ified API key passed by the user
+        signature = str(signature)
+
+        if not display['enable_rest_api']:
+            abort(404)
+            return "This feature has not been enabled by your system administrator."
+
+        if not Signing.query.filter_by(signature=signature).first():
+            abort(404)
+            return "Invalid request key."
+
+        # if the signing key's expiration time has passed, then set it to inactive 
+        if Signing.query.filter_by(signature=signature).first().expiration < datetime.datetime.timestamp(datetime.datetime.now()):
+            signing.expire_key(signature)
+
+        # if the signing key is set to inactive, then we prevent the user from proceeding
+        # this might be redundant to the above condition - but is a good redundancy for now
+        if Signing.query.filter_by(signature=signature).first().active== 0:
+            abort(404)
+            return "Invalid request key."
+
+        # if the signing key is not scoped (that is, intended) for this purpose, then 
+        # return an invalid error
+        if not Signing.query.filter_by(signature=signature).first().scope == "api_key":
+            abort(404)
+            return "Invalid request key."
+
+
+        signing_df = pd.read_sql_table("signing", con=db.engine.connect())
+        email = signing_df.loc[ signing_df['signature'] == signature ]['email'].iloc[0]
         
-        # here we allow the user to select fields they want to use, 
-        # overriding the default view-all.
-        # warning, this may be buggy
+        try: 
 
-        for col in df.columns:
-            if request.args.get(col):
-                # prevent type-mismatch by casting both fields as strings
-                df = df.loc[df[col].astype("string") == str(request.args.get(col))] 
+            data = mongodb.read_documents_from_collection(form_name)
+            df = pd.DataFrame(list(data))
+            df.drop(columns=["_id"], inplace=True)
+            
+            # here we allow the user to select fields they want to use, 
+            # overriding the default view-all.
+            # warning, this may be buggy
 
-        log.info(f'{email} {signature} - REST API query for form \'{form_name}.\'')
-        return df.to_dict()
+            for col in df.columns:
+                if request.args.get(col):
+                    # prevent type-mismatch by casting both fields as strings
+                    df = df.loc[df[col].astype("string") == str(request.args.get(col))] 
 
-    except Exception as e:
-        abort(404)
+            log.info(f'{email} {signature} - REST API query for form \'{form_name}.\'')
+            return df.to_dict()
+
+        except Exception as e:
+            abort(404)
 
