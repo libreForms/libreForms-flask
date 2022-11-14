@@ -20,19 +20,29 @@ import pandas as pd
 # this function just compiles 'depends_on' data for each form
 # to build a useful data tree that can be parsed by the jinja / javascript
 def compile_depends_on_data(form=None):
+
     if form:
+
         RETURN = {}
+
         for field in libreforms.forms[form].keys():
+
             # ignore form configs that start with _ but only select if the _depends_on has been set
             if not field.startswith("_") and "_depends_on" in libreforms.forms[form][field].keys():
+
                 element = libreforms.forms[form][field]['_depends_on']
+
                 if element[0] not in RETURN:
                     RETURN[element[0]] = {element[1]:[field]}
+
                 elif element[0] in RETURN and element[1] not in RETURN[element[0]].keys():
                     RETURN[element[0]][element[1]] = [field]
+
                 else:
                     RETURN[element[0]][element[1]].append(field)
+
         return RETURN
+
     return None
 
 def collect_list_of_users(**kwargs): # we'll use the kwargs later to override default user fields
@@ -206,7 +216,6 @@ def forms_home():
 def forms(form_name):
 
     try:
-        print (compile_depends_on_data(form_name))
         options = parse_options(form_name)
         forms = progagate_forms(form_name)
 
