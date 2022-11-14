@@ -10,7 +10,7 @@
 # where it would make sense to have a much shorter expiry
 
 # Structure of the signed URL / API key
-# 1. signature - nXhcCzeeY179SemdGtbRyWUC
+# 1. signature - some pseudorandom key
 # 2. timestamp - time of creation
 # 3. expiration - 1 year default for API keys, 24 hours for signing keys . Do we want this to be relative (one year) or absolute (august 3rd, 2023, at 4:32.41 Zulu)
 # 4. email address - yourName@example.com

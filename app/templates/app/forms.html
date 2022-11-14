@@ -16,7 +16,7 @@
 
 					{% if context[field].input_field.type == "autocomplete" %}
 
-					<div class="form-group autocomplete">
+					<div class="form-group autocomplete{% if context[field]['_depends_on'] %} {{ context[field]['_depends_on'][0] }}{% endif %}">
 						<label class="form-label mt-4{% if context[field].output_data.required==true %} required{% endif %}" for="{{ field }}" {% if context[field].output_data.description %}data-bs-toggle="tooltip" data-bs-placement="right" title="{{context[field].output_data.description}}"{% endif %}>{{ field | replace('_', ' ')}}</label>
 						<input class="form-control" type="text" value="{{ item }}" id="{{ field }}" name="{{ field }}" {% if context[field].output_data.required==true %}required{% endif %}/>
 					</div>
@@ -28,7 +28,7 @@
 					</script>
 				
 					{% elif context[field].input_field.type == "select" %}
-					<div class="form-group">
+					<div class="form-group{% if context[field]['_depends_on'] %} {{ context[field]['_depends_on'][0] }}{% endif %}">
 						<label class="form-label mt-4{% if context[field].output_data.required==true %} required{% endif %}" for="{{ field }}" {% if context[field].output_data.description %}data-bs-toggle="tooltip" data-bs-placement="right" title="{{context[field].output_data.description}}"{% endif %}>{{ field | replace('_', ' ')}}</label>
 						<select name="{{ field }}" class="form-select" {% if context[field].output_data.required==true %}required{% endif %}>
 						{% for item in content %}
@@ -37,7 +37,7 @@
 						</select>
 					</div>
 					{% elif context[field].input_field.type == "radio" %}
-					<div class="form-group">
+					<div class="form-group{% if context[field]['_depends_on'] %} {{ context[field]['_depends_on'][0] }}{% endif %}">
 						<label class="form-label mt-4{% if context[field].output_data.required==true %} required{% endif %}" for="" {% if context[field].output_data.description %}data-bs-toggle="tooltip" data-bs-placement="right" title="{{context[field].output_data.description}}"{% endif %}>{{ field | replace('_', ' ')}}</label>
 						{% for item in content %}
 						<div class="form-check">
@@ -48,7 +48,7 @@
 						{% endfor %}
 					</div>
 					{% elif context[field].input_field.type == "checkbox" %}
-					<div class="form-group">
+					<div class="form-group{% if context[field]['_depends_on'] %} {{ context[field]['_depends_on'][0] }}{% endif %}">
 						<label class="form-label mt-4{% if context[field].output_data.required==true %} required{% endif %}" for="" {% if context[field].output_data.description %}data-bs-toggle="tooltip" data-bs-placement="right" title="{{context[field].output_data.description}}"{% endif %}>{{ field | replace('_', ' ')}}</label>
 						{% for item in content %}
 						<div class="form-check">
@@ -60,7 +60,7 @@
 					</div>
 					{% elif context[field].input_field.type == "hidden" %}
 					{% else %}
-					<div class="form-group">
+					<div class="form-group{% if context[field]['_depends_on'] %} {{ context[field]['_depends_on'][0] }}{% endif %}">
 						<label class="form-label mt-4{% if context[field].output_data.required==true %} required{% endif %}" for="{{ field }}" {% if context[field].output_data.description %}data-bs-toggle="tooltip" data-bs-placement="right" title="{{context[field].output_data.description}}"{% endif %}>{{ field | replace('_', ' ')}}</label></td>
 						<input class="form-control" type="{{ context[field].input_field.type }}" value="{{ context[field].input_field.content[0] }}" id="{{ field }}" name="{{ field }}"/>
 					</div>
@@ -85,9 +85,6 @@
 			<table>
 			  <tr><td>
 				<a href="{{ url_for(type+'.download_file', filename = filename, signature=signed_url) }}">download a CSV template of this form</a>
-				<!-- <form action="{{ url_for('forms.download_file', filename = filename) }}">
-					<input type=submit value="Template">
-				</form> -->
 			  </td></tr>
 			</table>
 		    {% endif %}
@@ -102,5 +99,25 @@
 			    <p>Go <a href="{{ url_for( 'home' ) }}">home</a>.</p>
 		    {% endif %}
 
+<script>
+
+
+window.onload = function () {
+	var divsToHide = document.getElementsByClassName("Existing_Request");
+	document.querySelectorAll("input#Existing_Request").onclick = function () {
+        if (this.checked)
+			for(var i = 0; i < divsToHide.length; i++){
+				divsToHide[i].style.visibility = "hidden"; // or
+				divsToHide[i].style.display = "none"; // depending on what you're doing
+			}
+        else
+			for(var i = 0; i < divsToHide.length; i++){
+				divsToHide[i].style.visibility = "visible"; // or
+				divsToHide[i].style.display = "initial"; // depending on what you're doing
+			}
+    }
+}
+
+</script>
 	
 {% endblock %}

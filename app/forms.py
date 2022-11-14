@@ -17,6 +17,10 @@ import os
 import pandas as pd
 
 
+def summarize_depends_on_data(form=None):
+    if form:
+        pass
+
 def collect_list_of_users(**kwargs): # we'll use the kwargs later to override default user fields
     query = f'SELECT username,email FROM user'
     # query = f'SELECT username FROM user'
@@ -41,6 +45,14 @@ def parse_form_fields(form=False):
 
         if field.startswith("_"):
             pass
+        
+        # adding this due to problems parsing checkboxes and (presumably) other
+        # input types that permit multiple values
+        elif libreforms.forms[form][field]['input_field']['type'] == "checkbox":
+            FORM_ARGS[field] = fields.List(fields.String(),
+                        required=libreforms.forms[form][field]['output_data']['required'],
+                        validators=libreforms.forms[form][field]['output_data']['validators'],)
+
         elif libreforms.forms[form][field]['output_data']['type'] == "str":
             FORM_ARGS[field] = fields.Str(
                         required=libreforms.forms[form][field]['output_data']['required'],
@@ -176,6 +188,7 @@ def forms_home():
 # this creates the route to each of the forms
 @bp.route(f'/<form_name>', methods=['GET', 'POST'])
 @login_required
+# @flaskparser.use_args(parse_form_fields(form=form_name), location='form')
 def forms(form_name):
 
     try:
@@ -183,8 +196,8 @@ def forms(form_name):
         forms = progagate_forms(form_name)
 
         if request.method == 'POST':
-            # print(request.form)
-            # temp = request.form.getlist('Select')
+            print(request.form)
+            temp = request.form.getlist('Select')
             # print(request.form.getlist('Select'))
             # x = []
             # for item in request.form:
@@ -203,6 +216,29 @@ def forms(form_name):
             # print(request.form)
             
             parsed_args = flaskparser.parser.parse(parse_form_fields(form_name), request, location="form")
+            
+            # parsed_args = {}
+
+            # for item in libreforms.forms[form_name].keys():
+            #     print(item)
+
+
+            #     try: 
+            #         if libreforms.forms[form_name][item]['input_field']['type'] == 'checkbox':
+                            
+            #             parsed_args[item] = str(request.form.getlist(item))
+                        
+
+            #         else:
+            #             parsed_args[item] = str(request.form[item]) if libreforms.forms[form_name][item]['output_data']['type'] == 'str' else float(request.form[item])
+
+            #     except:
+            #         pass
+
+            #     print(parsed_args[item])
+
+            print (parsed_args)
+
             mongodb.write_document_to_collection(parsed_args, form_name, reporter=current_user.username)
             flash(str(parsed_args))
             log.info(f'{current_user.username.upper()} - submitted \'{form_name}\' form.')

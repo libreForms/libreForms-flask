@@ -158,10 +158,18 @@ def register():
         phone = request.form['phone']
         created_date = datetime.datetime.today().strftime("%Y-%m-%d %H:%M:%S")
 
+        print (request.form)
+        
         TEMP = {}
         for item in display['user_registration_fields'].keys():
             if display['user_registration_fields'][item]['input_type'] != 'hidden':
-                TEMP[item] = str(request.form[item]) if display['user_registration_fields'][item]['type'] == str else float(request.form[item])
+
+                if display['user_registration_fields'][item]['input_type'] == 'checkbox':
+                    
+                    TEMP[item] = str(request.form.getlist(item))
+
+                else:
+                    TEMP[item] = str(request.form[item]) if display['user_registration_fields'][item]['type'] == str else float(request.form[item])
 
         if phone == "":
             phone = None
@@ -274,14 +282,6 @@ def verify_email(signature):
         
     
     return redirect(url_for('auth.login'))
-
-    # if key exists and is active:
-    #     register User
-    #     flash them a message
-    #     redirect to login
-
-    # else:
-    #     invalid link
 
 @bp.route('/register/bulk', methods=('GET', 'POST'))
 @login_required
