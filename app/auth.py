@@ -1,7 +1,7 @@
 import functools, re, datetime, tempfile, os
 import pandas as pd
 
-from flask import Blueprint, flash, g, redirect, render_template, request, session, url_for, send_from_directory
+from flask import Blueprint, flash, g, redirect, render_template, request, session, url_for, send_from_directory, abort
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 
@@ -288,14 +288,36 @@ def verify_email(signature):
 if display['enable_rest_api']:
 
     @bp.route('/register/api', methods=('GET', 'POST'))
-    @login_required
+    @login_required 
     def generate_api_key():
+
+        if display['limit_rest_api_keys_per_user']:
+            signing_df = pd.read_sql_table("signing", con=db.engine.connect())
+            if len(signing_df.loc[(signing_df.email == current_user.email) & (signing_df.scope == 'api_key') & (signing_df.active == 1)]) >= display['limit_rest_api_keys_per_user']:
+                flash(f'This user has already registered the number of API keys they are permitted. ')
+                return redirect(url_for('auth.profile'))
 
         key = signing.write_key_to_database(scope='api_key', expiration=5640, active=1, email=current_user.email)
         mailer.send_mail(subject=f'{display["site_name"]} API Key Generated', content=f"This email serves to notify you that the user {current_user.username} has just generated an API key for this email address at {display['domain']}. The API key is: {key}. Please note this key will expire after 365 days.", to_address=current_user.email, logfile=log)
         flash(f'Successfully generated API key {key} for \'{current_user.username.lower()}\'. They should check their email for further instructions. ')
 
         return redirect(url_for('auth.profile'))
+
+    # this is a placeholder for a future method of registering API keys by non-authorized users ...
+    # but for now, let's leave it disabled
+    @bp.route('/register/api/<signature>', methods=('GET', 'POST'))
+    def anonymous_generate_api_key(signature):
+
+        abort(404)
+        # flash('This feature has not been enabled by your system administrator.')
+        # return redirect(url_for('home'))
+
+        # key = signing.write_key_to_database(scope='api_key', expiration=5640, active=1, email=current_user.email)
+        # mailer.send_mail(subject=f'{display["site_name"]} API Key Generated', content=f"This email serves to notify you that the user {current_user.username} has just generated an API key for this email address at {display['domain']}. The API key is: {key}. Please note this key will expire after 365 days.", to_address=current_user.email, logfile=log)
+        # flash(f'Successfully generated API key {key} for \'{current_user.username.lower()}\'. They should check their email for further instructions. ')
+
+        # return redirect(url_for('auth.profile'))
+
 
 @bp.route('/register/bulk', methods=('GET', 'POST'))
 @login_required

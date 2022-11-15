@@ -35,6 +35,9 @@ display['allow_forms_access_to_user_list'] = False
 display['enable_hcaptcha'] = False
 display['hcaptcha_site_key'] = False
 display['hcaptcha_secret_key'] = False
+display['enable_rest_api'] = False
+display['limit_rest_api_keys_per_user'] = False
+
 
 if os.path.exists ("app/display_overrides.py"):
     import app.display_overrides

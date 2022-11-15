@@ -207,6 +207,10 @@ def create_app(test_config=None):
         # print(signing.flush_key_db())
         # signing.expire_key(key="iqmwd44IKhsoE0HWjKGZohaN")
         # print(pd.read_sql_table("signing", con=db.engine.connect()))
+        # signing_df = pd.read_sql_table("signing", con=db.engine.connect())
+        # print(signing_df)
+
+
 
     login_manager = LoginManager()
     login_manager.login_view = 'auth.login'
