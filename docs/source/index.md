@@ -406,6 +406,10 @@ openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /opt/libreforms/cert
 
 If you'd like to install Let's Encrypt certificates, follow your distribution's instructions for installing eg. using certbot.
 
+### Reporting
+
+\[Placeholder\]
+
 ## Dependencies
 
 The flask application has a few dependencies that, in its current form, may be prone to obsolescence; there is an issue in the backlog to test for, among other things, obsolete and vulnerable dependencies. In addition to the standard requirements, like Python3, Python3-Pip, Python3-Venv, Python3-LDAP, and MongoDB, here is a list of dependencies that ship with the application under the static/ directory:

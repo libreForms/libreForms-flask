@@ -23,6 +23,7 @@ Read the docs at [https://libreforms.readthedocs.io/en/latest/](https://librefor
     - [Database](#database)
     - [Mail](#mail)
     - [Web Server](#web-server)
+    - [Reporting](#reporting)
 4. [Database](#database)
 5. [Dependencies](#dependencies)
 6. [Copyright](#copyright)
@@ -431,6 +432,12 @@ openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /opt/libreforms/cert
 ```
 
 If you'd like to install Let's Encrypt certificates, follow your distribution's instructions for installing eg. using certbot.
+
+
+### Reporting
+
+\[Placholder\]
+
 
 ## Dependencies
 
