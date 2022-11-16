@@ -28,6 +28,21 @@ Changes that are solely cosmetic in nature and do not add anything substantial t
 
 * Suggest your change under [Issues](https://github.com/signebedi/libreForms/issues) with the \[documentation\] tag before making any pull requests.
 
+#### **Are there general approaches to how commits and PRs should be made?**
+
+Git commits should generally be prepended with the following conventions (with major conventions bolded):
+
+- **Added**: a catch-all for additions to the code base
+- **Removed**: dropping a significant component of an existing feature
+- **Changed**: a modification to a current feature of the codebase
+- **Fixed**: a broken feature or bug fix
+- **Docs**: modified the codebase documentation
+- **Tests**: modified the codebase tests
+- Routine: clerical and minor changes or refactors not affecting the API
+- Grumble: progress not yet sufficient to result in any changes above
+
+Generally, contributors should aim to link all of their contributions to [Issues](https://github.com/signebedi/libreForms/issues) to help with code review. This entails appending an issue number to any contribution message. 
+
 Thanks for your interest in the libreForms project.
 
 signebedi
