@@ -428,6 +428,7 @@ Flask-Login==0.6.1
 webargs==8.1.0
 gunicorn==20.1.0
 pymongo==4.1.1
+python-crontab==2.6.0
 SQLAlchemy==1.4.39
 ```
 
