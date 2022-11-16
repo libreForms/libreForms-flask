@@ -38,6 +38,7 @@ display['hcaptcha_secret_key'] = False
 display['enable_rest_api'] = False
 display['limit_rest_api_keys_per_user'] = False
 display['enable_user_profile_log_aggregation'] = False
+display['send_reports'] = False
 
 
 if os.path.exists ("app/display_overrides.py"):
