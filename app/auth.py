@@ -527,7 +527,7 @@ def profile():
         name=display['site_name'],
         display=display,
         user=current_user,
-        log_data=aggregate_log_data(keyword=current_user.username.upper()),
+        log_data=aggregate_log_data(keyword=f'- {current_user.username.upper()} -'),
     )
 
 # this is the download link for files in the temp directory
