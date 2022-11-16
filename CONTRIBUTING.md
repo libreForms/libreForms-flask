@@ -30,7 +30,7 @@ Changes that are solely cosmetic in nature and do not add anything substantial t
 
 #### **Are there general approaches to how commits and PRs should be made?**
 
-Git commits should generally be prepended with the following conventions (with major conventions bolded):
+Git contribution messages should generally be prepended with the following conventions (with major conventions bolded):
 
 - **Added**: a catch-all for additions to the code base
 - **Removed**: dropping a significant component of an existing feature
