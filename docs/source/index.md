@@ -419,6 +419,7 @@ plotly-v1.58.5.min.js
 As well as the following python requirements and their dependencies:
 
 ```
+croniter==1.3.7
 pandas==1.4.3
 plotly==5.9.0
 Flask==2.1.2

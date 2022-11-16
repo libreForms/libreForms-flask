@@ -1,4 +1,5 @@
 click==8.1.3
+croniter==1.3.7
 Flask==2.1.2
 Flask-Admin==1.6.0
 Flask-hCaptcha==0.6.0
