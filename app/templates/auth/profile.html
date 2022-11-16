@@ -38,4 +38,13 @@
     </fieldset>
 </form>
 
+{% if log_data %}
+<br/><hr/><h4>User Log</h4><br/>
+
+<div class="list-group vh-100 scrollable overflow-auto">
+    {% for row in log_data %}
+    <a href="#" class="list-group-item list-group-item-action disabled">{{ row }}</a>
+    {% endfor %}
+</div>
+{% endif %}
 {% endblock %}

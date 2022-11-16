@@ -64,3 +64,13 @@ def cleanup_stray_log_handlers(current_pids=None):
     for log in os.listdir('log'):
         if re.fullmatch(r"libreforms-[0-9]+.log", log):
                 os.remove (os.path.join('log', log))
+
+
+# here we define a log aggregation tool that pulls lines of code as an array / list
+# type to pass eg. to user profiles
+def aggregate_log_data(keyword=None, file_path='log/libreforms.log'):
+    if keyword:
+        with open(file_path, "r") as logfile:
+            return [x for x in logfile.readlines() if keyword in x]
+    else:
+        return None

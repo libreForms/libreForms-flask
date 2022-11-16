@@ -9,6 +9,7 @@ from app import display, log, db, mailer, tempfile_path
 import app.signing as signing
 from app.models import User, Signing
 from flask_login import login_required, current_user, login_user
+from app.log_functions import aggregate_log_data
 
 if display['enable_hcaptcha']:
     from app import hcaptcha
@@ -526,6 +527,7 @@ def profile():
         name=display['site_name'],
         display=display,
         user=current_user,
+        log_data=aggregate_log_data(keyword=current_user.username.upper()),
     )
 
 # this is the download link for files in the temp directory
