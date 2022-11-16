@@ -68,9 +68,22 @@ def cleanup_stray_log_handlers(current_pids=None):
 
 # here we define a log aggregation tool that pulls lines of code as an array / list
 # type to pass eg. to user profiles
-def aggregate_log_data(keyword=None, file_path='log/libreforms.log'):
+def aggregate_log_data(keyword=None, file_path='log/libreforms.log',limit=None, pull_from='start'):
     if keyword:
         with open(file_path, "r") as logfile:
-            return [x for x in logfile.readlines() if keyword in x]
+            TEMP = [x for x in logfile.readlines() if keyword in x]
+
+            if limit:
+                if len(TEMP) > limit:
+                    if pull_from=='start':
+                        return TEMP[:limit]
+                    elif pull_from=='end':
+                        return TEMP[-limit:]
+                    else:
+                        return None
+                else:
+                    return TEMP 
+            else:
+                return TEMP
     else:
         return None
