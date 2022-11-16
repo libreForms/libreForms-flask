@@ -1,9 +1,11 @@
 from crontab import CronTab
+from croniter import croniter
+from datetime import datetime
 from app import db, log, mailer, display, tempfile_path
 
 
 class reportHandler():
-    def __init__(self, ) -> None:
+    def __init__(self) -> None:
 
         # we create a local key mapping that will each correspond to a 
         # event handling object
@@ -17,9 +19,9 @@ class reportHandler():
 
             if job_list[key]['type'] == 'timed':
 
-                with CronTab(user=True) as cron:
-                    self.jobs[key] = cron.new(command='echo hello_world')
-                    self.jobs[key].setall(job_list[key]['trigger'])
+                # with CronTab(user=True) as cron:
+                    # self.jobs[key] = cron.new(command='echo hello_world')
+                    # self.jobs[key].setall(job_list[key]['trigger'])
 
                 log.info(f'LIBREFORMS - wrote {key} report to CRON.')
 
