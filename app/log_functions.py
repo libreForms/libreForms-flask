@@ -67,7 +67,9 @@ def cleanup_stray_log_handlers(current_pids=None):
 
 
 # here we define a log aggregation tool that pulls lines of code as an array / list
-# type to pass eg. to user profiles
+# type to pass eg. to user profiles. The `limit` kwarg expects some int. The `pull_from`
+# kwarg expects either `start` (pulls up to `limit` from the start of the list) or 'end' 
+# (pulls up to `limit` from the end of the list). 
 def aggregate_log_data(keyword=None, file_path='log/libreforms.log',limit=None, pull_from='start'):
     if keyword:
         with open(file_path, "r") as logfile:
