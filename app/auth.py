@@ -294,6 +294,11 @@ if display['enable_rest_api']:
 
         if display['limit_rest_api_keys_per_user']:
             signing_df = pd.read_sql_table("signing", con=db.engine.connect())
+
+            # note that this behavior will not apply when an email has not been specified for a given key, which
+            # shouldn't be the case as long as emails are required fields at user registration; however, the `libreforms`
+            # user, which ships by default with the application, does not have an email set - meaning that the default
+            # user will not be constrained by this behavior. This can be viewed as a bug or a feature, depending on context.
             if len(signing_df.loc[(signing_df.email == current_user.email) & (signing_df.scope == 'api_key') & (signing_df.active == 1)]) >= display['limit_rest_api_keys_per_user']:
                 flash(f'This user has already registered the number of API keys they are permitted. ')
                 return redirect(url_for('auth.profile'))
