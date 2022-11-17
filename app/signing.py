@@ -66,8 +66,15 @@ and app/api.py, are:
     the key after a single use.
 
 
-# generate_key(length=24)
-[placeholder]
+# generate_key(length=24) 
+
+Generates and returns a signature string defaulting to 24 characters in length.
+
+In the base application, this method is called almost exclusively by write_key_to_database(), 
+see below. It made sense to externalize it, however, because there are a reasonable and abstract
+set of uses for this function outside the context of the application's signing database and
+corresponding data model. It takes a single parameter `length`, which is an integer corresponding
+to the length of the signature that the function generates and returns. 
 
 
 # write_key_to_database(scope=None, expiration=1, active=1, email=None)
@@ -98,7 +105,7 @@ from app import display, log, db, mailer
 from app.models import Signing
 
 # here we generate a signing key with a default length of 24
-def generate_key(length=24):
+def generate_key(length:int=24):
     key = ''
     while True:
         temp = os.urandom(1)
