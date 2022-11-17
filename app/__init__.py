@@ -201,7 +201,8 @@ def create_app(test_config=None):
 
     # this is just some debug code
     # from app import signing
-    # with app.app_context():
+    with app.app_context():
+        from app import reports
        
         # signing.write_key_to_database(scope=None, expiration=0, active=1, email=None)
         # print(signing.flush_key_db())
@@ -209,6 +210,12 @@ def create_app(test_config=None):
         # print(pd.read_sql_table("signing", con=db.engine.connect()))
         # signing_df = pd.read_sql_table("signing", con=db.engine.connect())
         # print(signing_df)
+
+
+        reporter = reports.reportHandler()
+
+        reporter.set_cron_jobs()
+
 
 
 
