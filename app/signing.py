@@ -100,9 +100,21 @@ not required, or where the 'libreforms' user continues to not have an email set.
 
 Disables any signatures in the signing database whose expiration timestamp has passed.
 
-# this is a function that will periodically scan
-# the keys in the database and flush any that have
-# expired.
+In the base application, this method remains largely unimplemented in favor of 
+expire_key(), see below. That is because there is no plausible trigger for it -
+even though it is theoretically / potentially more efficient than expire_key(),
+especially when it catches & expires multiple signatures whose expirations have
+passed. 
+
+Implementation probably makes more sense if we can run it asynchronously and
+thus trigger on a schedule instead of by an event. For example, maybe we query 
+the signing database every hour (since this is the lowest possible increment 
+expiration increment), select the row with the lower value for `expiration` 
+where active == 1 (so we're selecting the next key set to expire). Then,
+we create a single croniter schedule, as in app/reports.py and pass this 
+to a timed asynchronous function. Or maybe we just string this without 
+running hourly checks - that might be overkill. This allows some degree of
+precision in expiring keys...
 
 
 # expire_key(key=None)
@@ -134,7 +146,10 @@ def generate_key(length:int=24):
         if len(key) == length:
             return key
 
-def write_key_to_database(scope=None, expiration=1, active=1, email=None):
+
+# maybe the `active` parameter should be set to bool ... again, this is a bug or feature,
+# depending on context. 
+def write_key_to_database(scope:str=None, expiration:int=1, active:int=1, email:str=None):
 
     key = generate_key()
 
