@@ -1,24 +1,86 @@
 """ 
-signing.py: function set for managing signing keys and signing database operations
+signing.py: function set for managing signing keys and corresponding database operations
 
-signed URLs allow people to request / be invited to complete a form. 
-Scenario 1 (self initiated): anon. user goes to form page, provides email, and receives a signed link to complete. 
-Scenario 2 (invitation): current user invites another (by email) to complete a form, and the system sends a signed link over email
+Signing keys, or signatures, are used in various situations to authenticate a 
+user when logging in - or even registering an account - are not reasonable
+expectations, but where we would still like to be able to strongly authenticate
+a user before a privileged behavior is permitted by the application. This script 
+defines a set of operations to generate and manage these signatures using the 
+signing database defined in app/models.py, which is a useful script to review 
+for more information on the data model. 
 
-we also want to consider the use case for API keys, which will be sufficiently similar to signed URLs to justify handling them
-in the same database. Signed URLs are single use, while API keys are multi use (meaning we can expect there will be fewer of them
-in circulation at any given time).
+# Scope
 
-finally, there are all sort of other use cases for signing keys, like new user email verification and 'forgot password' functionality
-where it would make sense to have a much shorter expiry
+One point from the data model that will be useful to discuss here is the signature's 
+`scope`, which is a field that describes the purpose of a given signature. We employ 
+a mixed approach when using a `scope` to constrain a signature's use. For 
+example, a signature's scope will not, in itself, be used to set the signature's 
+expiration behavior - that is set when write_key_to_database() is invoked and
+is defined alongside the signature's scope, see below for more information.
+What this means in practice is that the end user retains the freedom to 
+set the expiration behavior of different scopes or subsets of scopes. 
 
-Structure of the signed URL / API key
-1. signature - some pseudorandom key
-2. timestamp - time of creation
-3. expiration - 1 year default for API keys, 24 hours for signing keys . Do we want this to be relative (one year) or absolute (august 3rd, 2023, at 4:32.41 Zulu)
-4. email address - yourName@example.com
-5. scope - what resources does this give access to? form name? API? Read / Write?
-6. active - bool, has this been marked expired? we want to keep it in the database for some time to avoid premature re-use and collision.
+However, to prevent improper use of signatures, scopes may not be used for
+interchangeable purposes, such that a signature with a scope of 'forgot_password'
+cannot be used in an application function requiring a scope of 'email_verification'.
+This is a common sense rule that is enforced through some boilerplate that should
+be run everytime a signature is invoked. Take, for example, the following code from
+app/auth.py, which verifies that a signature exists, that it is active and unexpired,
+and that it contains the appropriate scope. Feel free to repurpose the code below for
+additional views that may require signature validation. 
+
+```
+    if not Signing.query.filter_by(signature=signature).first():
+        flash('Invalid request key. ')
+        return redirect(url_for('auth.forgot_password'))
+
+    # if the signing key's expiration time has passed, then set it to inactive 
+    if Signing.query.filter_by(signature=signature).first().expiration < datetime.datetime.timestamp(datetime.datetime.now()):
+        signing.expire_key(signature)
+
+    # if the signing key is set to inactive, then we prevent the user from proceeding
+    # this might be redundant to the above condition - but is a good redundancy for now
+    if Signing.query.filter_by(signature=signature).first().active == 0:
+        flash('Invalid request key. ')
+        return redirect(url_for('auth.forgot_password'))
+
+    # if the signing key is not scoped (that is, intended) for this purpose, then 
+    # return an invalid error
+    if not Signing.query.filter_by(signature=signature).first().scope == "forgot_password":
+        flash('Invalid request key. ')
+        return redirect(url_for('auth.forgot_password'))
+```
+
+
+Some scopes that this application implements - primarily located in app/auth.py
+and app/api.py, are:
+
+1.  api_key: the base application sets the expiration date at 365 days, and does not expire
+    the key after a given use by default, though it does allow administrators to limit the 
+    number of API keys a single user / email may register. 
+
+2.  forgot_password: the base application sets the expiration date at 1 hour, and expires the
+    key after a single use.
+
+3.  email_verification: the base application sets the expiration date at 48 hours, and expires 
+    the key after a single use.
+
+
+# generate_key(length=24)
+[placeholder]
+
+
+# write_key_to_database(scope=None, expiration=1, active=1, email=None)
+[placeholder]
+
+
+# flush_key_db()
+[placeholder]
+
+
+# expire_key(key=None)
+[placeholder]
+
 """
 
 
