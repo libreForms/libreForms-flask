@@ -114,12 +114,23 @@ where active == 1 (so we're selecting the next key set to expire). Then,
 we create a single croniter schedule, as in app/reports.py and pass this 
 to a timed asynchronous function. Or maybe we just string this without 
 running hourly checks - that might be overkill. This allows some degree of
-precision in expiring keys...
+precision in expiring keys.
 
 
 # expire_key(key=None)
-[placeholder]
 
+Expire a specific key without any logic or verification.
+
+In the base application, this method is used to expire a specific key. It is 
+primarily used when each signature is invoked in the client; take, this example 
+from the `scope` section above:
+
+    # if the signing key's expiration time has passed, then set it to inactive 
+    if Signing.query.filter_by(signature=signature).first().expiration < datetime.datetime.timestamp(datetime.datetime.now()):
+        signing.expire_key(signature)
+
+Make note, all logic determining whether the key should be expired is external to 
+this method; it only takes a key as a parameter and expires it.
 """
 
 
