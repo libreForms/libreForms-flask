@@ -1,21 +1,34 @@
-# signed URLs allow people to request / be invited to complete a form. 
-# Scenario 1 (self initiated): anon. user goes to form page, provides email, and receives a signed link to complete. 
-# Scenario 2 (invitation): current user invites another (by email) to complete a form, and the system sends a signed link over email
+""" 
+signing.py: function set for managing signing keys and signing database operations
 
-# we also want to consider the use case for API keys, which will be sufficiently similar to signed URLs to justify handling them
-# in the same database. Signed URLs are single use, while API keys are multi use (meaning we can expect there will be fewer of them
-# in circulation at any given time).
+signed URLs allow people to request / be invited to complete a form. 
+Scenario 1 (self initiated): anon. user goes to form page, provides email, and receives a signed link to complete. 
+Scenario 2 (invitation): current user invites another (by email) to complete a form, and the system sends a signed link over email
 
-# finally, there are all sort of other use cases for signing keys, like new user email verification and 'forgot password' functionality
-# where it would make sense to have a much shorter expiry
+we also want to consider the use case for API keys, which will be sufficiently similar to signed URLs to justify handling them
+in the same database. Signed URLs are single use, while API keys are multi use (meaning we can expect there will be fewer of them
+in circulation at any given time).
 
-# Structure of the signed URL / API key
-# 1. signature - some pseudorandom key
-# 2. timestamp - time of creation
-# 3. expiration - 1 year default for API keys, 24 hours for signing keys . Do we want this to be relative (one year) or absolute (august 3rd, 2023, at 4:32.41 Zulu)
-# 4. email address - yourName@example.com
-# 5. scope - what resources does this give access to? form name? API? Read / Write?
-# 6. active - bool, has this been marked expired? we want to keep it in the database for some time to avoid premature re-use and collision.
+finally, there are all sort of other use cases for signing keys, like new user email verification and 'forgot password' functionality
+where it would make sense to have a much shorter expiry
+
+Structure of the signed URL / API key
+1. signature - some pseudorandom key
+2. timestamp - time of creation
+3. expiration - 1 year default for API keys, 24 hours for signing keys . Do we want this to be relative (one year) or absolute (august 3rd, 2023, at 4:32.41 Zulu)
+4. email address - yourName@example.com
+5. scope - what resources does this give access to? form name? API? Read / Write?
+6. active - bool, has this been marked expired? we want to keep it in the database for some time to avoid premature re-use and collision.
+"""
+
+
+__name__ = "signing.py"
+__author__ = "Sig Janoska-Bedi"
+__credits__ = ["Sig Janoska-Bedi",]
+__version__ = "1.0"
+__license__ = "AGPL-3.0"
+__maintainer__ = "Sig Janoska-Bedi"
+__email__ = "signe@atreeus.com"
 
 import os, datetime
 import pandas as pd
