@@ -32,6 +32,12 @@ The `active` field is a bool that determines whether a signature has been
 'used up'. All signatures are made inactive when their `expiration` has 
 passed, while some will expire after a certain number of uses - this depends
 on the `scope` that has been defined, see app/signing.py for more information.
+Generally, a signature row will not be dropped from the database; instead, 
+its `active` field will be set to 0. This helps avoid a subset of potential 
+collisions where users who previously obtained a signature can reuse it to
+improperly access a future user's scope. This risk is exacerbated because
+signatures are documented through users' emails and logs, meaning they 
+may retain access to the signature after it has expired.
 
 """
 
