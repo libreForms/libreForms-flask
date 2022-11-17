@@ -19,6 +19,8 @@ Changes that are solely cosmetic in nature and do not add anything substantial t
 #### **Do you intend to add a new feature or change an existing one?**
 
 * Suggest your change under [Issues](https://github.com/signebedi/libreForms/issues) with the \[enhancement\] tag before making any pull requests.
+* Ensure that any new scripts you add conform to the project's [standard boilerplate](https://github.com/signebedi/libreForms/issues/78).
+* Ensure that any changes you've proposed to existing scripts include your name in the \_\_credits\_\_ list of that script.
 
 #### **Do you have questions about the source code?**
 
@@ -41,7 +43,11 @@ Git contribution messages should generally be prepended with the following conve
 - Routine: clerical and minor changes or refactors not affecting the API
 - Grumble: progress not yet sufficient to result in any changes above
 
-Generally, contributors should aim to link all of their contributions to [Issues](https://github.com/signebedi/libreForms/issues) to help with code review. This entails appending an issue number to any contribution message. 
+Generally, contributors should aim to link all of their contributions to [Issues](https://github.com/signebedi/libreForms/issues) to help with code review. We'd appreciate if you'd append an issue number to any contribution message. Here's an example of a commit message that would conform to these guidelines:
+
+```
+Added: standard boilerplate to app/signing.py per #78 
+```
 
 Thanks for your interest in the libreForms project.
 
