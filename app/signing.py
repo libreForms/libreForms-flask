@@ -52,18 +52,25 @@ additional views that may require signature validation.
 ```
 
 
-Some scopes that this application implements - primarily located in app/auth.py
-and app/api.py, are:
+Some scopes that this application implements - primarily located in app/auth.py,
+app/api.py, and app/external.py are:
 
 1.  api_key: the base application sets the expiration date at 365 days, and does not expire
     the key after a given use by default, though it does allow administrators to limit the 
     number of API keys a single user / email may register. 
+
+    In the future, there may be some value in setting a dynamic scope for API keys, as in (4)
+    below, to permit different sets of CRUD operations.
 
 2.  forgot_password: the base application sets the expiration date at 1 hour, and expires the
     key after a single use.
 
 3.  email_verification: the base application sets the expiration date at 48 hours, and expires 
     the key after a single use.
+
+4.  external_{form_name.lower()}: the base application assesses external / anonymous form 
+    submissions dynamically depending on the form name; it sets the expiration date at 48 
+    hours and expires the key after a single use.
 
 
 # generate_key(length=24) 
@@ -78,11 +85,24 @@ to the length of the signature that the function generates and returns.
 
 
 # write_key_to_database(scope=None, expiration=1, active=1, email=None)
-[placeholder]
+
+Connector function that generates a signature entry conforming to the signing data model.
+
+For more explanation of `scope`, see the corresponding section above. The `expiration` should
+be set in hours relative to the current timestamp. Setting signatures to `active` by default
+when no futher action is needed to enable them. Setting `email` to None by default may be a
+bug or feature, depending on context. Either way, future code revisions may choose to modify 
+this behavior to require an email to be set - but then it may break instances where emails are 
+not required, or where the 'libreforms' user continues to not have an email set. 
 
 
 # flush_key_db()
-[placeholder]
+
+Disables any signatures in the signing database whose expiration timestamp has passed.
+
+# this is a function that will periodically scan
+# the keys in the database and flush any that have
+# expired.
 
 
 # expire_key(key=None)
@@ -114,12 +134,9 @@ def generate_key(length:int=24):
         if len(key) == length:
             return key
 
-# where `expiration` should be set to a relative time in hours
-# where `scope` should be set to some subset of options like 'form - [form_name]', 
-# 'api_key - [r/w]', 'email_verification', or 'forgot_password'
 def write_key_to_database(scope=None, expiration=1, active=1, email=None):
+
     key = generate_key()
-    # write to db if no collision
 
     while True:
         key = generate_key()
@@ -141,9 +158,6 @@ def write_key_to_database(scope=None, expiration=1, active=1, email=None):
 
     return key
 
-# this is a function that will periodically scan
-# the keys in the database and flush any that have
-# expired.
 def flush_key_db():
     signing_df = pd.read_sql_table("signing", con=db.engine.connect())
 
