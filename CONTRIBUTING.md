@@ -36,7 +36,7 @@ Git contribution messages should generally be prepended with the following conve
 
 - **Added**: a catch-all for additions to the code base
 - **Removed**: dropping a significant component of an existing feature
-- **Changed**: a modification to a current feature of the codebase
+- **Modified**: a modification to a current feature of the codebase
 - **Fixed**: a broken feature or bug fix
 - **Docs**: modified the codebase documentation
 - **Tests**: modified the codebase tests
