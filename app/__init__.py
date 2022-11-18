@@ -23,6 +23,9 @@ tempfile_path = tempfile_init_tmp_fs()
 # if application log path doesn't exist, make it
 if not os.path.exists ("log/"):
     os.mkdir('log/')
+else:
+    # if the log path exists, let's clean up old log handlers
+    app.log_functions.cleanup_stray_log_handlers(os.getpid())
 
 # we instantiate a log object that 
 # we'll propagate across the app

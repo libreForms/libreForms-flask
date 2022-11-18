@@ -60,9 +60,10 @@ def set_logger(file_path, module, pid=os.getpid(), log_level=logging.INFO):
 # the current_pids should be a list of the current flask and/or gunicorn pids.
 # this feature is implemented more effectively in gunicorn/gunicorn.conf.py, as
 # this is able to clean up stray files before forking worker processes.
-def cleanup_stray_log_handlers(current_pids=None):
+def cleanup_stray_log_handlers(current_pid=None):
     for log in os.listdir('log'):
         if re.fullmatch(r"libreforms-[0-9]+.log", log):
+            if not current_pid or str(current_pid) not in log:
                 os.remove (os.path.join('log', log))
 
 

@@ -7,14 +7,18 @@
 import os, re
 from app.csv_files import init_tmp_fs
 from app.display import display
+from app.log_functions import cleanup_stray_log_handlers
 
 # here we add pre-fork tasks that need to be handled prior to setting up concurrent sessions
 def pre_fork(server, worker):
 
-    # cleanup any stray log files prior to forking hte work processes
-    for log in os.listdir(logpath):
-        if re.fullmatch(r"libreforms-[0-9]+.log", log):
-                os.remove (os.path.join(logpath, log))
+    # cleanup any stray log files prior to forking the work processes
+    if not os.path.exists ("log/"):
+        os.mkdir('log/')
+    else:
+        # if the log path exists, let's clean up old log handlers
+        cleanup_stray_log_handlers()
+
 
     # create the app database if it doesn't exist
     if not os.path.exists(os.path.join('instance','app.sqlite')):
