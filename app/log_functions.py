@@ -57,8 +57,8 @@ def set_logger(file_path, module, pid=os.getpid(), log_level=logging.INFO):
     # we return the logging object
     return log
 
-# the current_pids should be a list of the current flask and/or gunicorn pids.
-# this feature is implemented more effectively in gunicorn/gunicorn.conf.py, as
+# the current_pids should be the current flask and/or gunicorn pids.
+# this feature is implemented effectively in gunicorn/gunicorn.conf.py, as
 # this is able to clean up stray files before forking worker processes.
 def cleanup_stray_log_handlers(current_pid=None):
     for log in os.listdir('log'):
@@ -71,22 +71,21 @@ def cleanup_stray_log_handlers(current_pid=None):
 # type to pass eg. to user profiles. The `limit` kwarg expects some int. The `pull_from`
 # kwarg expects either `start` (pulls up to `limit` from the start of the list) or 'end' 
 # (pulls up to `limit` from the end of the list). 
-def aggregate_log_data(keyword=None, file_path='log/libreforms.log',limit=None, pull_from='start'):
-    if keyword:
-        with open(file_path, "r") as logfile:
+def aggregate_log_data(keyword:str=None, file_path:str='log/libreforms.log',
+                        limit:int=None, pull_from:str='start'):
+
+    with open(file_path, "r") as logfile:
+
+        if keyword:
+
             TEMP = [x for x in logfile.readlines() if keyword in x]
 
-            if limit:
-                if len(TEMP) > limit:
-                    if pull_from=='start':
-                        return TEMP[:limit]
-                    elif pull_from=='end':
-                        return TEMP[-limit:]
-                    else:
-                        return None
-                else:
-                    return TEMP 
+            if limit and len(TEMP) > limit and pull_from=='start':
+                return TEMP[:limit]
+            elif limit and len(TEMP) > limit and pull_from=='end':
+                return TEMP[-limit:]
             else:
                 return TEMP
-    else:
-        return None
+
+        else:
+            return [x for x in logfile.readlines()]
