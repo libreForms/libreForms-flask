@@ -1,13 +1,14 @@
 """ 
 signing.py: function set for managing signing keys and corresponding database operations
 
-Signing keys, or signatures, are used in various situations to authenticate a 
-user when logging in - or even registering an account - are not reasonable
-expectations, but where we would still like to be able to strongly authenticate
-a user before a privileged behavior is permitted by the application. This script 
-defines a set of operations to generate and manage these signatures using the 
-signing database defined in app/models.py, which is a useful script to review 
-for more information on the data model. 
+Signing keys, or signatures (we use these terms interchangeably), are used 
+in various situations to authenticate a user when logging in - or even 
+registering an account - are not reasonable expectations, but where we would 
+still like to be able to strongly authenticate a user before a privileged 
+behavior is permitted by the application. This script defines a set of 
+operations to generate and manage these signatures using the signing database 
+defined in app/models.py, which is a useful script to review for more 
+information on the data model. 
 
 # Scope
 
