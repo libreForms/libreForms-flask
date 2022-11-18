@@ -1,3 +1,41 @@
+""" 
+log_functions.py: a collection of log operations for a multi worker Flask app
+
+This script defines a set of operations to create, manage, and access log
+information for a Flask application. It is redundant with a few other 
+features, including the Gunicorn log, the behavior of which is defined in 
+gunicorn/gunicorn.conf.py. It leverages Python's standard logging library 
+and employs various log handlers to ensure the log files generated conform
+to the requirements of the application - adding features that account for
+log rotation and a multi-process application.
+
+
+# Log Handlers
+
+    class PIDFileHandler(logging.handlers.WatchedFileHandler)
+
+
+    logging.handlers.RotatingFileHandler(file_path, 
+        maxBytes=10*1024*1024, backupCount=10, encoding='utf-8')
+
+# set_logger(file_path, module, pid=os.getpid(), log_level=logging.INFO)
+
+# cleanup_stray_log_handlers(current_pid=None)
+
+# aggregate_log_data(keyword:str=None, file_path:str='log/libreforms.log',
+                        limit:int=None, pull_from:str='start')
+
+
+"""
+
+__name__ = "log_functions.py"
+__author__ = "Sig Janoska-Bedi"
+__credits__ = ["Sig Janoska-Bedi",]
+__version__ = "1.0"
+__license__ = "AGPL-3.0"
+__maintainer__ = "Sig Janoska-Bedi"
+__email__ = "signe@atreeus.com"
+
 import os, re, logging, logging.handlers
 
 # we append the PID to the logfile 
