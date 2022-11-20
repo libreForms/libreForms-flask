@@ -1,4 +1,3 @@
-import os
 import ssl
 import smtplib 
 import datetime as dt

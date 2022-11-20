@@ -142,3 +142,4 @@ update_release.sh
 smtp_creds
 ldap_creds
 config/*
+redis-stable/*

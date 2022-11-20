@@ -17,19 +17,6 @@ if display['libreforms_user_email'] == None:
 if not re.fullmatch(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', display['libreforms_user_email']):
     raise Exception("The email you specified in the'libreforms_user_email' app config is invalid.")
 
-def make_celery(app):
-    celery = Celery(app.import_name)
-    celery.conf.update(app.config["CELERY_CONFIG"])
-
-    class ContextTask(celery.Task):
-        def __call__(self, *args, **kwargs):
-            with app.app_context():
-                return self.run(*args, **kwargs)
-
-    celery.Task = ContextTask
-    return celery
-
-
 if not os.path.exists('secret_key'):
     with open('secret_key', 'w') as f: 
         secret_key = secrets.token_urlsafe(16)
@@ -250,7 +237,7 @@ def create_app(test_config=None):
         # signing.expire_key(key="iqmwd44IKhsoE0HWjKGZohaN")
         # print(pd.read_sql_table("signing", con=db.engine.connect()))
 
-        # signing_df = pd.read_sql_table("signing", con=db.engine.connect())
+        signing_df = pd.read_sql_table("signing", con=db.engine.connect())
         # print(signing_df)
         # print(signing_df.loc[ signing_df.active == 1 ].expiration.min())
  
@@ -272,6 +259,12 @@ def create_app(test_config=None):
         # x = threading.Thread(target=signing.sleep_until_next_expiration)
         # x.start()
 
+        import threading
+        from app.signing import sleep_until_next_expiration
+            
+        i = threading.Thread(target=sleep_until_next_expiration(
+            signing_df)
+            ).start()
 
         # reporter = reports.reportHandler()
         # reporter.set_cron_jobs()
@@ -285,14 +278,32 @@ def create_app(test_config=None):
     def load_user(id):
         return User.query.get(int(id))  
 
-    celery = make_celery(app)
+
+
+    # def make_celery(app):
+    #     celery = Celery(app.import_name)
+    #     celery.conf.update(app.config["CELERY_CONFIG"])
+
+    #     class ContextTask(celery.Task):
+    #         def __call__(self, *args, **kwargs):
+    #             with app.app_context():
+    #                 return self.run(*args, **kwargs)
+
+    #     celery.Task = ContextTask
+    #     return celery
+
+    # celery = make_celery(app)
     
-    @celery.task()
-    def _():
-        from app import signing
-        signing.sleep_until_next_expiration()
+    # from app import signing
+    # # celery.task(name='sleep_until_next_expiration')(signing.sleep_until_next_expiration)
+
+    # celery = make_celery(app)
     
-    result = _().delay()
+    # @celery.task()
+    # def _():
+    #     signing.sleep_until_next_expiration()
+    
+    # result = _()
 
     from . import auth
     app.register_blueprint(auth.bp)
