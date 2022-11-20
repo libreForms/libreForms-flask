@@ -163,11 +163,12 @@ def generate_key(length:int=24):
 # depending on context. 
 def write_key_to_database(scope:str=None, expiration:int=1, active:int=1, email:str=None):
 
-    key = generate_key()
 
+    # loop until a unique key is generated
     while True:
         key = generate_key()
         if not Signing.query.filter_by(signature=key).first(): break
+
     new_key = Signing(
                     signature=key, 
                     scope=scope.lower() if scope else "",

@@ -99,25 +99,4 @@
 			    <p>Go <a href="{{ url_for( 'home' ) }}">home</a>.</p>
 		    {% endif %}
 
-<script>
-
-
-window.onload = function () {
-	var divsToHide = document.getElementsByClassName("Existing_Request");
-	document.querySelectorAll("input#Existing_Request").onclick = function () {
-        if (this.checked)
-			for(var i = 0; i < divsToHide.length; i++){
-				divsToHide[i].style.visibility = "hidden"; // or
-				divsToHide[i].style.display = "none"; // depending on what you're doing
-			}
-        else
-			for(var i = 0; i < divsToHide.length; i++){
-				divsToHide[i].style.visibility = "visible"; // or
-				divsToHide[i].style.display = "initial"; // depending on what you're doing
-			}
-    }
-}
-
-</script>
-	
 {% endblock %}
