@@ -10,21 +10,81 @@ to the requirements of the application - adding features that account for
 log rotation and a multi-process application.
 
 
+
+
 # Log Handlers
 
-    class PIDFileHandler(logging.handlers.WatchedFileHandler)
+We've added some log handlers to deal with a few of the application's 
+underlying quirks. 
+
+    1. class PIDFileHandler(logging.handlers.WatchedFileHandler)
+
+        Gunicorn handles its multiworker approach fine at its own level by 
+        creating a gunicorn access and error logs, see gunicorn/gunicorn.conf.py. 
+        But when we want to handle multiple processes at the application's level,
+        we create PID-linked logfiles to manage potential concurrent-write issues.
+
+        You can see more discussion about this in the application's Github
+        issues https://github.com/signebedi/libreForms/issues/26.
 
 
-    logging.handlers.RotatingFileHandler(file_path, 
+    2. logging.handlers.RotatingFileHandler(file_path, 
         maxBytes=10*1024*1024, backupCount=10, encoding='utf-8')
+
+        This file handler seeks to set up some log rotation, where the 
+        max log file size is set to 10MiB.
+
 
 # set_logger(file_path, module, pid=os.getpid(), log_level=logging.INFO)
 
+Create a logging object for the current PID
+
+In the base application, this method is run at app startup to create an
+object called `log` for logging within the current PID, see app/__init__.py.
+Setting the `file_path` to 'log/libreforms.log', the `module` to __name__,
+and `pid` simply gets the current PID. The `log_level` defaults to INFO.
+
+
 # cleanup_stray_log_handlers(current_pid=None)
+
+Remove stray, obsolete process-mapped logfiles
+
+In the base application, this method is run at app startup to remove stray
+logfiles generated previously by PIDFileHandler, see Log Handlers section 
+above. This method is implemented in app/__init__.py, passing the current
+PID to tell the method not to delete the logfile for the current app instance.
+It might not be necessary to pass the current PID if we run this before 
+instantiating a logfile for the current app instance...
+
+This is also run in gunicorn/gunicorn.conf.py but, because it is run before 
+Gunicorn forks into multiple worker processes, we don't need to pass the PID.
+
+You can see more discussion about this method in the application's Github
+issues https://github.com/signebedi/libreForms/issues/32.
+
 
 # aggregate_log_data(keyword:str=None, file_path:str='log/libreforms.log',
                         limit:int=None, pull_from:str='start')
 
+Select and return from the logfile using an optional string keyword
+
+In the base application, this method is used to generate a list of log
+entries for a given user in their profile, see app/auth.py. The `limit`
+parameter takes an integer and selects only that number of entries; the
+`pull_from` field takes either 'start' or 'end', and is used when `limit`
+is passed to decide whether to select the log entries from the start of 
+the logfile or the end. If no `keyword` specified, return the entire log.
+
+Further, the base web application toggles the visibility of user logs on
+their profiles by setting the `enable_user_profile_log_aggregation` config
+to True.
+
+In the future, we should consider handling (1) rotated log files (eg. still 
+including them), (2) adding support for pagination in the user profile, and 
+(3) potentially adding a search bar for a user's logs.
+
+You can see more discussion about this method in the application's Github
+issues https://github.com/signebedi/libreForms/issues/35.
 
 """
 
