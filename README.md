@@ -324,10 +324,16 @@ You can configure the database lookups in the abstraction layer with some relati
 
 ```python
 import os
-import app.mongodb
 import pandas as pd
+from app import mongo
 
-mongodb = app.mongodb.MongoDB(mongodb_creds)
+if os.path.exists ("mongodb_creds"):
+    with open("mongodb_creds", "r+") as f:
+        mongodb_creds = f.read().strip()
+else:  
+    mongodb_creds=None
+
+mongodb = mongo.MongoDB(mongodb_creds)
 
 def _db_lookup(collection, *args, combine=False):
     df = pd.DataFrame(list(mongodb.read_documents_from_collection(collection)))
@@ -452,6 +458,7 @@ plotly-v1.58.5.min.js
 As well as the following python requirements and their dependencies:
 
 ```
+celery==5.2.7
 croniter==1.3.7
 pandas==1.4.3
 plotly==5.9.0
