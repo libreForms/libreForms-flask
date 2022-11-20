@@ -1,4 +1,4 @@
-import os, re
+import os, re, secrets
 from flask import Flask, render_template, session
 import app.log_functions
 # from flask_admin import Admin
@@ -12,6 +12,18 @@ from app import smtp, mongo
 
 if display['libreforms_user_email'] == None:
   raise Exception("Please specify an admin email for the libreforms user in the 'libreforms_user_email' app config.")
+
+if not re.fullmatch(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', display['libreforms_user_email']):
+    raise Exception("The email you specified in the'libreforms_user_email' app config is invalid.")
+
+
+if not os.path.exists('secret_key'):
+    with open('secret_key', 'w') as f: 
+        secret_key = secrets.token_urlsafe(16)
+        f.write(secret_key)
+else:
+    with open('secret_key', 'r') as f: 
+        secret_key = f.readlines()[0]
 
 
 # read database password file, if it exists
@@ -91,7 +103,7 @@ def create_app(test_config=None):
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
-        SECRET_KEY='dev',
+        SECRET_KEY=secret_key,
         # getting started on allowing other SQL databases than SQLite, but defaulting to that. 
         SQLALCHEMY_DATABASE_URI = f'{db_driver}://{db_host}:{db_pw}@{db_host}:{str(db_port)}/' if display['custom_sql_db'] == True else f'sqlite:///{os.path.join(app.instance_path, "app.sqlite")}',
         # SQLALCHEMY_DATABASE_URI = f'sqlite:///{os.path.join(app.instance_path, "app.sqlite")}',
@@ -221,18 +233,37 @@ def create_app(test_config=None):
     # this is just some debug code
     # from app import signing
     with app.app_context():
-        from app import reports
-       
+        from app import reports       
         # signing.write_key_to_database(scope=None, expiration=0, active=1, email=None)
         # print(signing.flush_key_db())
         # signing.expire_key(key="iqmwd44IKhsoE0HWjKGZohaN")
         # print(pd.read_sql_table("signing", con=db.engine.connect()))
+
         # signing_df = pd.read_sql_table("signing", con=db.engine.connect())
         # print(signing_df)
+        # print(signing_df.loc[ signing_df.active == 1 ].expiration.min())
+ 
+        # next_expiration = datetime.datetime.fromtimestamp (
+        #     signing_df.loc[ signing_df.active == 1 ].expiration.min()
+        # # if there are no signing keys, then we check every minute
+        # ) if len(signing_df.index > 0) else datetime.datetime.now()+datetime.timedelta(minutes=1)
+        # print(next_expiration)
+
+        # time.sleep((next_expiration - datetime.datetime.now()).total_seconds())
+
+        # import asyncio
+        # asyncio.run(signing.sleep_until_next_expiration())
+
+        # import datetime, time, threading
+        # import app.signing as signing
+        # # signing.sleep_until_next_expiration()
+
+        # x = threading.Thread(target=signing.sleep_until_next_expiration)
+        # x.start()
 
 
-        reporter = reports.reportHandler()
-        reporter.set_cron_jobs()
+        # reporter = reports.reportHandler()
+        # reporter.set_cron_jobs()
 
 
     login_manager = LoginManager()

@@ -195,7 +195,26 @@ def flush_key_db():
     # this will write the modified dataset to the database
     signing_df.to_sql('signing', con=db.engine.connect(), if_exists='replace', index=False)
     return signing_df
-  
+
+def sleep_until_next_expiration():
+    while True:
+        import time
+        signing_df = pd.read_sql_table("signing", con=db.engine.connect())
+
+        # we create a datetime object from the next expiration timestamp
+        next_expiration = datetime.datetime.fromtimestamp (
+            signing_df.loc[ signing_df.active == 1 ].expiration.min()
+        # if there are no signing keys, then we check every minute
+        ) if len(signing_df.index > 0) else datetime.datetime.now()+datetime.timedelta(minutes=1)
+
+        # create an object measuring the amount of time until the next expiration
+        diff = next_expiration - datetime.datetime.now()
+
+        # sleep for the duration of the time difference measured above
+        time.sleep(diff.total_seconds())
+
+        flush_key_db()
+
 # here we create a mechanism to disable keys when they are used
 def expire_key(key=None):
 

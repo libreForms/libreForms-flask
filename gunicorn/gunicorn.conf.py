@@ -4,13 +4,18 @@
 # https://github.com/benoitc/gunicorn/blob/master/examples/example_config.py
 # 
 
-import os, re
+import os, re, secrets
 from app.csv_files import init_tmp_fs
 from app.display import display
 from app.log_functions import cleanup_stray_log_handlers
 
 # here we add pre-fork tasks that need to be handled prior to setting up concurrent sessions
 def pre_fork(server, worker):
+
+    if not os.path.exists('secret_key'):
+        with open('secret_key', 'w') as f: 
+            secret_key = secrets.token_urlsafe(16)
+            f.write(secret_key)
 
     # cleanup any stray log files prior to forking the work processes
     if not os.path.exists ("log/"):
@@ -55,6 +60,8 @@ def pre_fork(server, worker):
             if db.session.query(User).filter_by(username='libreforms').count() < 1:
                 initial_user = User(id=1,
                                     username='libreforms', 
+                                    active=1,
+                                    email=display['libreforms_user_email'] if display['libreforms_user_email'] and re.fullmatch(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', display['libreforms_user_email']) else None,
                                     password='pbkdf2:sha256:260000$nQVWxd59E8lmkruy$13d8c4d408185ccc3549d3629be9cd57267a7d660abef389b3be70850e1bbfbf',
                                     created_date='2022-06-01 00:00:00',)
                 db.session.add(initial_user)

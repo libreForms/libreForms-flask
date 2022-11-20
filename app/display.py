@@ -40,7 +40,6 @@ display['limit_rest_api_keys_per_user'] = False
 display['enable_user_profile_log_aggregation'] = False
 display['send_reports'] = False
 display['libreforms_user_email'] = None
-display['secret_key'] = secrets.token_urlsafe(16)
 
 
 
