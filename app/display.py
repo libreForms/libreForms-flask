@@ -39,6 +39,7 @@ display['enable_rest_api'] = False
 display['limit_rest_api_keys_per_user'] = False
 display['enable_user_profile_log_aggregation'] = False
 display['send_reports'] = False
+display['libreforms_user_email'] = None
 
 
 if os.path.exists ("app/display_overrides.py"):

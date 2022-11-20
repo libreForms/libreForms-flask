@@ -1,4 +1,4 @@
-import os
+import os, re
 from flask import Flask, render_template, session
 import app.log_functions
 # from flask_admin import Admin
@@ -19,7 +19,6 @@ else:
 
 # initialize mongodb database
 mongodb = mongo.MongoDB(mongodb_creds)
-
 
 
 db = SQLAlchemy()
@@ -179,6 +178,8 @@ def create_app(test_config=None):
             if db.session.query(User).filter_by(username='libreforms').count() < 1:
                 initial_user = User(id=1,
                                     username='libreforms', 
+                                    active=1,
+                                    email=display['libreforms_user_email'] if display['libreforms_user_email'] and re.fullmatch(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', display['libreforms_user_email']) else None,
                                     password='pbkdf2:sha256:260000$nQVWxd59E8lmkruy$13d8c4d408185ccc3549d3629be9cd57267a7d660abef389b3be70850e1bbfbf',
                                     created_date='2022-06-01 00:00:00',)
                 db.session.add(initial_user)
