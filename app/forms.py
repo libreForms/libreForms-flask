@@ -6,8 +6,8 @@ from webargs import fields, flaskparser
 from flask_login import current_user
 
 # import custom packages from the current repository
-import libreforms, mongodb
-from app import display, log, tempfile_path, db, mailer
+import libreforms
+from app import display, log, tempfile_path, db, mailer, mongodb
 from app.models import User
 from app.auth import login_required, session
 
@@ -180,15 +180,6 @@ def parse_options(form=False):
             OPTIONS[field] = list_fields[field]
     
     return OPTIONS
-
-# read database password file, if it exists
-if os.path.exists ("mongodb_creds"):
-    with open("mongodb_creds", "r+") as f:
-        mongodb_creds = f.read().strip()
-else:  
-    mongodb_creds=None
-# initialize mongodb database
-mongodb = mongodb.MongoDB(mongodb_creds)
 
 
 

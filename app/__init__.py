@@ -8,7 +8,18 @@ from libreforms import __version__
 from app.display import display
 import pandas as pd
 from app.csv_files import init_tmp_fs, tempfile_init_tmp_fs
-from app import smtp
+from app import smtp, mongo
+
+# read database password file, if it exists
+if os.path.exists ("mongodb_creds"):
+    with open("mongodb_creds", "r+") as f:
+        mongodb_creds = f.read().strip()
+else:  
+    mongodb_creds=None
+
+# initialize mongodb database
+mongodb = mongo.MongoDB(mongodb_creds)
+
 
 
 db = SQLAlchemy()
@@ -216,10 +227,7 @@ def create_app(test_config=None):
 
 
         reporter = reports.reportHandler()
-
         reporter.set_cron_jobs()
-
-
 
 
     login_manager = LoginManager()

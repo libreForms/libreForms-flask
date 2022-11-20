@@ -4,10 +4,9 @@ from flask_login import current_user
 
 # import custom packages from the current repository
 import libreforms
-import mongodb
 from app.auth import login_required
 from app.forms import parse_options
-from app import display, log
+from app import display, log, mongodb
 
 # and finally, import other packages
 import os, json
@@ -15,16 +14,6 @@ import plotly
 import plotly.express as px
 import pandas as pd
 
-
-
-# read database password file, if it exists
-if os.path.exists ("mongodb_creds"):
-    with open("mongodb_creds", "r+") as f:
-        mongodb_creds = f.read().strip()
-else:  
-    mongodb_creds=None
-# initialize mongodb database
-mongodb = mongodb.MongoDB(mongodb_creds)
 
 
 bp = Blueprint('dashboards', __name__, url_prefix='/dashboards')

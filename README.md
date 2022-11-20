@@ -324,10 +324,10 @@ You can configure the database lookups in the abstraction layer with some relati
 
 ```python
 import os
-import mongodb
+import app.mongodb
 import pandas as pd
 
-mongodb = mongodb.MongoDB(mongodb_creds)
+mongodb = app.mongodb.MongoDB(mongodb_creds)
 
 def _db_lookup(collection, *args, combine=False):
     df = pd.DataFrame(list(mongodb.read_documents_from_collection(collection)))

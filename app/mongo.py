@@ -1,12 +1,12 @@
 """ 
-mongodb/__init__.py: a class for managing MongoDB form backends 
+mongo.py: creates a class for managing MongoDB form backends 
 
 This script defines a class for managing a MongoDB database backend,
 which is the default form datastore in the base application.
 
 """
 
-__name__ = "mongodb"
+__name__ = "app.mongo"
 __author__ = "Sig Janoska-Bedi"
 __credits__ = ["Sig Janoska-Bedi",]
 __version__ = "1.0"

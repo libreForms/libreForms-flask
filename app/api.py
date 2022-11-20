@@ -2,27 +2,14 @@
 from flask import Blueprint, request, abort
 
 # import custom packages from the current repository
-import mongodb
 from app.auth import login_required
-from app import log, display, db
+from app import log, display, db, mongodb
 from app.models import Signing
 import app.signing as signing
 
 # and finally, import other packages
 import os, datetime
 import pandas as pd
-
-
-# read database password file, if it exists
-if os.path.exists ("mongodb_creds"):
-    with open("mongodb_creds", "r+") as f:
-        mongodb_creds = f.read().strip()
-else:  
-    mongodb_creds=None
-
-
-# initialize mongodb database
-mongodb = mongodb.MongoDB(mongodb_creds)
 
 
 bp = Blueprint('api', __name__, url_prefix='/api')

@@ -7,8 +7,8 @@ from webargs import fields, flaskparser
 from flask_login import current_user
 
 # import custom packages from the current repository
-import libreforms, mongodb
-from app import display, log, tempfile_path, mailer
+import libreforms
+from app import display, log, tempfile_path, mailer, mongodb
 from app.auth import login_required, session
 from app.forms import parse_form_fields, reconcile_form_data_struct, progagate_forms, parse_options
 import app.signing as signing
@@ -23,14 +23,6 @@ import pandas as pd
 
 if display['allow_anonymous_form_submissions']:
 
-    # read database password file, if it exists
-    if os.path.exists ("mongodb_creds"):
-        with open("mongodb_creds", "r+") as f:
-            mongodb_creds = f.read().strip()
-    else:  
-        mongodb_creds=None
-    # initialize mongodb database
-    mongodb = mongodb.MongoDB(mongodb_creds)
 
     # this forks forms.py to provide slightly different functionality; yes, it allows you 
     # to create forms, like in the regular forms source, but it presumes that the end user
