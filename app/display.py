@@ -1,7 +1,7 @@
 # define default page display and,
 # if a display_overrides file exists, 
 # use it to overwrite defaults
-import os
+import os, secrets
 from libreforms import __version__
 from markupsafe import Markup
 
@@ -40,6 +40,8 @@ display['limit_rest_api_keys_per_user'] = False
 display['enable_user_profile_log_aggregation'] = False
 display['send_reports'] = False
 display['libreforms_user_email'] = None
+display['secret_key'] = secrets.token_urlsafe(16)
+
 
 
 if os.path.exists ("app/display_overrides.py"):
