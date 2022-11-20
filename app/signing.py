@@ -182,7 +182,7 @@ def write_key_to_database(scope:str=None, expiration:int=1, active:int=1, email:
 
     db.session.add(new_key)
     db.session.commit()
-    log.info(f'LIBREFORMS - successfully generated key {key} for {email}.')
+    log.info(f'LIBREFORMS - successfully generated key for {email}.')
 
     return key
 
