@@ -9,12 +9,25 @@ from app.display import display
 import pandas as pd
 from app.csv_files import init_tmp_fs, tempfile_init_tmp_fs
 from app import smtp, mongo
+from celery import Celery
 
 if display['libreforms_user_email'] == None:
   raise Exception("Please specify an admin email for the libreforms user in the 'libreforms_user_email' app config.")
 
 if not re.fullmatch(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', display['libreforms_user_email']):
     raise Exception("The email you specified in the'libreforms_user_email' app config is invalid.")
+
+def make_celery(app):
+    celery = Celery(app.import_name)
+    celery.conf.update(app.config["CELERY_CONFIG"])
+
+    class ContextTask(celery.Task):
+        def __call__(self, *args, **kwargs):
+            with app.app_context():
+                return self.run(*args, **kwargs)
+
+    celery.Task = ContextTask
+    return celery
 
 
 if not os.path.exists('secret_key'):
@@ -23,7 +36,7 @@ if not os.path.exists('secret_key'):
         f.write(secret_key)
 else:
     with open('secret_key', 'r') as f: 
-        secret_key = f.readlines()[0]
+        secret_key = f.readlines()[0].strip()
 
 
 # read database password file, if it exists
@@ -112,16 +125,14 @@ def create_app(test_config=None):
         HCAPTCHA_ENABLED = display['enable_hcaptcha'],
         HCAPTCHA_SITE_KEY = display['hcaptcha_site_key'] if display['hcaptcha_site_key'] else None,
         HCAPTCHA_SECRET_KEY = display['hcaptcha_secret_key'] if display['hcaptcha_secret_key'] else None,
+        CELERY_CONFIG={
+            'CELERY_BROKER_URL':'redis://localhost:6379/0',
+            'CELERY_RESULT_BACKEND':'redis://localhost:6379/0'
+        },
     )
 
     # admin = Admin(app, name='libreForms', template_mode='bootstrap4')
     # Add administrative views here
-
-    if os.path.exists ("secret_key"):
-        with open("secret_key", "r+") as f:
-            app.config["SECRET_KEY"] = f.read().strip()
-        log.info('LIBREFORMS - found a secret key file.')
-
 
     if test_config is None:
         # load the instance config, if it exists, when not testing
@@ -273,6 +284,15 @@ def create_app(test_config=None):
     @login_manager.user_loader
     def load_user(id):
         return User.query.get(int(id))  
+
+    celery = make_celery(app)
+    
+    @celery.task()
+    def _():
+        from app import signing
+        signing.sleep_until_next_expiration()
+    
+    result = _().delay()
 
     from . import auth
     app.register_blueprint(auth.bp)

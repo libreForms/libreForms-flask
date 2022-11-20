@@ -54,7 +54,7 @@ gpgcheck=1
 enabled=1
 gpgkey=https://www.mongodb.org/static/pgp/server-6.0.asc" | tee /etc/yum.repos.d/mongodb-org-6.0.repo
 yum update -y
-yum install python3.8 python3-ldap mongodb-org -y
+yum install python3.8 python3-ldap mongodb-org redis -y
 systemctl enable --now mongod
 ```
 
@@ -112,9 +112,10 @@ baseurl=https://repo.mongodb.org/yum/amazon/2/mongodb-org/6.0/x86_64/
 gpgcheck=1
 enabled=1
 gpgkey=https://www.mongodb.org/static/pgp/server-6.0.asc" | tee /etc/yum.repos.d/mongodb-org-6.0.repo 
+amazon-linux-extras install python3.8 epel
 yum update
-yum install mongodb-org
-amazon-linux-extras install python3.8
+yum install mongodb-org redis
+yum update
 systemctl enable --now mongod
 ```
 
@@ -168,7 +169,7 @@ systemctl enable --now libreforms
 
 ```
 apt update -y && apt upgrade -y
-apt install -y mongodb python3-pip python3-ldap python3-venv # for the most up to date version of mongodb, see https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-ubuntu/
+apt install -y mongodb python3-pip python3-ldap python3-venv redis # for the most up to date version of mongodb, see https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-ubuntu/
 systemctl enable --now mongodb
 ```
 
@@ -418,7 +419,7 @@ If you'd like to install Let's Encrypt certificates, follow your distribution's 
 
 ## Dependencies
 
-The flask application has a few dependencies that, in its current form, may be prone to obsolescence; there is an issue in the backlog to test for, among other things, obsolete and vulnerable dependencies. In addition to the standard requirements, like Python3, Python3-Pip, Python3-Venv, Python3-LDAP, and MongoDB, here is a list of dependencies that ship with the application under the static/ directory:
+The flask application has a few dependencies that, in its current form, may be prone to obsolescence; there is an issue in the backlog to test for, among other things, obsolete and vulnerable dependencies. In addition to the standard requirements, like MongoDB, Python3, Python3-Pip, Python3-Venv, Python3-LDAP, and Redis, here is a list of dependencies that ship with the application under the static/ directory:
 
 ```
 bootstrap-darkly-5.1.3.min.css
