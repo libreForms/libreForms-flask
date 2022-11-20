@@ -10,6 +10,10 @@ import pandas as pd
 from app.csv_files import init_tmp_fs, tempfile_init_tmp_fs
 from app import smtp, mongo
 
+if display['libreforms_user_email'] == None:
+  raise Exception("Please specify an admin email for the libreforms user in the 'libreforms_user_email' app config.")
+
+
 # read database password file, if it exists
 if os.path.exists ("mongodb_creds"):
     with open("mongodb_creds", "r+") as f:
