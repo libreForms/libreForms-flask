@@ -45,7 +45,7 @@ may retain access to the signature after it has expired.
 
 """
 
-__name__ = "models.py"
+__name__ = "app.models"
 __author__ = "Sig Janoska-Bedi"
 __credits__ = ["Sig Janoska-Bedi",]
 __version__ = "1.0"

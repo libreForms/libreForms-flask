@@ -9,9 +9,6 @@ and employs various log handlers to ensure the log files generated conform
 to the requirements of the application - adding features that account for
 log rotation and a multi-process application.
 
-
-
-
 # Log Handlers
 
 We've added some log handlers to deal with a few of the application's 
@@ -88,7 +85,7 @@ issues https://github.com/signebedi/libreForms/issues/35.
 
 """
 
-__name__ = "log_functions.py"
+__name__ = "app.log_functions"
 __author__ = "Sig Janoska-Bedi"
 __credits__ = ["Sig Janoska-Bedi",]
 __version__ = "1.0"

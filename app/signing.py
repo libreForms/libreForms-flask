@@ -135,7 +135,7 @@ this method; it only takes a key as a parameter and expires it.
 """
 
 
-__name__ = "signing.py"
+__name__ = "app.signing"
 __author__ = "Sig Janoska-Bedi"
 __credits__ = ["Sig Janoska-Bedi",]
 __version__ = "1.0"

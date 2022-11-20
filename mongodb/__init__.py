@@ -1,12 +1,24 @@
-# db/__init__.py: defines the class MongoDB used for database operations in the libreForm application.
+""" 
+mongodb/__init__.py: a class for managing MongoDB form backends 
 
-from pymongo import MongoClient
-import datetime, os
+This script defines a class for managing a MongoDB database backend,
+which is the default form datastore in the base application.
+
+"""
+
+__name__ = "mongodb"
+__author__ = "Sig Janoska-Bedi"
+__credits__ = ["Sig Janoska-Bedi",]
+__version__ = "1.0"
+__license__ = "AGPL-3.0"
+__maintainer__ = "Sig Janoska-Bedi"
+__email__ = "signe@atreeus.com"
+
 
 class MongoDB:
     def __init__(self, user='root', host='localhost', port=27017, dbpw=None):
         from pymongo import MongoClient
-        import datetime
+        import datetime, os
 
         # read database password file, if it exists
         if os.path.exists ("mongodb_creds"):
