@@ -25,15 +25,6 @@ else:
 mongodb = mongodb.MongoDB(mongodb_creds)
 
 
-# here we read the current list of acceptible api keys into memory
-# users should define this file as it does not ship with the git repo
-if os.path.exists ("api_keys"):
-    api_keys = pd.read_csv("api_keys")
-else:
-    api_keys = pd.DataFrame({'api_keys':['t32HDBcKAAIVBBPbjBADCbCh']}) # this will be the default key
-
-
-
 bp = Blueprint('api', __name__, url_prefix='/api')
 
 if display['enable_rest_api']:
@@ -90,7 +81,8 @@ if display['enable_rest_api']:
                     # prevent type-mismatch by casting both fields as strings
                     df = df.loc[df[col].astype("string") == str(request.args.get(col))] 
 
-            log.info(f'{email} {signature} - REST API query for form \'{form_name}.\'')
+            log.info(f'{email} - REST API query for form \'{form_name}.\'')
+            # log.info(f'{email} {signature} - REST API query for form \'{form_name}.\'') # removed this, which potentially leaks the signing key
             return df.to_dict()
 
         except Exception as e:
