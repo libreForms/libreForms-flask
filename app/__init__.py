@@ -10,6 +10,7 @@ import pandas as pd
 from app.csv_files import init_tmp_fs, tempfile_init_tmp_fs
 from app import smtp, mongo
 from celery import Celery
+from concurrent.futures import ThreadPoolExecutor
 
 if display['libreforms_user_email'] == None:
   raise Exception("Please specify an admin email for the libreforms user in the 'libreforms_user_email' app config.")
@@ -36,6 +37,8 @@ else:
 # initialize mongodb database
 mongodb = mongo.MongoDB(mongodb_creds)
 
+
+executor = ThreadPoolExecutor(2)
 
 db = SQLAlchemy()
 
@@ -231,7 +234,7 @@ def create_app(test_config=None):
     # this is just some debug code
     # from app import signing
     with app.app_context():
-        from app import reports       
+        # from app import reports       
         # signing.write_key_to_database(scope=None, expiration=0, active=1, email=None)
         # print(signing.flush_key_db())
         # signing.expire_key(key="iqmwd44IKhsoE0HWjKGZohaN")
@@ -259,13 +262,13 @@ def create_app(test_config=None):
         # x = threading.Thread(target=signing.sleep_until_next_expiration)
         # x.start()
 
-        import threading
-        from app.signing import sleep_until_next_expiration
+        # from app.signing import flushTimer
             
-        i = threading.Thread(target=sleep_until_next_expiration(
-            signing_df)
-            ).start()
+        # i = threading.Thread(target=sleep_until_next_expiration(
+        #     signing_df)
+        #     ).start()
 
+        # t = flushTimer(signing_df)
         # reporter = reports.reportHandler()
         # reporter.set_cron_jobs()
 

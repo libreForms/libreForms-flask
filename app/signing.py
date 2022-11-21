@@ -143,9 +143,9 @@ __license__ = "AGPL-3.0"
 __maintainer__ = "Sig Janoska-Bedi"
 __email__ = "signe@atreeus.com"
 
-import os, datetime
+import os, datetime, threading, time
 import pandas as pd
-from app import display, log, db, mailer
+from app import display, log, db, mailer, executor
 from app.models import Signing
 
 # here we generate a signing key with a default length of 24
@@ -196,26 +196,31 @@ def flush_key_db():
     signing_df.to_sql('signing', con=db.engine.connect(), if_exists='replace', index=False)
     return signing_df
 
-def sleep_until_next_expiration(signing_df):
-    # while True:
-        import time
+class flushTimer:
+    def __init__(self, signing_df):
+            t = threading.Thread(target=self.sleep_until_next_expiration(signing_df))
+            t.start()
+            # executor.submit(self.sleep_until_next_expiration(signing_df))
 
-        # we take a slice to restrict down to active keys
-        active_keys = signing_df.loc[ signing_df.active == 1 ]
+    def sleep_until_next_expiration(self, signing_df):
+        # while True:
 
-        # we create a datetime object from the next expiration timestamp
-        next_expiration = datetime.datetime.fromtimestamp (
-            active_keys.expiration.min()
-        # if there are no signing keys, then we check every minute
-        ) if len(active_keys.index > 0) else datetime.datetime.now()+datetime.timedelta(minutes=1)
+            # we take a slice to restrict down to active keys
+            active_keys = signing_df.loc[ signing_df.active == 1 ]
 
-        # create an object measuring the amount of time until the next expiration
-        diff = next_expiration - datetime.datetime.now()
+            # we create a datetime object from the next expiration timestamp
+            next_expiration = datetime.datetime.fromtimestamp (
+                active_keys.expiration.min()
+            # if there are no signing keys, then we check every minute
+            ) if len(active_keys.index > 0) else datetime.datetime.now()+datetime.timedelta(minutes=1)
 
-        # sleep for the duration of the time difference measured above
-        time.sleep(diff.total_seconds())
+            # create an object measuring the amount of time until the next expiration
+            diff = next_expiration - datetime.datetime.now()
 
-        flush_key_db()
+            # sleep for the duration of the time difference measured above
+            time.sleep(diff.total_seconds())
+
+            flush_key_db()
 
 # here we create a mechanism to disable keys when they are used
 def expire_key(key=None):
