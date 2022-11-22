@@ -42,10 +42,9 @@ display['enable_user_profile_log_aggregation'] = False
 display['send_reports'] = False
 display['libreforms_user_email'] = None
 display['mongodb_user'] = 'root'
-display['mongodb_host'] = None
-display['mongodb_port'] = None
+display['mongodb_host'] = 'localhost'
+display['mongodb_port'] = 27017
 
-user='root', host='localhost', port=27017
 
 
 
