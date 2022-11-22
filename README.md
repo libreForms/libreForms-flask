@@ -38,11 +38,22 @@ The libreForms project, first and foremost, defines a simple but highly extensib
 ![abstraction layer](docs/source/libreForms_abstraction_layer.drawio.svg)
 
 ### Use Cases
-- You are a small enterprise that has been using Google Forms for your organization's internal forms because it is low-cost, but you dislike the restricted features and lack of direct control over your data.
 
-- You are a medium-sized enterprise that wants a simple, low-cost tool to manage their internal forms. You don't mind self-hosting the application, and you have staff with rudimentary experience using Python to deploy and maintain the system.
+The libreForms project is designed to meet the needs of enterprises of all sizes, for example:
 
-- You are a large enterprise with significant technical staff that routinely host and maintain applications for use on your organization's intranet. You periodically rely on physical or digitized forms, reports, and questionnaires. You have assessed options for form managers on the market and determined that proprietary services provide little direct control over the application source code, or otherwise fail to provide a viable licensing model.
+- You are a **small enterprise** that has been using Google Forms for your organization's internal forms because it is low-cost, but you dislike the restricted features and lack of direct control over your data.
+
+- You are a **medium-sized enterprise** that wants a simple, low-cost tool to manage their internal forms. You don't mind self-hosting the application, and you have staff with rudimentary experience using Python to deploy and maintain the system.
+
+- You are a **large enterprise** with significant technical staff that routinely host and maintain applications for use on your organization's intranet. You periodically rely on physical or digitized forms, reports, and questionnaires. You have assessed options for form managers on the market and determined that proprietary services provide little direct control over the application source code, or otherwise fail to provide a viable licensing model.
+
+While the libreForms abstraction layer does not proscribe a system for classifying forms, it remains aware of various purposes that enterprises may employ it, for example:
+
+- **Forms**: a standard submission subject to a routing and/or approval process
+- **Reports**: a periodic, standard submission used to track status or updates on a process
+- **Ticket**: a flexible submission initiating a process and subject to a routing and/or assignment process
+- **Surveys**: a standard submission used to aggregate sample and/or population data
+
 
 ### Architecture
 libreForms is meant to run within an enterprise's intranet behind a reverse proxy. It does not currently support high availability, but does spawn multiple workers on the system upon which it is deployed. See this [discussion](https://github.com/signebedi/libreForms/issues/43) about accounting for enterprise requirements. 
