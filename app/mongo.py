@@ -47,14 +47,19 @@ class MongoDB:
         
         # here we define the behavior of the `Journal` metadata field 
         if not modification:
-            data['Journal'] = { data['Timestamp']: "initial submission" }
+            data['Journal'] = { data['Timestamp']: {
+                                                    'Reporter': data['Reporter'],
+                                                    'initial_submission': True}
+                                                    }
             collection.insert_one(data).inserted_id
 
         else:
             journal_data = data.copy()
             del journal_data['_id']
-            data['Journal'] = { data['Timestamp']: dict(journal_data)}
-            collection.update_one({'_id': ObjectId(data['_id'])}, { "$set": data}, upsert=False)
+            # data['Journal'] = 0
+            ## Right now, this is overwriting the journal -- we should change this
+            data['Journal'][data['Timestamp']] =  dict(journal_data)
+            collection.update_one({'_id': ObjectId(data['_id'])}, { "$set": journal_data}, upsert=False)
 
 
 
