@@ -54,12 +54,26 @@ class MongoDB:
             collection.insert_one(data).inserted_id
 
         else:
+
+            # some very overkill slicing to get the original 'Journal' value...
+            import pandas as pd
+            TEMP = self.read_documents_from_collection(collection_name)
+            df = pd.DataFrame(list(TEMP))
+            data['Journal'] = dict(df.loc[ (df['_id'] == data['_id'])]['Journal'].iloc[0])
+            # print("\n\n\n", data['Journal'])
+            # print("\n\n\n", type(data['Journal']))
+
+            # we create a slice of the data to pass to the `Journal`
             journal_data = data.copy()
             del journal_data['_id']
-            # data['Journal'] = 0
-            ## Right now, this is overwriting the journal -- we should change this
+            del journal_data['Journal']
+            # print("\n\n\n", journal_data)
+
+            # some inefficient slicing and voila! we have our correct `Journal` values, 
+            # which we append to the `Journal` field of the parent dataframe
             data['Journal'][data['Timestamp']] =  dict(journal_data)
-            collection.update_one({'_id': ObjectId(data['_id'])}, { "$set": journal_data}, upsert=False)
+            # print(final_data['Journal'])
+            collection.update_one({'_id': ObjectId(data['_id'])}, { "$set": data}, upsert=False)
 
 
 
