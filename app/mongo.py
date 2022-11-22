@@ -2,7 +2,17 @@
 mongo.py: creates a class for managing MongoDB form backends 
 
 This script defines a class for managing a MongoDB database backend,
-which is the default form datastore in the base application.
+which is the default form datastore in the base application. The base
+application should, in the long-run, be written to be totally abstract
+as to the application used to store data; in reality, however, it is 
+strongly tied to using MongoDB. 
+
+# class MongoDB()
+
+This connects, by default, to a local MongoDB server with user 'root' and
+on port 27017. Administrators can over ride these defaults using the 
+'mongodb_user', 'mongodb_host', and 'mongodb_port' application configs.
+
 
 """
 

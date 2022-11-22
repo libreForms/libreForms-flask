@@ -41,6 +41,11 @@ display['limit_rest_api_keys_per_user'] = False
 display['enable_user_profile_log_aggregation'] = False
 display['send_reports'] = False
 display['libreforms_user_email'] = None
+display['mongodb_user'] = 'root'
+display['mongodb_host'] = None
+display['mongodb_port'] = None
+
+user='root', host='localhost', port=27017
 
 
 

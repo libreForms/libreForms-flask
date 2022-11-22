@@ -45,7 +45,9 @@ else:
     mongodb_creds=None
 
 # initialize mongodb database
-mongodb = mongo.MongoDB(mongodb_creds)
+mongodb = mongo.MongoDB(user=display['mongodb_user'], 
+                        host=display['mongodb_host'], port=display['mongodb_port'], dbpw=mongodb_creds)
+
 
 
 executor = ThreadPoolExecutor(2)
