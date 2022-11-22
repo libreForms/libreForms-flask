@@ -14,6 +14,8 @@ on port 27017. Administrators can over ride these defaults using the
 'mongodb_user', 'mongodb_host', and 'mongodb_port' application configs.
 
 
+
+
 """
 
 __name__ = "app.mongo"
@@ -40,8 +42,8 @@ class MongoDB:
             mongodb_creds=None
 
         conn = MongoClient(f'mongodb://{host}:{dbpw}@{host}:{str(port)}/')
-        self.client = MongoClient(host, port)
-        self.db = self.client['libreforms']
+        client = MongoClient(host, port)
+        self.db = client['libreforms']
 
     def write_document_to_collection(self, data, collection_name, 
                                                     reporter=None,
