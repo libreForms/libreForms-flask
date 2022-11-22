@@ -35,22 +35,28 @@ class MongoDB:
 
     def write_document_to_collection(self, data, collection_name, 
                                                     reporter=None,
-                                                    # the `modifications` kwarg expects a dict of 
-                                                    # fields and the values they've been changed to,
-                                                    # else Nonetype to signify an initial submission.
-                                                    modifications=None):
+                                                    # the `modifications` kwarg expects a truth statement
+                                                    # presuming that `data` will just be a slice of changed data
+                                                    modification=False):
         import datetime
+        from bson.objectid import ObjectId
+
         collection = self.db[collection_name]
         data['Timestamp'] = str(datetime.datetime.utcnow())
         data['Reporter'] = str(reporter) if reporter else None
         
         # here we define the behavior of the `Journal` metadata field 
-        if not modifications:
-            data['Journal'] = {data['Timestamp']:f"{data['Reporter']} created initial submission."}
-        else:
-            data['Journal'] = {data['Timestamp']:f"{data['Reporter']} made the following modifications: {modifications}."}
+        if not modification:
+            data['Journal'] = { data['Timestamp']: "initial submission" }
+            collection.insert_one(data).inserted_id
 
-        collection.insert_one(data).inserted_id
+        else:
+            journal_data = data.copy()
+            del journal_data['_id']
+            data['Journal'] = { data['Timestamp']: dict(journal_data)}
+            collection.update_one({'_id': ObjectId(data['_id'])}, { "$set": data}, upsert=False)
+
+
 
     def read_documents_from_collection(self, collection_name):
         collection = self.db[collection_name]
