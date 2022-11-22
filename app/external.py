@@ -8,7 +8,7 @@ from flask_login import current_user
 
 # import custom packages from the current repository
 import libreforms
-from app import display, log, tempfile_path, mailer, mongodb
+from app import display, log, tempfile_path, mailer, mongodb, conditional_decorator
 from app.auth import login_required, session
 from app.forms import parse_form_fields, reconcile_form_data_struct, progagate_forms, parse_options
 import app.signing as signing
@@ -37,6 +37,9 @@ if display['allow_anonymous_form_submissions']:
 
     # this creates a route to request access
     @bp.route(f'/<form_name>', methods=['GET', 'POST'])
+    # here we apply the login_required decorator if admins require users to be authenticated in order
+    # to initiate external submissions, see 'require_auth_users_to_initiate_external_forms'.
+    @conditional_decorator(login_required, display['require_auth_users_to_initiate_external_forms'])
     def request_external_forms(form_name):
 
         # first make sure this form existss
@@ -72,6 +75,7 @@ if display['allow_anonymous_form_submissions']:
             name=form_name,             
             display=display,
             suppress_navbar=True,
+            user=current_user if display['require_auth_users_to_initiate_external_forms'] else None,
             type='external',
             )
 
@@ -116,7 +120,7 @@ if display['allow_anonymous_form_submissions']:
                 # data we store in the signed_urls database.
                 log.info(f'{Signing.query.filter_by(signature=signature).first().email} {signature} - submitted \'{form_name}\' form.')
 
-                print(Signing.query.filter_by(signature=signature).first().email)
+                # print(Signing.query.filter_by(signature=signature).first().email)
 
                 signing.expire_key(signature)
 

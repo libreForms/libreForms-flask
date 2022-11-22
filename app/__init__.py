@@ -12,6 +12,16 @@ from app import smtp, mongo
 from celery import Celery
 from concurrent.futures import ThreadPoolExecutor
 
+# defining a decorator that applies a parent decorator 
+# based on the truth-value of a condition
+def conditional_decorator(dec, condition):
+    def decorator(func):
+        if not condition:
+            # Return the function unchanged, not decorated.
+            return func
+        return dec(func)
+    return decorator
+
 if display['libreforms_user_email'] == None:
   raise Exception("Please specify an admin email for the libreforms user in the 'libreforms_user_email' app config.")
 

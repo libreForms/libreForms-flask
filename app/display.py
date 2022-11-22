@@ -29,6 +29,7 @@ display['ldap_enabled'] = False
 display['custom_sql_db'] = False
 display['enable_email_verification'] = False
 display['allow_anonymous_form_submissions'] = False
+display['require_auth_users_to_initiate_external_forms'] = True
 display['allow_bulk_registration'] = False
 display['domain'] = None
 display['allow_forms_access_to_user_list'] = False
