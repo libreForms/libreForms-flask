@@ -145,7 +145,7 @@ __email__ = "signe@atreeus.com"
 
 import os, datetime, threading, time, functools
 import pandas as pd
-from flask import flash, redirect, url_for
+from flask import flash, redirect, url_for, abort
 from app import display, log, db
 from app.models import Signing
 
@@ -246,13 +246,16 @@ def expire_key(key=None):
         log.error(f"LIBREFORMS - attempted to expire key {key} but failed to locate it in the signing database.")
 
 # here we define a wrapper for views that we want to 
-def verify_signatures(      signature, 
-                            redirect_to, 
-                            scope,
-                            flash_msg="Invalid request key. ",
+def verify_signatures(      signature, # the key to validate
+                            scope, # what scope the signature should be validated against
+                            redirect_to='home', # failed validations redirect here unless abort_on_errors=True
+                            flash_msg="Invalid request key. ", # failed validations give msg unless abort_on_errors=True
+                            abort_on_error=False, # if True, failed validations will return a 404
                     ):
 
     if not Signing.query.filter_by(signature=signature).first():
+        if abort_on_error:
+            abort(404)
         flash(flash_msg)
         return redirect(url_for(redirect_to))
 
@@ -263,12 +266,16 @@ def verify_signatures(      signature,
     # if the signing key is set to inactive, then we prevent the user from proceeding
     # this might be redundant to the above condition - but is a good redundancy for now
     if Signing.query.filter_by(signature=signature).first().active == 0:
+        if abort_on_error:
+            abort(404)
         flash(flash_msg)
         return redirect(url_for(redirect_to))
 
     # if the signing key is not scoped (that is, intended) for this purpose, then 
     # return an invalid error
     if not Signing.query.filter_by(signature=signature).first().scope == scope:
+        if abort_on_error:
+            abort(404)
         flash(flash_msg)
         return redirect(url_for(redirect_to))
 

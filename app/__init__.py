@@ -270,14 +270,14 @@ def create_app(test_config=None):
 
     # this is just some debug code
     # from app import signing
-    with app.app_context():
+    # with app.app_context():
         # from app import reports       
         # signing.write_key_to_database(scope=None, expiration=0, active=1, email=None)
         # print(signing.flush_key_db())
         # signing.expire_key(key="iqmwd44IKhsoE0HWjKGZohaN")
         # print(pd.read_sql_table("signing", con=db.engine.connect()))
 
-        signing_df = pd.read_sql_table("signing", con=db.engine.connect())
+        # signing_df = pd.read_sql_table("signing", con=db.engine.connect())
         # print(signing_df)
         # print(signing_df.loc[ signing_df.active == 1 ].expiration.min())
  
