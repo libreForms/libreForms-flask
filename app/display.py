@@ -1,7 +1,7 @@
 # define default page display and,
 # if a display_overrides file exists, 
 # use it to overwrite defaults
-import os, secrets
+import os
 from libreforms import __version__
 from markupsafe import Markup
 
