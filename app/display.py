@@ -44,7 +44,8 @@ display['libreforms_user_email'] = None
 display['mongodb_user'] = 'root'
 display['mongodb_host'] = 'localhost'
 display['mongodb_port'] = 27017
-
+display['default_group'] = 'default'
+display['groups'] = None
 
 
 

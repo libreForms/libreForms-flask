@@ -63,6 +63,7 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(100))
     password = db.Column(db.String(100))
     username = db.Column(db.String(100), unique=True)
+    group = db.Column(db.String(1000))
     organization = db.Column(db.String(1000))
     phone = db.Column(db.String(1000))
     active = db.Column(db.Integer)

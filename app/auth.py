@@ -187,6 +187,7 @@ def register():
                             username=username.lower(), 
                             password=generate_password_hash(password, method='sha256'),
                             organization=organization,
+                            group=display['default_group'],
                             phone=phone,
                             created_date=created_date,
                             active=0 if display["enable_email_verification"] else 1,

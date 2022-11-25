@@ -229,7 +229,7 @@ def flush_key_db():
     signing_df.loc[ signing_df['expiration'] < datetime.datetime.timestamp(datetime.datetime.now()), 'active' ] = 0
 
     # this will write the modified dataset to the database
-    signing_df.to_sql('signing', con=db.engine.connect(), if_exists='replace', index=False)
+    signing_df.to_sql(Signing.__tablename__, con=db.engine.connect(), if_exists='replace', index=False)
     return signing_df
 
 # DEPRECATED: I don't think this approach is particularly efficient anymore; instead, 
@@ -274,7 +274,7 @@ def expire_key(key=None):
         signing_df.loc[ signing_df['signature'] == key, 'active' ] = 0
 
         # this will write the modified dataset to the database
-        signing_df.to_sql('signing', con=db.engine.connect(), if_exists='replace', index=False)
+        signing_df.to_sql(Signing.__tablename__, con=db.engine.connect(), if_exists='replace', index=False)
         return signing_df
     
     else:

@@ -253,7 +253,7 @@ def create_app(test_config=None):
 
             # borrow from https://www.geeksforgeeks.org/python-sqlalchemy-get-column-names-dynamically/
             with db.engine.connect() as conn:
-                result = conn.execute(f"SELECT * FROM user")
+                result = conn.execute(f"SELECT * FROM {User.__tablename__}")
                 cols = []
                 for elem in result.cursor.description:
                     cols.append(elem[0])
@@ -263,11 +263,11 @@ def create_app(test_config=None):
                     if key not in cols:
                         if value['type'] == str:
                             column = db.Column(key, db.String(1000))
-                            add_column("user", column)
+                            add_column(User.__tablename__, column)
 
                         elif value['type'] == int:
                             column = db.Column(key, db.Column(db.Integer), primary_key=True)
-                            add_column("user", column)
+                            add_column(User.__tablename__, column)
 
     # this is just some debug code
     # from app import signing
