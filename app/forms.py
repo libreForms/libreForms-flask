@@ -16,10 +16,12 @@ from app.auth import login_required, session
 import os
 import pandas as pd
 
+def checkKey(dic, key):
+    return True if key in dic.keys() else False
 
 # this function just compiles 'depends_on' data for each form
 # to build a useful data tree that can be parsed by the jinja / javascript
-def compile_depends_on_data(form=None):
+def compile_depends_on_data(form=None, user_group=None):
 
     if form:
 
@@ -27,19 +29,28 @@ def compile_depends_on_data(form=None):
 
         for field in libreforms.forms[form].keys():
 
-            # ignore form configs that start with _ but only select if the _depends_on has been set
-            if not field.startswith("_") and "_depends_on" in libreforms.forms[form][field].keys():
 
-                element = libreforms.forms[form][field]['_depends_on']
+            # if checkKey(libreforms.forms[form][field], '_group_access') and \
+            #         (user_group in libreforms.forms[form][field]['_group_access']['deny']) \
+            #         or (user_group not in libreforms.forms[form][field]['_group_access']['allow'] \
+            #         and display['allow_all_groups_default'] == False):
+            #     pass
 
-                if element[0] not in RETURN:
-                    RETURN[element[0]] = {element[1]:[field]}
+            # else:
 
-                elif element[0] in RETURN and element[1] not in RETURN[element[0]].keys():
-                    RETURN[element[0]][element[1]] = [field]
+                # ignore form configs that start with _ but only select if the _depends_on has been set
+                if not field.startswith("_") and "_depends_on" in libreforms.forms[form][field].keys():
 
-                else:
-                    RETURN[element[0]][element[1]].append(field)
+                    element = libreforms.forms[form][field]['_depends_on']
+
+                    if element[0] not in RETURN:
+                        RETURN[element[0]] = {element[1]:[field]}
+
+                    elif element[0] in RETURN and element[1] not in RETURN[element[0]].keys():
+                        RETURN[element[0]][element[1]] = [field]
+
+                    else:
+                        RETURN[element[0]][element[1]].append(field)
 
         return RETURN
 
@@ -61,14 +72,21 @@ def generate_list_of_users(db=db):
     col = User.query.with_entities(User.username, User.email).distinct()
     return [(row.email, row.username) for row in col.all()]
 
-def parse_form_fields(form=False):
+def parse_form_fields(form=False, user_group=None):
 
-    FORM_ARGS = {}           
+    FORM_ARGS = {}  
 
     for field in libreforms.forms[form].keys():
 
         if field.startswith("_"):
             pass
+
+        # here we ignore fields if the user's group has either been explicitly excluded from the field,
+        # or if they are simply not included in the `allow` field and the we don't allow access by default.
+        # elif user_group in libreforms.forms[form][field]['_group_access']['deny'] \
+        #         or user_group not in libreforms.forms[form][field]['_group_access']['allow'] \
+        #         and display['allow_all_groups_default'] == False:
+        #     pass
         
         # adding this due to problems parsing checkboxes and (presumably) other
         # input types that permit multiple values
@@ -171,6 +189,7 @@ def parse_options(form=False):
         "_suppress_default_values": False,  
         "_allow_anonymous_access": False,  
         "_smtp_notifications":False,
+        '_group_access': { 'allow': [], 'deny': ['']}
     }
 
     for field in list_fields.keys():
@@ -212,7 +231,7 @@ def forms(form_name):
 
         if request.method == 'POST':
             
-            parsed_args = flaskparser.parser.parse(parse_form_fields(form_name), request, location="form")
+            parsed_args = flaskparser.parser.parse(parse_form_fields(form_name, user_group=current_user.group), request, location="form")
             
             # parsed_args = {}
 
@@ -248,7 +267,7 @@ def forms(form_name):
             display=display,
             filename = f'{form_name.lower().replace(" ","")}.csv' if options['_allow_csv_templates'] else False,
             user=current_user,
-            depends_on=compile_depends_on_data(form_name),
+            depends_on=compile_depends_on_data(form_name, user_group=current_user.group),
             user_list = collect_list_of_users() if display['allow_forms_access_to_user_list'] else [],
             )
 

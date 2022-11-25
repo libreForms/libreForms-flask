@@ -79,7 +79,7 @@ display['mongodb_port'] = 27017
 
 display['default_group'] = 'default'
 display['groups'] = None
-display['allow_all_groups_default'] = True
+# display['allow_all_groups_default'] = True # DEPRECATED, allowing access by default
 
 
 if os.path.exists ("app/display_overrides.py"):

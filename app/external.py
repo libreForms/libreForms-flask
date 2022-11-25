@@ -118,7 +118,7 @@ if display['allow_anonymous_form_submissions']:
                     suppress_navbar=True,
                     signed_url=signature,
                     type='external',
-                    depends_on=compile_depends_on_data(form_name),
+                    depends_on=compile_depends_on_data(form_name, user_group='anonymous'),
                     filename = f'{form_name.lower().replace(" ","")}.csv' if options['_allow_csv_templates'] else False,
                     )
 
