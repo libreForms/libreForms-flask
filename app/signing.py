@@ -223,7 +223,7 @@ def write_key_to_database(scope:str=None, expiration:int=1, active:int=1, email:
 
 # DEPRECATED in favor of key-by-key verification, see verify_signatures()
 def flush_key_db():
-    signing_df = pd.read_sql_table("signing", con=db.engine.connect())
+    signing_df = pd.read_sql_table(Signing.__tablename__, con=db.engine.connect())
 
     # This will disable all keys whose 'expiration' timestamp is less than the current time
     signing_df.loc[ signing_df['expiration'] < datetime.datetime.timestamp(datetime.datetime.now()), 'active' ] = 0
@@ -268,7 +268,7 @@ def expire_key(key=None):
     # the entry at the query stage immediately below...
     if Signing.query.filter_by(signature=key).first():
 
-        signing_df = pd.read_sql_table("signing", con=db.engine.connect())
+        signing_df = pd.read_sql_table(Signing.__tablename__, con=db.engine.connect())
 
         # This will disable the key
         signing_df.loc[ signing_df['signature'] == key, 'active' ] = 0
