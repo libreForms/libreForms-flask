@@ -32,27 +32,6 @@ if display['enable_rest_api']:
 
         signing.verify_signatures(signature, scope="api_key", abort_on_error=True)
 
-        # if not Signing.query.filter_by(signature=signature).first():
-        #     abort(404)
-        #     return "Invalid request key."
-
-        # # if the signing key's expiration time has passed, then set it to inactive 
-        # if Signing.query.filter_by(signature=signature).first().expiration < datetime.datetime.timestamp(datetime.datetime.now()):
-        #     signing.expire_key(signature)
-
-        # # if the signing key is set to inactive, then we prevent the user from proceeding
-        # # this might be redundant to the above condition - but is a good redundancy for now
-        # if Signing.query.filter_by(signature=signature).first().active== 0:
-        #     abort(404)
-        #     return "Invalid request key."
-
-        # # if the signing key is not scoped (that is, intended) for this purpose, then 
-        # # return an invalid error
-        # if not Signing.query.filter_by(signature=signature).first().scope == "api_key":
-        #     abort(404)
-        #     return "Invalid request key."
-
-
         signing_df = pd.read_sql_table("signing", con=db.engine.connect())
         email = signing_df.loc[ signing_df['signature'] == signature ]['email'].iloc[0]
         

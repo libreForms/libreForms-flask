@@ -4,34 +4,53 @@ from datetime import datetime
 from app import log, mailer, display, tempfile_path
 
 
-class reportHandler():
-    def __init__(self) -> None:
+# import flask-related packages
+from flask import Blueprint, render_template, request, flash, redirect, url_for
+from flask_login import current_user
+from markupsafe import Markup
 
-        # we create a local key mapping that will each correspond to a 
-        # event handling object
-        self.jobs = {}
+# import custom packages from the current repository
+import libreforms as libreforms
+from app.auth import login_required
+from app.forms import parse_options
+from app import display, log, mongodb
 
-    # this code is a bit messy. We start by writing timed reports from the
-    # 'send_reports' display configuration to the system crontab  
-    def set_cron_jobs(self, job_list = display['send_reports']):
+# and finally, import other packages
+import os
+import pandas as pd
 
-        for key in job_list.keys():
+bp = Blueprint('reports', __name__, url_prefix='/reports')
 
-            if job_list[key]['type'] == 'timed':
 
-                # base = job_list[key]['start_date'] if job_list[key]['start_date'] else datetime.datetime.now()
-                # iter = croniter(job_list[key]['trigger'], base)
 
-                # with CronTab(user=True) as cron:
-                #     self.jobs[key] = cron.new(command='echo hello_world >> /home/sig/Code/libreForms/log/temp.log')
-                #     self.jobs[key].setall(job_list[key]['trigger'])
-                #     self.jobs[key].schedule(date_from = base)
-                    # self.jobs[key].run_scheduler(iter)
+# class reportHandler():
+#     def __init__(self) -> None:
 
-                log.info(f'LIBREFORMS - wrote {key} report to CRON.')
+#         # we create a local key mapping that will each correspond to a 
+#         # event handling object
+#         self.jobs = {}
 
-            else:
-                self.jobs[key] = None
+#     # this code is a bit messy. We start by writing timed reports from the
+#     # 'send_reports' display configuration to the system crontab  
+#     def set_cron_jobs(self, job_list = display['send_reports']):
+
+#         for key in job_list.keys():
+
+#             if job_list[key]['type'] == 'timed':
+
+#                 # base = job_list[key]['start_date'] if job_list[key]['start_date'] else datetime.datetime.now()
+#                 # iter = croniter(job_list[key]['trigger'], base)
+
+#                 # with CronTab(user=True) as cron:
+#                 #     self.jobs[key] = cron.new(command='echo hello_world >> /home/sig/Code/libreForms/log/temp.log')
+#                 #     self.jobs[key].setall(job_list[key]['trigger'])
+#                 #     self.jobs[key].schedule(date_from = base)
+#                     # self.jobs[key].run_scheduler(iter)
+
+#                 log.info(f'LIBREFORMS - wrote {key} report to CRON.')
+
+#             else:
+#                 self.jobs[key] = None
 
 
 
