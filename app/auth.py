@@ -252,6 +252,9 @@ def verify_email(signature):
                                 redirect_to='auth.forgot_password', 
                                 scope="email_verification"):
 
+    if not signing.verify_signatures(signature, redirect_to='auth.forgot_password', 
+                                        scope="forgot_password"):
+
     # if not Signing.query.filter_by(signature=signature).first():
     #     flash('Invalid request key. ')
     #     return redirect(url_for('auth.forgot_password'))
