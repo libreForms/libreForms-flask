@@ -10,7 +10,7 @@ from flask_login import current_user
 import libreforms
 from app import display, log, tempfile_path, mailer, mongodb, conditional_decorator
 from app.auth import login_required, session
-from app.forms import parse_form_fields, reconcile_form_data_struct, progagate_forms, parse_options
+from app.forms import parse_form_fields, reconcile_form_data_struct, progagate_forms, parse_options, compile_depends_on_data
 import app.signing as signing
 from app.models import Signing
 
@@ -118,6 +118,7 @@ if display['allow_anonymous_form_submissions']:
                     suppress_navbar=True,
                     signed_url=signature,
                     type='external',
+                    depends_on=compile_depends_on_data(form_name),
                     filename = f'{form_name.lower().replace(" ","")}.csv' if options['_allow_csv_templates'] else False,
                     )
 
