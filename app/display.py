@@ -46,6 +46,8 @@ display['mongodb_host'] = 'localhost'
 display['mongodb_port'] = 27017
 display['default_group'] = 'default'
 display['groups'] = None
+display['allow_all_groups_default'] = True
+
 
 
 

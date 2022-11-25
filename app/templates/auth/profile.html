@@ -5,6 +5,7 @@
 <table>
 <tr><td><b>Username</b>: {{ user.username }}</td></tr>
 <tr><td><b>Email</b>: <span ondblclick="this.contentEditable=true;this.className='inEdit';" onblur="this.contentEditable=false;this.className='';" contenteditable="false" class=""> {{ user.email }}</span></td></tr>
+<tr><td><b>Group</b>: {{ user.group }}</td></tr>
 <tr><td><b>Organization</b>: <span ondblclick="this.contentEditable=true;this.className='inEdit';" onblur="this.contentEditable=false;this.className='';" contenteditable="false" class="">{{ user.organization }}</span></td></tr>
 <tr><td><b>Phone</b>: <span ondblclick="this.contentEditable=true;this.className='inEdit';" onblur="this.contentEditable=false;this.className='';" contenteditable="false" class="">{{ user.phone }}</span>
 {% if display['user_registration_fields'] is defined %}
