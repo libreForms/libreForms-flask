@@ -19,6 +19,24 @@ import pandas as pd
 def checkKey(dic, key):
     return True if key in dic.keys() else False
 
+def checkFieldGroup(form, field, group):
+    return False if checkKey(libreforms.forms[form][field], '_deny_groups') and group \
+        in libreforms.forms[form][field]['_deny_groups'] else True
+
+def checkFormGroup(form, group):
+    return False if checkKey(libreforms.forms[form], '_deny_groups') and group \
+        in libreforms.forms[form]['_deny_groups'] else True
+
+def checkTableGroup(form, group):
+    return False if checkKey(parse_options(form)['_table'], '_deny_groups') and group \
+        in libreforms.forms[form]['_deny_groups'] else True
+
+def checkDashboardGroup(form, group):
+    return False if checkKey(parse_options(form)['_dashboard'], '_deny_groups') and group \
+        in libreforms.forms[form]['_deny_groups'] else True
+
+        # really we should be using parse_options(form) here
+
 # this function just compiles 'depends_on' data for each form
 # to build a useful data tree that can be parsed by the jinja / javascript
 def compile_depends_on_data(form=None, user_group=None):
@@ -87,6 +105,9 @@ def parse_form_fields(form=False, user_group=None):
         #         or user_group not in libreforms.forms[form][field]['_group_access']['allow'] \
         #         and display['allow_all_groups_default'] == False:
         #     pass
+
+        elif not checkFieldGroup(form, field, user_group):
+            pass
         
         # adding this due to problems parsing checkboxes and (presumably) other
         # input types that permit multiple values
@@ -159,9 +180,7 @@ def reconcile_form_data_struct(form=False):
 
 # this function creates a list of the form fields 
 # we want to pass to the web application
-def progagate_forms(form=False):
-    def checkGroup(form, field):
-        return True # placeholder to validate each field against the user group and _group_access rules
+def progagate_forms(form=False, group=None):
     
     list_fields = libreforms.forms[form]
 
@@ -170,7 +189,7 @@ def progagate_forms(form=False):
     # here we drop the meta data fields   
     
     for field in list_fields.keys():
-        if not field.startswith("_") and checkGroup(form, field): 
+        if not field.startswith("_") and checkFieldGroup(form, field, group): # drop configs and fields we don't have access to
             VALUES[field] = list_fields[field]
     
     return VALUES
@@ -184,6 +203,7 @@ def parse_options(form=False):
     # we define the default values for application-defined options
     OPTIONS = {
         "_dashboard": False,
+        "_table": False,
         "_description": False,
         "_allow_repeat": False, 
         "_allow_uploads": False, 
@@ -229,7 +249,7 @@ def forms(form_name):
 
     try:
         options = parse_options(form_name)
-        forms = progagate_forms(form_name)
+        forms = progagate_forms(form_name, group=current_user.group)
 
         if request.method == 'POST':
             
@@ -284,7 +304,7 @@ def forms(form_name):
 def download_file(filename):
 
     # this is our first stab at building templates, without accounting for nesting or repetition
-    df = pd.DataFrame (columns=[x for x in progagate_forms(filename.replace('.csv', '')).keys()])
+    df = pd.DataFrame (columns=[x for x in progagate_forms(filename.replace('.csv', '')).keys()], group=current_user.group)
 
     fp = os.path.join(tempfile_path, filename)
     df.to_csv(fp, index=False)
