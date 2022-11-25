@@ -32,8 +32,8 @@ additional views that may require signature validation.
 
 ```
     if not Signing.query.filter_by(signature=signature).first():
-        flash('Invalid request key. ')
-        return redirect(url_for('auth.forgot_password'))
+        flash(flash_msg)
+        return redirect(url_for(redirect_to))
 
     # if the signing key's expiration time has passed, then set it to inactive 
     if Signing.query.filter_by(signature=signature).first().expiration < datetime.datetime.timestamp(datetime.datetime.now()):
@@ -42,14 +42,14 @@ additional views that may require signature validation.
     # if the signing key is set to inactive, then we prevent the user from proceeding
     # this might be redundant to the above condition - but is a good redundancy for now
     if Signing.query.filter_by(signature=signature).first().active == 0:
-        flash('Invalid request key. ')
-        return redirect(url_for('auth.forgot_password'))
+        flash(flash_msg)
+        return redirect(url_for(redirect_to))
 
     # if the signing key is not scoped (that is, intended) for this purpose, then 
     # return an invalid error
     if not Signing.query.filter_by(signature=signature).first().scope == "forgot_password":
-        flash('Invalid request key. ')
-        return redirect(url_for('auth.forgot_password'))
+        flash(flash_msg)
+        return redirect(url_for(redirect_to))
 ```
 
 
@@ -143,8 +143,9 @@ __license__ = "AGPL-3.0"
 __maintainer__ = "Sig Janoska-Bedi"
 __email__ = "signe@atreeus.com"
 
-import os, datetime, threading, time
+import os, datetime, threading, time, functools
 import pandas as pd
+from flask import flash, redirect, url_for
 from app import display, log, db
 from app.models import Signing
 
@@ -244,7 +245,30 @@ def expire_key(key=None):
     else:
         log.error(f"LIBREFORMS - attempted to expire key {key} but failed to locate it in the signing database.")
 
+# here we define a wrapper for views that we want to 
+def verify_signatures(      signature, 
+                            redirect_to, 
+                            scope,
+                            flash_msg="Invalid request key. ",
+                    ):
 
+    if not Signing.query.filter_by(signature=signature).first():
+        flash(flash_msg)
+        return redirect(url_for(redirect_to))
 
-def distribute_key(key=None):
-    pass
+    # if the signing key's expiration time has passed, then set it to inactive 
+    if Signing.query.filter_by(signature=signature).first().expiration < datetime.datetime.timestamp(datetime.datetime.now()):
+        expire_key(signature)
+
+    # if the signing key is set to inactive, then we prevent the user from proceeding
+    # this might be redundant to the above condition - but is a good redundancy for now
+    if Signing.query.filter_by(signature=signature).first().active == 0:
+        flash(flash_msg)
+        return redirect(url_for(redirect_to))
+
+    # if the signing key is not scoped (that is, intended) for this purpose, then 
+    # return an invalid error
+    if not Signing.query.filter_by(signature=signature).first().scope == scope:
+        flash(flash_msg)
+        return redirect(url_for(redirect_to))
+

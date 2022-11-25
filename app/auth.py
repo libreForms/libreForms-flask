@@ -41,26 +41,28 @@ def reset_password(signature):
     if not display['allow_password_resets']:
         flash('This feature has not been enabled by your system administrator.')
         return redirect(url_for('auth.forgot_password'))
+    
+    signing.verify_signatures(signature, redirect_to='auth.forgot_password', scope="forgot_password")
 
-    if not Signing.query.filter_by(signature=signature).first():
-        flash('Invalid request key. ')
-        return redirect(url_for('auth.forgot_password'))
+    # if not Signing.query.filter_by(signature=signature).first():
+    #     flash('Invalid request key. ')
+    #     return redirect(url_for('auth.forgot_password'))
 
-    # if the signing key's expiration time has passed, then set it to inactive 
-    if Signing.query.filter_by(signature=signature).first().expiration < datetime.datetime.timestamp(datetime.datetime.now()):
-        signing.expire_key(signature)
+    # # if the signing key's expiration time has passed, then set it to inactive 
+    # if Signing.query.filter_by(signature=signature).first().expiration < datetime.datetime.timestamp(datetime.datetime.now()):
+    #     signing.expire_key(signature)
 
-    # if the signing key is set to inactive, then we prevent the user from proceeding
-    # this might be redundant to the above condition - but is a good redundancy for now
-    if Signing.query.filter_by(signature=signature).first().active == 0:
-        flash('Invalid request key. ')
-        return redirect(url_for('auth.forgot_password'))
+    # # if the signing key is set to inactive, then we prevent the user from proceeding
+    # # this might be redundant to the above condition - but is a good redundancy for now
+    # if Signing.query.filter_by(signature=signature).first().active == 0:
+    #     flash('Invalid request key. ')
+    #     return redirect(url_for('auth.forgot_password'))
 
-    # if the signing key is not scoped (that is, intended) for this purpose, then 
-    # return an invalid error
-    if not Signing.query.filter_by(signature=signature).first().scope == "forgot_password":
-        flash('Invalid request key. ')
-        return redirect(url_for('auth.forgot_password'))
+    # # if the signing key is not scoped (that is, intended) for this purpose, then 
+    # # return an invalid error
+    # if not Signing.query.filter_by(signature=signature).first().scope == "forgot_password":
+    #     flash('Invalid request key. ')
+    #     return redirect(url_for('auth.forgot_password'))
 
     if request.method == 'POST':
         password = request.form['password']
@@ -175,11 +177,6 @@ def register():
         
         if email == "":
             email = None
-
-        if display['enable_hcaptcha']:
-            if not hcaptcha.verify():
-                error = 'Captcha validation error.'
-
         error = None
 
         if not username:
@@ -196,6 +193,9 @@ def register():
             error = 'Email is already registered.' 
         elif User.query.filter_by(username=username.lower()).first():
             error = f'Username {username.lower()} is already registered.' 
+        elif display['enable_hcaptcha']:
+            if not hcaptcha.verify():
+                error = 'Captcha validation error.'
 
         if error is None:
             try:
