@@ -248,6 +248,7 @@ def forms(form_name):
             display=display,
             filename = f'{form_name.lower().replace(" ","")}.csv' if options['_allow_csv_templates'] else False,
             user=current_user,
+            depends_on=compile_depends_on_data(form_name),
             user_list = collect_list_of_users() if display['allow_forms_access_to_user_list'] else [],
             )
 

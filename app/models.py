@@ -58,6 +58,7 @@ from app import db
 from app.display import display
 
 class User(UserMixin, db.Model):
+    __tablename__ = 'user'
     id = db.Column(db.Integer, primary_key=True) # primary keys are required by SQLAlchemy
     email = db.Column(db.String(100))
     password = db.Column(db.String(100))
@@ -69,6 +70,7 @@ class User(UserMixin, db.Model):
 
 
 class Signing(db.Model):
+    __tablename__ = 'signing'
     signature = db.Column(db.String, primary_key=True) 
     email = db.Column(db.String(100))
     scope = db.Column(db.String(100))
