@@ -19,6 +19,10 @@ have been defined in the application's configuration file, these will
 be added to the database at the point of instantiation, see 
 app/__init__.py and gunicorn/gunicorn.conf.py.
 
+To avoid too many changes to the user data model while still allowing
+granular access to forms, visualizations, and other features, we impose
+a one-to-one mapping of users to groups; put another way, every user will 
+only have one group see https://github.com/signebedi/libreForms/issues/16.
 
 # Signing database
 
