@@ -72,7 +72,7 @@ if display['enable_rest_api']:
                     df = df.loc[df[col].astype("string") == str(request.args.get(col))] 
 
             log.info(f'{email} - REST API query for form \'{form_name}.\'')
-            # log.info(f'{email} {signature} - REST API query for form \'{form_name}.\'') # removed this, which potentially leaks the signing key
+            # log.info(f'{email} {signature} - REST API query for form \'{form_name}.\'') # removed this, which potentially leaks a signing key intended for reuse
             return json.loads(json_util.dumps(df.to_dict())) # borrowed from https://stackoverflow.com/a/18405626
 
         except Exception as e:

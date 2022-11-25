@@ -279,3 +279,9 @@ def verify_signatures(      signature, # the key to validate
         flash(flash_msg)
         return redirect(url_for(redirect_to))
 
+    # Returning None is desirable. It means that we can run `if not verify_signatures():` 
+    # as a way to require the check passes... This has allowed us to fix an improper access
+    # bug that did not prevent users with keys in the signing db -- irrespective of whether
+    # they were still active -- to access other resources
+    return None
+

@@ -42,7 +42,8 @@ def reset_password(signature):
         flash('This feature has not been enabled by your system administrator.')
         return redirect(url_for('auth.forgot_password'))
     
-    signing.verify_signatures(signature, redirect_to='auth.forgot_password', scope="forgot_password")
+    if not signing.verify_signatures(signature, redirect_to='auth.forgot_password', 
+                                        scope="forgot_password"):
 
     # if not Signing.query.filter_by(signature=signature).first():
     #     flash('Invalid request key. ')
@@ -64,38 +65,40 @@ def reset_password(signature):
     #     flash('Invalid request key. ')
     #     return redirect(url_for('auth.forgot_password'))
 
-    if request.method == 'POST':
-        password = request.form['password']
-        signing_df = pd.read_sql_table("signing", con=db.engine.connect())
-        email = signing_df.loc[ signing_df['signature'] == signature ]['email'].iloc[0]
+        if request.method == 'POST':
+            password = request.form['password']
+            signing_df = pd.read_sql_table("signing", con=db.engine.connect())
+            email = signing_df.loc[ signing_df['signature'] == signature ]['email'].iloc[0]
 
-        if not password:
-            error = 'Password is required.'
+            if not password:
+                error = 'Password is required.'
 
-        else: error = None
+            else: error = None
 
-        if error is None:
-            try:
-                user = User.query.filter_by(email=str(email)).first() ## get email from Signing table & collate to User table 
-                user.password=generate_password_hash(password, method='sha256')
-                db.session.commit()
+            if error is None:
+                try:
+                    user = User.query.filter_by(email=str(email)).first() ## get email from Signing table & collate to User table 
+                    user.password=generate_password_hash(password, method='sha256')
+                    db.session.commit()
 
-                signing.expire_key(signature)
-                flash("Successfully changed password. ")
-                log.info(f'{user.username.upper()} - successfully changed password.')
-                return redirect(url_for('auth.login'))
-            except Exception as e:
-                flash (f"There was an error in processing your request. {e}")
-            
-        else:
-            flash(error)
+                    signing.expire_key(signature)
+                    flash("Successfully changed password. ")
+                    log.info(f'{user.username.upper()} - successfully changed password.')
+                    return redirect(url_for('auth.login'))
+                except Exception as e:
+                    flash (f"There was an error in processing your request. {e}")
+                
+            else:
+                flash(error)
     
-    return render_template('auth/forgot_password.html',
-        site_name=display['site_name'],
-        display_warning_banner=True,
-        name="Reset Password", 
-        reset=True,
-        display=display)
+        return render_template('auth/forgot_password.html',
+            site_name=display['site_name'],
+            display_warning_banner=True,
+            name="Reset Password", 
+            reset=True,
+            display=display)
+        
+    return redirect(url_for('auth.login'))
 
 
 
@@ -245,43 +248,47 @@ def verify_email(signature):
         flash('This feature has not been enabled by your system administrator.')
         return redirect(url_for('auth.login'))
 
-    if not Signing.query.filter_by(signature=signature).first():
-        flash('Invalid request key. ')
-        return redirect(url_for('auth.forgot_password'))
+    if not signing.verify_signatures(signature, 
+                                redirect_to='auth.forgot_password', 
+                                scope="email_verification"):
 
-    # if the signing key's expiration time has passed, then set it to inactive 
-    if Signing.query.filter_by(signature=signature).first().expiration < datetime.datetime.timestamp(datetime.datetime.now()):
-        signing.expire_key(signature)
+    # if not Signing.query.filter_by(signature=signature).first():
+    #     flash('Invalid request key. ')
+    #     return redirect(url_for('auth.forgot_password'))
 
-    # if the signing key is set to inactive, then we prevent the user from proceeding
-    # this might be redundant to the above condition - but is a good redundancy for now
-    if Signing.query.filter_by(signature=signature).first().active== 0:
-        flash('Invalid request key. ')
-        return redirect(url_for('auth.forgot_password'))
+    # # if the signing key's expiration time has passed, then set it to inactive 
+    # if Signing.query.filter_by(signature=signature).first().expiration < datetime.datetime.timestamp(datetime.datetime.now()):
+    #     signing.expire_key(signature)
 
-    # if the signing key is not scoped (that is, intended) for this purpose, then 
-    # return an invalid error
-    if not Signing.query.filter_by(signature=signature).first().scope == "email_verification":
-        flash('Invalid request key. ')
-        return redirect(url_for('auth.forgot_password'))
+    # # if the signing key is set to inactive, then we prevent the user from proceeding
+    # # this might be redundant to the above condition - but is a good redundancy for now
+    # if Signing.query.filter_by(signature=signature).first().active== 0:
+    #     flash('Invalid request key. ')
+    #     return redirect(url_for('auth.forgot_password'))
+
+    # # if the signing key is not scoped (that is, intended) for this purpose, then 
+    # # return an invalid error
+    # if not Signing.query.filter_by(signature=signature).first().scope == "email_verification":
+    #     flash('Invalid request key. ')
+    #     return redirect(url_for('auth.forgot_password'))
 
 
-    signing_df = pd.read_sql_table("signing", con=db.engine.connect())
-    email = signing_df.loc[ signing_df['signature'] == signature ]['email'].iloc[0]
+        signing_df = pd.read_sql_table("signing", con=db.engine.connect())
+        email = signing_df.loc[ signing_df['signature'] == signature ]['email'].iloc[0]
 
 
-    try:
-        user = User.query.filter_by(email=str(email)).first() ## get email from Signing table & collate to User table 
-        user.active=1
-        db.session.commit()
+        try:
+            user = User.query.filter_by(email=str(email)).first() ## get email from Signing table & collate to User table 
+            user.active=1
+            db.session.commit()
 
-        signing.expire_key(signature)
-        flash(f"Successfully activated user {user.username}. ")
-        log.info(f'{user.username.upper()} - successfully activated user.')
-        return redirect(url_for('auth.login'))
+            signing.expire_key(signature)
+            flash(f"Successfully activated user {user.username}. ")
+            log.info(f'{user.username.upper()} - successfully activated user.')
+            return redirect(url_for('auth.login'))
 
-    except Exception as e:
-        flash (f"There was an error in processing your request. {e}")
+        except Exception as e:
+            flash (f"There was an error in processing your request. {e}")
         
     
     return redirect(url_for('auth.login'))
