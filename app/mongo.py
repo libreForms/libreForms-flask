@@ -32,16 +32,16 @@ class MongoDB:
         from pymongo import MongoClient
         import datetime, os
 
-        # read database password file, if it exists
-        if os.path.exists ("mongodb_creds"):
-            with open("mongodb_creds", "r+") as f:
-                mongodb_creds = f.read().strip()
-        elif dbpw:  
-            pass
-        else:
-            mongodb_creds=None
+        # # read database password file, if it exists
+        # if os.path.exists ("mongodb_creds"):
+        #     with open("mongodb_creds", "r+") as f:
+        #         mongodb_creds = f.read().strip()
+        # elif dbpw:  
+        #     pass
+        # else:
+        #     mongodb_creds=None
 
-        conn = MongoClient(f'mongodb://{host}:{dbpw}@{host}:{str(port)}/')
+        # client = MongoClient(f'mongodb://{user}:{dbpw}@{host}:{str(port)}/')
         client = MongoClient(host, port)
         self.db = client['libreforms']
 

@@ -145,7 +145,7 @@ __email__ = "signe@atreeus.com"
 
 import os, datetime, threading, time
 import pandas as pd
-from app import display, log, db, mailer, executor
+from app import display, log, db
 from app.models import Signing
 
 # here we generate a signing key with a default length of 24

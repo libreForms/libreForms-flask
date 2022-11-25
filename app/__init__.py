@@ -10,7 +10,23 @@ import pandas as pd
 from app.csv_files import init_tmp_fs, tempfile_init_tmp_fs
 from app import smtp, mongo
 from celery import Celery
-from concurrent.futures import ThreadPoolExecutor
+
+
+# def make_celery():
+#     celery = Celery(__name__, broker='redis://localhost:6379/0')
+
+#     class ContextTask(celery.Task):
+#         def __call__(self, *args, **kwargs):
+#             with app.app_context():
+#                 return self.run(*args, **kwargs)
+
+#     celery.Task = ContextTask
+#     return celery
+
+# celery = make_celery()
+celery = Celery(__name__, broker='redis://localhost:6379/0')
+
+# celery = Celery(__name__, broker='redis://localhost:6379/0')
 
 # defining a decorator that applies a parent decorator 
 # based on the truth-value of a condition
@@ -52,7 +68,6 @@ mongodb = mongo.MongoDB(
                         dbpw=mongodb_creds
                     )
 
-executor = ThreadPoolExecutor(2)
 
 db = SQLAlchemy()
 
@@ -135,6 +150,9 @@ def create_app(test_config=None):
         },
     )
 
+
+    celery.conf.update(app.config)
+
     # admin = Admin(app, name='libreForms', template_mode='bootstrap4')
     # Add administrative views here
 
@@ -150,6 +168,11 @@ def create_app(test_config=None):
         os.makedirs(app.instance_path)
     except OSError:
         pass
+
+    # @celery.task
+    # def test_celery(msg):
+    #     import time
+    #     time.sleep(msg)
 
     # define a home route
     @app.route('/')
