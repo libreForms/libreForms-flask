@@ -23,6 +23,10 @@ To avoid too many changes to the user data model while still allowing
 granular access to forms, visualizations, and other features, we impose
 a one-to-one mapping of users to groups; put another way, every user will 
 only have one group see https://github.com/signebedi/libreForms/issues/16.
+As can be seen from the discussion there, the simple design means that we
+should be aware of some default behavior: groups are allowed access to all
+forms, fields, dashboards, tables, and other resources by default unless 
+explicitly denied using a `deny_group_access` config at that resource's level.
 
 # Signing database
 

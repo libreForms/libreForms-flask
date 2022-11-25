@@ -160,6 +160,8 @@ def reconcile_form_data_struct(form=False):
 # this function creates a list of the form fields 
 # we want to pass to the web application
 def progagate_forms(form=False):
+    def checkGroup(form, field):
+        return True # placeholder to validate each field against the user group and _group_access rules
     
     list_fields = libreforms.forms[form]
 
@@ -168,7 +170,7 @@ def progagate_forms(form=False):
     # here we drop the meta data fields   
     
     for field in list_fields.keys():
-        if not field.startswith("_"): 
+        if not field.startswith("_") and checkGroup(form, field): 
             VALUES[field] = list_fields[field]
     
     return VALUES
@@ -189,7 +191,7 @@ def parse_options(form=False):
         "_suppress_default_values": False,  
         "_allow_anonymous_access": False,  
         "_smtp_notifications":False,
-        '_group_access': { 'allow': [], 'deny': ['']}
+        '_deny_groups': [],
     }
 
     for field in list_fields.keys():
