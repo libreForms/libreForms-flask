@@ -38,8 +38,8 @@ def tables(form_name):
         return redirect(url_for('tables.tables_home'))
 
     if not checkTableGroup(form_name, group=current_user.group):
-        flash(f'This form does not exist.')
-        return redirect(url_for('forms.forms_home'))
+        flash(f'You do not have access to this dashboard.')
+        return redirect(url_for('tables.tables_home'))
 
 
     try:

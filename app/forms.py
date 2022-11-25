@@ -250,7 +250,7 @@ def forms_home():
 def forms(form_name):
     
     if not checkFormGroup(form_name, group=current_user.group):
-        flash(f'This form does not exist.')
+        flash(f'You do not have access to this dashboard.')
         return redirect(url_for('forms.forms_home'))
 
     else:
