@@ -6,7 +6,7 @@ from markupsafe import Markup
 # import custom packages from the current repository
 import libreforms as libreforms
 from app.auth import login_required
-from app.forms import parse_options
+from app.forms import parse_options, checkTableGroup, form_menu
 from app import display, log, mongodb
 
 # and finally, import other packages
@@ -23,7 +23,7 @@ def tables_home():
             msg="Select a table from the left-hand menu.",
             name="Table",
             type="tables",
-            menu=[x for x in libreforms.forms.keys()],
+            menu=form_menu(checkTableGroup),
             display=display,
             user=current_user,
         ) 
@@ -36,6 +36,11 @@ def tables(form_name):
     if form_name not in libreforms.forms.keys():
         flash('This form does not exist.')
         return redirect(url_for('tables.tables_home'))
+
+    if not checkTableGroup(form_name, group=current_user.group):
+        flash(f'This form does not exist.')
+        return redirect(url_for('forms.forms_home'))
+
 
     try:
         pd.set_option('display.max_colwidth', 0)
@@ -69,7 +74,7 @@ def tables(form_name):
         name=form_name,
         is_table=True,
         options=parse_options(form=form_name),
-        menu=[x for x in libreforms.forms.keys()],
+        menu=form_menu(checkTableGroup),
         display=display,
         user=current_user,
     )

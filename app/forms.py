@@ -17,7 +17,7 @@ import os
 import pandas as pd
 
 def checkKey(dic, key):
-    return True if key in dic.keys() else False
+    return True if dic and key in dic.keys() else False
 
 def checkFieldGroup(form, field, group):
     return False if checkKey(libreforms.forms[form][field], '_deny_groups') and group \
@@ -29,12 +29,12 @@ def checkFormGroup(form, group):
 
 def checkTableGroup(form, group):
     return False if checkKey(parse_options(form)['_table'], '_deny_groups') and group \
-        in parse_options(form)['_deny_groups'] else True
+        in parse_options(form)['_table']['_deny_groups'] else True
 
 # using parse_options to clean up some values here
 def checkDashboardGroup(form, group):
     return False if checkKey(parse_options(form)['_dashboard'], '_deny_groups') and group \
-        in parse_options(form)['_deny_groups'] else True
+        in parse_options(form)['_dashboard']['_deny_groups'] else True
 
 def form_menu(func):
     return [x for x in libreforms.forms.keys() if func(x, group=current_user.group)]
@@ -204,8 +204,8 @@ def parse_options(form=False):
 
     # we define the default values for application-defined options
     OPTIONS = {
-        "_dashboard": False,
-        "_table": False,
+        "_dashboard": None,
+        "_table": None,
         "_description": False,
         "_allow_repeat": False, 
         "_allow_uploads": False, 
