@@ -73,7 +73,7 @@ if display['enable_rest_api']:
 
             log.info(f'{email} - REST API query for form \'{form_name}.\'')
             # log.info(f'{email} {signature} - REST API query for form \'{form_name}.\'') # removed this, which potentially leaks the signing key
-            return json.loads(json_util.dumps(df.to_dict()))
+            return json.loads(json_util.dumps(df.to_dict())) # borrowed from https://stackoverflow.com/a/18405626
 
         except Exception as e:
             abort(404)
