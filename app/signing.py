@@ -52,6 +52,8 @@ additional views that may require signature validation.
         return redirect(url_for(redirect_to))
 ```
 
+Notably, we added verify_signatures(), see below, to an abstract method to apply the logic above 
+in a view.
 
 Some scopes that this application implements - primarily located in app/auth.py,
 app/api.py, and app/external.py are:
@@ -132,6 +134,38 @@ from the `scope` section above:
 
 Make note, all logic determining whether the key should be expired is external to 
 this method; it only takes a key as a parameter and expires it.
+
+# def verify_signatures(signature, # the key to validate
+                            scope, # what scope the signature should be validated against
+                            redirect_to='home', # failed validations redirect here unless abort_on_errors=True
+                            flash_msg="Invalid request key. ", # failed validations give msg unless abort_on_errors=True
+                            abort_on_error=False, # if True, failed validations will return a 404):
+
+Verify an individual signature and return None if it passes.
+
+In the base application, this function requires two parameters: a `signature` string and a 
+`scope` to validate against the database. It has optional parameters to set where to `redirect_to`
+on errors, what `flash_msg` to show the user when a key validation fails, and a bool option to 
+have the view return a 404 error when key validation fails.
+
+This functiom applies the logic discussed in the `Scope` section above. You would include in a view in
+one of two ways: first, as a conditional:
+
+```
+if not signing.verify_signatures(signature, scope="forgot_password"):
+    return YOUR VIEW HERE
+else:
+    abort(404)
+```
+
+Alternatively, if you set the `abort_on_error` option to True, then you can simply call it in your view
+without needing to deal with nesting conditionals:
+
+```
+signing.verify_signatures(signature, scope="forgot_password", abort_on_error=True)
+return YOUR VIEW HERE
+```
+
 """
 
 
@@ -187,6 +221,7 @@ def write_key_to_database(scope:str=None, expiration:int=1, active:int=1, email:
 
     return key
 
+# DEPRECATED in favor of key-by-key verification, see verify_signatures()
 def flush_key_db():
     signing_df = pd.read_sql_table("signing", con=db.engine.connect())
 
@@ -198,7 +233,7 @@ def flush_key_db():
     return signing_df
 
 # DEPRECATED: I don't think this approach is particularly efficient anymore; instead, 
-# we'll approach expiration on a key-by-key basis and potentially prepare a wrapper.
+# we'll approach expiration on a key-by-key basis and potentially prepare an abstract function.
 
 # class flushTimer:
 #     def __init__(self, signing_df):
@@ -282,6 +317,6 @@ def verify_signatures(      signature, # the key to validate
     # Returning None is desirable. It means that we can run `if not verify_signatures():` 
     # as a way to require the check passes... This has allowed us to fix an improper access
     # bug that did not prevent users with keys in the signing db -- irrespective of whether
-    # they were still active -- to access other resources
+    # they were still active -- to access other resources.
     return None
 
