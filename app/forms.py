@@ -24,18 +24,20 @@ def checkFieldGroup(form, field, group):
         in libreforms.forms[form][field]['_deny_groups'] else True
 
 def checkFormGroup(form, group):
-    return False if checkKey(libreforms.forms[form], '_deny_groups') and group \
-        in libreforms.forms[form]['_deny_groups'] else True
+    return False if checkKey(parse_options(form), '_deny_groups') and group \
+        in parse_options(form)['_deny_groups'] else True
 
 def checkTableGroup(form, group):
     return False if checkKey(parse_options(form)['_table'], '_deny_groups') and group \
-        in libreforms.forms[form]['_deny_groups'] else True
+        in parse_options(form)['_deny_groups'] else True
 
+# using parse_options to clean up some values here
 def checkDashboardGroup(form, group):
     return False if checkKey(parse_options(form)['_dashboard'], '_deny_groups') and group \
-        in libreforms.forms[form]['_deny_groups'] else True
+        in parse_options(form)['_deny_groups'] else True
 
-        # really we should be using parse_options(form) here
+def form_menu(func):
+    return [x for x in libreforms.forms.keys() if func(x, group=current_user.group)]
 
 # this function just compiles 'depends_on' data for each form
 # to build a useful data tree that can be parsed by the jinja / javascript
@@ -235,7 +237,7 @@ def forms_home():
             msg="Select a form from the left-hand menu.",
             name="Form",
             type="forms",
-            menu=[x for x in libreforms.forms.keys()],
+            menu=form_menu(checkFormGroup),
             display=display,
             user=current_user,
         ) 
@@ -246,56 +248,62 @@ def forms_home():
 @login_required
 # @flaskparser.use_args(parse_form_fields(form=form_name), location='form')
 def forms(form_name):
-
-    try:
-        options = parse_options(form_name)
-        forms = progagate_forms(form_name, group=current_user.group)
-
-        if request.method == 'POST':
-            
-            parsed_args = flaskparser.parser.parse(parse_form_fields(form_name, user_group=current_user.group), request, location="form")
-            
-            # parsed_args = {}
-
-            # for item in libreforms.forms[form_name].keys():
-            #     print(item)
-
-
-            #     try: 
-            #         if libreforms.forms[form_name][item]['input_field']['type'] == 'checkbox':
-                            
-            #             parsed_args[item] = str(request.form.getlist(item))
-                        
-
-            #         else:
-            #             parsed_args[item] = str(request.form[item]) if libreforms.forms[form_name][item]['output_data']['type'] == 'str' else float(request.form[item])
-
-            #     except:
-            #         pass
-
-            #     print(parsed_args[item])
-
-            mongodb.write_document_to_collection(parsed_args, form_name, reporter=current_user.username)
-            flash(str(parsed_args))
-            log.info(f'{current_user.username.upper()} - submitted \'{form_name}\' form.')
-            mailer.send_mail(subject=f'{display["site_name"]} {form_name} Submitted', content=f"This email serves to verify that {current_user.username} ({current_user.email}) has just submitted the following form at {display['domain']}: {form_name}.", to_address=current_user.email, logfile=log)
-
-        return render_template('app/forms.html', 
-            context=forms,                                          # this passes the form fields as the primary 'context' variable
-            name=form_name,                                         # this sets the name of the page for the page header
-            menu=[x for x in libreforms.forms.keys()],              # this returns the forms in libreform/forms to display in the lefthand menu
-            type="forms",       
-            options=options, 
-            display=display,
-            filename = f'{form_name.lower().replace(" ","")}.csv' if options['_allow_csv_templates'] else False,
-            user=current_user,
-            depends_on=compile_depends_on_data(form_name, user_group=current_user.group),
-            user_list = collect_list_of_users() if display['allow_forms_access_to_user_list'] else [],
-            )
-
-    except Exception as e:
-        flash(f'This form does not exist. {e}')
+    
+    if not checkFormGroup(form_name, group=current_user.group):
+        flash(f'This form does not exist.')
         return redirect(url_for('forms.forms_home'))
+
+    else:
+
+        try:
+            options = parse_options(form_name)
+            forms = progagate_forms(form_name, group=current_user.group)
+
+            if request.method == 'POST':
+                
+                parsed_args = flaskparser.parser.parse(parse_form_fields(form_name, user_group=current_user.group), request, location="form")
+                
+                # parsed_args = {}
+
+                # for item in libreforms.forms[form_name].keys():
+                #     print(item)
+
+
+                #     try: 
+                #         if libreforms.forms[form_name][item]['input_field']['type'] == 'checkbox':
+                                
+                #             parsed_args[item] = str(request.form.getlist(item))
+                            
+
+                #         else:
+                #             parsed_args[item] = str(request.form[item]) if libreforms.forms[form_name][item]['output_data']['type'] == 'str' else float(request.form[item])
+
+                #     except:
+                #         pass
+
+                #     print(parsed_args[item])
+
+                mongodb.write_document_to_collection(parsed_args, form_name, reporter=current_user.username)
+                flash(str(parsed_args))
+                log.info(f'{current_user.username.upper()} - submitted \'{form_name}\' form.')
+                mailer.send_mail(subject=f'{display["site_name"]} {form_name} Submitted', content=f"This email serves to verify that {current_user.username} ({current_user.email}) has just submitted the following form at {display['domain']}: {form_name}.", to_address=current_user.email, logfile=log)
+
+            return render_template('app/forms.html', 
+                context=forms,                                          # this passes the form fields as the primary 'context' variable
+                name=form_name,                                         # this sets the name of the page for the page header
+                menu=form_menu(checkFormGroup),              # this returns the forms in libreform/forms to display in the lefthand menu
+                type="forms",       
+                options=options, 
+                display=display,
+                filename = f'{form_name.lower().replace(" ","")}.csv' if options['_allow_csv_templates'] else False,
+                user=current_user,
+                depends_on=compile_depends_on_data(form_name, user_group=current_user.group),
+                user_list = collect_list_of_users() if display['allow_forms_access_to_user_list'] else [],
+                )
+
+        except Exception as e:
+            flash(f'This form does not exist. {e}')
+            return redirect(url_for('forms.forms_home'))
 
 
 # this is the download link for files in the temp directory
