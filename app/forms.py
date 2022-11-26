@@ -19,6 +19,13 @@ import pandas as pd
 def checkKey(dic, key):
     return True if dic and key in dic.keys() else False
 
+def checkGroup(group, struct):
+    return False if checkKey(struct, '_deny_groups') and group \
+        in struct['_deny_groups'] else True
+
+def form_menu(func):
+    return [x for x in libreforms.forms.keys() if func(x, current_user.group)]
+
 def checkFieldGroup(form, field, group):
     return False if checkKey(libreforms.forms[form][field], '_deny_groups') and group \
         in libreforms.forms[form][field]['_deny_groups'] else True
@@ -36,8 +43,6 @@ def checkDashboardGroup(form, group):
     return False if checkKey(parse_options(form)['_dashboard'], '_deny_groups') and group \
         in parse_options(form)['_dashboard']['_deny_groups'] else True
 
-def form_menu(func):
-    return [x for x in libreforms.forms.keys() if func(x, group=current_user.group)]
 
 # this function just compiles 'depends_on' data for each form
 # to build a useful data tree that can be parsed by the jinja / javascript
@@ -77,7 +82,7 @@ def compile_depends_on_data(form=None, user_group=None):
     return None
 
 def collect_list_of_users(**kwargs): # we'll use the kwargs later to override default user fields
-    query = f'SELECT username,email FROM user'
+    query = f'SELECT username,email FROM {User.__tablename__}'
     # query = f'SELECT username FROM user'
     with db.engine.connect() as conn:
     # running the query
@@ -108,7 +113,7 @@ def parse_form_fields(form=False, user_group=None):
         #         and display['allow_all_groups_default'] == False:
         #     pass
 
-        elif not checkFieldGroup(form, field, user_group):
+        elif not checkGroup(user_group, libreforms.forms[form][field]):
             pass
         
         # adding this due to problems parsing checkboxes and (presumably) other
@@ -191,7 +196,7 @@ def progagate_forms(form=False, group=None):
     # here we drop the meta data fields   
     
     for field in list_fields.keys():
-        if not field.startswith("_") and checkFieldGroup(form, field, group): # drop configs and fields we don't have access to
+        if not field.startswith("_") and checkGroup(group, libreforms.forms[form][field]): # drop configs and fields we don't have access to
             VALUES[field] = list_fields[field]
     
     return VALUES
@@ -249,7 +254,7 @@ def forms_home():
 # @flaskparser.use_args(parse_form_fields(form=form_name), location='form')
 def forms(form_name):
     
-    if not checkFormGroup(form_name, group=current_user.group):
+    if not checkGroup(group=current_user.group, struct=parse_options(form_name)):
         flash(f'You do not have access to this dashboard.')
         return redirect(url_for('forms.forms_home'))
 
