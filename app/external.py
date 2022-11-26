@@ -10,7 +10,7 @@ from flask_login import current_user
 import libreforms
 from app import display, log, tempfile_path, mailer, mongodb, conditional_decorator
 from app.auth import login_required, session
-from app.forms import parse_form_fields, reconcile_form_data_struct, progagate_forms, parse_options, compile_depends_on_data
+from app.forms import parse_form_fields, checkGroup, reconcile_form_data_struct, progagate_forms, parse_options, compile_depends_on_data
 import app.signing as signing
 from app.models import Signing
 
@@ -49,6 +49,11 @@ if display['allow_anonymous_form_submissions']:
             log.error(f'LIBREFORMS - {e}')
             abort(404)
 
+        if not checkGroup(group='anonymous', struct=parse_options(form_name)):
+            flash(f'Your system administrator has disabled this form for anonymous users.')
+            return redirect(url_for('home'))
+
+
         # if the appropriate configurations are set, all us to proceed
         if request.method == 'POST' and display["allow_anonymous_form_submissions"] and forms['_allow_anonymous_access']:
             email = request.form['email']
@@ -85,6 +90,10 @@ if display['allow_anonymous_form_submissions']:
 
         if not display['allow_anonymous_form_submissions']:
             flash('This feature has not been enabled by your system administrator.')
+            return redirect(url_for('home'))
+
+        if not checkGroup(group='anonymous', struct=parse_options(form_name)):
+            flash(f'Your system administrator has disabled this form for anonymous users.')
             return redirect(url_for('home'))
 
         if not signing.verify_signatures(signature, redirect_to='home', 
