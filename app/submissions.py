@@ -69,16 +69,57 @@ def gen_hyperlink(row, form_name):
     # return Markup(f"<p><a href=\"{display['domain']}/submissions/{form_name}/{row.id}\">{form_name}</a></p>")
     return Markup(f"<a href=\"{display['domain']}/submissions/{form_name}/{row.id}\">{display['domain']}/submissions/{form_name}/{row.id}</a>")
 
-def aggregate_form_data():
-    pass
+
+# in this method we aggregate all the relevant information
+def aggregate_form_data(user=None):
+
+    df = pd.DataFrame(columns=['form', 'Timestamp', 'id', 'hyperlink'])
+    collections = mongodb.collections()
+
+    if len(collections) > 0:
+
+        for form in collections:
+
+            if user:
+                temp_df = get_record_of_submissions(form, user=user)
+            else:
+                temp_df = get_record_of_submissions(form)
+
+            if isinstance(temp_df, pd.DataFrame):
+
+                for index, row in temp_df.iterrows():
+                    z = pd.Series({'Timestamp':row['Timestamp'], 'form':form, 'id':row['id'], 'hyperlink':gen_hyperlink(row, form),}).to_frame().T
+                    df = pd.concat([df, z], ignore_index=True)
+                    
+
+    return df if len(df.index)>0 else None
+
 
 bp = Blueprint('submissions', __name__, url_prefix='/submissions')
 
 
-@bp.route('/<form_name>/all')
+@bp.route('/all')
 @login_required
-def render_all_submissions(form_name):
-    pass
+def render_all_submissions():
+
+        record = aggregate_form_data(user=None)
+
+        if not isinstance(record, pd.DataFrame):
+            flash('The application has not received any submissions.')
+            return redirect(url_for('submissions.submissions_home'))
+    
+        else:
+
+            return render_template('app/submissions.html',
+                type="submissions",
+                name="all",
+                submission=record,
+                display=display,
+                form_home=True,
+                user=current_user,
+                menu=form_menu(checkFormGroup),
+            )
+
 
 
 # define a home route
@@ -123,7 +164,7 @@ def submissions(form_name):
 
             record = record [['Timestamp', 'id']]
 
-            record['id'] = record.apply(lambda x: gen_hyperlink(x, form_name), axis=1)
+            record['hyperlink'] = record.apply(lambda x: gen_hyperlink(x, form_name), axis=1)
 
             return render_template('app/submissions.html',
                 type="submissions",
@@ -136,16 +177,46 @@ def submissions(form_name):
             )
 
 
-# @bp.route('/<user>')
-# @login_required
-# def render_user_submissions(user):
-#     if user == current_user:
-#         pass
+@bp.route('/<user>/all')
+@login_required
+def render_user_submissions(user):
+        record = aggregate_form_data(user=user)
 
-#     else:
-#         abort(404)
+        if not isinstance(record, pd.DataFrame):
+            flash('This user has not made any submissions.')
+            return redirect(url_for('submissions.submissions_home'))
+    
+        else:
 
+            return render_template('app/submissions.html',
+                type="submissions",
+                name="all",
+                submission=record,
+                display=display,
+                form_home=True,
+                user=current_user,
+                menu=form_menu(checkFormGroup),
+            )
+@bp.route('/user/all')
+@login_required
+def render_current_user_submissions():
+        record = aggregate_form_data(user=current_user.username)
 
+        if not isinstance(record, pd.DataFrame):
+            flash('This user has not made any submissions.')
+            return redirect(url_for('submissions.submissions_home'))
+    
+        else:
+
+            return render_template('app/submissions.html',
+                type="submissions",
+                name="all",
+                submission=record,
+                display=display,
+                form_home=True,
+                user=current_user,
+                menu=form_menu(checkFormGroup),
+            )
 @bp.route('/<form_name>/<document_id>')
 @login_required
 def render_document(form_name, document_id):

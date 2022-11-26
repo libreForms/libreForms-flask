@@ -45,6 +45,9 @@ class MongoDB:
         client = MongoClient(host, port)
         self.db = client['libreforms']
 
+    def collections(self):
+        return self.db.list_collection_names()
+
     def write_document_to_collection(self, data, collection_name, 
                                                     reporter=None,
                                                     # the `modifications` kwarg expects a truth statement
