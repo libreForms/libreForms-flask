@@ -57,15 +57,27 @@ class MongoDB:
         from bson.objectid import ObjectId
 
         collection = self.db[collection_name]
-        data['Timestamp'] = str(datetime.datetime.utcnow())
+
+        timestamp = str(datetime.datetime.utcnow())
+
         data['Reporter'] = str(reporter) if reporter else None
-        
+
+        data_copy = data.copy()
+
+        data['Timestamp'] = timestamp
+
         # here we define the behavior of the `Journal` metadata field 
         if not modification:
-            data['Journal'] = { data['Timestamp']: {
-                                                    'Reporter': data['Reporter'],
-                                                    'initial_submission': True}
-                                                    }
+            data['Journal'] = { timestamp: data_copy }
+            data['Journal'][timestamp]['initial_submission'] = True # this may be redundant .. 
+        
+        # here we define the behavior of the `Journal` metadata field 
+        # if not modification:
+            # data['Journal'] = { data['Timestamp']: {
+            #                                         'Reporter': data['Reporter'],
+            #                                         'initial_submission': True}
+            #                                         }
+
             collection.insert_one(data).inserted_id
 
         else:
