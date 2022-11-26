@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block content %}
+
+
+
+<table class="table table-hover">
+    <tbody>
+    {% for item in submission.columns %} 
+      <tr class="table-dark">
+         
+        <th scope="row">{{item}}</th>
+        <td>{{submission[item].iloc[0]}}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+    
+			
+{% endblock %}
