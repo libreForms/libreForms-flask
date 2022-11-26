@@ -1,8 +1,25 @@
 {% extends 'base.html' %}
 {% block content %}
 
+{% if submissions_home %}
+
+  {{ msg }}
+
+{% elif form_home %}
+
+<table class="table table-hover">
+  <tbody>
+  {% for i in submission.index %} 
+    <tr class="table-dark">
+      <th scope="row">{{submission['Timestamp'][i]}}</th>
+      <td>{{submission['id'][i]}}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
 
 
+{% else %}
 <table class="table table-hover">
     <tbody>
     {% for item in submission.columns %} 
@@ -14,6 +31,6 @@
     {% endfor %}
     </tbody>
   </table>
-    
+{% endif %}    
 			
 {% endblock %}
