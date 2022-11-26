@@ -176,8 +176,8 @@ def submissions(form_name):
                 menu=form_menu(checkFormGroup),
             )
 
-
-@bp.route('/<user>/all')
+### this is very vulnerable -- we should use group auth to restrict access at a form level...
+@bp.route('/user/<user>')
 @login_required
 def render_user_submissions(user):
         record = aggregate_form_data(user=user)
@@ -197,26 +197,8 @@ def render_user_submissions(user):
                 user=current_user,
                 menu=form_menu(checkFormGroup),
             )
-@bp.route('/user/all')
-@login_required
-def render_current_user_submissions():
-        record = aggregate_form_data(user=current_user.username)
 
-        if not isinstance(record, pd.DataFrame):
-            flash('This user has not made any submissions.')
-            return redirect(url_for('submissions.submissions_home'))
-    
-        else:
 
-            return render_template('app/submissions.html',
-                type="submissions",
-                name="all",
-                submission=record,
-                display=display,
-                form_home=True,
-                user=current_user,
-                menu=form_menu(checkFormGroup),
-            )
 @bp.route('/<form_name>/<document_id>')
 @login_required
 def render_document(form_name, document_id):
