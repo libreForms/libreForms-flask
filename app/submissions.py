@@ -10,6 +10,7 @@ import libreforms
 from app import display, log, tempfile_path, db, mailer, mongodb
 from app.models import User
 from app.auth import login_required, session
+from app.forms import form_menu, checkFormGroup
 
 
 # and finally, import other packages
@@ -66,6 +67,12 @@ def render_all_submissions(form_name):
 @bp.route('/<form_name>')
 @login_required
 def render_submissions_for_form(form_name):
+
+    # IF SHOW_ALL is enabled for this form:
+        # THEN SHOW ALL SUBMISSIONS
+    # ELSE:
+        # JUST SHOW THE USER'S SUBMISSIONS
+
     pass
 
 
@@ -94,6 +101,7 @@ def render_document(form_name, document_id):
             submission=record,
             display=display,
             user=current_user,
+            menu=form_menu(checkFormGroup),
         )
     except:
         abort(404)
