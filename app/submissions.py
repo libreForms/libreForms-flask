@@ -151,6 +151,7 @@ def submissions(form_name):
 
         if checkKey(libreforms.forms[form_name], "_promiscuous_access_to_submissions") and \
             libreforms.forms[form_name]["_promiscuous_access_to_submissions"]:
+                flash("Warning: this form let's everyone view all its submissions.")
                 record = get_record_of_submissions(form_name=form_name)
         else:
             record = get_record_of_submissions(form_name=form_name, user=current_user.username)
