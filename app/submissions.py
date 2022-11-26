@@ -4,6 +4,8 @@ from flask import Blueprint, g, flash, abort, render_template, \
     request, send_from_directory, send_file, redirect, url_for
 from webargs import fields, flaskparser
 from flask_login import current_user
+from markupsafe import Markup
+
 
 # import custom packages from the current repository
 import libreforms
@@ -51,6 +53,9 @@ def get_record_of_submissions(form_name=None, user=None):
     return pd.DataFrame()
 
 
+def gen_hyperlink(row, form_name):
+    return Markup(f"<a href=\"{display['domain']}/submissions/{form_name}/{row.id}\">{row.Timestamp}</a>")
+
 def aggregate_form_data():
     pass
 
@@ -66,14 +71,27 @@ def render_all_submissions(form_name):
 # this is kind of like the home page for a given form
 @bp.route('/<form_name>')
 @login_required
-def render_submissions_for_form(form_name):
+def submissions(form_name):
 
     # IF SHOW_ALL is enabled for this form:
         # THEN SHOW ALL SUBMISSIONS
     # ELSE:
         # JUST SHOW THE USER'S SUBMISSIONS
 
-    pass
+    record = get_record_of_submissions(form_name=form_name, user=current_user.username)
+
+    record = record [['Timestamp', 'id']]
+
+    record['id'] = record.apply(lambda x: gen_hyperlink(x, form_name), axis=1)
+
+    return render_template('app/submissions.html',
+        type="submissions",
+        name=form_name,
+        submission=record,
+        display=display,
+        user=current_user,
+        menu=form_menu(checkFormGroup),
+    )
 
 
 # @bp.route('/<user>')
@@ -91,17 +109,14 @@ def render_submissions_for_form(form_name):
 def render_document(form_name, document_id):
     record = get_record_of_submissions(form_name=form_name, user=current_user.username)
 
-    try:
-        record = record.loc[record['id'] == str(document_id)]
+    record = record.loc[record['id'] == str(document_id)]
 
 
-        return render_template('app/submissions.html',
-            type="submissions",
-            name=form_name,
-            submission=record,
-            display=display,
-            user=current_user,
-            menu=form_menu(checkFormGroup),
-        )
-    except:
-        abort(404)
+    return render_template('app/submissions.html',
+        type="submissions",
+        name=form_name,
+        submission=record,
+        display=display,
+        user=current_user,
+        menu=form_menu(checkFormGroup),
+    )
