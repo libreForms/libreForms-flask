@@ -367,6 +367,8 @@ def create_app(test_config=None):
     from . import reports
     app.register_blueprint(reports.bp)
 
+    from . import submissions
+    app.register_blueprint(submissions.bp)
 
     return app
 
