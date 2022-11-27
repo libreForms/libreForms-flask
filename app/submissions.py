@@ -95,6 +95,67 @@ def aggregate_form_data(user=None):
     return df if len(df.index)>0 else None
 
 
+
+# Right now, each document submission stores a full carbon copy of the initial submission in 
+# the `Journal`, and then just a summary of the changes in each subsequent change. There are 
+# good cases to be made for this approach, as well as for the alternative approach of storing 
+# a **complete** new copy  under journal each time a change is made. I think it makes sense 
+# to just store subsequent changes because it allows us to highlight DIFFs pretty easily. In 
+# addition, it minimizes sprawl and complexity in the data structure. That said, to accomplish 
+# this objective of this issue, I needed to work around the limitations of this changes-only 
+# approach -- namely, that it's hard to construct a full document from a reference to changes 
+# only. So I wrote the following method to 'expand' the `Journal` data structure, see 
+# https://github.com/signebedi/libreForms/issues/91 for more information about this.
+
+def generate_full_document_history(form, document_id, user=None):
+    try:
+        df = get_record_of_submissions(form, user=user if user else None) # here we get the list of entries
+
+        record = df.loc[df.id == document_id] # here we search for the document ID
+
+        history = dict(record[['Journal']].iloc[0].values[0]) # here we pull out the document history
+
+        # dates of new submissions are used as the unique keys in each Journal entry for a form,
+        # so we create a list 
+        dates = [x for x in history.keys()] 
+                
+        # now we create a replacement dictionary that will store the full document history in memory, 
+        # even though we stored the bare minimum in the database.
+        FULL_HISTORY = {}
+
+        # this is an ephemeral dictionary that we are we will re-write each time with the most recent 
+        # version. At the time of writing, this seemed like the most efficient way to accomplish what
+        # I'm trying to do without iterating through each array / hash multiple times to expand them... 
+        BASE_HISTORY = {}
+
+        # the first entry of each Journal contains a full replica of the original submission, so we
+        # start with it here to set a baseline
+        FULL_HISTORY[dates[0]] = history[dates[0]]
+
+        # delete the initial_submission key if it exists; it's redundant here and can probably be deprecated
+        if checkKey(FULL_HISTORY[dates[0]], 'initial_submission'):del FULL_HISTORY[dates[0]]['initial_submission']
+
+        # create an initial carbon copy in BASE_HISTORY - remember, this isn't the for-record dictionary,
+        # we're just using it to store the current values of each Journal entry as we iterate through them
+        # and expand them.
+        BASE_HISTORY = history[dates[0]]
+
+        # now we iterate through the remaining submissions that have been logged in the Journal,
+        # as these just contain the changes that were submitted. 
+        ### NB. we need to capture each subsequent submission!
+        for item in dates[1:-1]:
+            for change in history[item].keys():
+                BASE_HISTORY[change] = history[item][change]
+            FULL_HISTORY[item] = BASE_HISTORY
+
+
+        return FULL_HISTORY
+
+    except Exception as e:
+        print(e)
+        return None
+
+
 bp = Blueprint('submissions', __name__, url_prefix='/submissions')
 
 
