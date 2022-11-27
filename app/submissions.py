@@ -234,3 +234,23 @@ def render_document(form_name, document_id):
                 user=current_user,
                 menu=form_menu(checkFormGroup),
             )
+
+
+# this generates PDFs
+# @bp.route('/<form_name><document_id>/download')
+# @login_required
+# def generate_pdf(form_name, document_id):
+
+#     from reportlab.pdfgen.canvas import Canvas
+
+#     filename = f"{form_name}_{document_id}.pdf"
+#     canvas = Canvas(filename)
+
+#     # # this is our first stab at building templates, without accounting for nesting or repetition
+#     # df = pd.DataFrame (columns=[x for x in progagate_forms(filename.replace('.csv', '')).keys()], group=current_user.group)
+
+#     # fp = os.path.join(tempfile_path, filename)
+#     # df.to_csv(fp, index=False)
+
+#     return send_from_directory(tempfile_path,
+#                             filename, as_attachment=True)
