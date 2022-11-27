@@ -297,6 +297,48 @@ def render_document(form_name, document_id):
             )
 
 
+@bp.route('/<form_name>/<document_id>/history', methods=('GET', 'POST'))
+@login_required
+def render_document_history(form_name, document_id):
+
+    df = pd.DataFrame(generate_full_document_history(form_name, document_id, user=None))
+
+
+
+    if not checkGroup(group=current_user.group, struct=parse_options(form_name)):
+            flash(f'You do not have access to this dashboard. ')
+            return redirect(url_for('submissions.submissions_home'))
+
+    else:
+
+        if checkKey(libreforms.forms[form_name], "_promiscuous_access_to_submissions") and \
+            libreforms.forms[form_name]["_promiscuous_access_to_submissions"]:
+                flash("Warning: this form let's everyone view all its submissions.")
+                record = get_record_of_submissions(form_name=form_name)
+        else:
+            record = get_record_of_submissions(form_name=form_name, user=current_user.username)
+
+
+        if not isinstance(record, pd.DataFrame):
+            flash('This form has not received any submissions.')
+            return redirect(url_for('submissions.submissions_home'))
+    
+        else:
+
+            record = record [['Timestamp', 'id']]
+
+            record['hyperlink'] = record.apply(lambda x: gen_hyperlink(x, form_name), axis=1)
+
+            return render_template('app/submissions.html',
+                type="submissions",
+                name=form_name,
+                submission=record,
+                display=display,
+                form_home=True,
+                user=current_user,
+                menu=form_menu(checkFormGroup),
+            )
+
 # this generates PDFs
 # @bp.route('/<form_name><document_id>/download')
 # @login_required
