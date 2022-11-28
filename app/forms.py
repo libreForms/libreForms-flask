@@ -189,46 +189,52 @@ def reconcile_form_data_struct(form=False):
 # we want to pass to the web application
 def progagate_forms(form=False, group=None):
     
-    list_fields = libreforms.forms[form]
+    try:
+        list_fields = libreforms.forms[form]
 
-    VALUES = {}
+        VALUES = {}
 
-    # here we drop the meta data fields   
-    
-    for field in list_fields.keys():
-        if not field.startswith("_") and checkGroup(group, libreforms.forms[form][field]): # drop configs and fields we don't have access to
-            VALUES[field] = list_fields[field]
-    
-    return VALUES
+        # here we drop the meta data fields   
+        
+        for field in list_fields.keys():
+            if not field.startswith("_") and checkGroup(group, libreforms.forms[form][field]): # drop configs and fields we don't have access to
+                VALUES[field] = list_fields[field]
+        
+        return VALUES
+    except:
+        return {}
 
 # will be used to parse options for a given form
 def parse_options(form=False):
-        
-    # we start by reading the user defined forms into memory
-    list_fields = libreforms.forms[form]
-
-    # we define the default values for application-defined options
-    OPTIONS = {
-        "_dashboard": None,
-        "_table": None,
-        "_description": False,
-        "_allow_repeat": False, 
-        "_allow_uploads": False, 
-        "_allow_csv_templates": False,
-        "_suppress_default_values": False,  
-        "_allow_anonymous_access": False,  
-        "_smtp_notifications":False,
-        '_deny_groups': [],
-    }
-
-    for field in list_fields.keys():
-        if field.startswith("_"):
-            # we overwrite existing option values, and add new ones
-            # based on the user defined configurations
-            OPTIONS[field] = list_fields[field]
     
-    return OPTIONS
+    try:
+        # we start by reading the user defined forms into memory
+        list_fields = libreforms.forms[form]
 
+        # we define the default values for application-defined options
+        OPTIONS = {
+            "_dashboard": None,
+            "_table": None,
+            "_description": False,
+            "_allow_repeat": False, 
+            "_allow_uploads": False, 
+            "_allow_csv_templates": False,
+            "_suppress_default_values": False,  
+            "_allow_anonymous_access": False,  
+            "_smtp_notifications":False,
+            '_deny_groups': [],
+        }
+
+        for field in list_fields.keys():
+            if field.startswith("_"):
+                # we overwrite existing option values, and add new ones
+                # based on the user defined configurations
+                OPTIONS[field] = list_fields[field]
+        
+        return OPTIONS
+
+    except:
+        return {}
 
 
 bp = Blueprint('forms', __name__, url_prefix='/forms')
