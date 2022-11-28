@@ -212,7 +212,7 @@ def submissions(form_name):
 
         if checkKey(libreforms.forms[form_name], "_promiscuous_access_to_submissions") and \
             libreforms.forms[form_name]["_promiscuous_access_to_submissions"]:
-                flash("Warning: this form let's everyone view all its submissions.")
+                flash("Warning: this form let's everyone view all its submissions. ")
                 record = get_record_of_submissions(form_name=form_name)
         else:
             record = get_record_of_submissions(form_name=form_name, user=current_user.username)
@@ -273,7 +273,7 @@ def render_document(form_name, document_id):
         if checkKey(libreforms.forms[form_name], "_promiscuous_access_to_submissions") and \
             libreforms.forms[form_name]["_promiscuous_access_to_submissions"]:
 
-            flash("Warning: this form let's everyone view all its submissions.")
+            flash("Warning: this form let's everyone view all its submissions. ")
             record = get_record_of_submissions(form_name=form_name)
 
         else:
@@ -313,7 +313,7 @@ def render_document_history(form_name, document_id):
 
         if checkKey(libreforms.forms[form_name], "_promiscuous_access_to_submissions") and \
             libreforms.forms[form_name]["_promiscuous_access_to_submissions"]:
-                flash("Warning: this form let's everyone view all its submissions.")
+                flash("Warning: this form let's everyone view all its submissions. ")
                 record = pd.DataFrame(generate_full_document_history(form_name, document_id, user=None))
         else:
             record = pd.DataFrame(generate_full_document_history(form_name, document_id, user=current_user.username))
@@ -344,6 +344,7 @@ def render_document_history(form_name, document_id):
                     breadcrumb = breadcrumb + Markup(f'<li class="breadcrumb-item"><a href="?Timestamp={item}">{item}</a></li>')
             breadcrumb = breadcrumb + Markup('</ol>')
 
+
             for val in record.columns:
                 if val != timestamp:
                     # print(f'dropped {val}')
@@ -352,11 +353,19 @@ def render_document_history(form_name, document_id):
             display_data = record.transpose()
             # print(display_data)
 
+            # here we set a list of values to emphasize in the table because they've changed values
+            t = get_record_of_submissions(form_name) 
+            t2 = t.loc[t.id == document_id] 
+            t3 = dict(t2[['Journal']].iloc[0].values[0]) 
+            emphasize = [x for x in t3[timestamp].keys()]
+            flash(f'The following values changed in this version and are emphasized below: {", ".join(emphasize)}. ')
+
             return render_template('app/submissions.html',
                 type="submissions",
                 name=form_name,
                 submission=display_data,
                 display=display,
+                emphasize=emphasize,
                 breadcrumb=breadcrumb,
                 user=current_user,
                 msg=Markup(f"<a href = '{display['domain']}/submissions/{form_name}/{document_id}'>go back to document</a>"),

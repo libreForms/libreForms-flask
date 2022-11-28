@@ -15,10 +15,10 @@
 
 <table class="table table-hover">
   <tbody>
-  {% for i in submission.index %} 
-    <tr class="table-dark">
-      <th scope="row">{{submission['Timestamp'][i]}}</th>
-      <td>{{submission['hyperlink'][i]}}</td>
+  {% for item in submission.index %} 
+    <tr class="table{% if emphasize and item in emphasize %}-secondary{% else %}-dark{% endif %}">
+      <th scope="row">{{submission['Timestamp'][item]}}</th>
+      <td>{{submission['hyperlink'][item]}}</td>
     </tr>
   {% endfor %}
   </tbody>
@@ -29,8 +29,7 @@
 <table class="table table-hover">
     <tbody>
     {% for item in submission.columns %} 
-      <tr class="table-dark">
-         
+      <tr class="table{% if emphasize and item in emphasize %}-secondary{% else %}-dark{% endif %}">
         <th scope="row">{{item}}</th>
         <td>{{submission[item].iloc[0]}}</td>
       </tr>
