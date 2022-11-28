@@ -130,23 +130,23 @@ def generate_full_document_history(form, document_id, user=None):
 
         # the first entry of each Journal contains a full replica of the original submission, so we
         # start with it here to set a baseline
-        FULL_HISTORY[dates[0]] = history[dates[0]]
+        FULL_HISTORY[dates[0]] = history[dates[0]].copy()
 
         # delete the initial_submission key if it exists; it's redundant here and can probably be deprecated
-        if checkKey(FULL_HISTORY[dates[0]], 'initial_submission'):del FULL_HISTORY[dates[0]]['initial_submission']
+        if checkKey(FULL_HISTORY[dates[0]], 'initial_submission'): del FULL_HISTORY[dates[0]]['initial_submission']
 
         # create an initial carbon copy in BASE_HISTORY - remember, this isn't the for-record dictionary,
         # we're just using it to store the current values of each Journal entry as we iterate through them
         # and expand them.
-        BASE_HISTORY = history[dates[0]]
+        BASE_HISTORY = FULL_HISTORY[dates[0]].copy()
 
         # now we iterate through the remaining submissions that have been logged in the Journal,
         # as these just contain the changes that were submitted. 
         ### NB. we need to capture each subsequent submission!
-        for item in dates[1:-1]:
+        for item in dates[1:]:
             for change in history[item].keys():
                 BASE_HISTORY[change] = history[item][change]
-            FULL_HISTORY[item] = BASE_HISTORY
+            FULL_HISTORY[item] = BASE_HISTORY.copy()
 
 
         return FULL_HISTORY
@@ -205,7 +205,7 @@ def submissions(form_name):
 
 
     if not checkGroup(group=current_user.group, struct=parse_options(form_name)):
-            flash(f'You do not have access to this dashboard. ')
+            flash(f'You do not have access to this view. ')
             return redirect(url_for('submissions.submissions_home'))
 
     else:
@@ -264,26 +264,29 @@ def render_user_submissions(user):
 @bp.route('/<form_name>/<document_id>')
 @login_required
 def render_document(form_name, document_id):
-    
     if not checkGroup(group=current_user.group, struct=parse_options(form_name)):
-            flash(f'You do not have access to this dashboard. ')
+            flash(f'You do not have access to this view. ')
             return redirect(url_for('submissions.submissions_home'))
 
     else:
 
         if checkKey(libreforms.forms[form_name], "_promiscuous_access_to_submissions") and \
             libreforms.forms[form_name]["_promiscuous_access_to_submissions"]:
-                record = get_record_of_submissions(form_name=form_name)
+
+            flash("Warning: this form let's everyone view all its submissions.")
+            record = get_record_of_submissions(form_name=form_name)
+
         else:
+
             record = get_record_of_submissions(form_name=form_name, user=current_user.username)
 
 
         if not isinstance(record, pd.DataFrame):
-            flash('This form has not received any submissions.')
+            flash('This document does not exist.')
             return redirect(url_for('submissions.submissions_home'))
     
         else:
-
+    
             record = record.loc[record['id'] == str(document_id)]
 
 
@@ -301,12 +304,8 @@ def render_document(form_name, document_id):
 @login_required
 def render_document_history(form_name, document_id):
 
-    df = pd.DataFrame(generate_full_document_history(form_name, document_id, user=None))
-
-
-
     if not checkGroup(group=current_user.group, struct=parse_options(form_name)):
-            flash(f'You do not have access to this dashboard. ')
+            flash(f'You do not have access to this view. ')
             return redirect(url_for('submissions.submissions_home'))
 
     else:
@@ -314,27 +313,59 @@ def render_document_history(form_name, document_id):
         if checkKey(libreforms.forms[form_name], "_promiscuous_access_to_submissions") and \
             libreforms.forms[form_name]["_promiscuous_access_to_submissions"]:
                 flash("Warning: this form let's everyone view all its submissions.")
-                record = get_record_of_submissions(form_name=form_name)
+                record = pd.DataFrame(generate_full_document_history(form_name, document_id, user=None))
         else:
-            record = get_record_of_submissions(form_name=form_name, user=current_user.username)
+            record = pd.DataFrame(generate_full_document_history(form_name, document_id, user=current_user.username))
 
 
         if not isinstance(record, pd.DataFrame):
-            flash('This form has not received any submissions.')
+            flash('This document does not exist.')
             return redirect(url_for('submissions.submissions_home'))
     
         else:
 
-            record = record [['Timestamp', 'id']]
+            # if a timestamp has been selected, then we set that to the page focus
+            if request.args.get("Timestamp"):
+                timestamp = request.args.get("Timestamp")
+            # if a timestamp hasn't been passed in the get vars, then we default to the most recent
+            else:
+                # timestamp = record.iloc[-1, record.columns.get_loc('Timestamp')]
+                timestamp = record.columns[-1]
 
-            record['hyperlink'] = record.apply(lambda x: gen_hyperlink(x, form_name), axis=1)
+            # I'm experimenting with creating the Jinja element in the backend ...
+            # it makes applying certain logic -- like deciding which element to mark
+            # as active -- much more straightforward. 
+            breadcrumb = Markup('<ol class="breadcrumb">')
+
+            for item in record.columns:
+                breadcrumb = breadcrumb + Markup(f'<li class="breadcrumb-item{" active" if item == timestamp else ""}"><a href="?Timestamp={item}">{item}</a></li>')
+
+            breadcrumb = breadcrumb + Markup('</ol>')
+
+
+            # display_data = record[timestamp]
+            
+            # ValueError: Shape of passed values is (15, 1), indices imply (15, 15)
+
+            # display_data = pd.DataFrame(columns=record.index.values, data=record[timestamp].values)
+            
+            # record = record.transpose()
+            # print(record[timestamp].values)
+
+            for val in record.columns:
+                if val != timestamp:
+                    # print(f'dropped {val}')
+                    record.drop([val], axis=1, inplace=True)
+
+            display_data = record.transpose()
+            # print(display_data)
 
             return render_template('app/submissions.html',
                 type="submissions",
                 name=form_name,
-                submission=record,
+                submission=display_data,
                 display=display,
-                form_home=True,
+                breadcrumb=breadcrumb,
                 user=current_user,
                 menu=form_menu(checkFormGroup),
             )
