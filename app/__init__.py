@@ -44,6 +44,16 @@ if display['libreforms_user_email'] == None:
 if not re.fullmatch(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', display['libreforms_user_email']):
     raise Exception("The email you specified in the'libreforms_user_email' app config is invalid.")
 
+# system breaks initially if configs are set that require SMTP, but SMTP isn't enabled.
+if not display['smtp_enabled'] and (display['enable_email_verification'] or \
+            display['send_reports'] or display['allow_password_resets'] or \
+            display['allow_anonymous_form_submissions']):
+
+  raise Exception("Please enable SMTP if you'd like to enable email verification, allow password resets, send \
+                        reports, or allow anonymous form submissions.")
+
+display['send_reports'] or display['allow_password_resets'] or display['allow_anonymous_form_submissions'] 
+
 if not os.path.exists('secret_key'):
     with open('secret_key', 'w') as f: 
         secret_key = secrets.token_urlsafe(16)
@@ -106,9 +116,9 @@ if display['custom_sql_db'] == True:
         log.warning('LIBREFORMS - no user db credentials file found, custom sql database will not be enabled.')
 
 
-if os.path.exists ("smtp_creds"):
-    smtp_creds = pd.read_csv("smtp_creds", dtype=str) # expecting the CSV format: smtp_server,port,username,password,from_address
-    if display['smtp_enabled'] == True: # we should do something with this later on
+if display['smtp_enabled']: # we should do something with this later on
+    if os.path.exists ("smtp_creds"):
+        smtp_creds = pd.read_csv("smtp_creds", dtype=str) # expecting the CSV format: smtp_server,port,username,password,from_address
         log.info(f'LIBREFORMS - found an SMTP credentials file using {smtp_creds.mail_server[0]}.')
 
         mailer = smtp.sendMail(mail_server=smtp_creds.mail_server[0],
@@ -116,10 +126,12 @@ if os.path.exists ("smtp_creds"):
                             username = smtp_creds.username[0],
                             password = smtp_creds.password[0],
                             from_address = smtp_creds.from_address[0])
-        # mailer.send_mail(subject="online", content="online", to_address='', logfile=log)
-else: 
-    display['smtp_enabled'] = False
-    log.warning('LIBREFORMS - no SMTP credentials file found, outgoing mail will not be enabled.')
+        mailer.send_mail(subject=f"{display['site_name']} online", content=f"{display['site_name']} is now online at {display['domain']}.", to_address=display['libreforms_user_email'], logfile=log)
+    else: 
+        log.error('LIBREFORMS - no SMTP credentials file found, outgoing mail will not be enabled.')
+        # I think we need to stop the system here if we are trying to enable SMTP but no creds have been provided
+        raise Exception("SMTP is enabled but now SMTP credentials have been provided. Please see the \
+            documentation at https://github.com/signebedi/libreForms#mail for more details.")
 
 # if os.path.exists ("ldap_creds"):
     # ldap_creds = pd.read_csv("ldap_creds", dtype=str) # expecting CSV format

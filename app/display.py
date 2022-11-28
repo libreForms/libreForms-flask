@@ -33,7 +33,7 @@ display['allow_anonymous_registration'] = True
 display['allow_password_resets'] = True
 
 
-display['smtp_enabled'] = False
+display['smtp_enabled'] = True
 display['ldap_enabled'] = False
 
 
