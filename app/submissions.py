@@ -337,21 +337,12 @@ def render_document_history(form_name, document_id):
             # it makes applying certain logic -- like deciding which element to mark
             # as active -- much more straightforward. 
             breadcrumb = Markup('<ol class="breadcrumb">')
-
             for item in record.columns:
-                breadcrumb = breadcrumb + Markup(f'<li class="breadcrumb-item{" active" if item == timestamp else ""}"><a href="?Timestamp={item}">{item}</a></li>')
-
+                if item == timestamp:
+                    breadcrumb = breadcrumb + Markup(f'<li class="breadcrumb-item active">{item}</li>')
+                else:
+                    breadcrumb = breadcrumb + Markup(f'<li class="breadcrumb-item"><a href="?Timestamp={item}">{item}</a></li>')
             breadcrumb = breadcrumb + Markup('</ol>')
-
-
-            # display_data = record[timestamp]
-            
-            # ValueError: Shape of passed values is (15, 1), indices imply (15, 15)
-
-            # display_data = pd.DataFrame(columns=record.index.values, data=record[timestamp].values)
-            
-            # record = record.transpose()
-            # print(record[timestamp].values)
 
             for val in record.columns:
                 if val != timestamp:
