@@ -336,7 +336,7 @@ def render_document_history(form_name, document_id):
             # I'm experimenting with creating the Jinja element in the backend ...
             # it makes applying certain logic -- like deciding which element to mark
             # as active -- much more straightforward. 
-            breadcrumb = Markup('<ol class="breadcrumb">')
+            breadcrumb = Markup('<ol style="--bs-breadcrumb-divider: \'>\';" class="breadcrumb">')
             for item in record.columns:
                 if item == timestamp:
                     breadcrumb = breadcrumb + Markup(f'<li class="breadcrumb-item active">{item}</li>')
