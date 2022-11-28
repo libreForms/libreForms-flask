@@ -105,7 +105,8 @@ def forgot_password():
             try: 
                 key = signing.write_key_to_database(scope='forgot_password', expiration=1, active=1, email=email)
                 content = f"A password reset request has been submitted for your account. Please follow this link to complete the reset. {display['domain']}/auth/forgot_password/{key}. Please note this link will expire after one hour."
-                mailer.send_mail(subject=f'{display["site_name"]} Password Reset', content=content, to_address=email, logfile=log)
+                if display['smtp_enabled']:
+                    mailer.send_mail(subject=f'{display["site_name"]} Password Reset', content=content, to_address=email, logfile=log)
                 flash("Password reset link successfully sent.")
             except Exception as e:
                 flash(e)
@@ -197,17 +198,20 @@ def register():
                 db.session.commit()
                 if display["enable_email_verification"]:
                     key = signing.write_key_to_database(scope='email_verification', expiration=48, active=1, email=email)
-                    mailer.send_mail(subject=f'{display["site_name"]} User Registered', content=f"This email serves to notify you that the user {username} has just been registered for this email address at {display['domain']}. Please verify your email by clicking the following link: {display['domain']}/auth/verify_email/{key}. Please note this link will expire after 48 hours.", to_address=email, logfile=log)
+                    if display['smtp_enabled']:
+                        mailer.send_mail(subject=f'{display["site_name"]} User Registered', content=f"This email serves to notify you that the user {username} has just been registered for this email address at {display['domain']}. Please verify your email by clicking the following link: {display['domain']}/auth/verify_email/{key}. Please note this link will expire after 48 hours.", to_address=email, logfile=log)
                     flash(f'Successfully created user \'{username.lower()}\'. Please check your email for an activation link. ')
                 else:
-                    mailer.send_mail(subject=f'{display["site_name"]} User Registered', content=f"This email serves to notify you that the user {username} has just been registered for this email address at {display['domain']}.", to_address=email, logfile=log)
+                    if display['smtp_enabled']:
+                        mailer.send_mail(subject=f'{display["site_name"]} User Registered', content=f"This email serves to notify you that the user {username} has just been registered for this email address at {display['domain']}.", to_address=email, logfile=log)
                     flash(f'Successfully created user \'{username.lower()}\'.')
                 log.info(f'{username.upper()} - successfully registered with email {email}.')
             except:
                 error = f"User is already registered with username \'{username.lower()}\' or email \'{email}\'." if email else f"User is already registered with username \'{username}\'."
                 log.error(f'GUEST - failed to register new user {username.lower()} with email {email}.')
             else:
-                # mailer.send_mail(subject=f"Successfully Registered {username}", content=f"This is a notification that {username} has been successfully registered for libreforms.", to_address=email, logfile=log)
+                # if display['smtp_enabled']:
+                    # mailer.send_mail(subject=f"Successfully Registered {username}", content=f"This is a notification that {username} has been successfully registered for libreforms.", to_address=email, logfile=log)
                 return redirect(url_for("auth.login"))
 
         flash(error)
@@ -272,7 +276,8 @@ if display['enable_rest_api']:
                 return redirect(url_for('auth.profile'))
 
         key = signing.write_key_to_database(scope='api_key', expiration=5640, active=1, email=current_user.email)
-        mailer.send_mail(subject=f'{display["site_name"]} API Key Generated', content=f"This email serves to notify you that the user {current_user.username} has just generated an API key for this email address at {display['domain']}. The API key is: {key}. Please note this key will expire after 365 days.", to_address=current_user.email, logfile=log)
+        if display['smtp_enabled']:
+            mailer.send_mail(subject=f'{display["site_name"]} API Key Generated', content=f"This email serves to notify you that the user {current_user.username} has just generated an API key for this email address at {display['domain']}. The API key is: {key}. Please note this key will expire after 365 days.", to_address=current_user.email, logfile=log)
         flash(f'Successfully generated API key {key} for \'{current_user.username.lower()}\'. They should check their email for further instructions. ')
 
         return redirect(url_for('auth.profile'))
@@ -287,7 +292,8 @@ if display['enable_rest_api']:
         # return redirect(url_for('home'))
 
         # key = signing.write_key_to_database(scope='api_key', expiration=5640, active=1, email=current_user.email)
-        # mailer.send_mail(subject=f'{display["site_name"]} API Key Generated', content=f"This email serves to notify you that the user {current_user.username} has just generated an API key for this email address at {display['domain']}. The API key is: {key}. Please note this key will expire after 365 days.", to_address=current_user.email, logfile=log)
+        # if display['smtp_enabled']:
+            # mailer.send_mail(subject=f'{display["site_name"]} API Key Generated', content=f"This email serves to notify you that the user {current_user.username} has just generated an API key for this email address at {display['domain']}. The API key is: {key}. Please note this key will expire after 365 days.", to_address=current_user.email, logfile=log)
         # flash(f'Successfully generated API key {key} for \'{current_user.username.lower()}\'. They should check their email for further instructions. ')
 
         # return redirect(url_for('auth.profile'))
@@ -370,10 +376,12 @@ def bulk_register():
 
                             if display["enable_email_verification"]:
                                 key = signing.write_key_to_database(scope='email_verification', expiration=48, active=1, email=row.email)
-                                mailer.send_mail(subject=f'{display["site_name"]} User Registered', content=f"This email serves to notify you that the user {row.username} has just been registered for this email address at {display['domain']}. Please verify your email by clicking the following link: {display['domain']}/auth/verify_email/{key}. Please note this link will expire after 48 hours.", to_address=row.email, logfile=log)
+                                if display['smtp_enabled']:
+                                    mailer.send_mail(subject=f'{display["site_name"]} User Registered', content=f"This email serves to notify you that the user {row.username} has just been registered for this email address at {display['domain']}. Please verify your email by clicking the following link: {display['domain']}/auth/verify_email/{key}. Please note this link will expire after 48 hours.", to_address=row.email, logfile=log)
                                 flash(f'Successfully created user \'{row.username.lower()}\'. They should check their email for an activation link. ')
                             else:
-                                mailer.send_mail(subject=f'{display["site_name"]} User Registered', content=f"This email serves to notify you that the user {row.username} has just been registered for this email address at {display['domain']}.", to_address=row.email, logfile=log)
+                                if display['smtp_enabled']:
+                                    mailer.send_mail(subject=f'{display["site_name"]} User Registered', content=f"This email serves to notify you that the user {row.username} has just been registered for this email address at {display['domain']}.", to_address=row.email, logfile=log)
                                 flash(f'Successfully created user \'{row.username.lower()}\'.')
 
                             log.info(f'{row.username.upper()} - successfully registered with email {row.email}.')
@@ -383,7 +391,8 @@ def bulk_register():
                             log.error(f'{current_user.username.upper()} - failed to register new user {row.username.lower()} with email {row.email}.')
                     # else:
                     #     flash(f'Successfully created user \'{bulk_user_df.username.lower()}\'.')
-                    #     mailer.send_mail(subject=f"Successfully Registered {username}", content=f"This is a notification that {username} has been successfully registered for libreforms.", to_address=email, logfile=log)
+                    #     if display['smtp_enabled']:
+                    #        mailer.send_mail(subject=f"Successfully Registered {username}", content=f"This is a notification that {username} has been successfully registered for libreforms.", to_address=email, logfile=log)
                     #     return redirect(url_for("auth.add_users"))
                 flash ("Finished uploading users from CSV.")
 

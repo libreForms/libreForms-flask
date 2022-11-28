@@ -69,7 +69,8 @@ if display['allow_anonymous_form_submissions']:
                 try: 
                     key = signing.write_key_to_database(scope=f'external_{form_name.lower()}', expiration=48, active=1, email=email)
                     content = f"You may now submit form {form_name} at the following address: {display['domain']}/external/{form_name}/{key}. Please note this link will expire after 48 hours."
-                    mailer.send_mail(subject=f'{display["site_name"]} {form_name} Submission Link', content=content, to_address=email, logfile=log)
+                    if display['smtp_enabled']:
+                        mailer.send_mail(subject=f'{display["site_name"]} {form_name} Submission Link', content=content, to_address=email, logfile=log)
                     flash("Form submission link successfully sent.")
                 except Exception as e:
                     flash(e)
