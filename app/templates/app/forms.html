@@ -14,6 +14,13 @@
 					{% endif %}
 
 
+					{# here we override the default value with overrides if default_overrides was passed #}
+					{% if default_overrides and field in default_overrides %}
+					{% set default_value = default_overrides[field] %}
+					{% else %}
+					{% set default_value = context[field].input_field.content[0] %}
+					{% endif %}
+
 					{% if context[field].input_field.type == "autocomplete" %}
 
 					<div class="form-group autocomplete{% if context[field]['_depends_on'] %} {{ context[field]['_depends_on'][0] }}{% endif %}">
@@ -32,7 +39,7 @@
 						<label class="form-label mt-4{% if context[field].output_data.required==true %} required{% endif %}" for="{{ field }}" {% if context[field].output_data.description %}data-bs-toggle="tooltip" data-bs-placement="right" title="{{context[field].output_data.description}}"{% endif %}>{{ field | replace('_', ' ')}}</label>
 						<select name="{{ field }}" class="form-select" {% if context[field].output_data.required==true %}required{% endif %}>
 						{% for item in content %}
-								<option value="{{ item }}" id="{{ field }} {{ item }}" name="{{ field }}">{{ item }}</option>
+								<option value="{{ item }}" id="{{ field }} {{ item }}" name="{{ field }}" {%if item == default_value%}selected="selected"{%endif%}>{{ item }}</option>
 						{% endfor %}
 						</select>
 					</div>
@@ -42,7 +49,7 @@
 						{% for item in content %}
 						<div class="form-check">
 							<label class='form-check-label' for="{{ field }} {{ item }}">{{ item }}
-								<input class="form-check-input" type="radio" value="{{ item }}" id="{{ field }} {{ item }}" name="{{ field }}" />
+								<input class="form-check-input" type="radio" value="{{ item }}" id="{{ field }} {{ item }}" name="{{ field }}"  {%if item == default_value%}selected="selected"{%endif%}/>
 							</label>
 						</div>
 						{% endfor %}
@@ -53,7 +60,7 @@
 						{% for item in content %}
 						<div class="form-check">
 							<label class='form-check-label' for="{{ field }} {{ item }}">{{ item }}
-								<input class="form-check-input" type="checkbox" value="{{ item }}" id="{{ field }} {{ item }}" name="{{ field }}" />
+								<input class="form-check-input" type="checkbox" value="{{ item }}" id="{{ field }} {{ item }}" name="{{ field }}"  {%if item in default_value%}selected="selected"{%endif%}/>
 							</label>
 						</div>
 						{% endfor %}
@@ -62,7 +69,7 @@
 					{% else %}
 					<div class="form-group{% if context[field]['_depends_on'] %} {{ context[field]['_depends_on'][0] }}{% endif %}">
 						<label class="form-label mt-4{% if context[field].output_data.required==true %} required{% endif %}" for="{{ field }}" {% if context[field].output_data.description %}data-bs-toggle="tooltip" data-bs-placement="right" title="{{context[field].output_data.description}}"{% endif %}>{{ field | replace('_', ' ')}}</label></td>
-						<input class="form-control" type="{{ context[field].input_field.type }}" value="{{ context[field].input_field.content[0] }}" id="{{ field }}" name="{{ field }}"/>
+						<input class="form-control" type="{{ context[field].input_field.type }}" value="{{ default_value }}" id="{{ field }}" name="{{ field }}"/>
 					</div>
 	
 					{% endif %}

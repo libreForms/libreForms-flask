@@ -5,14 +5,16 @@ from flask import Blueprint, g, flash, abort, render_template, \
 from webargs import fields, flaskparser
 from flask_login import current_user
 from markupsafe import Markup
-
+from bson import ObjectId
 
 # import custom packages from the current repository
 import libreforms
 from app import display, log, tempfile_path, db, mailer, mongodb
 from app.models import User
 from app.auth import login_required, session
-from app.forms import form_menu, checkGroup, checkFormGroup, checkKey, parse_options
+from app.forms import form_menu, checkGroup, checkFormGroup, \
+    checkKey, parse_options, progagate_forms, parse_form_fields, \
+    collect_list_of_users, compile_depends_on_data
 
 
 # and finally, import other packages
@@ -156,6 +158,20 @@ def generate_full_document_history(form, document_id, user=None):
         return None
 
 
+# a short method to just select changes and ignore anything that hasn't changed
+# when editing an existing form
+def check_args_for_changes(parsed_args, overrides):
+    TEMP = {}
+
+    for item in parsed_args:
+        if checkKey(overrides, item) and parsed_args[item] == overrides[item]:
+            pass
+        else:
+            TEMP[item] = parsed_args[item]
+
+    return TEMP
+
+
 bp = Blueprint('submissions', __name__, url_prefix='/submissions')
 
 
@@ -296,7 +312,7 @@ def render_document(form_name, document_id):
                 type="submissions",
                 name=form_name,
                 submission=record,
-                msg=Markup(f"<a href = '{display['domain']}/submissions/{form_name}/{document_id}/history'>view document history</a>"),
+                msg=Markup(f"<a href = '{display['domain']}/submissions/{form_name}/{document_id}/history'>view document history</a><br/><a href = '{display['domain']}/submissions/{form_name}/{document_id}/edit'>edit this document</a>"),
                 display=display,
                 user=current_user,
                 menu=form_menu(checkFormGroup),
@@ -371,7 +387,7 @@ def render_document_history(form_name, document_id):
                 emphasize=emphasize,
                 breadcrumb=breadcrumb,
                 user=current_user,
-                msg=Markup(f"<a href = '{display['domain']}/submissions/{form_name}/{document_id}'>go back to document</a>"),
+                msg=Markup(f"<a href = '{display['domain']}/submissions/{form_name}/{document_id}'>go back to document</a><br/><a href = '{display['domain']}/submissions/{form_name}/{document_id}/edit'>edit this document</a>"),
                 menu=form_menu(checkFormGroup),
             )
 
@@ -379,49 +395,88 @@ def render_document_history(form_name, document_id):
 @bp.route('/<form_name>/<document_id>/edit', methods=('GET', 'POST'))
 @login_required
 def render_document_edit(form_name, document_id):
+    try:
 
-    if not checkGroup(group=current_user.group, struct=parse_options(form_name)):
-            flash(f'You do not have access to this view. ')
-            return redirect(url_for('submissions.submissions_home'))
-
-    else:
-
-        if checkKey(libreforms.forms, form_name) and \
-            checkKey(libreforms.forms[form_name], "_promiscuous_access_to_submissions") and \
-            libreforms.forms[form_name]["_promiscuous_access_to_submissions"]:
-
-            flash("Warning: this form lets everyone view all its submissions. ")
-            record = get_record_of_submissions(form_name=form_name)
+        if not checkGroup(group=current_user.group, struct=parse_options(form_name)):
+                flash(f'You do not have access to this view. ')
+                return redirect(url_for('submissions.submissions_home'))
 
         else:
 
-            record = get_record_of_submissions(form_name=form_name, user=current_user.username)
+            if checkKey(libreforms.forms, form_name) and \
+                checkKey(libreforms.forms[form_name], "_promiscuous_access_to_submissions") and \
+                libreforms.forms[form_name]["_promiscuous_access_to_submissions"]:
+
+                # flash("Warning: this form lets everyone view all its submissions. ")
+                record = get_record_of_submissions(form_name=form_name)
+
+            else:
+
+                record = get_record_of_submissions(form_name=form_name, user=current_user.username)
 
 
-        if not isinstance(record, pd.DataFrame):
-            flash('This document does not exist.')
-            return redirect(url_for('submissions.submissions_home'))
-    
-        else:
-    
-            record = record.loc[record['id'] == str(document_id)]
+            if not isinstance(record, pd.DataFrame):
+                flash('This document does not exist.')
+                return redirect(url_for('submissions.submissions_home'))
+        
+            else:
+        
+                options = parse_options(form_name)
+                forms = progagate_forms(form_name, group=current_user.group)
 
-            ## if method = POST:
+                record = record.loc[record['id'] == str(document_id)]
+
+                # here we convert the slice to a dictionary to use to override default values
+                overrides = record.iloc[0].to_dict()
+                # print(overrides)
+
+                if request.method == 'POST':
+                    
+                    parsed_args = flaskparser.parser.parse(parse_form_fields(form_name, user_group=current_user.group, args=list(request.form)), request, location="form")
+                    
+                    # here we drop any elements that are not changes
+                    parsed_args = check_args_for_changes(parsed_args, overrides)
+
+                    # we may need to pass this as a string
+                    parsed_args['_id'] = ObjectId(document_id)
+
+                    # from pprint import pprint
+                    # pprint(parsed_args)
+
+                    # here we pass a modification
+                    mongodb.write_document_to_collection(parsed_args, form_name, reporter=current_user.username, modification=True)
+                    
+                    flash(str(parsed_args))
+
+                    # log the update
+                    log.info(f'{current_user.username.upper()} - updated \'{form_name}\' form, document no. {document_id}.')
+
+                    # send an email notification
+                    mailer.send_mail(subject=f'{display["site_name"]} {form_name} Updated ({document_id})', content=f"This email serves to verify that {current_user.username} ({current_user.email}) has just updated the following form at {display['domain']}: {form_name}, document no. document no. {document_id}.", to_address=current_user.email, logfile=log)
+
+                    # and then we redirect to the forms view page
+                    return redirect(url_for('submissions.render_document', form_name=form_name, document_id=document_id))
+
+                
 
 
-            ## render the form submission view
-            return render_template('app/submissions.html',
-                type="submissions",
-                name=form_name,
-                submission=record,
-                msg=Markup(f"<a href = '{display['domain']}/submissions/{form_name}/{document_id}/history'>view document history</a>"),
-                display=display,
-                user=current_user,
-                menu=form_menu(checkFormGroup),
-            )
+                return render_template('app/forms.html', 
+                    context=forms,                                          # this passes the form fields as the primary 'context' variable
+                    name=form_name,                                         # this sets the name of the page for the page header
+                    menu=form_menu(checkFormGroup),              # this returns the forms in libreform/forms to display in the lefthand menu
+                    type="forms",       
+                    default_overrides=overrides,
+                    options=options, 
+                    display=display,
+                    filename = f'{form_name.lower().replace(" ","")}.csv' if options['_allow_csv_templates'] else False,
+                    user=current_user,
+                    depends_on=compile_depends_on_data(form_name, user_group=current_user.group),
+                    user_list = collect_list_of_users() if display['allow_forms_access_to_user_list'] else [],
+                    )
 
-
-
+    except Exception as e:
+        flash(f'This form does not exist. {e}')
+        return redirect(url_for('submissions.submissions_home'))
 
 # this generates PDFs
 # @bp.route('/<form_name><document_id>/download')

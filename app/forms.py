@@ -282,13 +282,13 @@ def forms(form_name):
             options = parse_options(form_name)
             forms = progagate_forms(form_name, group=current_user.group)
 
+
             if request.method == 'POST':
                 
                 # print([x for x in list(request.form)])
                 # for x in list(request.form):
                 #     print(x)
                 parsed_args = flaskparser.parser.parse(parse_form_fields(form_name, user_group=current_user.group, args=list(request.form)), request, location="form")
-                
                 # parsed_args = {}
 
                 # for item in libreforms.forms[form_name].keys():
@@ -310,10 +310,15 @@ def forms(form_name):
                 #     print(parsed_args[item])
                 # print(parsed_args)
 
-                mongodb.write_document_to_collection(parsed_args, form_name, reporter=current_user.username)
+                # here we insert the value and store the return value as the document ID
+                document_id = mongodb.write_document_to_collection(parsed_args, form_name, reporter=current_user.username)
+
                 flash(str(parsed_args))
-                log.info(f'{current_user.username.upper()} - submitted \'{form_name}\' form.')
-                mailer.send_mail(subject=f'{display["site_name"]} {form_name} Submitted', content=f"This email serves to verify that {current_user.username} ({current_user.email}) has just submitted the following form at {display['domain']}: {form_name}.", to_address=current_user.email, logfile=log)
+                log.info(f'{current_user.username.upper()} - submitted \'{form_name}\' form, document no. {document_id}.')
+                mailer.send_mail(subject=f'{display["site_name"]} {form_name} Submitted ({document_id})', content=f"This email serves to verify that {current_user.username} ({current_user.email}) has just submitted the following form at {display['domain']}: {form_name}, document no. {document_id}.", to_address=current_user.email, logfile=log)
+                
+                
+                return redirect(url_for('submissions.render_document', form_name=form_name, document_id=document_id))
 
             return render_template('app/forms.html', 
                 context=forms,                                          # this passes the form fields as the primary 'context' variable

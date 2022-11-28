@@ -78,7 +78,7 @@ class MongoDB:
             #                                         'initial_submission': True}
             #                                         }
 
-            collection.insert_one(data).inserted_id
+            return collection.insert_one(data).inserted_id
 
         else:
 
@@ -101,6 +101,8 @@ class MongoDB:
             data['Journal'][data['Timestamp']] =  dict(journal_data)
             # print(final_data['Journal'])
             collection.update_one({'_id': ObjectId(data['_id'])}, { "$set": data}, upsert=False)
+
+            return data['_id']
 
 
 
