@@ -213,7 +213,7 @@ def submissions(form_name):
         if checkKey(libreforms.forms, form_name) and \
             checkKey(libreforms.forms[form_name], "_promiscuous_access_to_submissions") and \
             libreforms.forms[form_name]["_promiscuous_access_to_submissions"]:
-                flash("Warning: this form let's everyone view all its submissions. ")
+                flash("Warning: this form lets everyone view all its submissions. ")
                 record = get_record_of_submissions(form_name=form_name)
         else:
             record = get_record_of_submissions(form_name=form_name, user=current_user.username)
@@ -275,7 +275,7 @@ def render_document(form_name, document_id):
             checkKey(libreforms.forms[form_name], "_promiscuous_access_to_submissions") and \
             libreforms.forms[form_name]["_promiscuous_access_to_submissions"]:
 
-            flash("Warning: this form let's everyone view all its submissions. ")
+            flash("Warning: this form lets everyone view all its submissions. ")
             record = get_record_of_submissions(form_name=form_name)
 
         else:
@@ -316,7 +316,7 @@ def render_document_history(form_name, document_id):
         if checkKey(libreforms.forms, form_name) and \
             checkKey(libreforms.forms[form_name], "_promiscuous_access_to_submissions") and \
             libreforms.forms[form_name]["_promiscuous_access_to_submissions"]:
-                flash("Warning: this form let's everyone view all its submissions. ")
+                flash("Warning: this form lets everyone view all its submissions. ")
                 record = pd.DataFrame(generate_full_document_history(form_name, document_id, user=None))
         else:
             record = pd.DataFrame(generate_full_document_history(form_name, document_id, user=current_user.username))
@@ -374,6 +374,54 @@ def render_document_history(form_name, document_id):
                 msg=Markup(f"<a href = '{display['domain']}/submissions/{form_name}/{document_id}'>go back to document</a>"),
                 menu=form_menu(checkFormGroup),
             )
+
+
+@bp.route('/<form_name>/<document_id>/edit', methods=('GET', 'POST'))
+@login_required
+def render_document_edit(form_name, document_id):
+
+    if not checkGroup(group=current_user.group, struct=parse_options(form_name)):
+            flash(f'You do not have access to this view. ')
+            return redirect(url_for('submissions.submissions_home'))
+
+    else:
+
+        if checkKey(libreforms.forms, form_name) and \
+            checkKey(libreforms.forms[form_name], "_promiscuous_access_to_submissions") and \
+            libreforms.forms[form_name]["_promiscuous_access_to_submissions"]:
+
+            flash("Warning: this form lets everyone view all its submissions. ")
+            record = get_record_of_submissions(form_name=form_name)
+
+        else:
+
+            record = get_record_of_submissions(form_name=form_name, user=current_user.username)
+
+
+        if not isinstance(record, pd.DataFrame):
+            flash('This document does not exist.')
+            return redirect(url_for('submissions.submissions_home'))
+    
+        else:
+    
+            record = record.loc[record['id'] == str(document_id)]
+
+            ## if method = POST:
+
+
+            ## render the form submission view
+            return render_template('app/submissions.html',
+                type="submissions",
+                name=form_name,
+                submission=record,
+                msg=Markup(f"<a href = '{display['domain']}/submissions/{form_name}/{document_id}/history'>view document history</a>"),
+                display=display,
+                user=current_user,
+                menu=form_menu(checkFormGroup),
+            )
+
+
+
 
 # this generates PDFs
 # @bp.route('/<form_name><document_id>/download')
