@@ -315,7 +315,7 @@ def forms(form_name):
 
                 flash(str(parsed_args))
                 log.info(f'{current_user.username.upper()} - submitted \'{form_name}\' form, document no. {document_id}.')
-                mailer.send_mail(subject=f'{display["site_name"]} {form_name} Submitted ({document_id})', content=f"This email serves to verify that {current_user.username} ({current_user.email}) has just submitted the following form at {display['domain']}: {form_name}, document no. {document_id}.", to_address=current_user.email, logfile=log)
+                mailer.send_mail(subject=f'{display["site_name"]} {form_name} Submitted ({document_id})', content=f"This email serves to verify that {current_user.username} ({current_user.email}) has just submitted the {form_name} form, which you can view at {display['domain']}/submissions/{form_name}/{document_id}.", to_address=current_user.email, logfile=log)
                 
                 
                 return redirect(url_for('submissions.render_document', form_name=form_name, document_id=document_id))

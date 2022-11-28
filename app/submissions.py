@@ -452,7 +452,7 @@ def render_document_edit(form_name, document_id):
                     log.info(f'{current_user.username.upper()} - updated \'{form_name}\' form, document no. {document_id}.')
 
                     # send an email notification
-                    mailer.send_mail(subject=f'{display["site_name"]} {form_name} Updated ({document_id})', content=f"This email serves to verify that {current_user.username} ({current_user.email}) has just updated the following form at {display['domain']}: {form_name}, document no. document no. {document_id}.", to_address=current_user.email, logfile=log)
+                    mailer.send_mail(subject=f'{display["site_name"]} {form_name} Updated ({document_id})', content=f"This email serves to verify that {current_user.username} ({current_user.email}) has just updated the {form_name} form, which you can view at {display['domain']}/submissions/{form_name}/{document_id}.", to_address=current_user.email, logfile=log)
 
                     # and then we redirect to the forms view page
                     return redirect(url_for('submissions.render_document', form_name=form_name, document_id=document_id))
