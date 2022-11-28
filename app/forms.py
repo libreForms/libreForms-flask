@@ -97,13 +97,25 @@ def generate_list_of_users(db=db):
     col = User.query.with_entities(User.username, User.email).distinct()
     return [(row.email, row.username) for row in col.all()]
 
-def parse_form_fields(form=False, user_group=None):
+def parse_form_fields(form=False, user_group=None, args=None):
 
     FORM_ARGS = {}  
 
+    print(list(args))
+
+    # for field in args if args else libreforms.forms[form].keys():
     for field in libreforms.forms[form].keys():
 
-        if field.startswith("_"):
+        # we add this logic to allow us to iterate through the args 
+        # provided and only parse these - and yet, not allow the provided
+        # args to dictate which to parse for the form generally - as this
+        # creates a risk that clients will pass maliciously formed requests;
+        # instead, we start with the original form, and only proceed with
+        # each field in the original form if it was passed as an arg. 
+        if args and field not in args:
+            pass
+        
+        elif field.startswith("_"):
             pass
 
         # here we ignore fields if the user's group has either been explicitly excluded from the field,
@@ -272,7 +284,10 @@ def forms(form_name):
 
             if request.method == 'POST':
                 
-                parsed_args = flaskparser.parser.parse(parse_form_fields(form_name, user_group=current_user.group), request, location="form")
+                # print([x for x in list(request.form)])
+                # for x in list(request.form):
+                #     print(x)
+                parsed_args = flaskparser.parser.parse(parse_form_fields(form_name, user_group=current_user.group, args=list(request.form)), request, location="form")
                 
                 # parsed_args = {}
 
@@ -293,6 +308,7 @@ def forms(form_name):
                 #         pass
 
                 #     print(parsed_args[item])
+                # print(parsed_args)
 
                 mongodb.write_document_to_collection(parsed_args, form_name, reporter=current_user.username)
                 flash(str(parsed_args))
