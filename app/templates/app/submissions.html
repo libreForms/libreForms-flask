@@ -9,7 +9,7 @@
 
 {% if submissions_home %}
 
-  {{ msg }}
+  
 
 {% elif form_home %}
 
@@ -39,4 +39,11 @@
   </table>
 {% endif %}    
 			
+
+{% if msg %}
+
+  {{ msg }}
+
+{% endif %}    
+
 {% endblock %}

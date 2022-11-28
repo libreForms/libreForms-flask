@@ -294,6 +294,7 @@ def render_document(form_name, document_id):
                 type="submissions",
                 name=form_name,
                 submission=record,
+                msg=Markup(f"<a href = '{display['domain']}/submissions/{form_name}/{document_id}/history'>view document history</a>"),
                 display=display,
                 user=current_user,
                 menu=form_menu(checkFormGroup),
@@ -367,6 +368,7 @@ def render_document_history(form_name, document_id):
                 display=display,
                 breadcrumb=breadcrumb,
                 user=current_user,
+                msg=Markup(f"<a href = '{display['domain']}/submissions/{form_name}/{document_id}'>go back to document</a>"),
                 menu=form_menu(checkFormGroup),
             )
 
