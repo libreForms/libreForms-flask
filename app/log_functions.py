@@ -71,14 +71,17 @@ parameter takes an integer and selects only that number of entries; the
 `pull_from` field takes either 'start' or 'end', and is used when `limit`
 is passed to decide whether to select the log entries from the start of 
 the logfile or the end. If no `keyword` specified, return the entire log.
+To avoid spillage, we pass a bool option `exclude_pid` while strips out 
+PID numbers from each log entry by default
 
 Further, the base web application toggles the visibility of user logs on
 their profiles by setting the `enable_user_profile_log_aggregation` config
-to True.
+to True. 
 
 In the future, we should consider handling (1) rotated log files (eg. still 
 including them), (2) adding support for pagination in the user profile, and 
 (3) potentially adding a search bar for a user's logs.
+
 
 You can see more discussion about this method in the application's Github
 issues https://github.com/signebedi/libreForms/issues/35.
@@ -168,13 +171,16 @@ def cleanup_stray_log_handlers(current_pid=None):
 # (pulls up to `limit` from the end of the list). If no keyword specified, return the 
 # entire log as a list.
 def aggregate_log_data(keyword:str=None, file_path:str='log/libreforms.log',
-                        limit:int=None, pull_from:str='start'):
+                        limit:int=None, pull_from:str='start', exclude_pid:bool=True):
 
     with open(file_path, "r") as logfile:
 
         if keyword:
 
             TEMP = [x for x in logfile.readlines() if keyword in x]
+
+            # added this to strip out PIDs if we pass the `exclude_pid` option
+            TEMP = [" -".join(x.split(' -')[:-1]) for x in TEMP] if exclude_pid else TEMP 
 
             if limit and len(TEMP) > limit and pull_from=='start':
                 return TEMP[:limit]
@@ -184,4 +190,5 @@ def aggregate_log_data(keyword:str=None, file_path:str='log/libreforms.log',
                 return TEMP
 
         else:
-            return [x for x in logfile.readlines()]
+            # added this to strip out PIDs if we pass the `exclude_pid` option
+            return [" -".join(x.split(' -')[:-1]) for x in logfile.readlines()] if exclude_pid else [x for x in logfile.readlines()]
