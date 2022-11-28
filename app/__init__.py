@@ -133,8 +133,9 @@ if display['smtp_enabled']: # we should do something with this later on
         raise Exception("SMTP is enabled but now SMTP credentials have been provided. Please see the \
             documentation at https://github.com/signebedi/libreForms#mail for more details.")
 else:
-    # we set the mailer to None if SMTP isn't enabled
-    mailer=None
+    # we want the mailer object to exist still but by passing `enabled` to False we 
+    # prevent mail from being sent
+    mailer=smtp.sendMail(enabled=False)
 
 # if os.path.exists ("ldap_creds"):
     # ldap_creds = pd.read_csv("ldap_creds", dtype=str) # expecting CSV format
