@@ -210,7 +210,8 @@ def submissions(form_name):
 
     else:
 
-        if checkKey(libreforms.forms[form_name], "_promiscuous_access_to_submissions") and \
+        if checkKey(libreforms.forms, form_name) and \
+            checkKey(libreforms.forms[form_name], "_promiscuous_access_to_submissions") and \
             libreforms.forms[form_name]["_promiscuous_access_to_submissions"]:
                 flash("Warning: this form let's everyone view all its submissions. ")
                 record = get_record_of_submissions(form_name=form_name)
@@ -270,7 +271,8 @@ def render_document(form_name, document_id):
 
     else:
 
-        if checkKey(libreforms.forms[form_name], "_promiscuous_access_to_submissions") and \
+        if checkKey(libreforms.forms, form_name) and \
+            checkKey(libreforms.forms[form_name], "_promiscuous_access_to_submissions") and \
             libreforms.forms[form_name]["_promiscuous_access_to_submissions"]:
 
             flash("Warning: this form let's everyone view all its submissions. ")
@@ -311,7 +313,8 @@ def render_document_history(form_name, document_id):
 
     else:
 
-        if checkKey(libreforms.forms[form_name], "_promiscuous_access_to_submissions") and \
+        if checkKey(libreforms.forms, form_name) and \
+            checkKey(libreforms.forms[form_name], "_promiscuous_access_to_submissions") and \
             libreforms.forms[form_name]["_promiscuous_access_to_submissions"]:
                 flash("Warning: this form let's everyone view all its submissions. ")
                 record = pd.DataFrame(generate_full_document_history(form_name, document_id, user=None))
