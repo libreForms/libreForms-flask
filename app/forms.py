@@ -240,7 +240,8 @@ def parse_options(form=False):
                 '_enable_universal_form_access': False,
                 '_deny_read': [],
                 '_deny_write': [],
-                }
+                },
+            '_send_form_with_email_notification':False,
         }
 
         for field in list_fields.keys():
@@ -321,7 +322,7 @@ def forms(form_name):
 
                 flash(str(parsed_args))
                 log.info(f'{current_user.username.upper()} - submitted \'{form_name}\' form, document no. {document_id}.')
-                mailer.send_mail(subject=f'{display["site_name"]} {form_name} Submitted ({document_id})', content=f"This email serves to verify that {current_user.username} ({current_user.email}) has just submitted the {form_name} form, which you can view at {display['domain']}/submissions/{form_name}/{document_id}.", to_address=current_user.email, logfile=log)
+                mailer.send_mail(subject=f'{display["site_name"]} {form_name} Submitted ({document_id})', content=f"This email serves to verify that {current_user.username} ({current_user.email}) has just submitted the {form_name} form, which you can view at {display['domain']}/submissions/{form_name}/{document_id}. {'; '.join(key + ': ' + str(value) for key, value in parsed_args.items()) if options['_send_form_with_email_notification'] else ''}", to_address=current_user.email, logfile=log)
                 
                 
                 return redirect(url_for('submissions.render_document', form_name=form_name, document_id=document_id))

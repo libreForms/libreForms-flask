@@ -345,7 +345,10 @@ def render_document(form_name, document_id):
 
             msg = Markup(f"<a href = '{display['domain']}/submissions/{form_name}/{document_id}/history'>view document history</a>")
 
-            if not checkKey(verify_group, '_deny_write') or not current_user.group in verify_group['_deny_write']:
+            # print (current_user.username)
+            # print (record['Reporter'].iloc[0])
+
+            if not (checkKey(verify_group, '_deny_write') or current_user.group in verify_group['_deny_write']) or current_user.username == record['Reporter'].iloc[0]:
                 msg = msg + Markup(f"<br/><a href = '{display['domain']}/submissions/{form_name}/{document_id}/edit'>edit this document</a>")
 
             return render_template('app/submissions.html',
@@ -431,9 +434,9 @@ def render_document_history(form_name, document_id):
             flash(f'The following values changed in this version and are emphasized below: {", ".join(emphasize)}. ')
 
 
-            msg = Markup(f"a href = '{display['domain']}/submissions/{form_name}/{document_id}'>go back to document</a>")
+            msg = Markup(f"<a href = '{display['domain']}/submissions/{form_name}/{document_id}'>go back to document</a>")
 
-            if not checkKey(verify_group, '_deny_write') or not current_user.group in verify_group['_deny_write']:
+            if not (checkKey(verify_group, '_deny_write') or current_user.group in verify_group['_deny_write']) or current_user.username == record['Reporter'].iloc[0]:
                 msg = msg + Markup(f"<br/><a href = '{display['domain']}/submissions/{form_name}/{document_id}/edit'>edit this document</a>")
 
             return render_template('app/submissions.html',
@@ -521,7 +524,7 @@ def render_document_edit(form_name, document_id):
                     log.info(f'{current_user.username.upper()} - updated \'{form_name}\' form, document no. {document_id}.')
 
                     # send an email notification
-                    mailer.send_mail(subject=f'{display["site_name"]} {form_name} Updated ({document_id})', content=f"This email serves to verify that {current_user.username} ({current_user.email}) has just updated the {form_name} form, which you can view at {display['domain']}/submissions/{form_name}/{document_id}.", to_address=current_user.email, logfile=log)
+                    mailer.send_mail(subject=f'{display["site_name"]} {form_name} Updated ({document_id})', content=f"This email serves to verify that {current_user.username} ({current_user.email}) has just updated the {form_name} form, which you can view at {display['domain']}/submissions/{form_name}/{document_id}. {'; '.join(key + ': ' + str(value) for key, value in parsed_args.items()) if options['_send_form_with_email_notification'] else ''}", to_address=current_user.email, logfile=log)
 
                     # and then we redirect to the forms view page
                     return redirect(url_for('submissions.render_document', form_name=form_name, document_id=document_id))
