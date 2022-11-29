@@ -76,7 +76,7 @@ def gen_hyperlink(row, form_name):
 # in this method we aggregate all the relevant information
 def aggregate_form_data(user=None):
 
-    df = pd.DataFrame(columns=['form', 'Timestamp', 'id', 'hyperlink'])
+    df = pd.DataFrame(columns=['form', 'Timestamp', 'id', 'hyperlink', 'Reporter'])
     collections = mongodb.collections()
 
     if len(collections) > 0:
@@ -91,7 +91,7 @@ def aggregate_form_data(user=None):
             if isinstance(temp_df, pd.DataFrame):
 
                 for index, row in temp_df.iterrows():
-                    z = pd.Series({'Timestamp':row['Timestamp'], 'form':form, 'id':row['id'], 'hyperlink':gen_hyperlink(row, form),}).to_frame().T
+                    z = pd.Series({'Reporter':row['Reporter'], 'Timestamp':row['Timestamp'], 'form':form, 'id':row['id'], 'hyperlink':gen_hyperlink(row, form),}).to_frame().T
                     df = pd.concat([df, z], ignore_index=True)
                     
 
@@ -190,6 +190,7 @@ bp = Blueprint('submissions', __name__, url_prefix='/submissions')
 def render_all_submissions():
 
         record = aggregate_form_data(user=None)
+        # print(record)
 
         if not isinstance(record, pd.DataFrame):
             flash('The application has not received any submissions.')
@@ -251,7 +252,8 @@ def submissions(form_name):
     
         else:
 
-            record = record [['Timestamp', 'id']]
+            record = record [['Timestamp', 'id', 'Reporter']]
+            record['form'] = form_name
 
             record['hyperlink'] = record.apply(lambda x: gen_hyperlink(x, form_name), axis=1)
 

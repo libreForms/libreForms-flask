@@ -19,6 +19,8 @@
     <tr class="table{% if emphasize and item in emphasize %}-secondary{% else %}-dark{% endif %}">
       <th scope="row">{{submission['Timestamp'][item]}}</th>
       <td>{{submission['hyperlink'][item]}}</td>
+      <td>{{submission['form'][item]}}</td>
+      <td>{{submission['Reporter'][item]}}</td>
     </tr>
   {% endfor %}
   </tbody>
