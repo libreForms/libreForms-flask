@@ -23,7 +23,7 @@ class sendMail():
 
     # borrowed shamelessly from 
     # https://www.aabidsofi.com/posts/sending-emails-with-aws-ses-and-python/
-    def send_mail(self, subject=None, content=None, to_address=None, logfile=None):
+    def send_mail(self, subject=None, content=None, to_address=None, cc_address_list=None, logfile=None):
 
         # only if we have enabled SMTP
         if self.enabled:
@@ -35,6 +35,8 @@ class sendMail():
                     msg['Subject'] = subject
                     msg['From'] = self.from_address
                     msg['To'] = to_address
+                    msg['Cc'] = cc_address_list
+
                     msg.attach(MIMEText(content))
 
                     # securing using tls
