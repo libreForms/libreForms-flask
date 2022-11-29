@@ -26,6 +26,15 @@ display['privacy_policy'] = ''
 
 display['user_registration_fields'] = None
 
+# these fields allow you to determine whether email, phone, 
+# and organization are required fields at registration, see 
+# https://github.com/signebedi/libreForms/issues/122
+
+display['registration_email_required'] = True
+display['registration_organization_required'] = False
+display['registration_phone_required'] = False
+
+
 
 display['allow_anonymous_registration'] = True
 

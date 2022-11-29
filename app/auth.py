@@ -160,12 +160,26 @@ def register():
         
         if email == "":
             email = None
+
+        if organization == "":
+            email = None
+
         error = None
 
         if not username:
             error = 'Username is required.'
         elif not password:
             error = 'Password is required.'
+        
+        # added these per https://github.com/signebedi/libreForms/issues/122
+        # to give the freedom to set these as required fields
+        elif display['registration_email_required'] and not email:
+            error = 'Email is required.'
+        elif display['registration_phone_required'] and not phone:
+            error = 'Phone is required.'
+        elif display['registration_organization_required'] and not organization:
+            error = 'Organization is required.'
+
         elif not re.fullmatch(r"^\w\w\w\w+$", username) or len(username) > 36:
             error = 'username does not formatting standards, length 4 - 36 characters, alphanumeric and underscore characters only.'
         elif email and not re.fullmatch(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', email):
