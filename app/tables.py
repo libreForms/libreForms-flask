@@ -69,7 +69,8 @@ def tables(form_name):
         return redirect(url_for('tables.tables_home'))
 
     return render_template('app/tables.html',
-        table=Markup(df.to_html(index=False)),
+        table=Markup(df.to_html(index=False, classes="table table-hover")),
+        # table=df,
         type="tables",
         name=form_name,
         is_table=True,
