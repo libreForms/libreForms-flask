@@ -236,6 +236,11 @@ def parse_options(form=False):
             "_smtp_notifications":False,
             '_deny_groups': [],
             '_enable_universal_form_access': False,
+            '_submission': {
+                '_enable_universal_form_access': False,
+                '_deny_read': [],
+                '_deny_write': [],
+                }
         }
 
         for field in list_fields.keys():

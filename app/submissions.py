@@ -192,6 +192,15 @@ def render_all_submissions():
         record = aggregate_form_data(user=None)
         # print(record)
 
+        ### this is where we should run the data set through some 
+        ### logic that checks _deny_read and removes forms for which
+        ### the current user's group does not have access
+        # verify_group = parse_options(form=form_name)['_submission']
+        # if checkKey(verify_group, '_deny_read') and current_user.group in verify_group['_deny_read']:
+        #     flash('You do not have access to this resource.')
+        #     return redirect(url_for('submissions.submissions_home'))
+
+
         if not isinstance(record, pd.DataFrame):
             flash('The application has not received any submissions.')
             return redirect(url_for('submissions.submissions_home'))
@@ -237,9 +246,13 @@ def submissions(form_name):
 
     else:
 
-        if checkKey(libreforms.forms, form_name) and \
-            checkKey(libreforms.forms[form_name], "_enable_universal_form_access") and \
-            libreforms.forms[form_name]["_enable_universal_form_access"]:
+        # by routing these condition through parse_options, we make the logic easier to
+        # verify using default values if none are passed; meaning we can presume something
+        # about the datastructure ..
+        # if checkKey(libreforms.forms, form_name) and \
+        #     checkKey(libreforms.forms[form_name], '_enable_universal_form_access') and \
+        #     libreforms.forms[form_name]['_enable_universal_form_access']:
+        if parse_options(form=form_name)['_submission']['_enable_universal_form_access']:
                 flash("Warning: this form lets everyone view all its submissions. ")
                 record = get_record_of_submissions(form_name=form_name)
         else:
@@ -299,10 +312,17 @@ def render_document(form_name, document_id):
 
     else:
 
-        if checkKey(libreforms.forms, form_name) and \
-            checkKey(libreforms.forms[form_name], "_enable_universal_form_access") and \
-            libreforms.forms[form_name]["_enable_universal_form_access"]:
+        verify_group = parse_options(form=form_name)['_submission']
 
+        if checkKey(verify_group, '_deny_read') and current_user.group in verify_group['_deny_read']:
+            flash('You do not have access to this resource.')
+            return redirect(url_for('submissions.submissions_home'))
+
+
+        # if checkKey(libreforms.forms, form_name) and \
+        #     checkKey(libreforms.forms[form_name], '_enable_universal_form_access') and \
+        #     libreforms.forms[form_name]['_enable_universal_form_access']:
+        if parse_options(form=form_name)['_submission']['_enable_universal_form_access']:
             flash("Warning: this form lets everyone view all its submissions. ")
             record = get_record_of_submissions(form_name=form_name)
 
@@ -319,12 +339,16 @@ def render_document(form_name, document_id):
     
             record = record.loc[record['id'] == str(document_id)]
 
+            msg = Markup(f"<a href = '{display['domain']}/submissions/{form_name}/{document_id}/history'>view document history</a>")
+
+            if not checkKey(verify_group, '_deny_write') or not current_user.group in verify_group['_deny_write']:
+                msg = msg + Markup(f"<br/><a href = '{display['domain']}/submissions/{form_name}/{document_id}/edit'>edit this document</a>")
 
             return render_template('app/submissions.html',
                 type="submissions",
                 name=form_name,
                 submission=record,
-                msg=Markup(f"<a href = '{display['domain']}/submissions/{form_name}/{document_id}/history'>view document history</a><br/><a href = '{display['domain']}/submissions/{form_name}/{document_id}/edit'>edit this document</a>"),
+                msg=msg,
                 display=display,
                 user=current_user,
                 menu=form_menu(checkFormGroup),
@@ -341,9 +365,18 @@ def render_document_history(form_name, document_id):
 
     else:
 
-        if checkKey(libreforms.forms, form_name) and \
-            checkKey(libreforms.forms[form_name], "_enable_universal_form_access") and \
-            libreforms.forms[form_name]["_enable_universal_form_access"]:
+
+        verify_group = parse_options(form=form_name)['_submission']
+
+        if checkKey(verify_group, '_deny_read') and current_user.group in verify_group['_deny_read']:
+            flash('You do not have access to this resource.')
+            return redirect(url_for('submissions.submissions_home'))
+
+
+        # if checkKey(libreforms.forms, form_name) and \
+        #     checkKey(libreforms.forms[form_name], '_enable_universal_form_access') and \
+        #     libreforms.forms[form_name]['_enable_universal_form_access']:
+        if parse_options(form=form_name)['_submission']['_enable_universal_form_access']:
                 flash("Warning: this form lets everyone view all its submissions. ")
                 record = pd.DataFrame(generate_full_document_history(form_name, document_id, user=None))
         else:
@@ -391,6 +424,12 @@ def render_document_history(form_name, document_id):
             emphasize = [x for x in t3[timestamp].keys()]
             flash(f'The following values changed in this version and are emphasized below: {", ".join(emphasize)}. ')
 
+
+            msg = Markup(f"a href = '{display['domain']}/submissions/{form_name}/{document_id}'>go back to document</a>")
+
+            if not checkKey(verify_group, '_deny_write') or not current_user.group in verify_group['_deny_write']:
+                msg = msg + Markup(f"<br/><a href = '{display['domain']}/submissions/{form_name}/{document_id}/edit'>edit this document</a>")
+
             return render_template('app/submissions.html',
                 type="submissions",
                 name=form_name,
@@ -399,7 +438,7 @@ def render_document_history(form_name, document_id):
                 emphasize=emphasize,
                 breadcrumb=breadcrumb,
                 user=current_user,
-                msg=Markup(f"<a href = '{display['domain']}/submissions/{form_name}/{document_id}'>go back to document</a><br/><a href = '{display['domain']}/submissions/{form_name}/{document_id}/edit'>edit this document</a>"),
+                msg=msg,
                 menu=form_menu(checkFormGroup),
             )
 
@@ -415,10 +454,17 @@ def render_document_edit(form_name, document_id):
 
         else:
 
-            if checkKey(libreforms.forms, form_name) and \
-                checkKey(libreforms.forms[form_name], "_enable_universal_form_access") and \
-                libreforms.forms[form_name]["_enable_universal_form_access"]:
+            verify_group = parse_options(form=form_name)['_submission']
 
+            if checkKey(verify_group, '_deny_write') and current_user.group in verify_group['_deny_write']:
+                flash('You do not have access to this resource.')
+                return redirect(url_for('submissions.submissions_home'))
+
+
+            # if checkKey(libreforms.forms, form_name) and \
+            #     checkKey(libreforms.forms[form_name], '_enable_universal_form_access') and \
+            #     libreforms.forms[form_name]['_enable_universal_form_access']:
+            if parse_options(form=form_name)['_submission']['_enable_universal_form_access']:
                 # flash("Warning: this form lets everyone view all its submissions. ")
                 record = get_record_of_submissions(form_name=form_name,remove_underscores=False)
 
