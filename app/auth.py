@@ -339,9 +339,21 @@ def bulk_register():
                 try:
                     bulk_user_df = pd.read_csv(filepath)
 
-                    for x in ["username", "email", "password"]: # a minimalist common sense check
+                    for x in ["username", "password"]: # a minimalist common sense check
                         assert x in bulk_user_df.columns
-                    
+                        
+                    # note that these DO require email, organization, and phone
+                    # fields if these are set to being required fields in the app
+                    # config, see https://github.com/signebedi/libreForms/issues/122;
+                    # however, they DO NOT require that this field be populated for
+                    # each row of data entered. See issue above for more discussion.
+                    if display['registration_email_required']:
+                        assert 'email' in bulk_user_df.columns
+                    if display['registration_organization_required']:
+                        assert 'organization' in bulk_user_df.columns
+                    if display['registration_phone_required']:
+                        assert 'phone' in bulk_user_df.columns
+
                     #verify that, if there are any custom fields that are required, these exist here
                     if display['user_registration_fields']:
                         for x in display['user_registration_fields'].keys():
@@ -370,7 +382,7 @@ def bulk_register():
 
                         try: 
                             new_user = User(
-                                        email=row.email, 
+                                        email=row.email if row.email else "", 
                                         username=row.username.lower(), 
                                         password=generate_password_hash(row.password, method='sha256'),
                                         organization=row.organization if row.organization else "",
