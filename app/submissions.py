@@ -246,13 +246,16 @@ def submissions(form_name):
 
     else:
 
+        verify_group = parse_options(form=form_name)['_submission']
+
         # by routing these condition through parse_options, we make the logic easier to
         # verify using default values if none are passed; meaning we can presume something
         # about the datastructure ..
         # if checkKey(libreforms.forms, form_name) and \
         #     checkKey(libreforms.forms[form_name], '_enable_universal_form_access') and \
         #     libreforms.forms[form_name]['_enable_universal_form_access']:
-        if parse_options(form=form_name)['_submission']['_enable_universal_form_access']:
+        if parse_options(form=form_name)['_submission']['_enable_universal_form_access'] and not \
+            (checkKey(verify_group, '_deny_read') and current_user.group in verify_group['_deny_read']):
                 flash("Warning: this form lets everyone view all its submissions. ")
                 record = get_record_of_submissions(form_name=form_name)
         else:
@@ -314,15 +317,16 @@ def render_document(form_name, document_id):
 
         verify_group = parse_options(form=form_name)['_submission']
 
-        if checkKey(verify_group, '_deny_read') and current_user.group in verify_group['_deny_read']:
-            flash('You do not have access to this resource.')
-            return redirect(url_for('submissions.submissions_home'))
+        # if checkKey(verify_group, '_deny_read') and current_user.group in verify_group['_deny_read']:
+        #     flash('You do not have access to this resource.')
+        #     return redirect(url_for('submissions.submissions_home'))
 
 
         # if checkKey(libreforms.forms, form_name) and \
         #     checkKey(libreforms.forms[form_name], '_enable_universal_form_access') and \
         #     libreforms.forms[form_name]['_enable_universal_form_access']:
-        if parse_options(form=form_name)['_submission']['_enable_universal_form_access']:
+        if parse_options(form=form_name)['_submission']['_enable_universal_form_access'] and not \
+            (checkKey(verify_group, '_deny_read') and current_user.group in verify_group['_deny_read']):
             flash("Warning: this form lets everyone view all its submissions. ")
             record = get_record_of_submissions(form_name=form_name)
 
@@ -368,17 +372,19 @@ def render_document_history(form_name, document_id):
 
         verify_group = parse_options(form=form_name)['_submission']
 
-        if checkKey(verify_group, '_deny_read') and current_user.group in verify_group['_deny_read']:
-            flash('You do not have access to this resource.')
-            return redirect(url_for('submissions.submissions_home'))
+        # if checkKey(verify_group, '_deny_read') and current_user.group in verify_group['_deny_read']:
+        #     flash('You do not have access to this resource.')
+        #     return redirect(url_for('submissions.submissions_home'))
 
 
         # if checkKey(libreforms.forms, form_name) and \
         #     checkKey(libreforms.forms[form_name], '_enable_universal_form_access') and \
         #     libreforms.forms[form_name]['_enable_universal_form_access']:
-        if parse_options(form=form_name)['_submission']['_enable_universal_form_access']:
-                flash("Warning: this form lets everyone view all its submissions. ")
-                record = pd.DataFrame(generate_full_document_history(form_name, document_id, user=None))
+        if parse_options(form=form_name)['_submission']['_enable_universal_form_access'] and not \
+            (checkKey(verify_group, '_deny_read') and current_user.group in verify_group['_deny_read']):
+
+            flash("Warning: this form lets everyone view all its submissions. ")
+            record = pd.DataFrame(generate_full_document_history(form_name, document_id, user=None))
         else:
             record = pd.DataFrame(generate_full_document_history(form_name, document_id, user=current_user.username))
 
@@ -456,15 +462,16 @@ def render_document_edit(form_name, document_id):
 
             verify_group = parse_options(form=form_name)['_submission']
 
-            if checkKey(verify_group, '_deny_write') and current_user.group in verify_group['_deny_write']:
-                flash('You do not have access to this resource.')
-                return redirect(url_for('submissions.submissions_home'))
+            # if checkKey(verify_group, '_deny_write') and current_user.group in verify_group['_deny_write']:
+            #     flash('You do not have access to this resource.')
+            #     return redirect(url_for('submissions.submissions_home'))
 
 
             # if checkKey(libreforms.forms, form_name) and \
             #     checkKey(libreforms.forms[form_name], '_enable_universal_form_access') and \
             #     libreforms.forms[form_name]['_enable_universal_form_access']:
-            if parse_options(form=form_name)['_submission']['_enable_universal_form_access']:
+            if parse_options(form=form_name)['_submission']['_enable_universal_form_access'] and not \
+            (checkKey(verify_group, '_deny_write') and current_user.group in verify_group['_deny_write']):
                 # flash("Warning: this form lets everyone view all its submissions. ")
                 record = get_record_of_submissions(form_name=form_name,remove_underscores=False)
 
@@ -481,6 +488,10 @@ def render_document_edit(form_name, document_id):
         
                 options = parse_options(form_name)
                 forms = progagate_forms(form_name, group=current_user.group)
+
+                if not str(document_id) in record['id'].values:
+                    flash('You do not have edit access to this form.')
+                    return redirect(url_for('submissions.submissions_home'))      
 
                 record = record.loc[record['id'] == str(document_id)]
 
