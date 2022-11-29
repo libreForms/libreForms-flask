@@ -256,7 +256,7 @@ def submissions(form_name):
         #     libreforms.forms[form_name]['_enable_universal_form_access']:
         if parse_options(form=form_name)['_submission']['_enable_universal_form_access'] and not \
             (checkKey(verify_group, '_deny_read') and current_user.group in verify_group['_deny_read']):
-                flash("Warning: this form lets everyone view all its submissions. ")
+                flash("Note: this form permits broad view access all its submissions. ")
                 record = get_record_of_submissions(form_name=form_name)
         else:
             record = get_record_of_submissions(form_name=form_name, user=current_user.username)
@@ -327,7 +327,7 @@ def render_document(form_name, document_id):
         #     libreforms.forms[form_name]['_enable_universal_form_access']:
         if parse_options(form=form_name)['_submission']['_enable_universal_form_access'] and not \
             (checkKey(verify_group, '_deny_read') and current_user.group in verify_group['_deny_read']):
-            flash("Warning: this form lets everyone view all its submissions. ")
+            flash("Note: this form permits broad view access all its submissions. ")
             record = get_record_of_submissions(form_name=form_name)
 
         else:
@@ -386,7 +386,7 @@ def render_document_history(form_name, document_id):
         if parse_options(form=form_name)['_submission']['_enable_universal_form_access'] and not \
             (checkKey(verify_group, '_deny_read') and current_user.group in verify_group['_deny_read']):
 
-            flash("Warning: this form lets everyone view all its submissions. ")
+            flash("Note: this form permits view access all its submissions. ")
             record = pd.DataFrame(generate_full_document_history(form_name, document_id, user=None))
         else:
             record = pd.DataFrame(generate_full_document_history(form_name, document_id, user=current_user.username))
