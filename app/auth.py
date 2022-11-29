@@ -374,6 +374,10 @@ def bulk_register():
                     if does_user_exist or does_email_exist:
                         flash(f"Could not register {row.username.lower()} under email {row.email.lower()}. User already exists. ")
 
+                    elif not row.username:
+                        flash(f"Could not register at row {row}. Username is required. ")
+                    elif not row.password:
+                        flash(f"Could not register {row.username.lower()}. Password is required. ")
                     elif display['registration_email_required'] and not row.email:
                         flash(f"Could not register {row.username.lower()}. Email is required. ")
                     elif display['registration_organization_required'] and not row.organization:
