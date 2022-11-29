@@ -22,7 +22,7 @@ import os
 import pandas as pd
 
 
-def get_record_of_submissions(form_name=None, user=None):
+def get_record_of_submissions(form_name=None, user=None, remove_underscores=True):
     if form_name:
 
         try:
@@ -54,7 +54,8 @@ def get_record_of_submissions(form_name=None, user=None):
                     log.info(f"{user.upper()} - tried to query {form_name} database for user but no entries were found.")
                     return None
 
-            df.columns = [x.replace("_", " ") for x in df.columns]
+            if remove_underscores:
+                df.columns = [x.replace("_", " ") for x in df.columns]
 
             if len(df.index) == 0:
                 return None
@@ -163,11 +164,20 @@ def generate_full_document_history(form, document_id, user=None):
 def check_args_for_changes(parsed_args, overrides):
     TEMP = {}
 
+    del overrides['Journal'] # this is unnecessary space to iterate through...
+
+    # print(parsed_args, '\n~~~\n', overrides)
+
     for item in parsed_args:
         if checkKey(overrides, item) and parsed_args[item] == overrides[item]:
             pass
+            # print(item, ': ', parsed_args[item], overrides[item], 'No Change')
         else:
-            TEMP[item] = parsed_args[item]
+            try:
+                TEMP[item] = parsed_args[item]
+                # print(item, ': ', parsed_args[item], overrides[item], '*')
+            except Exception as e:
+                print(e)
 
     return TEMP
 
@@ -408,11 +418,11 @@ def render_document_edit(form_name, document_id):
                 libreforms.forms[form_name]["_promiscuous_access_to_submissions"]:
 
                 # flash("Warning: this form lets everyone view all its submissions. ")
-                record = get_record_of_submissions(form_name=form_name)
+                record = get_record_of_submissions(form_name=form_name,remove_underscores=False)
 
             else:
 
-                record = get_record_of_submissions(form_name=form_name, user=current_user.username)
+                record = get_record_of_submissions(form_name=form_name, user=current_user.username, remove_underscores=False)
 
 
             if not isinstance(record, pd.DataFrame):

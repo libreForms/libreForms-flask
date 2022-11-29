@@ -152,7 +152,7 @@ def parse_form_fields(form=False, user_group=None, args=None):
                         required=libreforms.forms[form][field]['output_data']['required'],
                         validators=libreforms.forms[form][field]['output_data']['validators'],)
         elif libreforms.forms[form][field]['output_data']['type'] == "date":
-            FORM_ARGS[field] = fields.Str(
+            FORM_ARGS[field] = fields.Date(
                         required=libreforms.forms[form][field]['output_data']['required'],
                         validators=libreforms.forms[form][field]['output_data']['validators'],)
         else:
