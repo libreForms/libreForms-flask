@@ -238,8 +238,8 @@ def submissions(form_name):
     else:
 
         if checkKey(libreforms.forms, form_name) and \
-            checkKey(libreforms.forms[form_name], "_promiscuous_access_to_submissions") and \
-            libreforms.forms[form_name]["_promiscuous_access_to_submissions"]:
+            checkKey(libreforms.forms[form_name], "_enable_universal_form_access") and \
+            libreforms.forms[form_name]["_enable_universal_form_access"]:
                 flash("Warning: this form lets everyone view all its submissions. ")
                 record = get_record_of_submissions(form_name=form_name)
         else:
@@ -300,8 +300,8 @@ def render_document(form_name, document_id):
     else:
 
         if checkKey(libreforms.forms, form_name) and \
-            checkKey(libreforms.forms[form_name], "_promiscuous_access_to_submissions") and \
-            libreforms.forms[form_name]["_promiscuous_access_to_submissions"]:
+            checkKey(libreforms.forms[form_name], "_enable_universal_form_access") and \
+            libreforms.forms[form_name]["_enable_universal_form_access"]:
 
             flash("Warning: this form lets everyone view all its submissions. ")
             record = get_record_of_submissions(form_name=form_name)
@@ -342,8 +342,8 @@ def render_document_history(form_name, document_id):
     else:
 
         if checkKey(libreforms.forms, form_name) and \
-            checkKey(libreforms.forms[form_name], "_promiscuous_access_to_submissions") and \
-            libreforms.forms[form_name]["_promiscuous_access_to_submissions"]:
+            checkKey(libreforms.forms[form_name], "_enable_universal_form_access") and \
+            libreforms.forms[form_name]["_enable_universal_form_access"]:
                 flash("Warning: this form lets everyone view all its submissions. ")
                 record = pd.DataFrame(generate_full_document_history(form_name, document_id, user=None))
         else:
@@ -416,8 +416,8 @@ def render_document_edit(form_name, document_id):
         else:
 
             if checkKey(libreforms.forms, form_name) and \
-                checkKey(libreforms.forms[form_name], "_promiscuous_access_to_submissions") and \
-                libreforms.forms[form_name]["_promiscuous_access_to_submissions"]:
+                checkKey(libreforms.forms[form_name], "_enable_universal_form_access") and \
+                libreforms.forms[form_name]["_enable_universal_form_access"]:
 
                 # flash("Warning: this form lets everyone view all its submissions. ")
                 record = get_record_of_submissions(form_name=form_name,remove_underscores=False)

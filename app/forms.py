@@ -235,6 +235,7 @@ def parse_options(form=False):
             "_allow_anonymous_access": False,  
             "_smtp_notifications":False,
             '_deny_groups': [],
+            '_enable_universal_form_access': True,
         }
 
         for field in list_fields.keys():
