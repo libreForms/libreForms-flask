@@ -360,6 +360,7 @@ def bulk_register():
                             if display['user_registration_fields'][x]['input_type'] != 'hidden' and display['user_registration_fields'][x]['required'] == True:
                                 assert x in bulk_user_df.columns
 
+
                 except Exception as e:
                     error = e
 
@@ -372,6 +373,14 @@ def bulk_register():
 
                     if does_user_exist or does_email_exist:
                         flash(f"Could not register {row.username.lower()} under email {row.email.lower()}. User already exists. ")
+
+                    elif display['registration_email_required'] and not row.email:
+                        flash(f"Could not register {row.username.lower()}. Email is required. ")
+                    elif display['registration_organization_required'] and not row.organization:
+                        flash(f"Could not register {row.username.lower()}. Organization is required. ")
+                    elif display['registration_phone_required'] and not row.phone:
+                        flash(f"Could not register {row.username.lower()} under email {row.email.lower()}. Phone is required. ")
+
 
                     else:
 
