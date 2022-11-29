@@ -246,7 +246,13 @@ def submissions(form_name):
 
     else:
 
-        verify_group = parse_options(form=form_name)['_submission']
+        try:
+            verify_group = parse_options(form=form_name)['_submission']
+        except Exception as e:
+            flash('This form does not exist.')
+            log.warning(f'{current_user.username.upper()} - {e}')
+            return redirect(url_for('submissions.submissions_home'))
+
 
         # by routing these condition through parse_options, we make the logic easier to
         # verify using default values if none are passed; meaning we can presume something
@@ -315,7 +321,12 @@ def render_document(form_name, document_id):
 
     else:
 
-        verify_group = parse_options(form=form_name)['_submission']
+        try:
+            verify_group = parse_options(form=form_name)['_submission']
+        except Exception as e:
+            flash('This form does not exist.')
+            log.warning(f'{current_user.username.upper()} - {e}')
+            return redirect(url_for('submissions.submissions_home'))
 
         # if checkKey(verify_group, '_deny_read') and current_user.group in verify_group['_deny_read']:
         #     flash('You do not have access to this resource.')
@@ -373,7 +384,12 @@ def render_document_history(form_name, document_id):
     else:
 
 
-        verify_group = parse_options(form=form_name)['_submission']
+        try:
+            verify_group = parse_options(form=form_name)['_submission']
+        except Exception as e:
+            flash('This form does not exist.')
+            log.warning(f'{current_user.username.upper()} - {e}')
+            return redirect(url_for('submissions.submissions_home'))
 
         # if checkKey(verify_group, '_deny_read') and current_user.group in verify_group['_deny_read']:
         #     flash('You do not have access to this resource.')
@@ -463,7 +479,12 @@ def render_document_edit(form_name, document_id):
 
         else:
 
-            verify_group = parse_options(form=form_name)['_submission']
+            try:
+                verify_group = parse_options(form=form_name)['_submission']
+            except Exception as e:
+                flash('This form does not exist.')
+                log.warning(f'{current_user.username.upper()} - {e}')
+                return redirect(url_for('submissions.submissions_home'))
 
             # if checkKey(verify_group, '_deny_write') and current_user.group in verify_group['_deny_write']:
             #     flash('You do not have access to this resource.')

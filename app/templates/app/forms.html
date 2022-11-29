@@ -16,9 +16,13 @@
 
 					{# here we override the default value with overrides if default_overrides was passed #}
 					{% if default_overrides and field in default_overrides %}
-					{% set default_value = default_overrides[field] %}
+						{% set default_value = default_overrides[field] %}
 					{% else %}
-					{% set default_value = context[field].input_field.content[0] %}
+						{% if context['_suppress_default_values'] == true %}
+							{% set default_value = none %}
+						{% else %}
+							{% set default_value = context[field].input_field.content[0] %}
+						{% endif %}
 					{% endif %}
 
 					{% if context[field].input_field.type == "autocomplete" %}
