@@ -402,7 +402,7 @@ def render_document_history(form_name, document_id):
         if parse_options(form=form_name)['_submission']['_enable_universal_form_access'] and not \
             (checkKey(verify_group, '_deny_read') and current_user.group in verify_group['_deny_read']):
 
-            flash("Note: this form permits view access all its submissions. ")
+            flash("Note: this form permits broad view access all its submissions. ")
             record = pd.DataFrame(generate_full_document_history(form_name, document_id, user=None))
         else:
             record = pd.DataFrame(generate_full_document_history(form_name, document_id, user=current_user.username))
