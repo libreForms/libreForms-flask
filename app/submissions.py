@@ -563,6 +563,7 @@ def render_document_edit(form_name, document_id):
                     menu=form_menu(checkFormGroup),              # this returns the forms in libreform/forms to display in the lefthand menu
                     type="forms",       
                     default_overrides=overrides,
+                    editing_existing_form=True,
                     options=options, 
                     display=display,
                     filename = f'{form_name.lower().replace(" ","")}.csv' if options['_allow_csv_templates'] else False,

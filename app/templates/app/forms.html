@@ -13,6 +13,15 @@
 					{% set content = context[field].input_field.content %}
 					{% endif %}
 
+					{% if editing_existing_form %}
+						{% if context[field]['input_field']['type'] == 'hidden' %}
+							{% if context[field]['_make_visible_in_edits'] and context[field]['_secondary_input_type'] %}
+								{% set input_type = context[field]['_secondary_input_type'] %}
+							{% else %}
+								{% set input_type = context[field]['input_field']['type'] %}
+							{% endif %}
+						{% endif %}
+					{% endif %}
 
 					{# here we override the default value with overrides if default_overrides was passed #}
 					{% if default_overrides and field in default_overrides %}
@@ -25,7 +34,7 @@
 						{% endif %}
 					{% endif %}
 
-					{% if context[field].input_field.type == "autocomplete" %}
+					{% if input_type == "autocomplete" %}
 
 					<div class="form-group autocomplete{% if context[field]['_depends_on'] %} {{ context[field]['_depends_on'][0] }}{% endif %}">
 						<label class="form-label mt-4{% if context[field].output_data.required==true %} required{% endif %}" for="{{ field }}" {% if context[field].output_data.description %}data-bs-toggle="tooltip" data-bs-placement="right" title="{{context[field].output_data.description}}"{% endif %}>{{ field | replace('_', ' ')}}</label>
@@ -38,7 +47,7 @@
 						autocomplete(document.getElementById("{{ field }}"), {{ field }});
 					</script>
 				
-					{% elif context[field].input_field.type == "select" %}
+					{% elif input_type == "select" %}
 					<div class="form-group{% if context[field]['_depends_on'] %} {{ context[field]['_depends_on'][0] }}{% endif %}">
 						<label class="form-label mt-4{% if context[field].output_data.required==true %} required{% endif %}" for="{{ field }}" {% if context[field].output_data.description %}data-bs-toggle="tooltip" data-bs-placement="right" title="{{context[field].output_data.description}}"{% endif %}>{{ field | replace('_', ' ')}}</label>
 						<select name="{{ field }}" class="form-select" {% if context[field].output_data.required==true %}required{% endif %}>
@@ -47,7 +56,7 @@
 						{% endfor %}
 						</select>
 					</div>
-					{% elif context[field].input_field.type == "radio" %}
+					{% elif input_type == "radio" %}
 					<div class="form-group{% if context[field]['_depends_on'] %} {{ context[field]['_depends_on'][0] }}{% endif %}">
 						<label class="form-label mt-4{% if context[field].output_data.required==true %} required{% endif %}" for="" {% if context[field].output_data.description %}data-bs-toggle="tooltip" data-bs-placement="right" title="{{context[field].output_data.description}}"{% endif %}>{{ field | replace('_', ' ')}}</label>
 						{% for item in content %}
@@ -58,7 +67,7 @@
 						</div>
 						{% endfor %}
 					</div>
-					{% elif context[field].input_field.type == "checkbox" %}
+					{% elif input_type == "checkbox" %}
 					<div class="form-group{% if context[field]['_depends_on'] %} {{ context[field]['_depends_on'][0] }}{% endif %}">
 						<label class="form-label mt-4{% if context[field].output_data.required==true %} required{% endif %}" for="" {% if context[field].output_data.description %}data-bs-toggle="tooltip" data-bs-placement="right" title="{{context[field].output_data.description}}"{% endif %}>{{ field | replace('_', ' ')}}</label>
 						{% for item in content %}
@@ -69,14 +78,14 @@
 						</div>
 						{% endfor %}
 					</div>
-					{% elif context[field].input_field.type == "hidden" %}
+					{% elif input_type == "hidden" %}
 					<div class="form-group{% if context[field]['_depends_on'] %} {{ context[field]['_depends_on'][0] }}{% endif %}">
 						<input class="form-control" type="hidden" value="{{ default_value }}" id="{{ field }}" name="{{ field }}"/>
 					</div>
 					{% else %}
 					<div class="form-group{% if context[field]['_depends_on'] %} {{ context[field]['_depends_on'][0] }}{% endif %}">
 						<label class="form-label mt-4{% if context[field].output_data.required==true %} required{% endif %}" for="{{ field }}" {% if context[field].output_data.description %}data-bs-toggle="tooltip" data-bs-placement="right" title="{{context[field].output_data.description}}"{% endif %}>{{ field | replace('_', ' ')}}</label></td>
-						<input class="form-control" type="{{ context[field].input_field.type }}" value="{{ default_value }}" id="{{ field }}" name="{{ field }}"/>
+						<input class="form-control" type="{{ input_type }}" value="{{ default_value }}" id="{{ field }}" name="{{ field }}"/>
 					</div>
 	
 					{% endif %}
