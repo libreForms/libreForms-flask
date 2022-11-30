@@ -452,7 +452,11 @@ def render_document_history(form_name, document_id):
 
             msg = Markup(f"<a href = '{display['domain']}/submissions/{form_name}/{document_id}'>go back to document</a>")
 
-            if not (checkKey(verify_group, '_deny_write') or current_user.group in verify_group['_deny_write']) or current_user.username == record['Reporter'].iloc[0]:
+            # print (current_user.username)
+            # print (record.transpose()['Reporter'].iloc[0])
+            # print (record['Reporter'].iloc[0])
+
+            if not (checkKey(verify_group, '_deny_write') or current_user.group in verify_group['_deny_write']) or current_user.username == record.transpose()['Reporter'].iloc[0]:
                 msg = msg + Markup(f"<br/><a href = '{display['domain']}/submissions/{form_name}/{document_id}/edit'>edit this document</a>")
 
             return render_template('app/submissions.html',

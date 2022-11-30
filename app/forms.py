@@ -351,7 +351,7 @@ def forms(form_name):
 def download_file(filename):
 
     # this is our first stab at building templates, without accounting for nesting or repetition
-    df = pd.DataFrame (columns=[x for x in progagate_forms(filename.replace('.csv', '')).keys()], group=current_user.group)
+    df = pd.DataFrame (columns=[x for x in progagate_forms(filename.replace('.csv', ''), group=current_user.group).keys()])
 
     fp = os.path.join(tempfile_path, filename)
     df.to_csv(fp, index=False)
