@@ -278,6 +278,7 @@ def forms_home():
 @login_required
 # @flaskparser.use_args(parse_form_fields(form=form_name), location='form')
 def forms(form_name):
+
     
     if not checkGroup(group=current_user.group, struct=parse_options(form_name)):
         flash(f'You do not have access to this dashboard.')
