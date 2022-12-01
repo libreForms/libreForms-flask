@@ -23,7 +23,7 @@ class sendMail():
 
     # borrowed shamelessly from 
     # https://www.aabidsofi.com/posts/sending-emails-with-aws-ses-and-python/
-    def send_mail(self, subject=None, content=None, to_address=None, cc_address_list=None, logfile=None):
+    def send_mail(self, subject=None, content=None, to_address=None, cc_address_list=[], logfile=None):
 
         # only if we have enabled SMTP
         if self.enabled:
@@ -34,8 +34,9 @@ class sendMail():
                     msg = MIMEMultipart()
                     msg['Subject'] = subject
                     msg['From'] = self.from_address
-                    msg['To'] = to_address if type(to_address) == str else ", ".join(to_address)
-                    msg['Cc'] = ", ".join(cc_address_list)
+                    msg['To'] = to_address
+                    # print(cc_address_list)
+                    msg['Cc'] = ", ".join(cc_address_list) if len(cc_address_list)>0 else None
 
                     msg.attach(MIMEText(content))
 
@@ -46,7 +47,8 @@ class sendMail():
                     server.login(self.username, self.password)
 
                     # sending a plain text email
-                    server.sendmail(self.from_address, to_address, msg.as_string())
+                    server.sendmail(self.from_address, [to_address]+cc_address_list, msg.as_string())
+                    # server.send_message(msg.as_string())
 
                     if logfile: logfile.info(f'successfully sent an email to {to_address}')
 

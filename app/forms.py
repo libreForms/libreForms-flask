@@ -64,7 +64,10 @@ def rationalize_routing_routing_list(form_name):
     # concatenated list. For this, we wrote the get_list_of_emails_by_group() method,
     # defined above, and use list comprehension to generate the concatenated list.
     elif routing_list['type'] == 'groups':
-        return [get_list_of_emails_by_group(x) for x in routing_list['target']]
+        TEMP = []
+        for group in routing_list['target']:
+            TEMP = TEMP + get_list_of_emails_by_group(group)
+        return TEMP
 
     # like in the case of static, if 'custom' is passed we are expecting that some kind
     # of custom logic defined in routing_list['target'] will return a list of emails, so we
