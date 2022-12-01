@@ -61,6 +61,7 @@ __license__ = "AGPL-3.0"
 __maintainer__ = "Sig Janoska-Bedi"
 __email__ = "signe@atreeus.com"
 
+from flask import current_app
 from flask_login import UserMixin
 from app import db
 from app.display import display

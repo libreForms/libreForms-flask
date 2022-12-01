@@ -97,6 +97,7 @@ __maintainer__ = "Sig Janoska-Bedi"
 __email__ = "signe@atreeus.com"
 
 import os, re, logging, logging.handlers
+from flask import current_app
 
 # we append the PID to the logfile 
 class PIDFileHandler(logging.handlers.WatchedFileHandler):

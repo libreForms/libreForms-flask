@@ -1,7 +1,7 @@
 # import flask-related packages
 from cmath import e
 from fileinput import filename
-from flask import Blueprint, g, flash, render_template, request, send_from_directory, send_file, redirect, url_for
+from flask import Blueprint, flash, render_template, request, send_from_directory, send_file, redirect, url_for
 from webargs import fields, flaskparser
 from flask_login import current_user
 from sqlalchemy.sql import text
@@ -310,7 +310,7 @@ def parse_options(form=False):
                 'type': None,
                 'target': [],
             },
-            '_suppress_journal_from_views': False,
+            '_suppress_journal_from_views': True,
         }
 
         for field in list_fields.keys():

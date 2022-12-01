@@ -1,5 +1,5 @@
 # import flask-related packages
-from flask import Blueprint, request, abort
+from flask import current_app, Blueprint, request, abort
 
 # import custom packages from the current repository
 from app.auth import login_required

@@ -179,7 +179,7 @@ __email__ = "signe@atreeus.com"
 
 import os, datetime, threading, time, functools
 import pandas as pd
-from flask import flash, redirect, url_for, abort
+from flask import current_app, flash, redirect, url_for, abort
 from app import display, log, db
 from app.models import Signing
 
@@ -280,7 +280,8 @@ def expire_key(key=None):
     else:
         log.error(f"LIBREFORMS - attempted to expire key {key} but failed to locate it in the signing database.")
 
-# here we define a wrapper for views that we want to 
+# here we define an abstract set of operations that we want 
+# to run everytime the end user attempts to invoke a   
 def verify_signatures(      signature, # the key to validate
                             scope, # what scope the signature should be validated against
                             redirect_to='home', # failed validations redirect here unless abort_on_errors=True

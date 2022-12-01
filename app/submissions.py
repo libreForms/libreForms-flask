@@ -1,6 +1,6 @@
 
 # import flask-related packages
-from flask import Blueprint, g, flash, abort, render_template, \
+from flask import current_app, Blueprint, g, flash, abort, render_template, \
     request, send_from_directory, send_file, redirect, url_for
 from webargs import fields, flaskparser
 from flask_login import current_user

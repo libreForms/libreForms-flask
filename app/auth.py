@@ -1,7 +1,7 @@
 import functools, re, datetime, tempfile, os
 import pandas as pd
 
-from flask import Blueprint, flash, g, redirect, render_template, request, session, url_for, send_from_directory, abort
+from flask import current_app, Blueprint, flash, g, redirect, render_template, request, session, url_for, send_from_directory, abort
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 

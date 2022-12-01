@@ -4,6 +4,7 @@
 import os
 from libreforms import __version__
 from markupsafe import Markup
+from flask import current_app
 
 display = {}
 display['site_name'] = "libreForms"

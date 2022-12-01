@@ -3,6 +3,7 @@ import smtplib
 import datetime as dt
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from flask import current_app
 
 class sendMail():
     def __init__(self, mail_server=None, port=None, 

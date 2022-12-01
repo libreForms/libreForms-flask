@@ -2,7 +2,7 @@
 import re, datetime
 from cmath import e
 from fileinput import filename
-from flask import Blueprint, g, flash, render_template, request, send_from_directory, abort, redirect, url_for
+from flask import current_app, Blueprint, g, flash, render_template, request, send_from_directory, abort, redirect, url_for
 from webargs import fields, flaskparser
 from flask_login import current_user
 

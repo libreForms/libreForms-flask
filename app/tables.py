@@ -1,5 +1,5 @@
 # import flask-related packages
-from flask import Blueprint, render_template, request, flash, redirect, url_for
+from flask import current_app, Blueprint, render_template, request, flash, redirect, url_for
 from flask_login import current_user
 from markupsafe import Markup
 
