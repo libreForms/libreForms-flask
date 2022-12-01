@@ -394,7 +394,7 @@ def forms(form_name):
                 
                 # here we build our message and subject
                 subject = f'{display["site_name"]} {form_name} Submitted ({document_id})'
-                content = f"This email serves to verify that {current_user.username} ({current_user.email}) has just submitted the {form_name} form, which you can view at {display['domain']}/submissions/{form_name}/{document_id}. {'; '.join(key + ': ' + str(value) for key, value in parsed_args.items()) if options['_send_form_with_email_notification'] else ''}"
+                content = f"This email serves to verify that {current_user.username} ({current_user.email}) has just submitted the {form_name} form, which you can view at {display['domain']}/submissions/{form_name}/{document_id}. {'; '.join(key + ': ' + str(value) for key, value in parsed_args.items() if key != 'Journal') if options['_send_form_with_email_notification'] else ''}"
                 
                 # and then we send our message
                 mailer.send_mail(subject=subject, content=content, to_address=current_user.email, cc_address_list=rationalize_routing_routing_list(form_name), logfile=log)
