@@ -13,14 +13,10 @@
 					{% set content = context[field].input_field.content %}
 					{% endif %}
 
-					{% if editing_existing_form %}
-						{% if context[field]['input_field']['type'] == 'hidden' %}
-							{% if context[field]['_make_visible_in_edits'] and context[field]['_secondary_input_type'] %}
-								{% set input_type = context[field]['_secondary_input_type'] %}
-							{% else %}
-								{% set input_type = context[field]['input_field']['type'] %}
-							{% endif %}
-						{% endif %}
+					{% if editing_existing_form and context[field]['input_field']['type'] == 'hidden' and context[field]['_make_visible_in_edits'] and context[field]['_secondary_input_type'] %}
+						{% set input_type = context[field]['_secondary_input_type'] %}
+					{% else %}
+						{% set input_type = context[field]['input_field']['type'] %}
 					{% endif %}
 
 					{# here we override the default value with overrides if default_overrides was passed #}

@@ -34,8 +34,8 @@ class sendMail():
                     msg = MIMEMultipart()
                     msg['Subject'] = subject
                     msg['From'] = self.from_address
-                    msg['To'] = to_address
-                    msg['Cc'] = cc_address_list
+                    msg['To'] = to_address if type(to_address) == str else ", ".join(to_address)
+                    msg['Cc'] = ", ".join(cc_address_list)
 
                     msg.attach(MIMEText(content))
 

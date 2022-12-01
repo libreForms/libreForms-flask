@@ -12,7 +12,6 @@ from markupsafe import Markup
 # import custom packages from the current repository
 import libreforms as libreforms
 from app.auth import login_required
-from app.forms import parse_options
 from app import display, log, mongodb
 
 # and finally, import other packages

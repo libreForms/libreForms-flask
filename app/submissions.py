@@ -14,7 +14,7 @@ from app.models import User
 from app.auth import login_required, session
 from app.forms import form_menu, checkGroup, checkFormGroup, \
     checkKey, parse_options, progagate_forms, parse_form_fields, \
-    collect_list_of_users, compile_depends_on_data
+    collect_list_of_users, compile_depends_on_data, rationalize_routing_routing_list
 
 
 # and finally, import other packages
@@ -548,8 +548,14 @@ def render_document_edit(form_name, document_id):
                     # log the update
                     log.info(f'{current_user.username.upper()} - updated \'{form_name}\' form, document no. {document_id}.')
 
-                    # send an email notification
-                    mailer.send_mail(subject=f'{display["site_name"]} {form_name} Updated ({document_id})', content=f"This email serves to verify that {current_user.username} ({current_user.email}) has just updated the {form_name} form, which you can view at {display['domain']}/submissions/{form_name}/{document_id}. {'; '.join(key + ': ' + str(value) for key, value in parsed_args.items()) if options['_send_form_with_email_notification'] else ''}", to_address=current_user.email, logfile=log)
+                    # here we build our message and subject, customized for anonymous users
+                    subject = f'{display["site_name"]} {form_name} Updated ({document_id})'
+                    content = f"This email serves to verify that {current_user.username} ({current_user.email}) has just updated the \
+                        {form_name} form, which you can view at {display['domain']}/submissions/{form_name}/{document_id}. \
+                        {'; '.join(key + ': ' + str(value) for key, value in parsed_args.items()) if options['_send_form_with_email_notification'] else ''}"
+                    
+                    # and then we send our message
+                    mailer.send_mail(subject=subject, content=content, to_address=current_user.email, cc_address_list=rationalize_routing_routing_list(form_name), logfile=log)
 
                     # and then we redirect to the forms view page
                     return redirect(url_for('submissions.render_document', form_name=form_name, document_id=document_id))

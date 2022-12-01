@@ -10,7 +10,8 @@ from flask_login import current_user
 import libreforms
 from app import display, log, tempfile_path, mailer, mongodb, conditional_decorator
 from app.auth import login_required, session
-from app.forms import parse_form_fields, checkGroup, reconcile_form_data_struct, progagate_forms, parse_options, compile_depends_on_data
+from app.forms import parse_form_fields, checkGroup, reconcile_form_data_struct, \
+    progagate_forms, parse_options, compile_depends_on_data, rationalize_routing_routing_list
 import app.signing as signing
 from app.models import Signing
 
@@ -106,7 +107,13 @@ if display['allow_anonymous_form_submissions']:
 
                 if request.method == 'POST':
                     parsed_args = flaskparser.parser.parse(parse_form_fields(form_name), request, location="form")
-                    mongodb.write_document_to_collection(parsed_args, form_name, reporter=" ".join((Signing.query.filter_by(signature=signature).first().email, signature))) 
+                    
+                    # we query quickly for the email address associated with this signing key
+                    email = Signing.query.filter_by(signature=signature).first().email
+                    
+                    # we submit the document and store the returned Object ID as a document_id
+                    document_id = mongodb.write_document_to_collection(parsed_args, form_name, reporter=" ".join((email, signature))) 
+
                     flash(str(parsed_args))
 
                     # possibly exchange the section below for an actual email/name depending on the
@@ -116,6 +123,15 @@ if display['allow_anonymous_form_submissions']:
                     # print(Signing.query.filter_by(signature=signature).first().email)
 
                     signing.expire_key(signature)
+
+                    # here we build our message and subject, customized for anonymous users
+                    subject = f'{display["site_name"]} {form_name} Submitted ({document_id})'
+                    content = f"This email serves to verify that an anonymous user {signature} (linked to {email}) has just submitted the {form_name} \
+                        form. {'; '.join(key + ': ' + str(value) for key, value in parsed_args.items()) if options['_send_form_with_email_notification'] else ''}"
+                    
+                    # and then we send our message
+                    mailer.send_mail(subject=subject, content=content, to_address=current_user.email, cc_address_list=rationalize_routing_routing_list(form_name), logfile=log)
+
 
                     return redirect(url_for('home'))
 

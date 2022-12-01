@@ -4,6 +4,7 @@ from fileinput import filename
 from flask import Blueprint, g, flash, render_template, request, send_from_directory, send_file, redirect, url_for
 from webargs import fields, flaskparser
 from flask_login import current_user
+from sqlalchemy.sql import text
 
 # import custom packages from the current repository
 import libreforms
@@ -15,6 +16,61 @@ from app.auth import login_required, session
 # and finally, import other packages
 import os
 import pandas as pd
+
+
+# this logic was written generally to support rationalize_routing_routing_list()
+# by accepting a group name as a parameter and returning a list of email addresses
+# belonging to each user in that group.
+def get_list_of_emails_by_group(group, **kwargs):
+    # query = f'SELECT email FROM {User.__tablename__} WHERE group = "{group}"'
+    with db.engine.connect() as conn:
+        # email_list = db.select(User.__tablename__).where(User.__tablename__.columns.group == group)
+        # filter(model.Email == EmailInput)
+        email_list = db.session.query(User).filter_by(group=group).all()
+        # print([x.email for x in email_list])
+        return [x.email for x in email_list]
+        # return conn.execute(query).fetchall()
+
+# this function is added to generate a list of email addresses for a given form to 
+# send notifications once a form is submitted. See documentation of this feature at:
+# https://github.com/signebedi/libreForms/issues/94, as well as documentation on
+# routing and approval generally at: https://github.com/signebedi/libreForms/issues/8.
+def rationalize_routing_routing_list(form_name):
+
+    # first, we draw on parse_options() for the form in question
+    # to apply defaults for missing values.
+    routing_list = parse_options(form_name)['_routing_list']
+    print(routing_list)
+
+    # then, we check if SMTP is enabled and, if not & the administrator has set a 
+    # non-Nonetype value for _routing_list['type'], we then we log a warning but 
+    # gracefully return an empty list
+    if routing_list['type'] and not display['smtp_enabled']:
+        log.warning('LIBREFORMS - administrators have set a routing list {routing_list} for form {form_name} but SMTP has not been enabled.')
+        return []
+    
+    # if the form administrators have defined a static list of emails to receive 
+    # form submission emails, then return that list here.
+    if routing_list['type'] == 'static':
+        return routing_list['target']
+
+    # this section is probably the most complex problem set; if groups are configured, 
+    # we expect the value of 'target' to be a list of the groups to send notifications,
+    # and we need to query for a list of emails for users in each group and return a 
+    # concatenated list. For this, we wrote the get_list_of_emails_by_group() method,
+    # defined above, and use list comprehension to generate the concatenated list.
+    elif routing_list['type'] == 'groups':
+        return [get_list_of_emails_by_group(x) for x in routing_list['target']]
+
+    # like in the case of static, if 'custom' is passed we are expecting that some kind
+    # of custom logic defined in routing_list['target'] will return a list of emails, so we
+    # pass those values here directly to the send_mail directive
+    elif routing_list['type'] == 'custom':
+        return routing_list['target']
+
+    # default to returning an empty list to fail gracefully
+    else:
+        return []
 
 def checkKey(dic, key):
     return True if dic and key in dic.keys() else False
@@ -216,7 +272,8 @@ def progagate_forms(form=False, group=None):
     except:
         return {}
 
-# will be used to parse options for a given form
+# will be used to parse the configurations for a given form and - maybe most importantly
+# as a gateway to apply default values to missing fields from the admin-defined form config.
 def parse_options(form=False):
     
     try:
@@ -242,6 +299,10 @@ def parse_options(form=False):
                 '_deny_write': [],
                 },
             '_send_form_with_email_notification':False,
+            '_routing_list':{
+                'type': None,
+                'target': [],
+            },
         }
 
         for field in list_fields.keys():
@@ -279,7 +340,7 @@ def forms_home():
 # @flaskparser.use_args(parse_form_fields(form=form_name), location='form')
 def forms(form_name):
 
-    
+
     if not checkGroup(group=current_user.group, struct=parse_options(form_name)):
         flash(f'You do not have access to this dashboard.')
         return redirect(url_for('forms.forms_home'))
@@ -323,7 +384,15 @@ def forms(form_name):
 
                 flash(str(parsed_args))
                 log.info(f'{current_user.username.upper()} - submitted \'{form_name}\' form, document no. {document_id}.')
-                mailer.send_mail(subject=f'{display["site_name"]} {form_name} Submitted ({document_id})', content=f"This email serves to verify that {current_user.username} ({current_user.email}) has just submitted the {form_name} form, which you can view at {display['domain']}/submissions/{form_name}/{document_id}. {'; '.join(key + ': ' + str(value) for key, value in parsed_args.items()) if options['_send_form_with_email_notification'] else ''}", to_address=current_user.email, logfile=log)
+                
+                # here we build our message and subject
+                subject = f'{display["site_name"]} {form_name} Submitted ({document_id})'
+                content = f"This email serves to verify that {current_user.username} ({current_user.email}) has just submitted \
+                    the {form_name} form, which you can view at {display['domain']}/submissions/{form_name}/{document_id}. \
+                    {'; '.join(key + ': ' + str(value) for key, value in parsed_args.items()) if options['_send_form_with_email_notification'] else ''}"
+                
+                # and then we send our message
+                mailer.send_mail(subject=subject, content=content, to_address=current_user.email, cc_address_list=rationalize_routing_routing_list(form_name), logfile=log)
                 
                 
                 return redirect(url_for('submissions.render_document', form_name=form_name, document_id=document_id))
