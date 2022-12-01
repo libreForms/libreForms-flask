@@ -23,13 +23,17 @@ import pandas as pd
 # belonging to each user in that group.
 def get_list_of_emails_by_group(group, **kwargs):
     # query = f'SELECT email FROM {User.__tablename__} WHERE group = "{group}"'
-    with db.engine.connect() as conn:
-        # email_list = db.select(User.__tablename__).where(User.__tablename__.columns.group == group)
-        # filter(model.Email == EmailInput)
-        email_list = db.session.query(User).filter_by(group=group).all()
-        # print([x.email for x in email_list])
-        return [x.email for x in email_list]
-        # return conn.execute(query).fetchall()
+    try:
+        with db.engine.connect() as conn:
+            # email_list = db.select(User.__tablename__).where(User.__tablename__.columns.group == group)
+            # filter(model.Email == EmailInput)
+            email_list = db.session.query(User).filter_by(group=group).all()
+            # print([x.email for x in email_list])
+            return [x.email for x in email_list]
+            # return conn.execute(query).fetchall()
+
+    except:
+        return []
 
 # this function is added to generate a list of email addresses for a given form to 
 # send notifications once a form is submitted. See documentation of this feature at:
