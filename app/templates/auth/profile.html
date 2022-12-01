@@ -1,7 +1,13 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<div class="position-relative">
+    <div class="position-absolute top-0 end-0">
+        <a class="justify-content-end" href="{{display['domain']}}/auth/profile/edit">Edit Profile</a>
+    </div>
+</div>
 <h4>Profile</h4>
+
 <table class="table table-hover">
 <tr><td><b>Username</b>: {{ user.username }}</td></tr>
 <tr><td><b>Email</b>: <span ondblclick="this.contentEditable=true;this.className='inEdit';" onblur="this.contentEditable=false;this.className='';" contenteditable="false" class=""> {{ user.email }}</span></td></tr>
@@ -18,11 +24,6 @@
 <tr><td><b>Submissions</b>: <a href="{{display['domain']}}/submissions/user/{{ user.username }}">view here</a></td></tr>
 </table>
 
-<div class="mt-4">
-    <input class="btn btn-primary" type="submit" value="Edit Profile">
-</div>
-
-<br/>
 <hr/>
 <h4>Change Password</h4>
 <form method="post">
