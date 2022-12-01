@@ -40,7 +40,7 @@ def rationalize_routing_routing_list(form_name):
     # first, we draw on parse_options() for the form in question
     # to apply defaults for missing values.
     routing_list = parse_options(form_name)['_routing_list']
-    print(routing_list)
+    # print(routing_list)
 
     # then, we check if SMTP is enabled and, if not & the administrator has set a 
     # non-Nonetype value for _routing_list['type'], we then we log a warning but 
