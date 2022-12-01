@@ -9,8 +9,8 @@ from bson import ObjectId
 
 # import custom packages from the current repository
 import libreforms
-from app import display, log, tempfile_path, db, mailer, mongodb
-from app.models import User
+from app import display, log, tempfile_path, mailer, mongodb
+from app.models import User, db
 from app.auth import login_required, session
 from app.forms import form_menu, checkGroup, checkFormGroup, \
     checkKey, parse_options, progagate_forms, parse_form_fields, \

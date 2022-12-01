@@ -180,8 +180,8 @@ __email__ = "signe@atreeus.com"
 import os, datetime, threading, time, functools
 import pandas as pd
 from flask import current_app, flash, redirect, url_for, abort
-from app import display, log, db
-from app.models import Signing
+from app import display, log
+from app.models import Signing, db
 
 # here we generate a signing key with a default length of 24
 def generate_key(length:int=24):

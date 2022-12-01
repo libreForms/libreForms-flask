@@ -8,8 +8,8 @@ from sqlalchemy.sql import text
 
 # import custom packages from the current repository
 import libreforms
-from app import display, log, tempfile_path, db, mailer, mongodb
-from app.models import User
+from app import display, log, tempfile_path, mailer, mongodb
+from app.models import User, db
 from app.auth import login_required, session
 
 

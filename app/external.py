@@ -13,7 +13,7 @@ from app.auth import login_required, session
 from app.forms import parse_form_fields, checkGroup, reconcile_form_data_struct, \
     progagate_forms, parse_options, compile_depends_on_data, rationalize_routing_routing_list
 import app.signing as signing
-from app.models import Signing
+from app.models import Signing, db
 
 
 # and finally, import other packages

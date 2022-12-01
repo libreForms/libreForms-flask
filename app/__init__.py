@@ -10,6 +10,7 @@ import pandas as pd
 from app.csv_files import init_tmp_fs, tempfile_init_tmp_fs
 from app import smtp, mongo
 from celery import Celery
+from app.models import db
 
 
 # def make_celery():
@@ -78,8 +79,6 @@ mongodb = mongo.MongoDB(
                         dbpw=mongodb_creds
                     )
 
-
-db = SQLAlchemy()
 
 # create hCaptcha object if enabled
 if display['enable_hcaptcha']:

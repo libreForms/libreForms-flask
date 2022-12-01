@@ -5,9 +5,9 @@ from flask import current_app, Blueprint, flash, g, redirect, render_template, r
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 
-from app import display, log, db, mailer, tempfile_path
+from app import display, log, mailer, tempfile_path
 import app.signing as signing
-from app.models import User, Signing
+from app.models import User, Signing, db
 from flask_login import login_required, current_user, login_user
 from app.log_functions import aggregate_log_data
 

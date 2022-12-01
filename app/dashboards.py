@@ -7,6 +7,7 @@ import libreforms
 from app.auth import login_required
 from app.forms import parse_options, checkGroup, checkDashboardGroup, form_menu
 from app import display, log, mongodb
+from app.models import db
 
 # and finally, import other packages
 import os, json
