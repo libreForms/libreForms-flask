@@ -39,7 +39,7 @@
                 <li class="nav-item"><a class="nav-link" href="{{ url_for( 'forms.forms_home' ) }}">Forms</a></li>
                 <li class="nav-item"><a class="nav-link" href="{{ url_for( 'tables.tables_home' ) }}">Tables</a></li>
                 <li class="nav-item"><a class="nav-link" href="{{ url_for( 'dashboards.dashboards_home' ) }}">Dashboards</a></li>
-                <li class="nav-item"><a class="nav-link" href="{{ url_for( 'submissions.submissions_home' ) }}">Submissions</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for( 'submissions.submissions_home' ) }}">Submissions{%if notifications%}<sup class="badge rounded-pill bg-primary">{{notifications}}</sup>{%endif%}</a></li>
                 <li class="nav-item"><a class="nav-link" href="{{ url_for( 'auth.profile' ) }}">Profile</a></li>
                 <li class="nav-item"><a class="nav-link" href="{{ url_for( 'auth.logout' ) }}">Logout</a></li>
               {% elif suppress_navbar %}   
