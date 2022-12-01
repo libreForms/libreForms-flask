@@ -12,6 +12,7 @@ from app.log_functions import cleanup_stray_log_handlers
 # here we add pre-fork tasks that need to be handled prior to setting up concurrent sessions
 def pre_fork(server, worker):
 
+    # we create the secret key for the application if it doesn't exist
     if not os.path.exists('secret_key'):
         with open('secret_key', 'w') as f: 
             secret_key = secrets.token_urlsafe(16)
@@ -24,6 +25,11 @@ def pre_fork(server, worker):
         # if the log path exists, let's clean up old log handlers
         cleanup_stray_log_handlers()
 
+    # create the app instance path if it doesn't exist
+    try:
+        os.makedirs(app.instance_path)
+    except OSError:
+        pass
 
     # create the app database if it doesn't exist
     if not os.path.exists(os.path.join('instance','app.sqlite')):

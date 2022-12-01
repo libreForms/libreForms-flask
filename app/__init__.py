@@ -25,9 +25,9 @@ from app.models import db
 #     return celery
 
 # celery = make_celery()
-celery = Celery(__name__, broker='redis://localhost:6379/0')
-
 # celery = Celery(__name__, broker='redis://localhost:6379/0')
+
+celery = Celery(__name__, broker='redis://localhost:6379/0')
 
 # defining a decorator that applies a parent decorator 
 # based on the truth-value of a condition
@@ -53,8 +53,8 @@ if not display['smtp_enabled'] and (display['enable_email_verification'] or \
   raise Exception("Please enable SMTP if you'd like to enable email verification, allow password resets, send \
                         reports, or allow anonymous form submissions.")
 
-display['send_reports'] or display['allow_password_resets'] or display['allow_anonymous_form_submissions'] 
 
+# we create the secret key for the application if it doesn't exist
 if not os.path.exists('secret_key'):
     with open('secret_key', 'w') as f: 
         secret_key = secrets.token_urlsafe(16)
@@ -85,6 +85,8 @@ if display['enable_hcaptcha']:
     from flask_hcaptcha import hCaptcha
     hcaptcha = hCaptcha()
 
+# we instantiate a tempfile path for the current worker instance, 
+# which we'll use to store tempfiles, uploads, etc.
 tempfile_path = tempfile_init_tmp_fs()
 
 # if application log path doesn't exist, make it
@@ -96,10 +98,16 @@ else:
 
 # we instantiate a log object that 
 # we'll propagate across the app
-
 log = app.log_functions.set_logger('log/libreforms.log',__name__)
 log.info('LIBREFORMS - started libreforms web application.')
 
+
+# here we add code (that probably NEEDS REVIEW) to verify that
+# it is possible to connect to a different / external database, see
+    # https://github.com/signebedi/libreForms/issues/68
+    # https://github.com/signebedi/libreForms/issues/69
+# if this truly implemented, we should probably also add it to
+# gunicorn/gunicorn.conf.py to handle pre-fork 
 
 if display['custom_sql_db'] == True:
     if os.path.exists ("user_db_creds"):
@@ -115,6 +123,8 @@ if display['custom_sql_db'] == True:
         log.warning('LIBREFORMS - no user db credentials file found, custom sql database will not be enabled.')
 
 
+# here we start up the SMTP `mailer` object that we'll propagate like the 
+# log object above and use to send mail
 if display['smtp_enabled']: # we should do something with this later on
     if os.path.exists ("smtp_creds"):
         smtp_creds = pd.read_csv("smtp_creds", dtype=str) # expecting the CSV format: smtp_server,port,username,password,from_address
@@ -142,13 +152,14 @@ else:
         # log.info(f'LIBREFORMS - found an LDAP credentials file using {ldap_creds.ldap_server[0]}.')
 
 
-# # non-destructively initialize a tmp file system for the app 
-# init_tmp_fs(delete_first=False)
-
+# here we create the Flask app using the Factory pattern,
+# see https://flask.palletsprojects.com/en/2.2.x/patterns/appfactories/
 def create_app(test_config=None):
  
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
+
+    # add some app configurations
     app.config.from_mapping(
         SECRET_KEY=secret_key,
         # getting started on allowing other SQL databases than SQLite, but defaulting to that. 
@@ -184,44 +195,16 @@ def create_app(test_config=None):
     except OSError:
         pass
 
+    # initialize hCaptcha if enabled
+    if display['enable_hcaptcha']:
+        hcaptcha.init_app(app)
+
     # @celery.task
     # def test_celery(msg):
     #     import time
     #     time.sleep(msg)
 
-    # define a home route
-    @app.route('/')
-    def home():
-        return render_template('app/index.html', 
-            homepage=True,
-            site_name=display['site_name'],
-            type="home",
-            name=display['site_name'],
-            display_warning_banner=True,
-            display=display,
-            user=current_user if current_user.is_authenticated else None,
-        )
-
-
-    # define a home route
-    @app.route('/privacy')
-    def privacy():
-        return render_template('app/privacy.html', 
-            site_name=display['site_name'],
-            type="home",
-            name='privacy',
-            display=display,
-            user=current_user if current_user.is_authenticated else None,
-        )
-
-    # init hCaptcha if enabled
-    if display['enable_hcaptcha']:
-        hcaptcha.init_app(app)
-
     from .models import User
-
-    # initialize the database
-    db.init_app(app=app)
 
 
     # here we append any additional fields described in the display.user_registration_fields variable
@@ -235,6 +218,43 @@ def create_app(test_config=None):
             elif value['type'] == int:
                 setattr(User, key, db.Column(db.Integer))
                 # print(key,value)
+
+    # initialize the database
+    db.init_app(app=app)
+
+    
+    # #  THIS CAN PROBABLY BE DEPRECATED BECAUSE WE ARE ABLE TO CREATE THE 
+    # #  TABLE WITH THE CORRECT COLUMNS BY RUNNING THE CODE ABOVE...
+    # # borrowed from https://stackoverflow.com/a/17243132
+    # if display['user_registration_fields']:
+
+    #     with app.app_context():
+
+    #         # we create a method that we'll run to modify the user table
+    #         # to include any additional fields 
+    #         def add_column(table_name, column, engine=db.engine):
+    #             column_name = column.compile(dialect=engine.dialect)
+    #             column_type = column.type.compile(engine.dialect)
+    #             engine.execute('ALTER TABLE %s ADD COLUMN %s %s' % (table_name, column_name, column_type))
+
+
+    #         # borrow from https://www.geeksforgeeks.org/python-sqlalchemy-get-column-names-dynamically/
+    #         with db.engine.connect() as conn:
+    #             result = conn.execute(f"SELECT * FROM {User.__tablename__}")
+    #             cols = []
+    #             for elem in result.cursor.description:
+    #                 cols.append(elem[0])
+
+    #         engine=db.engine
+    #         for key, value in display['user_registration_fields'].items():
+    #                 if key not in cols:
+    #                     if value['type'] == str:
+    #                         column = db.Column(key, db.String(1000))
+    #                         add_column(User.__tablename__, column)
+
+    #                     elif value['type'] == int:
+    #                         column = db.Column(key, db.Column(db.Integer), primary_key=True)
+    #                         add_column(User.__tablename__, column)
 
 
     # create the database if it doesn't exist
@@ -254,35 +274,6 @@ def create_app(test_config=None):
                                     created_date='2022-06-01 00:00:00',)
                 db.session.add(initial_user)
                 db.session.commit()
-    
-    # borrowed from https://stackoverflow.com/a/17243132
-    if display['user_registration_fields']:
-
-        with app.app_context():
-
-            def add_column(table_name, column, engine=db.engine):
-                column_name = column.compile(dialect=engine.dialect)
-                column_type = column.type.compile(engine.dialect)
-                engine.execute('ALTER TABLE %s ADD COLUMN %s %s' % (table_name, column_name, column_type))
-
-
-            # borrow from https://www.geeksforgeeks.org/python-sqlalchemy-get-column-names-dynamically/
-            with db.engine.connect() as conn:
-                result = conn.execute(f"SELECT * FROM {User.__tablename__}")
-                cols = []
-                for elem in result.cursor.description:
-                    cols.append(elem[0])
-
-            engine=db.engine
-            for key, value in display['user_registration_fields'].items():
-                    if key not in cols:
-                        if value['type'] == str:
-                            column = db.Column(key, db.String(1000))
-                            add_column(User.__tablename__, column)
-
-                        elif value['type'] == int:
-                            column = db.Column(key, db.Column(db.Integer), primary_key=True)
-                            add_column(User.__tablename__, column)
 
     # this is just some debug code
     # from app import signing
@@ -335,31 +326,30 @@ def create_app(test_config=None):
         return User.query.get(int(id))  
 
 
+    # define a home route
+    @app.route('/')
+    def home():
+        return render_template('app/index.html', 
+            homepage=True,
+            site_name=display['site_name'],
+            type="home",
+            name=display['site_name'],
+            display_warning_banner=True,
+            display=display,
+            user=current_user if current_user.is_authenticated else None,
+        )
 
-    # def make_celery(app):
-    #     celery = Celery(app.import_name)
-    #     celery.conf.update(app.config["CELERY_CONFIG"])
 
-    #     class ContextTask(celery.Task):
-    #         def __call__(self, *args, **kwargs):
-    #             with app.app_context():
-    #                 return self.run(*args, **kwargs)
-
-    #     celery.Task = ContextTask
-    #     return celery
-
-    # celery = make_celery(app)
-    
-    # from app import signing
-    # # celery.task(name='sleep_until_next_expiration')(signing.sleep_until_next_expiration)
-
-    # celery = make_celery(app)
-    
-    # @celery.task()
-    # def _():
-    #     signing.sleep_until_next_expiration()
-    
-    # result = _()
+    # define a home route
+    @app.route('/privacy')
+    def privacy():
+        return render_template('app/privacy.html', 
+            site_name=display['site_name'],
+            type="home",
+            name='privacy',
+            display=display,
+            user=current_user if current_user.is_authenticated else None,
+        )
 
     from . import auth
     app.register_blueprint(auth.bp)
