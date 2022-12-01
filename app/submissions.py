@@ -354,6 +354,8 @@ def render_document(form_name, document_id):
     
             record = record.loc[record['id'] == str(document_id)]
 
+            record.drop(columns=['Journal'], inplace=True)
+
             msg = Markup(f"<a href = '{display['domain']}/submissions/{form_name}/{document_id}/history'>view document history</a>")
 
             # print (current_user.username)

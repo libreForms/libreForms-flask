@@ -310,6 +310,7 @@ def parse_options(form=False):
                 'type': None,
                 'target': [],
             },
+            '_suppress_journal_from_views': False,
         }
 
         for field in list_fields.keys():
