@@ -4,6 +4,10 @@
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    {# {% if request.cookies.get("dark_mode") %}                #}
+    {# {% set dark_mode = request.cookies.get("dark_mode") %}   #}
+    {# {% endif %}                                              #}
 
     <!-- Bootstrap CSS -->
 	  <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap-darkly-5.1.3.min.css') if display['dark_mode'] else url_for('static', filename='bootstrap-flatly-5.1.3.min.css')}}">
