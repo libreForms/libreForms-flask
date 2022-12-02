@@ -23,8 +23,8 @@
 					{% if default_overrides and field in default_overrides %}
 						{% set default_value = default_overrides[field] %}
 					{% else %}
-						{% if context['_suppress_default_values'] == true %}
-							{% set default_value = none %}
+						{% if context['_suppress_default_values'] == true or context[field].input_field.type in ['checkbox', 'radio', 'autocomplete'] %}
+							{% set default_value = '' %}
 						{% else %}
 							{% set default_value = context[field].input_field.content[0] %}
 						{% endif %}
