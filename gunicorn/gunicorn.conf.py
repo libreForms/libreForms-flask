@@ -26,10 +26,11 @@ def pre_fork(server, worker):
         cleanup_stray_log_handlers()
 
     # create the app instance path if it doesn't exist
-    try:
-        os.makedirs(app.instance_path)
-    except OSError:
-        pass
+    with app.app_context():
+        try:
+            os.makedirs(app.instance_path)
+        except OSError:
+            pass
 
     # create the app database if it doesn't exist
     if not os.path.exists(os.path.join('instance','app.sqlite')):

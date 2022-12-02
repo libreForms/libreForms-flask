@@ -199,13 +199,7 @@ def create_app(test_config=None):
     if display['enable_hcaptcha']:
         hcaptcha.init_app(app)
 
-    # @celery.task
-    # def test_celery(msg):
-    #     import time
-    #     time.sleep(msg)
-
     from .models import User
-
 
     # here we append any additional fields described in the display.user_registration_fields variable
     if display['user_registration_fields']:
