@@ -25,13 +25,6 @@ def pre_fork(server, worker):
         # if the log path exists, let's clean up old log handlers
         cleanup_stray_log_handlers()
 
-    # create the app instance path if it doesn't exist
-    with app.app_context():
-        try:
-            os.makedirs(app.instance_path)
-        except OSError:
-            pass
-
     # create the app database if it doesn't exist
     if not os.path.exists(os.path.join('instance','app.sqlite')):
         from app import create_app    
@@ -42,6 +35,12 @@ def pre_fork(server, worker):
         db = SQLAlchemy()
 
         app=create_app()
+
+        # create the app instance path if it doesn't exist
+        try:
+            os.makedirs(app.instance_path)
+        except OSError:
+            pass
 
         # initialize the database
         db.init_app(app=app)     
