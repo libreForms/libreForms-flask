@@ -293,11 +293,18 @@ def submissions(form_name):
 @bp.route('/user/<user>')
 @login_required
 def render_user_submissions(user):
-        record = aggregate_form_data(user=user)
+        try:
+            record = aggregate_form_data(user=user)
+
+        except Exception as e:
+            flash('This user has not made any submissions. {e}')
+            return redirect(url_for('submissions.submissions_home'))
+
 
         if not isinstance(record, pd.DataFrame):
             flash('This user has not made any submissions.')
             return redirect(url_for('submissions.submissions_home'))
+
     
         else:
 
