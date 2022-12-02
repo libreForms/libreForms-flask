@@ -27,10 +27,14 @@ __maintainer__ = "Sig Janoska-Bedi"
 __email__ = "signe@atreeus.com"
 
 
+
 class MongoDB:
     def __init__(self, user='root', host='localhost', port=27017, dbpw=None):
         from pymongo import MongoClient
-        import datetime, os
+        # self.user=user 
+        # self.host=host 
+        # self.port=port 
+        # self.dbpw=dbpw
 
         # # read database password file, if it exists
         # if os.path.exists ("mongodb_creds"):
@@ -41,12 +45,26 @@ class MongoDB:
         # else:
         #     mongodb_creds=None
 
-        # client = MongoClient(f'mongodb://{user}:{dbpw}@{host}:{str(port)}/')
-        client = MongoClient(host, port)
-        self.db = client['libreforms']
+        # self.client = MongoClient(f'mongodb://{user}:{dbpw}@{host}:{str(port)}/')
+        self.client = MongoClient(host, port)
+        self.db = self.client['libreforms']
 
     def collections(self):
-        return self.db.list_collection_names()
+        # self.client = MongoClient(self.host, self.port)
+        # self.db = self.client['libreforms']
+
+        collections = self.db.list_collection_names()
+
+        # self.client.close()
+
+        return collections
+
+    # def close(self, self.client):
+    #     return self.client.close()
+
+    # def connect(self):
+    #     self.client = MongoClient(self.host, self.port)
+    #     return self.client['libreforms']
 
     def write_document_to_collection(self, data, collection_name, 
                                                     reporter=None,
@@ -55,6 +73,12 @@ class MongoDB:
                                                     modification=False):
         import datetime
         from bson.objectid import ObjectId
+
+        # to solve `connection paused` errors when in a forked
+        # evironment, we connect and close after each write,
+        # see https://github.com/signebedi/libreForms/issues/128
+        # self.client = MongoClient(self.host, self.port)
+        # self.db = self.client['libreforms']
 
         collection = self.db[collection_name]
 
@@ -104,6 +128,7 @@ class MongoDB:
 
             return data['_id']
 
+        # self.client.close()
 
 
     def read_documents_from_collection(self, collection_name):

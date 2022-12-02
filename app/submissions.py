@@ -269,7 +269,7 @@ def submissions(form_name):
 
 
         if not isinstance(record, pd.DataFrame):
-            flash('This form has not received any submissions.')
+            flash(f'This form has not received any submissions.')
             return redirect(url_for('submissions.submissions_home'))
     
         else:
