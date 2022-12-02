@@ -297,7 +297,7 @@ def render_user_submissions(user):
             record = aggregate_form_data(user=user)
 
         except Exception as e:
-            flash('This user has not made any submissions. {e}')
+            flash('This user has not made any submissions.')
             return redirect(url_for('submissions.submissions_home'))
 
 
