@@ -499,7 +499,70 @@ def logout():
     session.clear()
     return redirect(url_for('home'))
 
+@bp.route('/profile/edit', methods=('GET', 'POST'))
+@login_required
+def edit_profile():
 
+    if request.method == 'POST':
+
+        # print([x for x in list(request.form)])
+        organization = request.form['organization']
+        phone = request.form['phone']
+        
+        TEMP = {}
+        for item in display['user_registration_fields'].keys():
+            if display['user_registration_fields'][item]['input_type'] != 'hidden':
+
+                if display['user_registration_fields'][item]['input_type'] == 'checkbox':
+                    
+                    TEMP[item] = str(request.form.getlist(item))
+
+                else:
+                    TEMP[item] = str(request.form[item]) if display['user_registration_fields'][item]['type'] == str else float(request.form[item])
+
+        if phone == "":
+            phone = None
+        
+        if organization == "":
+            email = None
+
+        error = None
+
+        # added these per https://github.com/signebedi/libreForms/issues/122
+        # to give the freedom to set these as required fields
+        if display['registration_phone_required'] and not phone:
+            error = 'Phone is required.'
+        elif display['registration_organization_required'] and not organization:
+            error = 'Organization is required.'
+        elif phone and not re.fullmatch(r'^[a-z0-9]{3}-[a-z0-9]{3}-[a-z0-9]{4}$', phone):
+            error = 'Invalid phone number (xxx-xxx-xxxx).' 
+        
+        user = User.query.filter_by(email=current_user.email).first()
+    
+        if error is None:
+            try:
+                user.organization = organization 
+                user.phone = phone 
+                for item in TEMP:
+                    setattr(user, item, TEMP[item])
+
+                db.session.commit()
+
+                flash("Successfully updated profile. ")
+                log.info(f'{user.username.upper()} - successfully updated their profile.')
+                return redirect(url_for('auth.profile'))
+            except Exception as e:
+                error = f"There was an error in processing your request. {e}"
+            
+        flash(error)
+
+    return render_template('auth/register.html',
+        site_name=display['site_name'],
+        edit_profile=True,
+        user=current_user,
+        display_warning_banner=True,
+        name="Profile",
+        display=display,)
 
 @bp.route('/profile', methods=('GET', 'POST'))
 @login_required
