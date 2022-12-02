@@ -14,7 +14,7 @@ display['homepage_msg'] = Markup("<p>Welcome to libreForms, an extensible form b
                             layer implemented in Flask. Select a view from above to get started. \
                             Review the docs at <a href='https://github.com/signebedi/libreForms'> \
                             https://github.com/signebedi/libreForms</a>.</p>")
-
+display['dark_mode'] = True 
 display['warning_banner'] = "" 
 display['theme'] = "" # unused
 display['favicon'] = "" # unused

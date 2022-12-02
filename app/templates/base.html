@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <!-- Bootstrap CSS -->
-	  <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap-darkly-5.1.3.min.css') }}">
+	  <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap-darkly-5.1.3.min.css') if display['dark_mode'] else url_for('static', filename='bootstrap-flatly-5.1.3.min.css')}}">
 	  <link rel="stylesheet" href="{{ url_for('static', filename='autocomplete.css') }}">
 	  <script src="{{ url_for('static', filename='bootstrap-5.1.3.bundle.min.js') }}"></script>
     <script src="{{ url_for('static', filename='plotly-v1.58.5.min.js') }}"></script>
@@ -31,8 +31,7 @@
   </head>
 
   <body>        
-      <!-- <nav class="navbar navbar-expand-lg fixed-top navbar-dark bg-primary" style="padding-left: 30px;"> -->
-      <nav class="navbar navbar-expand-lg fixed-top navbar-dark bg-dark border-bottom" style="padding-left: 30px;z-index:999999 !important;">
+      <nav class="navbar navbar-expand-lg fixed-top navbar-{{'dark' if display['dark_mode'] else 'light'}} bg-{{'dark' if display['dark_mode'] else 'light'}} border-bottom" style="padding-left: 30px;z-index:999999 !important;">
           <a href="{% if type == 'external' %}#{% else %}{{ url_for('home') }}{% endif %}" class="navbar-brand">{{ display['site_name'] }} <small class="text-muted">v.{{ display['version'] }}</small></a>    
             <ul class="nav navbar-nav">
               {% if user %}

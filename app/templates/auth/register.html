@@ -87,7 +87,7 @@
       {% endif %}
 
       {% if display['enable_hcaptcha'] and not edit_profile %}
-      <br><div class="h-captcha" data-theme="dark" data-sitekey="{{ display['hcaptcha_site_key'] }}"></div>
+      <br><div class="h-captcha" data-theme="{{'dark' if display['dark_mode'] else 'light'}}" data-sitekey="{{ display['hcaptcha_site_key'] }}"></div>
       {% endif %}
 
 
