@@ -5,9 +5,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     
-    {% if request.cookies.get("theme") %}                
-      {% set dark_mode = true if request.cookies.get("theme") == 'dark' else false %}
-    {% elif current_user %}                
+    {# here we devise some logic to set the dark_mode variable equal to either the user's preference or the site default #}
+    {% if current_user %}                
       {% set dark_mode = true if user and user.theme == 'dark' else false %}
     {% else %}                                              
       {% set dark_mode = display['dark_mode'] %}
