@@ -192,14 +192,28 @@ def render_all_submissions():
         record = aggregate_form_data(user=None)
         # print(record)
 
+        # we start by dropping out any entries that no longer have 
+        # form configurations; some vestigial forms may exist in the 
+        # system; there is a bigger problem: how do we handle forms
+        # that receive submissions but are later removed from the system
+        # or have their names changed? There should be some kind of orderly
+        # transition process in the UI, or export-unstructured-data feature
+        # for admins, see https://github.com/signebedi/libreForms/issues/130.
+        record = record.drop(record.loc[~record.form.isin(libreforms.forms.keys())].index)
+        # print(record['form'].unique())
+
         ### this is where we run the data set through some 
         ### logic that checks _deny_read and removes forms for which
-        ### the current user's group does not have access
-        collections = mongodb.collections()
-        for form in collections:
+        ### the current user's group does not have access, see
+        ### https://github.com/signebedi/libreForms/issues/124
+    
+        # collections = mongodb.collections()
+        for form in libreforms.forms.keys():
+            # print(form)
             verify_group = parse_options(form=form)['_submission']
             
             if checkKey(verify_group, '_deny_read') and current_user.group in verify_group['_deny_read']:
+                # print(record.loc[record.form == form])
                 record = record.drop(record[record['form'] == form].index)
 
         if not isinstance(record, pd.DataFrame):
