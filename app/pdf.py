@@ -5,9 +5,11 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet
 
-def generate_pdf(   form_name:str, 
+def generate_pdf(   
+                    form_name:str, 
                     data_structure, 
-                    username, 
+                    username,
+                    skel=None,
                     document_name=None, 
                     encrypt=None):
 
@@ -23,30 +25,60 @@ def generate_pdf(   form_name:str,
 
     data = []
 
+    # This script generates a basic PDF and puts values into a 
+    # table after converting them to a list {key:value, key2:value2} > 
+    # [[key,value][key,value]] but it doesn't create a header (like, 
+    # a page title), nor can it handle more complex data structures 
+    # like 
+        # {key:[value1, value2]} > ? 
+    # or 
+        # {key:{child_key1:child_value1, child_key2:child_value2}} > ?
+    # See https://github.com/signebedi/libreForms/issues/53.
     for key, value in data_structure.items():
         if key != 'Journal':
-            data.append([key.replace('_'," "), str(value)])
+
+
+            # this is placeholder logic to eventually handle different
+            # data structures, eg. by creatine multiple columns (for 
+            # lists) or creating add'l rows (for each dict item). The
+            # only thought I have is that there may be some customization
+            # that admins may want to be able to define slightly different
+            # behavior; my contention is that this would occur generally in
+            # the scope of the output data type specified by the form config.
+            if isinstance(value, list):
+                data.append([key.replace('_'," "), str(value)])
+            elif isinstance(value, dict):
+                data.append([key.replace('_'," "), str(value)])
+            else:
+                data.append([key.replace('_'," "), str(value)])
     
-    print(data)
+    # print(data)
+
+
+    # PLACEHOLDER - iterate through each form field in the form config / skel
+    # and verify eg. whether `_depends_on` and `_deny_group` apply to each field;
+    # also determine whether there is a description and, if so, include the form and
+    # each corresponding form-field description provided.
 
     # # https://stackoverflow.com/questions/3372885/how-to-make-a-simple-table-in-reportlab
     # table = Table(data, colWidths=270, rowHeights=79)
     # elements.append(table)
     # doc.build(elements) 
     
-    # # https://zewaren.net/reportlab.html
-    style = TableStyle([('ALIGN',(1,1),(-2,-2),'RIGHT'),
-                       ('TEXTCOLOR',(1,1),(-2,-2),colors.red),
-                       ('VALIGN',(0,0),(0,-1),'TOP'),
-                       ('TEXTCOLOR',(0,0),(0,-1),colors.blue),
-                       ('ALIGN',(0,-1),(-1,-1),'CENTER'),
-                       ('VALIGN',(0,-1),(-1,-1),'MIDDLE'),
-                       ('TEXTCOLOR',(0,-1),(-1,-1),colors.green),
-                       ('INNERGRID', (0,0), (-1,-1), 0.25, colors.black),
-                       ('BOX', (0,0), (-1,-1), 0.25, colors.black),
-                       ])
+    # https://zewaren.net/reportlab.html
+    style = TableStyle([
+                        ('ALIGN',(1,1),(-2,-2),'RIGHT'),
+                        # ('TEXTCOLOR',(1,1),(-2,-2),colors.red),
+                        ('VALIGN',(0,0),(0,-1),'TOP'),
+                        # ('TEXTCOLOR',(0,0),(0,-1),colors.blue),
+                        ('ALIGN',(0,-1),(-1,-1),'CENTER'),
+                        ('VALIGN',(0,-1),(-1,-1),'MIDDLE'),
+                        # ('TEXTCOLOR',(0,-1),(-1,-1),colors.green),
+                        ('INNERGRID', (0,0), (-1,-1), 0.25, colors.black),
+                        ('BOX', (0,0), (-1,-1), 0.25, colors.black),
+                        ])
 
-    # #Configure style and word wrap
+    # Configure style and word wrap
     s = getSampleStyleSheet()
     s = s["BodyText"]
     s.wordWrap = 'CJK'
@@ -54,28 +86,28 @@ def generate_pdf(   form_name:str,
     t=Table(data2)
     t.setStyle(style)
 
-    # #Send the data and build the file
+    # Send the data and build the file
     elements.append(t)
     doc.build(elements)
 
 
 
-# if __name__=="__main__":
-#     data = {'Description': 'This project requests approval for $3 million over seven '
-#                 'years to develop a turnip GMO with significantly increased '
-#                 'nutritional value.',
-#             'Existing_Request': 'No',
-#             'Job_Number': '23854',
-#             'Mission_Team': 'Special Projects (SP)',
-#             'Owner': 'John Smith (smithj22@example.com)',
-#             'Reporter': 'smithj22',
-#             'Risk_Level': 'medium',
-#             'Select': ['1'],
-#             'Shortname': 'Nutritional Value of Turnips',
-#             'Start_Date': '2022-12-29',
-#             'Timestamp': '2022-11-27 15:03:00.949681',
-#             '_id': '63837c241cc1c836267a4c24'}
+if __name__=="__main__":
+    data = {'Description': 'This project requests approval for $3 million over seven '
+                'years to develop a turnip GMO with significantly increased '
+                'nutritional value.',
+            'Existing_Request': 'No',
+            'Job_Number': '23854',
+            'Mission_Team': 'Special Projects (SP)',
+            'Owner': 'John Smith (smithj22@example.com)',
+            'Reporter': 'smithj22',
+            'Risk_Level': 'medium',
+            'Select': ['1'],
+            'Shortname': 'Nutritional Value of Turnips',
+            'Start_Date': '2022-12-29',
+            'Timestamp': '2022-11-27 15:03:00.949681',
+            '_id': '63837c241cc1c836267a4c24'}
     
-#     print (data)
+    print (data)
     
-#     generate_pdf('status', data, '')
+    generate_pdf('status', data, '')
