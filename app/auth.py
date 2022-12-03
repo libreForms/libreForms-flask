@@ -622,8 +622,10 @@ def download_bulk_user_template(filename='bulk_user_template.csv'):
 
     # if we set custom user fields, add these here
     if display['user_registration_fields']:
-        if display['user_registration_fields'][x]['input_type'] != 'hidden':
-            for x in display['user_registration_fields'].keys():
+        for x in display['user_registration_fields'].keys():
+
+            # we only add the field if it is not a 'hidden' registration field
+            if display['user_registration_fields'][x]['input_type'] != 'hidden':
                 df[x] = None
 
 

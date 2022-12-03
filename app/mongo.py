@@ -40,7 +40,6 @@ class MongoDB:
         self.host=host
         self.port=port
 
-with MongoClient(host=host, port=port) if not dbpw else MongoClient(f'mongodb://{user}:{dbpw}@{host}:{str(port)}/?authSource=admin&retryWrites=true&w=majority') as client:
 
 
         if not dbpw and os.path.exists ("mongodb_creds"):
