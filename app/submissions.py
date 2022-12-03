@@ -384,7 +384,10 @@ def render_document(form_name, document_id):
             # print (record['Reporter'].iloc[0])
 
             if not (checkKey(verify_group, '_deny_write') or current_user.group in verify_group['_deny_write']) or current_user.username == record['Reporter'].iloc[0]:
-                msg = msg + Markup(f"<br/><a href = '{display['domain']}/submissions/{form_name}/{document_id}/edit'>edit this document</a>")
+                msg = msg + Markup(f"<a href = '{display['domain']}/submissions/{form_name}/{document_id}/edit'>edit this document</a>")
+
+            if parse_options(form_name)['_allow_pdf_download']:
+                msg = msg + Markup(f"<a href = '{display['domain']}/submissions/{form_name}/{document_id}/download'>download PDF</a>")
 
             return render_template('app/submissions.html',
                 type="submissions",
@@ -481,7 +484,13 @@ def render_document_history(form_name, document_id):
             # print (record['Reporter'].iloc[0])
 
             if not (checkKey(verify_group, '_deny_write') or current_user.group in verify_group['_deny_write']) or current_user.username == record.transpose()['Reporter'].iloc[0]:
-                msg = msg + Markup(f"<br/><a href = '{display['domain']}/submissions/{form_name}/{document_id}/edit'>edit this document</a>")
+                msg = msg + Markup(f"<a href = '{display['domain']}/submissions/{form_name}/{document_id}/edit'>edit this document</a>")
+            
+            # eventually, we may wish to add support for downloading past versions 
+            # of the PDF, too; not just the current form of the PDF; the logic does 
+            # seem to support this, eg. sending the `display_data`
+            if parse_options(form_name)['_allow_pdf_download']:
+                msg = msg + Markup(f"<a href = '{display['domain']}/submissions/{form_name}/{document_id}/download'>download PDF</a>")
 
             return render_template('app/submissions.html',
                 type="submissions",
@@ -609,19 +618,28 @@ def render_document_edit(form_name, document_id):
 @login_required
 def generate_pdf(form_name, document_id):
 
-    if not checkGroup(group=current_user.group, struct=parse_options(form_name)):
-            flash(f'You do not have access to this view. ')
-            return redirect(url_for('submissions.submissions', document_id=document_id))
+    try:
+        test_the_form_options = parse_options(form=form_name)
+
+    except Exception as e:
+        flash('This form does not exist.')
+        log.warning(f'{current_user.username.upper()} - {e}')
+        return redirect(url_for('submissions.render_document', form_name=form_name,document_id=document_id))
+
+    if not test_the_form_options['_allow_pdf_download']:
+        flash(f'This form does not have downloads enabled. ')
+        return redirect(url_for('submissions.render_document', form_name=form_name, document_id=document_id))
+
+
+    if not checkGroup(group=current_user.group, struct=test_the_form_options):
+        flash(f'You do not have access to this view. ')
+        return redirect(url_for('submissions.render_document', form_name=form_name, document_id=document_id))
 
     else:
-        try:
-            verify_group = parse_options(form=form_name)['_submission']
-        except Exception as e:
-            flash('This form does not exist.')
-            log.warning(f'{current_user.username.upper()} - {e}')
-            return redirect(url_for('submissions.submissions', document_id=document_id))
+        
+        verify_group = test_the_form_options['_submission']
 
-        if parse_options(form=form_name)['_submission']['_enable_universal_form_access'] and not \
+        if verify_group['_enable_universal_form_access'] and not \
             (checkKey(verify_group, '_deny_read') and current_user.group in verify_group['_deny_read']):
             record = get_record_of_submissions(form_name=form_name)
 
@@ -632,7 +650,7 @@ def generate_pdf(form_name, document_id):
 
         if not isinstance(record, pd.DataFrame):
             flash('This document does not exist.')
-            return redirect(url_for('submissions.submissions', document_id=document_id))
+            return redirect(url_for('submissions.render_document', form_name=form_name, document_id=document_id))
     
         else:
     
