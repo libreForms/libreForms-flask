@@ -14,10 +14,13 @@
 
     <!-- Bootstrap -->
     <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap-darkly-5.1.3.min.css')}}">	  
+    <script src="{{ url_for('static', filename='bootstrap-5.1.3.bundle.min.js')}}"></script>
+
+    <!-- Plotly -->
     <script src="{{ url_for('static', filename='plotly-v1.58.5.min.js') }}"></script>
 
     <!-- Other -->
-	  <link rel="stylesheet" href="{{ url_for('static', filename='autocomplete.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='autocomplete.css') }}">
     <script src="{{ url_for('static', filename='autocomplete.js') }}"></script>
     {% if display['enable_hcaptcha'] %}
     <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
