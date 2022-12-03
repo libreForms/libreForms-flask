@@ -192,14 +192,15 @@ def render_all_submissions():
         record = aggregate_form_data(user=None)
         # print(record)
 
-        ### this is where we should run the data set through some 
+        ### this is where we run the data set through some 
         ### logic that checks _deny_read and removes forms for which
         ### the current user's group does not have access
-        # verify_group = parse_options(form=form_name)['_submission']
-        # if checkKey(verify_group, '_deny_read') and current_user.group in verify_group['_deny_read']:
-        #     flash('You do not have access to this resource.')
-        #     return redirect(url_for('submissions.submissions_home'))
-
+        collections = mongodb.collections()
+        for form in collections:
+            verify_group = parse_options(form=form)['_submission']
+            
+            if checkKey(verify_group, '_deny_read') and current_user.group in verify_group['_deny_read']:
+                record = record.drop(record[record['form'] == form].index)
 
         if not isinstance(record, pd.DataFrame):
             flash('The application has not received any submissions.')

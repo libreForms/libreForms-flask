@@ -318,6 +318,18 @@ def parse_options(form=False):
 
         for field in list_fields.keys():
             if field.startswith("_"):
+
+                # we run assertions when our data structure requires there to 
+                # be certain attributes in a field config
+                if field == '_submission':
+                    assert (checkKey(list_fields[field],'_enable_universal_form_access'))
+                    assert (checkKey(list_fields[field],'_deny_read'))
+                    assert (checkKey(list_fields[field],'_deny_write'))
+
+                if field == '_routing_list':
+                    assert (checkKey(list_fields[field],'type'))
+                    assert (checkKey(list_fields[field],'target'))
+
                 # we overwrite existing option values, and add new ones
                 # based on the user defined configurations
                 OPTIONS[field] = list_fields[field]
