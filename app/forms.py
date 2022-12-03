@@ -314,6 +314,8 @@ def parse_options(form=False):
                 'target': [],
             },
             '_suppress_journal_from_views': True,
+            "_allow_pdf_download": True, 
+            "_allow_pdf_past_versions": True, 
         }
 
         for field in list_fields.keys():

@@ -605,20 +605,52 @@ def render_document_edit(form_name, document_id):
         return redirect(url_for('submissions.submissions_home'))
 
 # this generates PDFs
-# @bp.route('/<form_name><document_id>/download')
-# @login_required
-# def generate_pdf(form_name, document_id):
+@bp.route('/<form_name>/<document_id>/download')
+@login_required
+def generate_pdf(form_name, document_id):
 
-#     from reportlab.pdfgen.canvas import Canvas
+    if not checkGroup(group=current_user.group, struct=parse_options(form_name)):
+            flash(f'You do not have access to this view. ')
+            return redirect(url_for('submissions.submissions', document_id=document_id))
 
-#     filename = f"{form_name}_{document_id}.pdf"
-#     canvas = Canvas(filename)
+    else:
+        try:
+            verify_group = parse_options(form=form_name)['_submission']
+        except Exception as e:
+            flash('This form does not exist.')
+            log.warning(f'{current_user.username.upper()} - {e}')
+            return redirect(url_for('submissions.submissions', document_id=document_id))
 
-#     # # this is our first stab at building templates, without accounting for nesting or repetition
-#     # df = pd.DataFrame (columns=[x for x in progagate_forms(filename.replace('.csv', '')).keys()], group=current_user.group)
+        if parse_options(form=form_name)['_submission']['_enable_universal_form_access'] and not \
+            (checkKey(verify_group, '_deny_read') and current_user.group in verify_group['_deny_read']):
+            record = get_record_of_submissions(form_name=form_name)
 
-#     # fp = os.path.join(tempfile_path, filename)
-#     # df.to_csv(fp, index=False)
+        else:
 
-#     return send_from_directory(tempfile_path,
-#                             filename, as_attachment=True)
+            record = get_record_of_submissions(form_name=form_name, user=current_user.username)
+
+
+        if not isinstance(record, pd.DataFrame):
+            flash('This document does not exist.')
+            return redirect(url_for('submissions.submissions', document_id=document_id))
+    
+        else:
+    
+            record = record.loc[record['id'] == str(document_id)]
+            record.drop(columns=['Journal'], inplace=True)
+
+            import libreforms
+            import datetime
+            from app.pdf import generate_pdf
+            filename = f"{form_name}_{document_id}.pdf"
+            fp = os.path.join(tempfile_path, filename)
+            # document_name= f'{datetime.datetime.utcnow().strftime("%Y-%m-%d")}_{current_user.username}_{form_name}.pdf'
+
+            generate_pdf(   form_name=form_name, 
+                            data_structure=dict(record.iloc[0]), 
+                            username=current_user.username,
+                            document_name=fp,
+                            skel=libreforms.forms[form_name]    )
+
+            return send_from_directory(tempfile_path,
+                                    filename, as_attachment=True)
