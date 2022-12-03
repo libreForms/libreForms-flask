@@ -618,7 +618,7 @@ def profile():
 def download_bulk_user_template(filename='bulk_user_template.csv'):
 
     # this is our first stab at building templates, without accounting for nesting or repetition
-    df = pd.DataFrame (columns=["username", "email", "password", "phone", "organization"])
+    df = pd.DataFrame (columns=["username", "email", "password", "phone", "organization",'theme'])
 
     # if we set custom user fields, add these here
     if display['user_registration_fields']:
