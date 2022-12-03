@@ -52,10 +52,13 @@ def rationalize_routing_routing_list(form_name):
     if routing_list['type'] and not display['smtp_enabled']:
         log.warning('LIBREFORMS - administrators have set a routing list {routing_list} for form {form_name} but SMTP has not been enabled.')
         return []
-    
+
+    if not routing_list['type']:
+        return []
+
     # if the form administrators have defined a static list of emails to receive 
     # form submission emails, then return that list here.
-    if routing_list['type'] == 'static':
+    elif routing_list['type'] == 'static':
         return routing_list['target']
 
     # this section is probably the most complex problem set; if groups are configured, 
@@ -391,15 +394,15 @@ def forms(form_name):
                 document_id = mongodb.write_document_to_collection(parsed_args, form_name, reporter=current_user.username)
 
                 flash(str(parsed_args))
+                                
                 log.info(f'{current_user.username.upper()} - submitted \'{form_name}\' form, document no. {document_id}.')
                 
                 # here we build our message and subject
                 subject = f'{display["site_name"]} {form_name} Submitted ({document_id})'
                 content = f"This email serves to verify that {current_user.username} ({current_user.email}) has just submitted the {form_name} form, which you can view at {display['domain']}/submissions/{form_name}/{document_id}. {'; '.join(key + ': ' + str(value) for key, value in parsed_args.items() if key != 'Journal') if options['_send_form_with_email_notification'] else ''}"
-                
+                                
                 # and then we send our message
                 mailer.send_mail(subject=subject, content=content, to_address=current_user.email, cc_address_list=rationalize_routing_routing_list(form_name), logfile=log)
-                
                 
                 return redirect(url_for('submissions.render_document', form_name=form_name, document_id=document_id))
 
