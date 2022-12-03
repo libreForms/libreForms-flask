@@ -67,13 +67,17 @@ def dashboards(form_name):
         flash('This form has not received any submissions.')
         return redirect(url_for('dashboards.dashboards_home'))
 
+    theme = 'plotly_dark' if (display['dark_mode'] and \
+        not current_user.theme == 'light') or current_user.theme == 'dark' else 'plotly_white'
+
+
     viz_type = libreforms.forms[form_name]["_dashboard"]['type']
     if viz_type == "scatter":
         fig = px.scatter(df, 
                     x=ref['x'], 
                     y=y_context, 
                     color=ref['color'],
-                    template='plotly_dark')
+                    template=theme)
         graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
 
     elif viz_type == "bar":

@@ -203,6 +203,7 @@ def register():
                             organization=organization,
                             group=display['default_group'],
                             phone=phone,
+                            theme='dark', # we default to dark theme but can change later
                             created_date=created_date,
                             active=0 if display["enable_email_verification"] else 1,
                             **TEMP, # https://stackoverflow.com/a/5710402
@@ -400,6 +401,7 @@ def bulk_register():
                                         password=generate_password_hash(row.password, method='sha256'),
                                         organization=row.organization if row.organization else "",
                                         phone=row.phone if row.phone else "",
+                                        theme=row.theme if row.theme in ['light', 'dark'] else 'dark',
                                         created_date=created_date,
                                         active=0 if display["enable_email_verification"] else 1,
                                         **TEMP
@@ -508,6 +510,7 @@ def edit_profile():
         # print([x for x in list(request.form)])
         organization = request.form['organization']
         phone = request.form['phone']
+        theme = request.form['theme']
         
         TEMP = {}
         for item in display['user_registration_fields'].keys():
@@ -525,6 +528,9 @@ def edit_profile():
         
         if organization == "":
             email = None
+        
+        if theme not in ['light', 'dark']:
+            theme = 'dark'
 
         error = None
 
@@ -543,6 +549,7 @@ def edit_profile():
             try:
                 user.organization = organization 
                 user.phone = phone 
+                user.theme = theme 
                 for item in TEMP:
                     setattr(user, item, TEMP[item])
 

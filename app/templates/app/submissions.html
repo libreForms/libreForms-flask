@@ -13,10 +13,10 @@
 
 {% elif form_home %}
 
-<table class="table table-hover">
+<table class="table {{'text-dark' if not dark_mode else 'table-hover'}}">
   <tbody>
   {% for item in submission.index %} 
-    <tr class="table{% if emphasize and item in emphasize %}-secondary{% else %}-dark{% endif %}">
+    <tr class="table{% if emphasize and item in emphasize %}-secondary{% else %}{{'-dark' if dark_mode else '-transparent'}}{% endif %}">
       <th scope="row">{{submission['Timestamp'][item]}}</th>
       <td>{{submission['hyperlink'][item]}}</td>
       <td>{{submission['form'][item]}}</td>
@@ -28,10 +28,10 @@
 
 
 {% else %}
-<table class="table table-hover">
+<table class="table {{'text-dark' if not dark_mode else 'table-hover'}}">
     <tbody>
     {% for item in submission.columns %} 
-      <tr class="table{% if emphasize and item in emphasize %}-secondary{% else %}-dark{% endif %}">
+      <tr class="table{% if emphasize and item in emphasize %}{{'-secondary' if dark_mode else '-primary'}}{% else %}{{'-dark' if dark_mode else '-transparent'}}{% endif %}">
         <th scope="row">{{item}}</th>
         <td>{{submission[item].iloc[0]}}</td>
       </tr>

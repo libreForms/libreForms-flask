@@ -63,7 +63,7 @@
         {% for item in display['user_registration_fields'][attribute].content %}
         <div class="form-check">
           <label class='form-check-label' for="{{ attribute }} {{ item }}">{{ item }}
-            <input class="form-check-input" type="{{ display['user_registration_fields'][attribute].input_type }}" value="{{ item }}" id="{{ attribute }} {{ item }}" name="{{ attribute }}" {%if edit_profile and user[attribute] and item in user[attribute]%} checked="checked" {%endif%}/>
+            <input class="form-check-input" style="{{'border: 1px solid;' if not dark_mode else ''}}" type="{{ display['user_registration_fields'][attribute].input_type }}" value="{{ item }}" id="{{ attribute }} {{ item }}" name="{{ attribute }}" {%if edit_profile and user[attribute] and item in user[attribute]%} checked="checked" {%endif%}/>
           </label>
         </div>
         {% endfor %}
@@ -84,10 +84,19 @@
         <label class="form-label mt-4" for="password">Password</label>
         <input class="form-control" type="password" name="password" id="password" placeholder="Enter a password" required>  
       </div>
+
+      {% else %}
+      <div class="form-group">
+        <label class="form-label mt-4 required" for="theme" data-bs-toggle="tooltip" data-bs-placement="right" title="Select a theme to view this application">Theme</label>
+        <select name="theme" class="form-select" required>
+            <option value="light" id="theme light" name="light" {%if edit_profile and user.theme == 'light' %} selected="selected" {%endif%}>Light</option>
+            <option value="dark" id="theme dark" name="dark" {%if edit_profile and user.theme == 'dark' %} selected="selected" {%endif%}>Dark</option>
+        </select>
+      </div>
       {% endif %}
 
       {% if display['enable_hcaptcha'] and not edit_profile %}
-      <br><div class="h-captcha" data-theme="{{'dark' if display['dark_mode'] else 'light'}}" data-sitekey="{{ display['hcaptcha_site_key'] }}"></div>
+      <br><div class="h-captcha" data-theme="{{'dark' if dark_mode else 'light'}}" data-sitekey="{{ display['hcaptcha_site_key'] }}"></div>
       {% endif %}
 
 

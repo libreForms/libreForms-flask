@@ -58,7 +58,7 @@
 						{% for item in content %}
 						<div class="form-check">
 							<label class='form-check-label' for="{{ field }} {{ item }}">{{ item }}
-								<input class="form-check-input" type="radio" value="{{ item }}" id="{{ field }} {{ item }}" name="{{ field }}"  {%if item == default_value%}checked="checked"{%endif%}/>
+								<input class="form-check-input" style="{{'border: 1px solid;' if not dark_mode else ''}}" type="radio" value="{{ item }}" id="{{ field }} {{ item }}" name="{{ field }}"  {%if item == default_value%}checked="checked"{%endif%}/>
 							</label>
 						</div>
 						{% endfor %}
@@ -69,7 +69,7 @@
 						{% for item in content %}
 						<div class="form-check">
 							<label class='form-check-label' for="{{ field }} {{ item }}">{{ item }}
-								<input class="form-check-input" type="checkbox" value="{{ item }}" id="{{ field }} {{ item }}" name="{{ field }}"  {%if item in default_value%}checked="checked"{%endif%}/>
+								<input class="form-check-input" style="{{'border: 1px solid;' if not dark_mode else ''}}" type="checkbox" value="{{ item }}" id="{{ field }} {{ item }}" name="{{ field }}"  {%if item in default_value%}checked="checked"{%endif%}/>
 							</label>
 						</div>
 						{% endfor %}

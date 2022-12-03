@@ -8,12 +8,13 @@
 </div>
 <h4>Profile</h4>
 
-<table class="table table-hover">
+<table class="table {{'text-dark' if not dark_mode else ''}}">
 <tr><td><b>Username</b>: {{ user.username }}</td></tr>
-<tr><td><b>Email</b>: <span ondblclick="this.contentEditable=true;this.className='inEdit';" onblur="this.contentEditable=false;this.className='';" contenteditable="false" class=""> {{ user.email }}</span></td></tr>
+<tr><td><b>Email</b>: <span> {{ user.email }}</span></td></tr>
 <tr><td><b>Group</b>: {{ user.group }}</td></tr>
-<tr><td><b>Organization</b>: <span ondblclick="this.contentEditable=true;this.className='inEdit';" onblur="this.contentEditable=false;this.className='';" contenteditable="false" class="">{{ user.organization }}</span></td></tr>
-<tr><td><b>Phone</b>: <span ondblclick="this.contentEditable=true;this.className='inEdit';" onblur="this.contentEditable=false;this.className='';" contenteditable="false" class="">{{ user.phone }}</span>
+<tr><td><b>Organization</b>: <span>{{ user.organization }}</span></td></tr>
+<tr><td><b>Phone</b>: <span>{{ user.phone }}</span></td></tr>
+<tr><td><b>Theme</b>: <span>{{ user.theme }}</span></td></tr>
 {% if display['user_registration_fields'] is defined %}
 {% for attribute in display['user_registration_fields'] %}
 <tr><td><b>{{attribute | capitalize | replace("_", " ")}}</b>: {{ user[attribute] }}</td></tr>
@@ -49,9 +50,9 @@
 {% if log_data %}
 <br/><hr/><h4>User Log</h4><br/>
 
-<div class="list-group vh-100 scrollable overflow-auto">
+<div class="list-group vh-100 scrollable overflow-auto table table-hover">
     {% for row in log_data %}
-    <a href="#" class="list-group-item list-group-item-action disabled">{{ row }}</a>
+    <span class="list-group-item list-group-item-action disabled {{'bg-transparent text-dark' if not dark_mode else ''}}">{{ row }}</span>
     {% endfor %}
 </div>
 {% endif %}
