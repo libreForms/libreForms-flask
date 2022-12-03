@@ -69,7 +69,7 @@ def tables(form_name):
         return redirect(url_for('tables.tables_home'))
 
     return render_template('app/tables.html',
-        table=Markup(df.to_html(index=False, classes=f"table {'text-dark' if not display['dark_mode'] else ''}")),
+        table=Markup(df.to_html(index=False, classes=f"table {'text-dark' if not (display['dark_mode'] or current_user.theme == 'dark') else ''}")),
         # table=df,
         type="tables",
         name=form_name,
