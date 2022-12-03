@@ -203,7 +203,7 @@ def register():
                             organization=organization,
                             group=display['default_group'],
                             phone=phone,
-                            theme='dark', # we default to dark theme but can change later
+                            theme='dark' if display['dark_mode'] else 'light', # we default to the application default
                             created_date=created_date,
                             active=0 if display["enable_email_verification"] else 1,
                             **TEMP, # https://stackoverflow.com/a/5710402
