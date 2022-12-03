@@ -36,12 +36,6 @@ def pre_fork(server, worker):
 
         app=create_app()
 
-        # create the app instance path if it doesn't exist
-        try:
-            os.makedirs(app.instance_path)
-        except OSError:
-            pass
-
         # initialize the database
         db.init_app(app=app)     
         
@@ -67,7 +61,7 @@ def pre_fork(server, worker):
                 initial_user = User(id=1,
                                     username='libreforms', 
                                     active=1,
-                                    theme='dark',
+                                    theme='dark' if display['dark_mode'] else 'light',
                                     group='admin',
                                     email=display['libreforms_user_email'] if display['libreforms_user_email'] and re.fullmatch(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', display['libreforms_user_email']) else None,
                                     password='pbkdf2:sha256:260000$nQVWxd59E8lmkruy$13d8c4d408185ccc3549d3629be9cd57267a7d660abef389b3be70850e1bbfbf',
