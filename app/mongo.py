@@ -26,15 +26,15 @@ __license__ = "AGPL-3.0"
 __maintainer__ = "Sig Janoska-Bedi"
 __email__ = "signe@atreeus.com"
 
-
+from pymongo import MongoClient
 
 class MongoDB:
     def __init__(self, user='root', host='localhost', port=27017, dbpw=None):
         from pymongo import MongoClient
-        # self.user=user 
-        # self.host=host 
-        # self.port=port 
-        # self.dbpw=dbpw
+        self.user=user 
+        self.host=host 
+        self.port=port 
+        dbpw=dbpw
 
         # # read database password file, if it exists
         # if os.path.exists ("mongodb_creds"):
@@ -46,18 +46,16 @@ class MongoDB:
         #     mongodb_creds=None
 
         # self.client = MongoClient(f'mongodb://{user}:{dbpw}@{host}:{str(port)}/')
-        self.client = MongoClient(host, port)
-        self.db = self.client['libreforms']
+        # self.client = MongoClient(self.host, self.port)
+        # db = self.client['libreforms']
 
     def collections(self):
-        # self.client = MongoClient(self.host, self.port)
-        # self.db = self.client['libreforms']
+        with MongoClient(self.host, self.port) as client:
+            db = client['libreforms']
 
-        collections = self.db.list_collection_names()
+            collections = db.list_collection_names()
 
-        # self.client.close()
-
-        return collections
+            return collections
 
     # def close(self, self.client):
     #     return self.client.close()
@@ -76,62 +74,65 @@ class MongoDB:
 
         # to solve `connection paused` errors when in a forked
         # evironment, we connect and close after each write,
-        # see https://github.com/signebedi/libreForms/issues/128
-        # self.client = MongoClient(self.host, self.port)
-        # self.db = self.client['libreforms']
+        # see https://github.com/signebedi/libreForms/issues/128        
+        with MongoClient(self.host, self.port) as client:
+            db = client['libreforms']
 
-        collection = self.db[collection_name]
 
-        timestamp = str(datetime.datetime.utcnow())
+            collection = db[collection_name]
 
-        data['Reporter'] = str(reporter) if reporter else None
+            timestamp = str(datetime.datetime.utcnow())
 
-        data_copy = data.copy()
+            data['Reporter'] = str(reporter) if reporter else None
 
-        data['Timestamp'] = timestamp
+            data_copy = data.copy()
 
-        # here we define the behavior of the `Journal` metadata field 
-        if not modification:
-            data['Journal'] = { timestamp: data_copy }
-            data['Journal'][timestamp]['initial_submission'] = True # this may be redundant .. 
-        
-        # here we define the behavior of the `Journal` metadata field 
-        # if not modification:
-            # data['Journal'] = { data['Timestamp']: {
-            #                                         'Reporter': data['Reporter'],
-            #                                         'initial_submission': True}
-            #                                         }
+            data['Timestamp'] = timestamp
 
-            return collection.insert_one(data).inserted_id
+            # here we define the behavior of the `Journal` metadata field 
+            if not modification:
+                data['Journal'] = { timestamp: data_copy }
+                data['Journal'][timestamp]['initial_submission'] = True # this may be redundant .. 
+            
+            # here we define the behavior of the `Journal` metadata field 
+            # if not modification:
+                # data['Journal'] = { data['Timestamp']: {
+                #                                         'Reporter': data['Reporter'],
+                #                                         'initial_submission': True}
+                #                                         }
 
-        else:
+                return str(collection.insert_one(data).inserted_id)
 
-            # some very overkill slicing to get the original 'Journal' value...
-            import pandas as pd
-            TEMP = self.read_documents_from_collection(collection_name)
-            df = pd.DataFrame(list(TEMP))
-            data['Journal'] = dict(df.loc[ (df['_id'] == data['_id'])]['Journal'].iloc[0])
-            # print("\n\n\n", data['Journal'])
-            # print("\n\n\n", type(data['Journal']))
+            else:
 
-            # we create a slice of the data to pass to the `Journal`
-            journal_data = data.copy()
-            del journal_data['_id']
-            del journal_data['Journal']
-            # print("\n\n\n", journal_data)
+                # some very overkill slicing to get the original 'Journal' value...
+                import pandas as pd
+                TEMP = self.read_documents_from_collection(collection_name)
+                df = pd.DataFrame(list(TEMP))
+                data['Journal'] = dict(df.loc[ (df['_id'] == data['_id'])]['Journal'].iloc[0])
+                # print("\n\n\n", data['Journal'])
+                # print("\n\n\n", type(data['Journal']))
 
-            # some inefficient slicing and voila! we have our correct `Journal` values, 
-            # which we append to the `Journal` field of the parent dataframe
-            data['Journal'][data['Timestamp']] =  dict(journal_data)
-            # print(final_data['Journal'])
-            collection.update_one({'_id': ObjectId(data['_id'])}, { "$set": data}, upsert=False)
+                # we create a slice of the data to pass to the `Journal`
+                journal_data = data.copy()
+                del journal_data['_id']
+                del journal_data['Journal']
+                # print("\n\n\n", journal_data)
 
-            return data['_id']
+                # some inefficient slicing and voila! we have our correct `Journal` values, 
+                # which we append to the `Journal` field of the parent dataframe
+                data['Journal'][data['Timestamp']] =  dict(journal_data)
+                # print(final_data['Journal'])
+                collection.update_one({'_id': ObjectId(data['_id'])}, { "$set": data}, upsert=False)
 
-        # self.client.close()
+                return str(data['_id'])
+
 
 
     def read_documents_from_collection(self, collection_name):
-        collection = self.db[collection_name]
-        return collection.find()
+        with MongoClient(self.host, self.port) as client:
+            db = client['libreforms']
+
+            collection = db[collection_name]
+            return list(collection.find())
 
