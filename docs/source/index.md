@@ -311,12 +311,12 @@ import pandas as pd
 from app import mongo
 
 if os.path.exists ("mongodb_creds"):
-    with open("mongodb_creds", "r+") as f:
+    with open("mongodb_creds", "r") as f:
         mongodb_creds = f.read().strip()
 else:  
     mongodb_creds=None
 
-mongodb = mongo.MongoDB(mongodb_creds)
+mongodb = mongo.MongoDB(dbpw=mongodb_creds)
 
 def _db_lookup(collection, *args, combine=False):
     df = pd.DataFrame(list(mongodb.read_documents_from_collection(collection)))

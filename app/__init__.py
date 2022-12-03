@@ -66,7 +66,7 @@ else:
 
 # read database password file, if it exists
 if os.path.exists ("mongodb_creds"):
-    with open("mongodb_creds", "r+") as f:
+    with open("mongodb_creds", "r") as f:
         mongodb_creds = f.read().strip()
 else:  
     mongodb_creds=None

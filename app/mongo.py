@@ -27,32 +27,32 @@ __maintainer__ = "Sig Janoska-Bedi"
 __email__ = "signe@atreeus.com"
 
 from pymongo import MongoClient
+import os
 
 class MongoDB:
-    def __init__(self, user='root', host='localhost', port=27017, dbpw=None):
+    def __init__(self, user='admin', host='localhost', port=27017, dbpw=None):
         from pymongo import MongoClient
         self.user=user 
         self.host=host 
         self.port=port 
-        dbpw=dbpw
+        from pymongo import MongoClient
+        self.user=user
+        self.host=host
+        self.port=port
 
-        # # read database password file, if it exists
-        # if os.path.exists ("mongodb_creds"):
-        #     with open("mongodb_creds", "r+") as f:
-        #         mongodb_creds = f.read().strip()
-        # elif dbpw:  
-        #     pass
-        # else:
-        #     mongodb_creds=None
 
-        # self.client = MongoClient(f'mongodb://{user}:{dbpw}@{host}:{str(port)}/')
-        # self.client = MongoClient(self.host, self.port)
-        # db = self.client['libreforms']
+        if not dbpw and os.path.exists ("mongodb_creds"):
+            with open("mongodb_creds", "r") as f:
+                self.dbpw = f.read().strip()
+        else:
+            self.dbpw=dbpw
+
+        # print(self.dbpw)
 
     def collections(self):
-        with MongoClient(self.host, self.port) as client:
+        with MongoClient(host=self.host, port=self.port) if not self.dbpw else MongoClient(f'mongodb://{self.user}:{self.dbpw}@{self.host}:{str(self.port)}/?authSource=admin&retryWrites=true&w=majority') as client:
             db = client['libreforms']
-
+            
             collections = db.list_collection_names()
 
             return collections
@@ -75,9 +75,8 @@ class MongoDB:
         # to solve `connection paused` errors when in a forked
         # evironment, we connect and close after each write,
         # see https://github.com/signebedi/libreForms/issues/128        
-        with MongoClient(self.host, self.port) as client:
+        with MongoClient(host=self.host, port=self.port) if not self.dbpw else MongoClient(f'mongodb://{self.user}:{self.dbpw}@{self.host}:{str(self.port)}/?authSource=admin&retryWrites=true&w=majority') as client:
             db = client['libreforms']
-
 
             collection = db[collection_name]
 
@@ -108,6 +107,7 @@ class MongoDB:
                 # some very overkill slicing to get the original 'Journal' value...
                 import pandas as pd
                 TEMP = self.read_documents_from_collection(collection_name)
+
                 df = pd.DataFrame(list(TEMP))
                 data['Journal'] = dict(df.loc[ (df['_id'] == data['_id'])]['Journal'].iloc[0])
                 # print("\n\n\n", data['Journal'])
@@ -130,7 +130,7 @@ class MongoDB:
 
 
     def read_documents_from_collection(self, collection_name):
-        with MongoClient(self.host, self.port) as client:
+        with MongoClient(host=self.host, port=self.port) if not self.dbpw else MongoClient(f'mongodb://{self.user}:{self.dbpw}@{self.host}:{str(self.port)}/?authSource=admin&retryWrites=true&w=majority') as client:
             db = client['libreforms']
 
             collection = db[collection_name]

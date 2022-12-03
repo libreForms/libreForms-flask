@@ -252,6 +252,36 @@ systemctl daemon-reload
 systemctl enable --now libreforms
 ```
 
+### MongoDB
+
+If you'd like to set up a mongodb user, run `mongosh --port 27017` and enter the following configuration:
+
+```
+use libreforms
+db.createUser(
+    {
+        user: "libre",
+        pwd: passwordPrompt(), // or cleartext password
+        roles: [ 
+            { role: "dbAdmin", db: "libreforms" },
+            { role: "readWrite", db: "libreforms" } 
+        ]
+    }
+)
+```
+
+Next, add the following configuration to `/etc/mongod.conf`:
+
+```
+security:
+  authorization: enabled
+```
+
+And finally, run `echo YOUR_PASSWORD > /opt/libreForms/mongodb_creds`, replacing YOUR_PASSWORD with the password you set for mongodb. Ensure this file is owned by the libreforms user by running `chown -R libreforms:libreforms /opt/libreForms` again.
+
+You should double check that this, and any other credential / key file like `smtp_creds` or `secret_key` are modified to have limited (at most 600) permissions by running `chmod 600 mongodb_creds secret_key smtp_creds`.
+
+
 ### Common Issues
 
 
@@ -262,7 +292,13 @@ chown -R libreforms:libreforms /opt/libreForms
 systemctl restart libreforms
 ```
 
-**pymongo.errors.AutoReconnect: connection pool paused**: if you receive this error, try restarting the application by running `systemctl stop libreforms; systemctl start libreforms`.
+**pymongo.errors.AutoReconnect: connection pool paused**: if you receive this error, try restarting the application by running `systemctl stop libreforms; systemctl start libreforms`. If this doesn't work, try the following:
+
+```
+chown -R mongodb:mongodb /var/lib/mongodb # often the permissions aren't set up correctly
+chown mongodb:mongodb /tmp/mongodb-27017.sock # borrowed from https://stackoverflow.com/a/64810086
+systemctl restart mongod
+```
 
 
 ## Abstraction Layer
@@ -339,12 +375,12 @@ import pandas as pd
 from app import mongo
 
 if os.path.exists ("mongodb_creds"):
-    with open("mongodb_creds", "r+") as f:
+    with open("mongodb_creds", "r") as f:
         mongodb_creds = f.read().strip()
 else:  
     mongodb_creds=None
 
-mongodb = mongo.MongoDB(mongodb_creds)
+mongodb = mongo.MongoDB(dbpw=mongodb_creds)
 
 def _db_lookup(collection, *args, combine=False):
     df = pd.DataFrame(list(mongodb.read_documents_from_collection(collection)))
