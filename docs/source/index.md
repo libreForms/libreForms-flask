@@ -225,8 +225,36 @@ systemctl daemon-reload
 systemctl enable --now libreforms
 ```
 
-### Common Issues
+### MongoDB
 
+If you'd like to set up a mongodb user, run `mongosh --port 27017` and enter the following configuration:
+
+```
+use libreforms
+db.createUser(
+    {
+        user: "libre",
+        pwd: passwordPrompt(), // or cleartext password
+        roles: [ 
+            { role: "dbAdmin", db: "libreforms" },
+            { role: "readWrite", db: "libreforms" } 
+        ]
+    }
+)
+```
+
+Next, add the following configuration to `/etc/mongod.conf`:
+
+```
+security:
+  authorization: enabled
+```
+
+And finally, run `echo YOUR_PASSWORD > /opt/libreForms/mongodb_creds`, replacing YOUR_PASSWORD with the password you set for mongodb. Ensure this file is owned by the libreforms user by running `chown -R libreforms:libreforms /opt/libreForms` again.
+
+You should double check that this, and any other credential / key file like `smtp_creds` or `secret_key` are modified to have limited (at most 600) permissions by running `chmod 600 mongodb_creds secret_key smtp_creds`.
+
+### Common Issues
 
 **Failure to start Systemd Unit**: if you experience a failure when you check `systemctl status libreforms`, then try chowning the program files and restarting the application.
 
