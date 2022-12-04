@@ -1,33 +1,38 @@
-# libreforms/__init__.py: this script defines the libreForms abstraction layer.
-# libreForms provides a simple but highly extensible method of form building in Python, 
-# leveraging Flask's doctrine of 'simplicity and extensibility' to give significant 
-# control and flexibility to organizations to design forms and data that meet their 
-# needs. To accomplish this, the application is built on an abstraction layer that stores 
-# all the information needed to generate a browser-based form and parse form data into a 
-# cohesive data structure.
+""" 
+libreforms/__init__.py: this script defines the libreForms abstraction layer
 
-# The libreForms abstraction layer is defined in ```libreforms/forms/__init__.py``` 
-# and expects organizations to overwrite the default form by adding a file called 
-# ```libreforms/add_ons.py```. At this time, the abstraction layer can handle the 
-# "text", "password", "radio", "select", "checkbox", "date", "hidden", and "number" 
-# input types, and can write to Python's str, float, int, and list data types. 
+libreForms provides a simple but highly extensible method of form building in Python, 
+leveraging Flask's doctrine of 'simplicity and extensibility' to give significant 
+control and flexibility to organizations to design forms and data that meet their 
+needs. To accomplish this, the application is built on an abstraction layer that stores 
+all the information needed to generate a browser-based form and parse form data into a 
+cohesive data structure.
 
-# The abstraction layer breaks down individual forms into fields and configurations. A 
-# field must have a unique name, which must employ underscores instead of spaces ("My 
-# Form Field" would not work, but "My_Form_Field" is a correct field name). Configuration 
-# names are preceded by an underscore (eg. "_dashboard" or "_allow_repeats") and allow 
-# form administrators to define unique form behavior. All built in configurations default 
-# to a value of False.
+The libreForms abstraction layer is defined in ```libreforms/forms/__init__.py``` 
+and expects organizations to overwrite the default form by adding a file called 
+```libreforms/add_ons.py```. At this time, the abstraction layer can handle the 
+"text", "password", "radio", "select", "checkbox", "date", "hidden", and "number" 
+input types, and can write to Python's str, float, int, and list data types. 
+
+The abstraction layer breaks down individual forms into fields and configurations. A 
+field must have a unique name, which must employ underscores instead of spaces ("My 
+Form Field" would not work, but "My_Form_Field" is a correct field name). Configuration 
+names are preceded by an underscore (eg. "_dashboard" or "_allow_repeats") and allow 
+form administrators to define unique form behavior. All built in configurations default 
+to a value of False.
+"""
 
 __title__       = 'libreForms'
 __description__ = 'an open form manager API'
-__version__     = '1.0.0'
 __url__         = 'https://github.com/signebedi/libreForms'
-__author__      = 'Sig Janoska-Bedi'
-__author_email__= 'signe@siftingwinnowing.com'
-__maintainer__  = 'Sig Janoska-Bedi'
-__license__     = 'AGPL-3.0'
 __copyright__   = '(c) 2022 Sig Janoska-Bedi'
+__name__        = "libreforms.__init__"
+__author__      = "Sig Janoska-Bedi"
+__credits__     = ["Sig Janoska-Bedi"]
+__version__     = "1.0"
+__license__     = "AGPL-3.0"
+__maintainer__  = "Sig Janoska-Bedi"
+__email__       = "signe@atreeus.com"
 
 import datetime, os, json
 
