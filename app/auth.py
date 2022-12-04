@@ -1,3 +1,19 @@
+""" 
+auth.py: implementation of auth views and underlying logic
+
+
+
+"""
+
+__name__ = "app.auth"
+__author__ = "Sig Janoska-Bedi"
+__credits__ = ["Sig Janoska-Bedi"]
+__version__ = "1.0"
+__license__ = "AGPL-3.0"
+__maintainer__ = "Sig Janoska-Bedi"
+__email__ = "signe@atreeus.com"
+
+
 import functools, re, datetime, tempfile, os
 import pandas as pd
 
