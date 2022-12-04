@@ -197,6 +197,37 @@ def check_args_for_changes(parsed_args, overrides):
     return TEMP
 
 
+def set_digital_signature(      username, 
+                                # this is the encrypted string we'd like to verify
+                                encrypted_string, 
+                                # most cases benefit from markup with badges; but some 
+                                # (like PDFs) are better off with simple strings
+                                return_markup=True): 
+
+    with db.engine.connect() as conn:
+        reporter = db.session.query(User).filter_by(username=username).first()
+
+    verify_signature = verify_symmetric_key(
+        key=reporter.certificate,
+        encrypted_string=encrypted_string,
+        base_string=reporter.email)
+
+    if not return_markup:
+        if verify_signature:
+            return reporter.email, ' (verified)'
+
+        else:
+            return reporter.email, ' (**unverified)'
+
+
+
+    if verify_signature:
+        return Markup(f'{reporter.email} <span class="badge bg-success">Signature Verified</span>')
+
+    else:
+        return Markup(f'{reporter.email} <span class="badge bg-warning">Signature Cannot Be Verified</span>')
+
+
 bp = Blueprint('submissions', __name__, url_prefix='/submissions')
 
 
@@ -247,20 +278,6 @@ def render_all_submissions():
                 menu=form_menu(checkFormGroup),
             )
 
-def set_digital_signature(username, encrypted_string):
-    with db.engine.connect() as conn:
-        reporter = db.session.query(User).filter_by(username=username).first()
-
-    verify_signature = verify_symmetric_key(
-        key=reporter.certificate,
-        encrypted_string=encrypted_string,
-        base_string=reporter.email)
-
-    if verify_signature:
-        return Markup(f'{reporter.email} <span class="badge bg-success">Signature Verified</span>')
-
-    else:
-        return Markup(f'{reporter.email} <span class="badge bg-warning">Signature Cannot Be Verified</span>')
 
 
 # define a home route
@@ -698,6 +715,10 @@ def generate_pdf(form_name, document_id):
     
             record = record.loc[record['id'] == str(document_id)]
             record.drop(columns=['Journal'], inplace=True)
+
+            # Added signature verification, see https://github.com/signebedi/libreForms/issues/8
+            if 'Signature' in record.columns:
+                record['Signature'].iloc[0] = set_digital_signature(username=record['Reporter'].iloc[0],encrypted_string=record['Signature'].iloc[0], return_markup=False)
 
             import libreforms
             import datetime
