@@ -1,3 +1,18 @@
+""" 
+dashboards.py: implementation of views for dashboard rendering of forms
+
+
+
+"""
+
+__name__ = "app.dashboards"
+__author__ = "Sig Janoska-Bedi"
+__credits__ = ["Sig Janoska-Bedi"]
+__version__ = "1.0"
+__license__ = "AGPL-3.0"
+__maintainer__ = "Sig Janoska-Bedi"
+__email__ = "signe@atreeus.com"
+
 # import flask-related packages
 from flask import current_app, Blueprint, render_template, request, redirect, flash, url_for
 from flask_login import current_user
