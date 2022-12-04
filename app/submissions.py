@@ -26,6 +26,7 @@ import libreforms
 from app import display, log, tempfile_path, mailer, mongodb
 from app.models import User, db
 from app.auth import login_required, session
+from app.certification import encrypt_with_symmetric_key, verify_symmetric_key
 from app.forms import form_menu, checkGroup, checkFormGroup, \
     checkKey, parse_options, progagate_forms, parse_form_fields, \
     collect_list_of_users, compile_depends_on_data, rationalize_routing_routing_list
@@ -246,6 +247,20 @@ def render_all_submissions():
                 menu=form_menu(checkFormGroup),
             )
 
+def set_digital_signature(username, encrypted_string):
+    with db.engine.connect() as conn:
+        reporter = db.session.query(User).filter_by(username=username).first()
+
+    verify_signature = verify_symmetric_key(
+        key=reporter.certificate,
+        encrypted_string=encrypted_string,
+        base_string=reporter.email)
+
+    if verify_signature:
+        return Markup(f'{reporter.email} <span class="badge bg-success">Signature Verified</span>')
+
+    else:
+        return Markup(f'{reporter.email} <span class="badge bg-warning">Signature Cannot Be Verified</span>')
 
 
 # define a home route
@@ -392,12 +407,16 @@ def render_document(form_name, document_id):
 
             record.drop(columns=['Journal'], inplace=True)
 
+            # Added signature verification, see https://github.com/signebedi/libreForms/issues/8
+            if 'Signature' in record.columns:
+                record['Signature'].iloc[0] = set_digital_signature(username=record['Reporter'].iloc[0],encrypted_string=record['Signature'].iloc[0])
+
             msg = Markup(f"<a href = '{display['domain']}/submissions/{form_name}/{document_id}/history'>view document history</a>")
 
             # print (current_user.username)
             # print (record['Reporter'].iloc[0])
 
-            if not (checkKey(verify_group, '_deny_write') or current_user.group in verify_group['_deny_write']) or current_user.username == record['Reporter'].iloc[0]:
+            if ((not checkKey(verify_group, '_deny_write') or not current_user.group in verify_group['_deny_write'])) or current_user.username == record['Reporter'].iloc[0]:
                 msg = msg + Markup(f"<a href = '{display['domain']}/submissions/{form_name}/{document_id}/edit'>edit this document</a>")
 
             if parse_options(form_name)['_allow_pdf_download']:
@@ -483,6 +502,13 @@ def render_document_history(form_name, document_id):
             display_data = record.transpose()
             # print(display_data)
 
+            # Added signature verification, see https://github.com/signebedi/libreForms/issues/8
+            if 'Signature' in display_data.columns:
+                display_data['Signature'].iloc[0] = set_digital_signature(username=display_data['Reporter'].iloc[0],encrypted_string=display_data['Signature'].iloc[0])
+
+
+
+
             # here we set a list of values to emphasize in the table because they've changed values
             t = get_record_of_submissions(form_name) 
             t2 = t.loc[t.id == document_id] 
@@ -497,7 +523,7 @@ def render_document_history(form_name, document_id):
             # print (record.transpose()['Reporter'].iloc[0])
             # print (record['Reporter'].iloc[0])
 
-            if not (checkKey(verify_group, '_deny_write') or current_user.group in verify_group['_deny_write']) or current_user.username == record.transpose()['Reporter'].iloc[0]:
+            if ((not checkKey(verify_group, '_deny_write') or not current_user.group in verify_group['_deny_write'])) or current_user.username == record['Reporter'].iloc[0]:
                 msg = msg + Markup(f"<a href = '{display['domain']}/submissions/{form_name}/{document_id}/edit'>edit this document</a>")
             
             # eventually, we may wish to add support for downloading past versions 
@@ -587,8 +613,10 @@ def render_document_edit(form_name, document_id):
                     # from pprint import pprint
                     # pprint(parsed_args)
 
+                    digital_signature = encrypt_with_symmetric_key(current_user.certificate, current_user.email) if options['_digitally_sign'] else None
+
                     # here we pass a modification
-                    mongodb.write_document_to_collection(parsed_args, form_name, reporter=current_user.username, modification=True)
+                    mongodb.write_document_to_collection(parsed_args, form_name, reporter=current_user.username, modification=True, digital_signature=digital_signature)
                     
                     flash(str(parsed_args))
 

@@ -26,6 +26,7 @@ import libreforms
 from app import display, log, tempfile_path, mailer, mongodb
 from app.models import User, db
 from app.auth import login_required, session
+from app.certification import encrypt_with_symmetric_key
 
 
 # and finally, import other packages
@@ -315,6 +316,7 @@ def parse_options(form=False):
             "_allow_csv_templates": False,
             "_suppress_default_values": False,  
             "_allow_anonymous_access": False,  
+            "_digitally_sign": True,
             "_smtp_notifications":False,
             '_deny_groups': [],
             '_enable_universal_form_access': False,
@@ -419,8 +421,10 @@ def forms(form_name):
                 #     print(parsed_args[item])
                 # print(parsed_args)
 
+                digital_signature = encrypt_with_symmetric_key(current_user.certificate, current_user.email) if options['_digitally_sign'] else None
+
                 # here we insert the value and store the return value as the document ID
-                document_id = mongodb.write_document_to_collection(parsed_args, form_name, reporter=current_user.username)
+                document_id = mongodb.write_document_to_collection(parsed_args, form_name, reporter=current_user.username, digital_signature=digital_signature)
 
                 flash(str(parsed_args))
                                 
