@@ -21,6 +21,7 @@ import os, re, secrets
 from app.csv_files import init_tmp_fs
 from app.display import display
 from app.log_functions import cleanup_stray_log_handlers
+from app.certification import generate_symmetric_key
 
 # here we add pre-fork tasks that need to be handled prior to setting up concurrent sessions
 def pre_fork(server, worker):
@@ -76,6 +77,7 @@ def pre_fork(server, worker):
                                     active=1,
                                     theme='dark' if display['dark_mode'] else 'light',
                                     group='admin',
+                                    certificate=generate_symmetric_key(),
                                     email=display['libreforms_user_email'] if display['libreforms_user_email'] and re.fullmatch(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', display['libreforms_user_email']) else None,
                                     password='pbkdf2:sha256:260000$nQVWxd59E8lmkruy$13d8c4d408185ccc3549d3629be9cd57267a7d660abef389b3be70850e1bbfbf',
                                     created_date='2022-06-01 00:00:00',)

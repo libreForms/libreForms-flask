@@ -5,7 +5,7 @@ __init__.py: the parent script for the web application
 
 """
 
-__name__ = "app.__init__.py"
+__name__ = "app"
 __author__ = "Sig Janoska-Bedi"
 __credits__ = ["Sig Janoska-Bedi"]
 __version__ = "1.0.1"
@@ -27,6 +27,7 @@ from app.csv_files import init_tmp_fs, tempfile_init_tmp_fs
 from app import smtp, mongo
 from celery import Celery
 from app.models import db
+from app.certification import generate_symmetric_key
 
 
 # def make_celery():
@@ -280,6 +281,7 @@ def create_app(test_config=None):
                                     active=1,
                                     theme='dark' if display['dark_mode'] else 'light',
                                     group='admin',
+                                    certificate=generate_symmetric_key(),
                                     email=display['libreforms_user_email'] if display['libreforms_user_email'] and re.fullmatch(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', display['libreforms_user_email']) else None,
                                     password='pbkdf2:sha256:260000$nQVWxd59E8lmkruy$13d8c4d408185ccc3549d3629be9cd57267a7d660abef389b3be70850e1bbfbf',
                                     created_date='2022-06-01 00:00:00',)

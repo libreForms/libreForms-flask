@@ -26,6 +26,7 @@ import app.signing as signing
 from app.models import User, Signing, db
 from flask_login import login_required, current_user, login_user
 from app.log_functions import aggregate_log_data
+from app.certification import generate_symmetric_key
 
 if display['enable_hcaptcha']:
     from app import hcaptcha
@@ -218,6 +219,7 @@ def register():
                             password=generate_password_hash(password, method='sha256'),
                             organization=organization,
                             group=display['default_group'],
+                            certificate=generate_symmetric_key(),
                             phone=phone,
                             theme='dark' if display['dark_mode'] else 'light', # we default to the application default
                             created_date=created_date,
@@ -356,7 +358,7 @@ def bulk_register():
                 try:
                     bulk_user_df = pd.read_csv(filepath)
 
-                    for x in ["username", "password"]: # a minimalist common sense check
+                    for x in ["username", "password", "group"]: # a minimalist common sense check
                         assert x in bulk_user_df.columns
                         
                     # note that these DO require email, organization, and phone
@@ -403,6 +405,10 @@ def bulk_register():
                         flash(f"Could not register {row.username.lower()} under email {row.email.lower()}. Phone is required. ")
 
 
+                    # set to default group if non is passed
+                    if row.group == "" or None:
+                        row.group = display['default_group']
+
                     else:
 
                         TEMP = {}
@@ -419,6 +425,8 @@ def bulk_register():
                                         phone=row.phone if row.phone else "",
                                         theme=row.theme if row.theme in ['light', 'dark'] else 'dark',
                                         created_date=created_date,
+                                        group = row.group,
+                                        certificate=generate_symmetric_key(),
                                         active=0 if display["enable_email_verification"] else 1,
                                         **TEMP
                                     )
@@ -634,7 +642,7 @@ def profile():
 def download_bulk_user_template(filename='bulk_user_template.csv'):
 
     # this is our first stab at building templates, without accounting for nesting or repetition
-    df = pd.DataFrame (columns=["username", "email", "password", "phone", "organization",'theme'])
+    df = pd.DataFrame (columns=["username", "email", "password", "group", "phone", "organization",'theme'])
 
     # if we set custom user fields, add these here
     if display['user_registration_fields']:

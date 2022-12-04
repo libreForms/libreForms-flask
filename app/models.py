@@ -77,6 +77,7 @@ class User(UserMixin, db.Model):
     group = db.Column(db.String(1000))
     organization = db.Column(db.String(1000))
     phone = db.Column(db.String(1000))
+    certificate = db.Column(db.String(100))
     theme = db.Column(db.String(100))
     active = db.Column(db.Integer)
     created_date = db.Column(db.String(1000))
