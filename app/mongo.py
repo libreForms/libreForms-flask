@@ -78,7 +78,8 @@ class MongoDB:
                                                     reporter=None,
                                                     # the `modifications` kwarg expects a truth statement
                                                     # presuming that `data` will just be a slice of changed data
-                                                    modification=False):
+                                                    modification=False,
+                                                    digital_signature=None):
         import datetime
         from bson.objectid import ObjectId
 
@@ -97,6 +98,9 @@ class MongoDB:
             data_copy = data.copy()
 
             data['Timestamp'] = timestamp
+
+            if digital_signature:
+                data['Signature'] = digital_signature
 
             # here we define the behavior of the `Journal` metadata field 
             if not modification:
@@ -127,6 +131,11 @@ class MongoDB:
                 journal_data = data.copy()
                 del journal_data['_id']
                 del journal_data['Journal']
+
+                # delete the digital signature from the Journal if it exists 
+                if 'Signature' in journal_data.keys():
+                    del journal_data['Signature']
+
                 # print("\n\n\n", journal_data)
 
                 # some inefficient slicing and voila! we have our correct `Journal` values, 
