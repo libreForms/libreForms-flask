@@ -1,8 +1,21 @@
-# gunicorn.conf.py: the Gunicorn configuration file for the libreForms web application
-# References: 
-# https://github.com/benoitc/gunicorn/issues/2136
-# https://github.com/benoitc/gunicorn/blob/master/examples/example_config.py
-# 
+""" 
+gunicorn.conf.py: the Gunicorn configuration file for the libreForms web application
+
+
+References: 
+    1. https://github.com/benoitc/gunicorn/issues/2136
+    2. https://github.com/benoitc/gunicorn/blob/master/examples/example_config.py
+
+"""
+
+__name__ = "gunicorn.gunicorn.conf.py"
+__author__ = "Sig Janoska-Bedi"
+__credits__ = ["Sig Janoska-Bedi"]
+__version__ = "1.0"
+__license__ = "AGPL-3.0"
+__maintainer__ = "Sig Janoska-Bedi"
+__email__ = "signe@atreeus.com"
+
 
 import os, re, secrets
 from app.csv_files import init_tmp_fs

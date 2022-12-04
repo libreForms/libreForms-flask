@@ -1,5 +1,5 @@
 """ 
-__init__.py.py: the parent script for the web application
+__init__.py: the parent script for the web application
 
 
 
