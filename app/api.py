@@ -3,8 +3,8 @@ from flask import current_app, Blueprint, request, abort
 
 # import custom packages from the current repository
 from app.auth import login_required
-from app import log, display, db, mongodb
-from app.models import Signing
+from app import log, display, mongodb
+from app.models import Signing, db
 import app.signing as signing
 
 # and finally, import other packages
