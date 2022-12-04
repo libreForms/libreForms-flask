@@ -66,4 +66,7 @@ def decrypt_with_symmetric_key(key, encrypted_string):
 
 
 def verify_symmetric_key(key, encrypted_string, base_string):
-    pass
+    if decrypt_with_symmetric_key(key, encrypted_string) == base_string:
+        return True
+    else:
+        return False
