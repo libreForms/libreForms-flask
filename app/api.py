@@ -6,6 +6,7 @@ from app.auth import login_required
 from app import log, display, mongodb
 from app.models import Signing, db
 import app.signing as signing
+import libreforms
 
 # and finally, import other packages
 import os, datetime, json
@@ -29,6 +30,13 @@ if display['enable_rest_api']:
         if not display['enable_rest_api']:
             abort(404)
             return "This feature has not been enabled by your system administrator."
+
+        # here we make it so that API users can only access forms that are in the
+        # current form config - eg. old forms, or forms whose name changed, will not
+        # appear ... form admins will need to manage change cautiously until further
+        # controls, see https://github.com/signebedi/libreForms/issues/130
+        if not form_name in libreforms.forms.keys():
+            abort(404)
 
         signing.verify_signatures(signature, scope="api_key", abort_on_error=True)
 
