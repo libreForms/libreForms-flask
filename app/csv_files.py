@@ -1,3 +1,22 @@
+""" 
+csv_files.py: implementation of temp filesystem
+
+### THIS SHOULD PROBABLY HAVE ITS NAME CHANGED
+### TO TMP_FILESYSTEMS.PY TO REFLECT WHAT IT
+### ACTUALLY DOES. 
+
+
+
+"""
+
+__name__ = "app.csv_files"
+__author__ = "Sig Janoska-Bedi"
+__credits__ = ["Sig Janoska-Bedi"]
+__version__ = "1.0"
+__license__ = "AGPL-3.0"
+__maintainer__ = "Sig Janoska-Bedi"
+__email__ = "signe@atreeus.com"
+
 import os, tempfile
 import pandas as pd
 import libreforms
