@@ -3,6 +3,17 @@ display.py: collection of default app configs
 
 
 
+## display_overrides.py
+
+Overrides of these defaults should be stored in a file called 
+app/display_overrides.py, where adminstrators can overwrite 
+individual configs by creating a `display` object as follows:
+
+display = {
+    'config_name': NEW_VALUE,
+    ...
+}
+
 """
 
 __name__ = "app.display"
