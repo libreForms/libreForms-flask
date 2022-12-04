@@ -1,3 +1,33 @@
+""" 
+smtp.py: implementation of SMTP mail logic
+
+
+
+# Routing lists
+
+
+
+# sendMail() class
+
+
+
+
+# send_mail() method
+
+
+
+
+
+"""
+
+__name__ = "app.smtp"
+__author__ = "Sig Janoska-Bedi"
+__credits__ = ["Sig Janoska-Bedi"]
+__version__ = "1.0"
+__license__ = "AGPL-3.0"
+__maintainer__ = "Sig Janoska-Bedi"
+__email__ = "signe@atreeus.com"
+
 import ssl
 import smtplib 
 import datetime as dt
