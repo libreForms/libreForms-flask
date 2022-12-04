@@ -1,3 +1,18 @@
+""" 
+forms.py: implementation of views and base logic for form submission
+
+
+
+"""
+
+__name__ = "app.forms"
+__author__ = "Sig Janoska-Bedi"
+__credits__ = ["Sig Janoska-Bedi"]
+__version__ = "1.0"
+__license__ = "AGPL-3.0"
+__maintainer__ = "Sig Janoska-Bedi"
+__email__ = "signe@atreeus.com"
+
 # import flask-related packages
 from cmath import e
 from fileinput import filename
