@@ -1,3 +1,18 @@
+""" 
+external.py: implementation of views external submission of forms
+
+
+
+"""
+
+__name__ = "app.external"
+__author__ = "Sig Janoska-Bedi"
+__credits__ = ["Sig Janoska-Bedi"]
+__version__ = "1.0"
+__license__ = "AGPL-3.0"
+__maintainer__ = "Sig Janoska-Bedi"
+__email__ = "signe@atreeus.com"
+
 # import flask-related packages
 import re, datetime
 from cmath import e
