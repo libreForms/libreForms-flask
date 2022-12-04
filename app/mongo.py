@@ -13,7 +13,16 @@ This connects, by default, to a local MongoDB server with user 'root' and
 on port 27017. Administrators can over ride these defaults using the 
 'mongodb_user', 'mongodb_host', and 'mongodb_port' application configs.
 
+# with MongoClient()
 
+Leaving the MongoClient connection open for the lifespan of the MongoDB 
+object is not feasible given that MongoDB is not write safe in a multi-
+worker environment like WSGI, see:
+
+    1. https://stackoverflow.com/a/73169147
+    2. https://stackoverflow.com/a/18401169
+
+and the following issue: https://github.com/signebedi/libreForms/issues/128. 
 
 
 """
