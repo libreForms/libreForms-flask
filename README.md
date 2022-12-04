@@ -309,7 +309,7 @@ The libreForms specification is defined in ```libreforms/__init__.py``` and, whe
 
 At a high level, the abstraction layer breaks down individual forms into fields and configurations. A field must have a unique name, which must employ underscores instead of spaces ("My Form Field" would not work, but "My_Form_Field" is a correct field name). Configuration names are preceded by an underscore (eg. "_dashboard" or "_allow_repeats") and allow form administrators to define unique, custom form behavior. All built-in configurations default to a value of False.
 
-Here is an overview of the abstraction layer in versions `<1.0.0`. Specifically, the following snippet defines a single form called `sample-form` with a handful of fields like `Text_Field`, `Pass_Field`, etc. and a dashboard view for the form using the `_dashboard` configuration.
+Here is an overview of the abstraction layer in versions `<2.0.0`. Specifically, the following snippet defines a single form called `sample-form` with a handful of fields like `Text_Field`, `Pass_Field`, etc. and a dashboard view for the form using the `_dashboard` configuration.
 
 ```python
 forms = {
@@ -363,7 +363,7 @@ forms = {
 }
 ```
 
-Versions above `1.0.0` will introduce compatibility-breaking changes that are intended to simplify the abstraction layer. For more information, see the [discussion](https://github.com/signebedi/libreForms/issues/27) about these changes.
+Versions above `2.0.0` will introduce compatibility-breaking changes that are intended to simplify the abstraction layer. For more information, see the [discussion](https://github.com/signebedi/libreForms/issues/27) about these changes.
 
 
 ### Database Lookups

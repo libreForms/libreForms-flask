@@ -30,7 +30,7 @@ and the following issue: https://github.com/signebedi/libreForms/issues/128.
 __name__ = "app.mongo"
 __author__ = "Sig Janoska-Bedi"
 __credits__ = ["Sig Janoska-Bedi",]
-__version__ = "1.0"
+__version__ = "1.0.1"
 __license__ = "AGPL-3.0"
 __maintainer__ = "Sig Janoska-Bedi"
 __email__ = "signe@atreeus.com"

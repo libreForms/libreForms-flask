@@ -8,7 +8,7 @@ __init__.py: the parent script for the web application
 __name__ = "app.__init__.py"
 __author__ = "Sig Janoska-Bedi"
 __credits__ = ["Sig Janoska-Bedi"]
-__version__ = "1.0"
+__version__ = "1.0.1"
 __license__ = "AGPL-3.0"
 __maintainer__ = "Sig Janoska-Bedi"
 __email__ = "signe@atreeus.com"
