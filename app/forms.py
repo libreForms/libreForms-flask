@@ -316,7 +316,6 @@ def parse_options(form=False):
             "_allow_csv_templates": False,
             "_suppress_default_values": False,  
             "_allow_anonymous_access": False,  
-            "_digitally_sign": True,
             "_smtp_notifications":False,
             '_deny_groups': [],
             '_enable_universal_form_access': False,
@@ -333,6 +332,7 @@ def parse_options(form=False):
             '_suppress_journal_from_views': True,
             "_allow_pdf_download": True, 
             "_allow_pdf_past_versions": True, 
+            "_digitally_sign": False,
         }
 
         for field in list_fields.keys():
