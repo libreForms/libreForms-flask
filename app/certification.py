@@ -15,7 +15,7 @@ Submitted the following question on Stack Overflow: https://stackoverflow.com/q/
 An initial thought is to add a `certificate field to the user database, see below.
 
 ```
-    certificate = db.Column(db.String(1000))
+    certificate = db.Column(db.String(100))
 ```
 
 And then use this certificate to hash some other field, like username, email, or full name. 
