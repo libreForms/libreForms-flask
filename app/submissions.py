@@ -214,19 +214,18 @@ def set_digital_signature(      username,
 
     if not return_markup:
         if verify_signature:
-            return reporter.email, ' (verified)'
+            return reporter.email + ' (verified)'
 
         else:
-            return reporter.email, ' (**unverified)'
+            return reporter.email + ' (**unverified)'
 
 
 
     if verify_signature:
-        return Markup(f'{reporter.email} <span class="badge bg-success">Signature Verified</span>')
+        return Markup(f'{reporter.email} <span class="badge bg-success" data-bs-toggle="tooltip" data-bs-placement="right" title="This form has a verified signature from {reporter.email}">Signature Verified</span>')
 
     else:
-        return Markup(f'{reporter.email} <span class="badge bg-warning">Signature Cannot Be Verified</span>')
-
+        return Markup(f'{reporter.email} <span class="badge bg-warning" data-bs-toggle="tooltip" data-bs-placement="right" title="This form does not have a verifiable signature from {reporter.email}">Signature Cannot Be Verified</span>')
 
 bp = Blueprint('submissions', __name__, url_prefix='/submissions')
 
