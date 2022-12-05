@@ -203,30 +203,35 @@ def set_digital_signature(      username,
                                 # most cases benefit from markup with badges; but some 
                                 # (like PDFs) are better off with simple strings
                                 return_markup=True): 
+    try:
+        with db.engine.connect() as conn:
+                reporter = db.session.query(User).filter_by(username=username).first()
 
-    with db.engine.connect() as conn:
-        reporter = db.session.query(User).filter_by(username=username).first()
 
-    verify_signature = verify_symmetric_key(
-        key=reporter.certificate,
-        encrypted_string=encrypted_string,
-        base_string=reporter.email)
+        verify_signature = verify_symmetric_key(
+            key=reporter.certificate,
+            encrypted_string=encrypted_string,
+            base_string=reporter.email)
 
-    if not return_markup:
+        if not return_markup:
+            if verify_signature:
+                return reporter.email + ' (verified)'
+
+            else:
+                return reporter.email + ' (**unverified)'
+
+
+
         if verify_signature:
-            return reporter.email + ' (verified)'
+            return Markup(f'{reporter.email} <span class="badge bg-success" data-bs-toggle="tooltip" data-bs-placement="right" title="This form has a verified signature from {reporter.email}">Signature Verified</span>')
 
         else:
-            return reporter.email + ' (**unverified)'
+            return Markup(f'{reporter.email} <span class="badge bg-warning" data-bs-toggle="tooltip" data-bs-placement="right" title="This form does not have a verifiable signature from {reporter.email}">Signature Cannot Be Verified</span>')
 
+    except:
+        return None
 
-
-    if verify_signature:
-        return Markup(f'{reporter.email} <span class="badge bg-success" data-bs-toggle="tooltip" data-bs-placement="right" title="This form has a verified signature from {reporter.email}">Signature Verified</span>')
-
-    else:
-        return Markup(f'{reporter.email} <span class="badge bg-warning" data-bs-toggle="tooltip" data-bs-placement="right" title="This form does not have a verifiable signature from {reporter.email}">Signature Cannot Be Verified</span>')
-
+        
 bp = Blueprint('submissions', __name__, url_prefix='/submissions')
 
 

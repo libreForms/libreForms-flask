@@ -23,6 +23,7 @@ from markupsafe import Markup
 import libreforms as libreforms
 from app.auth import login_required
 from app.forms import parse_options, checkGroup, checkTableGroup, form_menu
+from app.submissions import set_digital_signature
 from app import display, log, mongodb
 
 # and finally, import other packages
@@ -59,9 +60,17 @@ def tables(form_name):
 
 
     try:
-        pd.set_option('display.max_colwidth', 0)
+        # pd.set_option('display.max_colwidth', 0)
         data = mongodb.read_documents_from_collection(form_name)
         df = pd.DataFrame(list(data))
+
+        # Added signature verification, see https://github.com/signebedi/libreForms/issues/8
+        if 'Signature' in df.columns:
+            if parse_options(form_name)['_digitally_sign']:
+                df['Signature'] = df.apply(lambda row: set_digital_signature(username=row['Reporter'],encrypted_string=row['Signature'],return_markup=False), axis=1)
+            else:
+                df.drop(columns=['Signature'], inplace=True)
+
 
         if len(df.index) < 1:
             flash('This form has not received any submissions.')
@@ -81,8 +90,13 @@ def tables(form_name):
 
         df.columns = [x.replace("_", " ") for x in df.columns]
     except Exception as e:
-        flash('This form does not exist.')
+        flash(f'This form does not exist. {e}')
         return redirect(url_for('tables.tables_home'))
+
+
+    # set the max column width
+    # pd.set_option('display.max_colwidth', 10)
+
 
     return render_template('app/tables.html',
         table=Markup(df.to_html(index=False, classes=f"table {'text-dark' if not (display['dark_mode'] or current_user.theme == 'dark') else ''}")),
