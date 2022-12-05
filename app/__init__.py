@@ -81,21 +81,13 @@ else:
         secret_key = f.readlines()[0].strip()
 
 
-# read database password file, if it exists
-if os.path.exists ("mongodb_creds"):
-    with open("mongodb_creds", "r") as f:
-        mongodb_creds = f.read().strip()
-else:  
-    mongodb_creds=None
-
 # initialize mongodb database
 mongodb = mongo.MongoDB(
                         user=display['mongodb_user'], 
                         host=display['mongodb_host'], 
                         port=display['mongodb_port'], 
-                        dbpw=mongodb_creds
+                        dbpw=display['mongodb_pw'], 
                     )
-
 
 # create hCaptcha object if enabled
 if display['enable_hcaptcha']:

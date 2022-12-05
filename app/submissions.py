@@ -390,7 +390,8 @@ def render_document(form_name, document_id):
     else:
 
         try:
-            verify_group = parse_options(form=form_name)['_submission']
+            options = parse_options(form=form_name)
+            verify_group = options['_submission']
         except Exception as e:
             flash('This form does not exist.')
             log.warning(f'{current_user.username.upper()} - {e}')
@@ -426,7 +427,10 @@ def render_document(form_name, document_id):
 
             # Added signature verification, see https://github.com/signebedi/libreForms/issues/8
             if 'Signature' in record.columns:
-                record['Signature'].iloc[0] = set_digital_signature(username=record['Reporter'].iloc[0],encrypted_string=record['Signature'].iloc[0])
+                if options['_digitally_sign']:
+                    record['Signature'].iloc[0] = set_digital_signature(username=record['Reporter'].iloc[0],encrypted_string=record['Signature'].iloc[0])
+                else:
+                    record.drop(columns=['Signature'], inplace=True)
 
             msg = Markup(f"<a href = '{display['domain']}/submissions/{form_name}/{document_id}/history'>view document history</a>")
 
@@ -462,7 +466,8 @@ def render_document_history(form_name, document_id):
 
 
         try:
-            verify_group = parse_options(form=form_name)['_submission']
+            options = parse_options(form=form_name)
+            verify_group = options['_submission']
         except Exception as e:
             flash('This form does not exist.')
             log.warning(f'{current_user.username.upper()} - {e}')
@@ -521,8 +526,10 @@ def render_document_history(form_name, document_id):
 
             # Added signature verification, see https://github.com/signebedi/libreForms/issues/8
             if 'Signature' in display_data.columns:
-                display_data['Signature'].iloc[0] = set_digital_signature(username=display_data['Reporter'].iloc[0],encrypted_string=display_data['Signature'].iloc[0])
-
+                if options['_digitally_sign']:
+                    display_data['Signature'].iloc[0] = set_digital_signature(username=display_data['Reporter'].iloc[0],encrypted_string=display_data['Signature'].iloc[0])
+                else:
+                    display_data.drop(columns=['Signature'], inplace=True)
 
 
 
@@ -718,7 +725,10 @@ def generate_pdf(form_name, document_id):
 
             # Added signature verification, see https://github.com/signebedi/libreForms/issues/8
             if 'Signature' in record.columns:
-                record['Signature'].iloc[0] = set_digital_signature(username=record['Reporter'].iloc[0],encrypted_string=record['Signature'].iloc[0], return_markup=False)
+                if test_the_form_options['_digitally_sign']:
+                    record['Signature'].iloc[0] = set_digital_signature(username=record['Reporter'].iloc[0],encrypted_string=record['Signature'].iloc[0], return_markup=False)
+                else:
+                    record.drop(columns=['Signature'], inplace=True)
 
             import libreforms
             import datetime

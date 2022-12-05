@@ -40,16 +40,9 @@ import os
 
 class MongoDB:
     def __init__(self, user='libre', host='localhost', port=27017, dbpw=None):
-        from pymongo import MongoClient
         self.user=user 
         self.host=host 
         self.port=port 
-        from pymongo import MongoClient
-        self.user=user
-        self.host=host
-        self.port=port
-
-
 
         if not dbpw and os.path.exists ("mongodb_creds"):
             with open("mongodb_creds", "r") as f:
