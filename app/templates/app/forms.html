@@ -87,7 +87,7 @@
 					{% endif %}
 					{% endfor %}
 					
-
+					{% if options._presubmit_msg %}<hr/><label>{{ options._presubmit_msg }}</label>{% endif %}
 					<div class="form-group">
 						<input class="btn btn-primary mt-4" type=submit value="Submit">
 					</div>

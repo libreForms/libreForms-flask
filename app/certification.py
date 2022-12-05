@@ -12,10 +12,11 @@ asking "what the best way to implement user 'digital signatures' of forms in pyt
 
 Submitted the following question on Stack Overflow: https://stackoverflow.com/q/74679287/13301284.
 
-An initial thought is to add a `certificate field to the user database, see below.
+An initial thought is to add a `certificate` string / byte field to the user database, see below.
 
 ```
-    certificate = db.Column(db.String(100))
+    # certificate = db.Column(db.String(100))
+    certificate = db.Column(db.LargeBinary())
 ```
 
 And then use this certificate to hash some other field, like username, email, or full name. 

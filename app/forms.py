@@ -333,6 +333,7 @@ def parse_options(form=False):
             "_allow_pdf_download": True, 
             "_allow_pdf_past_versions": True, 
             "_digitally_sign": False,
+            "_form_approval": False
         }
 
         for field in list_fields.keys():
@@ -345,7 +346,7 @@ def parse_options(form=False):
                     assert (checkKey(list_fields[field],'_deny_read'))
                     assert (checkKey(list_fields[field],'_deny_write'))
 
-                if field == '_routing_list':
+                if field in ['_routing_list', '_form_approval']:
                     assert (checkKey(list_fields[field],'type'))
                     assert (checkKey(list_fields[field],'target'))
 
@@ -357,6 +358,43 @@ def parse_options(form=False):
 
     except:
         return {}
+
+
+
+# added to enable routing of forms to managers for approval,
+# see https://github.com/signebedi/libreForms/issues/8.
+def verify_form_approval(form_name):
+    approval = parse_options(form_name)('_form_approval')
+    
+    
+    # this method entails selecting a field from the user
+    # table assumes that this will be an email for an existing
+    # user. See below for an example of what this would look like
+    # in the form config:
+        # '_form_approval': {
+        #   'type': 'user_field',
+        #   'target': 'manager',}
+
+    if approval and approval['method'] == 'user_field':
+        
+        with db.engine.connect() as conn:
+            manager = db.session.query(User).filter_by(email=approval['method']).first()
+            return manager
+
+    # '_form_approval': {
+    #   'type': 'group',
+    #   'target': ['manager'],}
+
+
+    # '_form_approval': {
+    #   'type': 'select_from_group',
+    #   'target': 'manager',} # but could also be a different field type
+
+    else:
+        return None
+
+
+
 
 
 bp = Blueprint('forms', __name__, url_prefix='/forms')
