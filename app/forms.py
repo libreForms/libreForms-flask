@@ -361,38 +361,47 @@ def parse_options(form=False):
 
 
 
-# # added to enable routing of forms to managers for approval,
-# # see https://github.com/signebedi/libreForms/issues/8.
-# def verify_form_approval(form_name):
-#     approval = parse_options(form_name)['_form_approval']
+# added to enable routing of forms to managers for approval,
+# see https://github.com/signebedi/libreForms/issues/8.
+def verify_form_approval(form_name):
+    approval = parse_options(form_name)['_form_approval']
     
     
-#     # this method entails selecting a field from the user
-#     # table assumes that this will be an email for an existing
-#     # user. See below for an example of what this would look like
-#     # in the form config:
-#         # '_form_approval': {
-#         #   'type': 'user_field',
-#         #   'target': 'manager',}
+    # this method entails selecting a field from the user
+    # table assumes that this will be an email for an existing
+    # user. See below for an example of what this would look like
+    # in the form config:
+        # '_form_approval': {
+        #   'type': 'user_field',
+        #   'target': 'manager',}
 
-#     if approval and approval['type'] == 'user_field':
+    if approval and approval['type'] == 'user_field':
 
-#         with db.engine.connect() as conn:
-#             manager = db.session.query(User).filter_by(email=current_user.manager).first()
-#             # print(vars(manager))
-#             return manager
+        with db.engine.connect() as conn:
+            # manager = db.session.query(User).filter_by(email=current_user[approval['target']]).first()
 
-#     # '_form_approval': {
-#     #   'type': 'group',
-#     #   'target': ['manager'],}
+            filters = (
+                User.email == getattr(current_user, approval['target']),
+            )
+            manager = db.session.query(User).filter(*filters).first()
+
+            # print(vars(manager))
+            
+            return manager
 
 
-#     # '_form_approval': {
-#     #   'type': 'select_from_group',
-#     #   'target': 'manager',} # but could also be a different field type
 
-#     else:
-#         return None
+    # '_form_approval': {
+    #   'type': 'group',
+    #   'target': ['manager'],}
+
+
+    # '_form_approval': {
+    #   'type': 'select_from_group',
+    #   'target': 'manager',} # but could also be a different field type
+
+    else:
+        return None
 
 
 
