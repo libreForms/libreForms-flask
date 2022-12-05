@@ -231,7 +231,7 @@ def set_digital_signature(      username,
     except:
         return None
 
-        
+
 bp = Blueprint('submissions', __name__, url_prefix='/submissions')
 
 
@@ -424,8 +424,10 @@ def render_document(form_name, document_id):
             return redirect(url_for('submissions.submissions_home'))
     
         else:
-    
             record = record.loc[record['id'] == str(document_id)]
+            # we abort if the form doesn't exist
+            if len(record.index)<1:
+                abort(404)
 
             record.drop(columns=['Journal'], inplace=True)
 
@@ -623,6 +625,9 @@ def render_document_edit(form_name, document_id):
                     return redirect(url_for('submissions.submissions_home'))      
 
                 record = record.loc[record['id'] == str(document_id)]
+                # we abort if the form doesn't exist
+                if len(record.index)<1:
+                    abort(404)
 
                 # here we convert the slice to a dictionary to use to override default values
                 overrides = record.iloc[0].to_dict()
@@ -725,6 +730,10 @@ def generate_pdf(form_name, document_id):
         else:
     
             record = record.loc[record['id'] == str(document_id)]
+            # we abort if the form doesn't exist
+            if len(record.index)<1:
+                abort(404)
+
             record.drop(columns=['Journal'], inplace=True)
 
             # Added signature verification, see https://github.com/signebedi/libreForms/issues/8
