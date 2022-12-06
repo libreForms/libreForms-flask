@@ -565,6 +565,9 @@ def render_document_history(form_name, document_id):
                 if display_data['Approval'].iloc[0]:
                     display_data['Approval'].iloc[0] = set_digital_signature(username=db.session.query(User).filter_by(email=display_data['Approver'].iloc[0]).first().username,
                                     encrypted_string=display_data['Approval'].iloc[0])
+                
+                # After https://github.com/signebedi/libreForms/issues/145, adding this to ensure that
+                # `Approval` is never None. 
                 else:
                     # display_data.drop(columns=['Approval'], inplace=True)
                     display_data['Approval'].iloc[0] = "None"
