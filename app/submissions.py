@@ -450,7 +450,7 @@ def render_document(form_name, document_id):
             # Added signature verification, see https://github.com/signebedi/libreForms/issues/8
             if 'Signature' in record.columns:
                 if options['_digitally_sign']:
-                    record['Signature'].iloc[0] = set_digital_signature(username=record['Reporter'].iloc[0],encrypted_string=record['Signature'].iloc[0])
+                    record['Signature'].iloc[0] = set_digital_signature(username=record['Owner'].iloc[0],encrypted_string=record['Signature'].iloc[0])
                 else:
                     record.drop(columns=['Signature'], inplace=True)
 
@@ -462,9 +462,12 @@ def render_document(form_name, document_id):
             if ((not checkKey(verify_group, '_deny_write') or not current_user.group in verify_group['_deny_write'])) or current_user.username == record['Reporter'].iloc[0]:
                 msg = msg + Markup(f"<a href = '{display['domain']}/submissions/{form_name}/{document_id}/edit'>edit this document</a>")
 
+            if parse_options(form_name)['_form_approval'] and 'Approver' in record.columns and record['Approver'].iloc[0] == current_user.email:
+                msg = msg + Markup(f"<a href = '{display['domain']}/submissions/{form_name}/{document_id}/review'>go to form approval</a>")
+
             if parse_options(form_name)['_allow_pdf_download']:
                 msg = msg + Markup(f"<a href = '{display['domain']}/submissions/{form_name}/{document_id}/download'>download PDF</a>")
-
+            
             return render_template('app/submissions.html',
                 type="submissions",
                 name=form_name,
@@ -572,6 +575,10 @@ def render_document_history(form_name, document_id):
             if ((not checkKey(verify_group, '_deny_write') or not current_user.group in verify_group['_deny_write'])) or current_user.username == record['Reporter'].iloc[0]:
                 msg = msg + Markup(f"<a href = '{display['domain']}/submissions/{form_name}/{document_id}/edit'>edit this document</a>")
             
+
+            if parse_options(form_name)['_form_approval'] and 'Approver' in display_data.columns and display_data['Approver'].iloc[0] == current_user.email:
+                msg = msg + Markup(f"<a href = '{display['domain']}/submissions/{form_name}/{document_id}/review'>go to form approval</a>")
+
             # eventually, we may wish to add support for downloading past versions 
             # of the PDF, too; not just the current form of the PDF; the logic does 
             # seem to support this, eg. sending the `display_data`
@@ -704,6 +711,112 @@ def render_document_edit(form_name, document_id):
         flash(f'This form does not exist. {e}')
         return redirect(url_for('submissions.submissions_home'))
 
+# this is a replica of render_document() above, just modified to check for 
+# parse_options(form_name)['_form_approval'] and verify that the current_user
+# is the form approver, otherwise abort. See https://github.com/signebedi/libreForms/issues/8.
+
+@bp.route('/<form_name>/<document_id>/review', methods=['GET', 'POST'])
+@login_required
+def review_document(form_name, document_id):
+    
+    try:
+        options = parse_options(form=form_name)
+        verify_group = options['_submission']
+        if not options['_form_approval']:
+            abort(404)
+            # return redirect(url_for('submissions.render_document', form_name=form_name,document_id=document_id))
+
+    except Exception as e:
+        flash('This form does not exist.')
+        log.warning(f'{current_user.username.upper()} - {e}')
+        return redirect(url_for('submissions.submissions_home'))
+
+
+    record = get_record_of_submissions(form_name=form_name)
+
+    if not isinstance(record, pd.DataFrame):
+        flash('This document does not exist.')
+        return redirect(url_for('submissions.submissions_home'))
+
+    else:
+
+        record = record.loc[record['id'] == str(document_id)]
+        # we abort if the form doesn't exist
+        if len(record.index)<1:
+            abort(404)
+
+        # if the approver verification doesn't check out
+        if not 'Approver' in record.columns or not record['Approver'].iloc[0] or record['Approver'].iloc[0] != current_user.email:
+            abort(404)
+
+
+        if request.method == 'POST':
+            approve = request.form['approve']
+            comment = request.form['comment']
+            
+            # print(approve, comment)
+
+            if approve in ['','no']:
+                flash('You have not approved this form. ')
+            
+            elif approve == 'yes':
+                flash('You have approved this form. ')
+            
+            if comment == '':
+                flash('You have not added any comments to this form. ')
+            else:
+                flash('You have added comments to this form. ')
+
+            # data = record.iloc[0].to_dict()
+            
+            digital_signature = encrypt_with_symmetric_key(current_user.certificate, current_user.email) if options['_digitally_sign'] else None
+
+            # presuming there is a change, write the change
+            if approve != 'no' or comment != '':
+
+                document_id = mongodb.write_document_to_collection({'_id': ObjectId(document_id)}, form_name, 
+                            reporter=current_user.username, 
+                            modification=True,
+                            approval=digital_signature if approve == 'yes' else None,
+                            approver_comment=comment if comment != '' else None)
+
+                return redirect(url_for('submissions.render_document', form_name=form_name, document_id=document_id))
+
+
+            # if approval == '' and comment != '':
+            #     flash('You have added a comment to this form. ')
+
+
+
+        record.drop(columns=['Journal'], inplace=True)
+
+        # Added signature verification, see https://github.com/signebedi/libreForms/issues/8
+        if 'Signature' in record.columns:
+            if options['_digitally_sign']:
+                record['Signature'].iloc[0] = set_digital_signature(username=record['Owner'].iloc[0],encrypted_string=record['Signature'].iloc[0])
+            else:
+                record.drop(columns=['Signature'], inplace=True)
+
+        msg = Markup(f"<a href = '{display['domain']}/submissions/{form_name}/{document_id}'>go back to document</a>")
+        msg = msg + Markup(f"<a href = '{display['domain']}/submissions/{form_name}/{document_id}/history'>view document history</a>")
+
+        # print (current_user.username)
+        # print (record['Reporter'].iloc[0])
+
+
+        return render_template('app/submissions.html',
+            type="submissions",
+            name=form_name,
+            submission=record,
+            msg=msg,
+            display=display,
+            form_approval=True,
+            user=current_user,
+            menu=form_menu(checkFormGroup),
+        )
+
+
+
 # this generates PDFs
 @bp.route('/<form_name>/<document_id>/download')
 @login_required
@@ -755,7 +868,7 @@ def generate_pdf(form_name, document_id):
             # Added signature verification, see https://github.com/signebedi/libreForms/issues/8
             if 'Signature' in record.columns:
                 if test_the_form_options['_digitally_sign']:
-                    record['Signature'].iloc[0] = set_digital_signature(username=record['Reporter'].iloc[0],encrypted_string=record['Signature'].iloc[0], return_markup=False)
+                    record['Signature'].iloc[0] = set_digital_signature(username=record['Owner'].iloc[0],encrypted_string=record['Signature'].iloc[0], return_markup=False)
                 else:
                     record.drop(columns=['Signature'], inplace=True)
 

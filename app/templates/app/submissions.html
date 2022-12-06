@@ -39,7 +39,41 @@
     </tbody>
   </table>
 {% endif %}    
-			
+
+{% if form_approval %}
+
+<hr/>
+<h4>Review</h4>
+<form method="post">
+  <fieldset>
+    <div class="form-group">
+      <label class="form-label mt-4" for="" data-bs-toggle="tooltip" data-bs-placement="right" title="Please enter whether you approve this submission">Approval</label>
+      <div class="form-check">
+        <label class='form-check-label' for="approve yes">I approve
+          <input class="form-check-input" style="{{'border: 1px solid;' if not dark_mode else ''}}" type="radio" value="yes" id="approve yes" name="approve"/>
+        </label>
+      </div>
+      <div class="form-check">
+        <label class='form-check-label' for="approve no">I do not approve
+          <input class="form-check-input" style="{{'border: 1px solid;' if not dark_mode else ''}}" type="radio" value="no" id="approve no" name="approve"/>
+        </label>
+      </div>
+    </div>
+    <br/>
+    <div class="form-group">
+      <label for="comment" data-bs-toggle="tooltip" data-bs-placement="right" title="Please provide any comments you have on this submission">Comment</label>
+      <textarea class="form-control" id="comment" name="comment" rows="3"></textarea>    
+    </div>
+    <div class="form-group mt-4">
+      <input class="btn btn-primary" type="submit" value="Submit">
+    </div>
+  </fieldset>
+</form>
+<br/>
+{% endif %}    
+
+
+
 
 {% if msg %}
 
