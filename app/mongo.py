@@ -107,6 +107,19 @@ class MongoDB:
             # approver comment, see https://github.com/signebedi/libreForms/issues/8.
             if approver:
                 data['Approver'] = approver
+
+                # generally, we will (and should) only ever pass an `approver` during initial
+                # form submission; in those circumstances where we might pass it again, it's
+                # probably going to be a 'change-in-manager' situation that warrants - possibly -
+                # an overwrite of the Approval and Approver Comment ... in any account, we ought
+                # create those fields blank here to ensure that the logic contained in 
+                # submissions.generate_full_document_history() doesn't break ... because all the 
+                # fields contained therein need to be contained in an earlier field, see the problem
+                # here: https://github.com/signebedi/libreForms/issues/145. It may be that this is 
+                # just a temporary fix until we can figure out the logic the generate_full_document_history().
+                # data['Approval'] = None
+                # data['Approver_Comment'] = None
+
             if approval:
                 data['Approval'] = approval
             if approver_comment:
