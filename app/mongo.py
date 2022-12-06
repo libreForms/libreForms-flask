@@ -94,13 +94,15 @@ class MongoDB:
             if digital_signature:
                 data['Signature'] = digital_signature
 
-            data_copy = data.copy()
-
+            # setting the timestamp sooner so it's included in the Journal data, thus removing the
+            # need for a data copy.
             data['Timestamp'] = timestamp
+
+            # data_copy = data.copy()
 
             # here we define the behavior of the `Journal` metadata field 
             if not modification:
-                data['Journal'] = { timestamp: data_copy }
+                data['Journal'] = { timestamp: data }
                 data['Journal'][timestamp]['initial_submission'] = True # this may be redundant .. 
             
             # here we define the behavior of the `Journal` metadata field 
