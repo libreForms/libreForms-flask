@@ -454,6 +454,14 @@ def render_document(form_name, document_id):
                 else:
                     record.drop(columns=['Signature'], inplace=True)
 
+            # Added signature verification, see https://github.com/signebedi/libreForms/issues/144    
+            if 'Approval' in record.columns and record['Approval'].iloc[0]:
+                record['Approval'].iloc[0] = set_digital_signature(username=db.session.query(User).filter_by(email=record['Approver'].iloc[0]).first().username,
+                            encrypted_string=record['Approval'].iloc[0])
+            else:
+                record.drop(columns=['Approval'], inplace=True)
+
+
             msg = Markup(f"<a href = '{display['domain']}/submissions/{form_name}/{document_id}/history'>view document history</a>")
 
             # print (current_user.username)
@@ -552,10 +560,16 @@ def render_document_history(form_name, document_id):
             # Added signature verification, see https://github.com/signebedi/libreForms/issues/8
             if 'Signature' in display_data.columns:
                 if options['_digitally_sign']:
-                    display_data['Signature'].iloc[0] = set_digital_signature(username=display_data['Reporter'].iloc[0],encrypted_string=display_data['Signature'].iloc[0])
+                    display_data['Signature'].iloc[0] = set_digital_signature(username=display_data['Owner'].iloc[0],encrypted_string=display_data['Signature'].iloc[0])
                 else:
                     display_data.drop(columns=['Signature'], inplace=True)
 
+            # Added signature verification, see https://github.com/signebedi/libreForms/issues/144    
+            if 'Approval' in record.columns and record['Approval'].iloc[0]:
+                display_data['Approval'].iloc[0] = set_digital_signature(username=db.session.query(User).filter_by(email=record['Approver'].iloc[0]).first().username,
+                                encrypted_string=display_data['Approval'].iloc[0])
+            else:
+                display_data.drop(columns=['Approval'], inplace=True)
 
 
             # here we set a list of values to emphasize in the table because they've changed values
@@ -796,6 +810,13 @@ def review_document(form_name, document_id):
                 record['Signature'].iloc[0] = set_digital_signature(username=record['Owner'].iloc[0],encrypted_string=record['Signature'].iloc[0])
             else:
                 record.drop(columns=['Signature'], inplace=True)
+        # Added signature verification, see https://github.com/signebedi/libreForms/issues/144    
+        if 'Approval' in record.columns and record['Approval'].iloc[0]:
+            record['Approval'].iloc[0] = set_digital_signature(username=db.session.query(User).filter_by(email=record['Approver'].iloc[0]).first().username,
+                            encrypted_string=record['Approval'].iloc[0])
+
+        else:
+            record.drop(columns=['Approval'], inplace=True)
 
         msg = Markup(f"<a href = '{display['domain']}/submissions/{form_name}/{document_id}'>go back to document</a>")
         msg = msg + Markup(f"<a href = '{display['domain']}/submissions/{form_name}/{document_id}/history'>view document history</a>")
@@ -871,6 +892,15 @@ def generate_pdf(form_name, document_id):
                     record['Signature'].iloc[0] = set_digital_signature(username=record['Owner'].iloc[0],encrypted_string=record['Signature'].iloc[0], return_markup=False)
                 else:
                     record.drop(columns=['Signature'], inplace=True)
+            
+            # Added signature verification, see https://github.com/signebedi/libreForms/issues/144    
+            if 'Approval' in record.columns and record['Approval'].iloc[0]:
+                record['Approval'].iloc[0] = set_digital_signature(username=db.session.query(User).filter_by(email=record['Approver'].iloc[0]).first().username,
+                                encrypted_string=record['Approval'].iloc[0], return_markup=False)
+            else:
+                record.drop(columns=['Approval'], inplace=True)
+
+
 
             import libreforms
             import datetime
