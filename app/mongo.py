@@ -73,6 +73,10 @@ class MongoDB:
                                                     # presuming that `data` will just be a slice of changed data
                                                     modification=False,
                                                     digital_signature=None,
+
+                                                    # there are currently a significant number of approver fields
+                                                    # that might make sense to hash into a dictionary ... 
+                                                    approver=None,
                                                     approval=None,
                                                     approver_comment=None,):
         import datetime
@@ -101,6 +105,8 @@ class MongoDB:
             # prepared by an individual making a request / proposal, and then an individual with 
             # the authority to review and approve this form does so. We also add an optional 
             # approver comment, see https://github.com/signebedi/libreForms/issues/8.
+            if approver:
+                data['Approver'] = approver
             if approval:
                 data['Approval'] = approval
             if approver_comment:

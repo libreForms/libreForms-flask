@@ -371,14 +371,18 @@ def verify_form_approval(form_name):
     # table assumes that this will be an email for an existing
     # user. See below for an example of what this would look like
     # in the form config:
-        # '_form_approval': {
-        #   'type': 'user_field',
-        #   'target': 'manager',}
+    #                                   '_form_approval': {
+    #                                     'type': 'user_field',
+    #                                     'target': 'manager',}
 
     if approval and approval['type'] == 'user_field':
 
         with db.engine.connect() as conn:
             # manager = db.session.query(User).filter_by(email=current_user[approval['target']]).first()
+
+            # unless we need to entire user object, this return value will probably be enough to get 
+            # us the email of the user's approver ...
+            # return getattr(current_user, approval['target'])
 
             filters = (
                 User.email == getattr(current_user, approval['target']),
@@ -388,6 +392,7 @@ def verify_form_approval(form_name):
             # print(vars(manager))
             
             return manager
+            
 
 
 
@@ -470,9 +475,15 @@ def forms(form_name):
                 # print(parsed_args)
 
                 digital_signature = encrypt_with_symmetric_key(current_user.certificate, current_user.email) if options['_digitally_sign'] else None
+                
+                approver = verify_form_approval(form_name)
+                # print(approver)
 
                 # here we insert the value and store the return value as the document ID
-                document_id = mongodb.write_document_to_collection(parsed_args, form_name, reporter=current_user.username, digital_signature=digital_signature)
+                document_id = mongodb.write_document_to_collection(parsed_args, form_name, 
+                                reporter=current_user.username, 
+                                digital_signature=digital_signature,
+                                approver=approver.email if approver else None)
 
                 flash(str(parsed_args))
                                 
@@ -485,8 +496,10 @@ def forms(form_name):
                 # and then we send our message
                 mailer.send_mail(subject=subject, content=content, to_address=current_user.email, cc_address_list=rationalize_routing_routing_list(form_name), logfile=log)
 
-                # approval = verify_form_approval(form_name)
-                # print(approval)
+                if approver:
+                    subject = f'{display["site_name"]} {form_name} Requires Approval ({document_id})'
+                    content = f"This email serves to notify that {current_user.username} ({current_user.email}) has just submitted the {form_name} form for your review, which you can view at {display['domain']}/submissions/{form_name}/{document_id}/review."
+                    mailer.send_mail(subject=subject, content=content, to_address=approver.email, cc_address_list=rationalize_routing_routing_list(form_name), logfile=log)
 
                 return redirect(url_for('submissions.render_document', form_name=form_name, document_id=document_id))
 
