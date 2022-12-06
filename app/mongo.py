@@ -124,6 +124,7 @@ class MongoDB:
                 # field - that is, something that does not generally change.
                 # See  https://github.com/signebedi/libreForms/issues/143
                 data['Owner'] = data['Reporter']
+                data_copy['Owner'] = data_copy['Reporter']
                 
                 data['Journal'] = { timestamp: data_copy }
 
