@@ -156,7 +156,8 @@ def generate_full_document_history(form, document_id, user=None):
         # FULL_HISTORY[dates[0]]['Timestamp'] = dates[0]
 
         # delete the initial_submission key if it exists; it's redundant here and can probably be deprecated.
-        if checkKey(FULL_HISTORY[dates[0]], 'initial_submission'): del FULL_HISTORY[dates[0]]['initial_submission']
+        # Nb. This line of code was made redundant by https://github.com/signebedi/libreForms/issues/141.
+        # if checkKey(FULL_HISTORY[dates[0]], 'initial_submission'): del FULL_HISTORY[dates[0]]['initial_submission']
 
         # create an initial carbon copy in BASE_HISTORY - remember, this isn't the for-record dictionary,
         # we're just using it to store the current values of each Journal entry as we iterate through them
