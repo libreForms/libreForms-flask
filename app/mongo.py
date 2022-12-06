@@ -120,6 +120,11 @@ class MongoDB:
 
             # here we define the behavior of the `Journal` metadata field 
             if not modification:
+                # we create an `Owner` field to be more stable than the `Reporter`
+                # field - that is, something that does not generally change.
+                # See  https://github.com/signebedi/libreForms/issues/143
+                data['Owner'] = data['Reporter']
+                
                 data['Journal'] = { timestamp: data_copy }
 
                 # In the past, we added an `initial_submission` tag the first time a form was submitted
