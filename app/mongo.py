@@ -88,12 +88,15 @@ class MongoDB:
 
             data['Reporter'] = str(reporter) if reporter else None
 
+            # Adding the digital Signature back to Journal now that we have added badges to the user 
+            # submission history view - making it more user friendly to view and make sense of, 
+            # see https://github.com/signebedi/libreForms/issues/141.
+            if digital_signature:
+                data['Signature'] = digital_signature
+
             data_copy = data.copy()
 
             data['Timestamp'] = timestamp
-
-            if digital_signature:
-                data['Signature'] = digital_signature
 
             # here we define the behavior of the `Journal` metadata field 
             if not modification:
@@ -125,9 +128,11 @@ class MongoDB:
                 del journal_data['_id']
                 del journal_data['Journal']
 
-                # delete the digital signature from the Journal if it exists 
-                if 'Signature' in journal_data.keys():
-                    del journal_data['Signature']
+                # Adding the digital Signature back now that we have added badges to the user 
+                # submission history view, see https://github.com/signebedi/libreForms/issues/141.
+
+                # if 'Signature' in journal_data.keys(): # delete the digital signature from the Journal if it exists 
+                #     del journal_data['Signature']
 
                 # print("\n\n\n", journal_data)
 
