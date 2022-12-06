@@ -98,12 +98,15 @@ class MongoDB:
             # need for a data copy.
             data['Timestamp'] = timestamp
 
-            # data_copy = data.copy()
+            data_copy = data.copy()
 
             # here we define the behavior of the `Journal` metadata field 
             if not modification:
-                data['Journal'] = { timestamp: data }
-                data['Journal'][timestamp]['initial_submission'] = True # this may be redundant .. 
+                data['Journal'] = { timestamp: data_copy }
+
+                # In the past, we added an `initial_submission` tag the first time a form was submitted
+                # but this is probably very redundant, so deprecating it here. 
+                # data['Journal'][timestamp]['initial_submission'] = True 
             
             # here we define the behavior of the `Journal` metadata field 
             # if not modification:

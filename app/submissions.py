@@ -150,12 +150,12 @@ def generate_full_document_history(form, document_id, user=None):
         # start with it here to set a baseline
         FULL_HISTORY[dates[0]] = history[dates[0]].copy()
 
-        # we also add back in the timestamp (and will do this again later for subsequent entries in the
+        # we previously added back in the timestamp (and did it again later for subsequent entries in the
         # document history) - is it worth the extra computation requirement to avoid redundance in adding
         # Timestamp field multiple times? See https://github.com/signebedi/libreForms/issues/140.
-        FULL_HISTORY[dates[0]]['Timestamp'] = dates[0]
+        # FULL_HISTORY[dates[0]]['Timestamp'] = dates[0]
 
-        # delete the initial_submission key if it exists; it's redundant here and can probably be deprecated
+        # delete the initial_submission key if it exists; it's redundant here and can probably be deprecated.
         if checkKey(FULL_HISTORY[dates[0]], 'initial_submission'): del FULL_HISTORY[dates[0]]['initial_submission']
 
         # create an initial carbon copy in BASE_HISTORY - remember, this isn't the for-record dictionary,
@@ -170,13 +170,13 @@ def generate_full_document_history(form, document_id, user=None):
             for change in history[item].keys():
                 BASE_HISTORY[change] = history[item][change]
             
-            # see above: because we choose not to redundantly add the Timestamp into the 
-            # Journal struct keys - since it's used as a parent key to diffrentiate between
-            # different edits - we need to add more lines of code ... not sure if this was
+            # see above: because we chose to redundantly add the Timestamp into the 
+            # Journal struct keys - redundant since it's used as a parent key to diffrentiate 
+            # between edits - we no longer need to add more lines of code ... not sure if this was
             # the right call, but it's easy enough to comment this (and the earlier) line
-            # in the future if we decide to just go with the redundancy ... for more, see
+            # and  to just go with the redundancy ... for more, see
             # https://github.com/signebedi/libreForms/issues/140.
-            BASE_HISTORY['Timestamp'] = item
+            # BASE_HISTORY['Timestamp'] = item
 
             # finally we write this update to FULL_HISTORY dict
             FULL_HISTORY[item] = BASE_HISTORY.copy()
