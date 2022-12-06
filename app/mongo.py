@@ -72,7 +72,9 @@ class MongoDB:
                                                     # the `modifications` kwarg expects a truth statement
                                                     # presuming that `data` will just be a slice of changed data
                                                     modification=False,
-                                                    digital_signature=None):
+                                                    digital_signature=None,
+                                                    approval=None,
+                                                    approver_comment=None,):
         import datetime
         from bson.objectid import ObjectId
 
@@ -93,6 +95,16 @@ class MongoDB:
             # see https://github.com/signebedi/libreForms/issues/141.
             if digital_signature:
                 data['Signature'] = digital_signature
+
+            # Adding an optional `approval` field, which is similar to the `digital_signature`
+            # field above - namely, in form management there is a common process where forms are
+            # prepared by an individual making a request / proposal, and then an individual with 
+            # the authority to review and approve this form does so. We also add an optional 
+            # approver comment, see https://github.com/signebedi/libreForms/issues/8.
+            if approval:
+                data['Approval'] = approval
+            if approver_comment:
+                data['Approver_Comment'] = approver_comment
 
             # setting the timestamp sooner so it's included in the Journal data, thus removing the
             # need for a data copy.
