@@ -46,7 +46,7 @@ Git contribution messages should generally be prepended with the following conve
 Generally, contributors should aim to link all of their contributions to [Issues](https://github.com/signebedi/libreForms/issues) to help with code review. We'd appreciate if you'd append an issue number to the header of any contribution message. Here's an example of a commit message that would conform to these guidelines:
 
 ```
-Added: standard boilerplate to app/signing.py per #78 
+Added: standard boilerplate to app/signing.py (#78)
 
 libreForms contributing guidelines generally require scripts to include standard boilerplate to explain the scripts functionality and any appropriate discussion of key decisions that were made. In addition, the guidelines require additional metadata variables. This contribution modifies app/signing.py to conform to these guidelines.
 ```
