@@ -20,6 +20,7 @@ from webargs import fields, flaskparser
 from flask_login import current_user
 from markupsafe import Markup
 from bson import ObjectId
+import numpy as np
 
 # import custom packages from the current repository
 import libreforms
@@ -447,6 +448,7 @@ def render_document(form_name, document_id):
 
             record.drop(columns=['Journal'], inplace=True)
 
+
             # Added signature verification, see https://github.com/signebedi/libreForms/issues/8
             if 'Signature' in record.columns:
                 if options['_digitally_sign']:
@@ -462,6 +464,10 @@ def render_document(form_name, document_id):
 
                 except:
                     record['Approval'].iloc[0] = None
+
+            # we set nan values to None
+            record.replace({np.nan:None}, inplace=True)
+
 
             msg = Markup(f"<a href = '{display['domain']}/submissions/{form_name}/{document_id}/history'>view document history</a>")
 
@@ -556,6 +562,7 @@ def render_document_history(form_name, document_id):
                     record.drop([val], axis=1, inplace=True)
 
             display_data = record.transpose()
+
             # print(display_data.iloc[0])
 
             # Added signature verification, see https://github.com/signebedi/libreForms/issues/8
@@ -576,6 +583,8 @@ def render_document_history(form_name, document_id):
                     # display_data.drop(columns=['Approval'], inplace=True)
                     display_data['Approval'].iloc[0] = None
 
+
+            display_data.replace({np.nan:None}, inplace=True)
 
             # here we set a list of values to emphasize in the table because they've changed values
             t = get_record_of_submissions(form_name) 
@@ -809,6 +818,7 @@ def review_document(form_name, document_id):
 
         record.drop(columns=['Journal'], inplace=True)
 
+
         # Added signature verification, see https://github.com/signebedi/libreForms/issues/8
         if 'Signature' in record.columns:
             if options['_digitally_sign']:
@@ -822,6 +832,9 @@ def review_document(form_name, document_id):
                                 encrypted_string=record['Approval'].iloc[0])
             except:
                 record['Approval'].iloc[0] = None
+
+        # we set nan values to None
+        record.replace({np.nan:None}, inplace=True)
 
 
         msg = Markup(f"<a href = '{display['domain']}/submissions/{form_name}/{document_id}'>go back to document</a>")
@@ -907,6 +920,9 @@ def generate_pdf(form_name, document_id):
 
                 except:
                     record['Approval'].iloc[0] = None
+
+            # we set nan values to None
+            record.replace({np.nan:None}, inplace=True)
 
 
             import libreforms
