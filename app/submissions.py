@@ -562,7 +562,8 @@ def render_document_history(form_name, document_id):
 
             # Added signature verification, see https://github.com/signebedi/libreForms/issues/144    
             if 'Approval' in display_data.columns:
-                if display_data['Approval'].iloc[0]:
+                if pd.notnull(display_data['Approval'].iloc[0]): # verify that this is not nan, see https://stackoverflow.com/a/57044299/13301284
+                    print(display_data['Approval'].iloc[0])
                     display_data['Approval'].iloc[0] = set_digital_signature(username=db.session.query(User).filter_by(email=display_data['Approver'].iloc[0]).first().username,
                                     encrypted_string=display_data['Approval'].iloc[0])
                 
@@ -570,7 +571,8 @@ def render_document_history(form_name, document_id):
                 # `Approval` is never None. 
                 else:
                     # display_data.drop(columns=['Approval'], inplace=True)
-                    display_data['Approval'].iloc[0] = "None"
+                    display_data['Approval'].iloc[0] = None
+
 
             # here we set a list of values to emphasize in the table because they've changed values
             t = get_record_of_submissions(form_name) 
