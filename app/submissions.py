@@ -456,9 +456,12 @@ def render_document(form_name, document_id):
 
             # Added signature verification, see https://github.com/signebedi/libreForms/issues/144    
             if 'Approval' in record.columns and record['Approval'].iloc[0]:
-                record['Approval'].iloc[0] = set_digital_signature(username=db.session.query(User).filter_by(email=record['Approver'].iloc[0]).first().username,
+                try:
+                    record['Approval'].iloc[0] = set_digital_signature(username=db.session.query(User).filter_by(email=record['Approver'].iloc[0]).first().username,
                             encrypted_string=record['Approval'].iloc[0])
 
+                except:
+                    record['Approval'].iloc[0] = None
 
             msg = Markup(f"<a href = '{display['domain']}/submissions/{form_name}/{document_id}/history'>view document history</a>")
 
@@ -814,8 +817,11 @@ def review_document(form_name, document_id):
                 record.drop(columns=['Signature'], inplace=True)
         # Added signature verification, see https://github.com/signebedi/libreForms/issues/144    
         if 'Approval' in record.columns and record['Approval'].iloc[0]:
-            record['Approval'].iloc[0] = set_digital_signature(username=db.session.query(User).filter_by(email=record['Approver'].iloc[0]).first().username,
-                            encrypted_string=record['Approval'].iloc[0])
+            try:
+                record['Approval'].iloc[0] = set_digital_signature(username=db.session.query(User).filter_by(email=record['Approver'].iloc[0]).first().username,
+                                encrypted_string=record['Approval'].iloc[0])
+            except:
+                record['Approval'].iloc[0] = None
 
 
         msg = Markup(f"<a href = '{display['domain']}/submissions/{form_name}/{document_id}'>go back to document</a>")
@@ -895,9 +901,12 @@ def generate_pdf(form_name, document_id):
             
             # Added signature verification, see https://github.com/signebedi/libreForms/issues/144    
             if 'Approval' in record.columns and record['Approval'].iloc[0]:
-                record['Approval'].iloc[0] = set_digital_signature(username=db.session.query(User).filter_by(email=record['Approver'].iloc[0]).first().username,
+                try:
+                    record['Approval'].iloc[0] = set_digital_signature(username=db.session.query(User).filter_by(email=record['Approver'].iloc[0]).first().username,
                                 encrypted_string=record['Approval'].iloc[0], return_markup=False)
 
+                except:
+                    record['Approval'].iloc[0] = None
 
 
             import libreforms
