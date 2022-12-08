@@ -395,8 +395,7 @@ def render_user_submissions(user):
             abort(404)
 
         if not isinstance(record, pd.DataFrame):
-            flash('This user has not made any submissions.')
-            return redirect(url_for('submissions.submissions_home'))
+            abort(404)
 
     
         else:
