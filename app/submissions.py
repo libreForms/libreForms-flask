@@ -240,6 +240,7 @@ def set_digital_signature(      username,
                                 # this is the encrypted string we'd like to verify
                                 encrypted_string, 
                                 base_string,
+                                # select_on=display['visible_signature_field'],
                                 # most cases benefit from markup with badges; but some 
                                 # (like PDFs) are better off with simple strings
                                 return_markup=True): 
@@ -528,8 +529,13 @@ def render_document(form_name, document_id):
 
             # Added signature verification, see https://github.com/signebedi/libreForms/issues/144    
             if 'Approval' in record.columns and record['Approval'].iloc[0]:
+                filters = (
+                getattr(User, display['visible_signature_field']) == getattr(current_user, display['visible_signature_field']),
+                )
+                manager = db.session.query(User).filter(*filters).first()
+
                 try:
-                    record['Approval'].iloc[0] = set_digital_signature(username=db.session.query(User).filter_by(email=record['Approver'].iloc[0]).first().username,
+                    record['Approval'].iloc[0] = set_digital_signature(username=manager.username,
                             encrypted_string=record['Approval'].iloc[0],
                             base_string=display['approval_key'])
 
@@ -548,7 +554,7 @@ def render_document(form_name, document_id):
             if ((not checkKey(verify_group, '_deny_write') or not current_user.group in verify_group['_deny_write'])) or current_user.username == record['Reporter'].iloc[0]:
                 msg = msg + Markup(f"<a href = '{display['domain']}/submissions/{form_name}/{document_id}/edit'>edit this document</a>")
 
-            if parse_options(form_name)['_form_approval'] and 'Approver' in record.columns and record['Approver'].iloc[0] == current_user.email:
+            if parse_options(form_name)['_form_approval'] and 'Approver' in record.columns and record['Approver'].iloc[0] == getattr(current_user,display['visible_signature_field']):
                 msg = msg + Markup(f"<a href = '{display['domain']}/submissions/{form_name}/{document_id}/review'>go to form approval</a>")
 
             if parse_options(form_name)['_allow_pdf_download']:
@@ -646,8 +652,14 @@ def render_document_history(form_name, document_id):
             # Added signature verification, see https://github.com/signebedi/libreForms/issues/144    
             if 'Approval' in display_data.columns:
                 if pd.notnull(display_data['Approval'].iloc[0]): # verify that this is not nan, see https://stackoverflow.com/a/57044299/13301284
+                    
+                    filters = (
+                    getattr(User, display['visible_signature_field']) == getattr(current_user, display['visible_signature_field']),
+                    )
+                    manager = db.session.query(User).filter(*filters).first()
+                    
                     # print(display_data['Approval'].iloc[0])
-                    display_data['Approval'].iloc[0] = set_digital_signature(username=db.session.query(User).filter_by(email=display_data['Approver'].iloc[0]).first().username,
+                    display_data['Approval'].iloc[0] = set_digital_signature(username=manager.username,
                                     encrypted_string=display_data['Approval'].iloc[0],
                                     base_string=display['approval_key'])
                 
@@ -678,7 +690,7 @@ def render_document_history(form_name, document_id):
                 msg = msg + Markup(f"<a href = '{display['domain']}/submissions/{form_name}/{document_id}/edit'>edit this document</a>")
             
 
-            if parse_options(form_name)['_form_approval'] and 'Approver' in display_data.columns and display_data['Approver'].iloc[0] == current_user.email:
+            if parse_options(form_name)['_form_approval'] and 'Approver' in display_data.columns and display_data['Approver'].iloc[0] == getattr(current_user,display['visible_signature_field']):
                 msg = msg + Markup(f"<a href = '{display['domain']}/submissions/{form_name}/{document_id}/review'>go to form approval</a>")
 
             # eventually, we may wish to add support for downloading past versions 
@@ -848,7 +860,7 @@ def review_document(form_name, document_id):
             return abort(404)
 
         # if the approver verification doesn't check out
-        if not 'Approver' in record.columns or not record['Approver'].iloc[0] or record['Approver'].iloc[0] != current_user.email:
+        if not 'Approver' in record.columns or not record['Approver'].iloc[0] or record['Approver'].iloc[0] != getattr(current_user,display['visible_signature_field']):
             return abort(404)
 
 
@@ -930,9 +942,17 @@ def review_document(form_name, document_id):
         # Added signature verification, see https://github.com/signebedi/libreForms/issues/144    
         if 'Approval' in record.columns and record['Approval'].iloc[0]:
             try:
-                record['Approval'].iloc[0] = set_digital_signature(username=db.session.query(User).filter_by(email=record['Approver'].iloc[0]).first().username,
-                                encrypted_string=record['Approval'].iloc[0],
-                                base_string=display['approval_key'])
+
+                filters = (
+                getattr(User, display['visible_signature_field']) == getattr(current_user, display['visible_signature_field']),
+                )
+                manager = db.session.query(User).filter(*filters).first()
+
+
+                # this needs to set the filter using eg. getattr(approver, display['visible_signature_field']) 
+                record['Approval'].iloc[0] = set_digital_signature(username=manager.username,
+                                                                    encrypted_string=record['Approval'].iloc[0],
+                                                                    base_string=display['approval_key'])
             except:
                 record['Approval'].iloc[0] = None
 
@@ -1020,8 +1040,13 @@ def generate_pdf(form_name, document_id):
             
             # Added signature verification, see https://github.com/signebedi/libreForms/issues/144    
             if 'Approval' in record.columns and record['Approval'].iloc[0]:
+                filters = (
+                getattr(User, display['visible_signature_field']) == getattr(current_user, display['visible_signature_field']),
+                )
+                manager = db.session.query(User).filter(*filters).first()
+
                 try:
-                    record['Approval'].iloc[0] = set_digital_signature(username=db.session.query(User).filter_by(email=record['Approver'].iloc[0]).first().username,
+                    record['Approval'].iloc[0] = set_digital_signature(username=manager.username,
                                 encrypted_string=record['Approval'].iloc[0], 
                                 base_string=display['approval_key'],
                                 return_markup=False)
