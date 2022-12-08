@@ -16,7 +16,8 @@ __email__ = "signe@atreeus.com"
 # import flask-related packages
 from cmath import e
 from fileinput import filename
-from flask import Blueprint, flash, render_template, request, send_from_directory, send_file, redirect, url_for
+from flask import Blueprint, flash, render_template, request, send_from_directory, \
+                                send_file, redirect, url_for, current_app
 from webargs import fields, flaskparser
 from flask_login import current_user
 from sqlalchemy.sql import text
@@ -32,6 +33,7 @@ from app.certification import encrypt_with_symmetric_key
 # and finally, import other packages
 import os
 import pandas as pd
+
 
 
 # this logic was written generally to support rationalize_routing_routing_list()
@@ -425,6 +427,7 @@ def forms_home():
             msg="Select a form from the left-hand menu.",
             name="Form",
             type="forms",
+            notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
             menu=form_menu(checkFormGroup),
             display=display,
             user=current_user,
@@ -512,6 +515,7 @@ def forms(form_name):
                 type="forms",       
                 options=options, 
                 display=display,
+                notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
                 filename = f'{form_name.lower().replace(" ","")}.csv' if options['_allow_csv_templates'] else False,
                 user=current_user,
                 depends_on=compile_depends_on_data(form_name, user_group=current_user.group),

@@ -24,6 +24,8 @@ from app.forms import parse_options, checkGroup, checkDashboardGroup, form_menu
 from app import display, log, mongodb
 from app.models import db
 
+
+
 # and finally, import other packages
 import os, json
 import plotly
@@ -41,6 +43,7 @@ def dashboards_home():
     return render_template('app/dashboards.html', 
             msg="Select a dashboard from the left-hand menu.",
             name="Dashboard",
+            notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
             type="dashboards",
             menu=form_menu(checkDashboardGroup),
             display=display,
@@ -130,6 +133,7 @@ def dashboards(form_name):
         name=form_name,
         type="dashboards",
         site_name=display['site_name'],
+        notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
         menu=form_menu(checkDashboardGroup),
         options=parse_options(form=form_name),
         display=display,

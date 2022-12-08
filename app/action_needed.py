@@ -18,6 +18,9 @@ __email__ = "signe@atreeus.com"
 
 
 import numpy as np
+from app import display, current_user
+from app.submissions import aggregate_approval_count
+
 
 # a high level function that we can pass a large number
 # of unique int values as args, of which it then returns
@@ -28,3 +31,15 @@ import numpy as np
 # for the current user, see https://github.com/signebedi/libreForms/issues/147. 
 def aggregate_notification_count(*args:int) -> int:
     return round( np.sum(args) )
+
+
+# this is just a quick abstraction that allows us to keep 
+# actions_needed.aggregate_notification_count() generalized but 
+# also account for current_app requirements and implementation 
+# details in a single callable function. In theory, as the number 
+# of features that create notifications for this application 
+# increase, we can include them in the list below.
+def standardard_total_notifications() -> int:
+    return aggregate_notification_count(
+            len(aggregate_approval_count(select_on=getattr(current_user,display['visible_signature_field'])).index),
+        )

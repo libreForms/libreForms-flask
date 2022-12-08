@@ -33,6 +33,8 @@ from app.forms import form_menu, checkGroup, checkFormGroup, \
     collect_list_of_users, compile_depends_on_data, rationalize_routing_routing_list
 
 
+
+
 # and finally, import other packages
 import os
 import pandas as pd
@@ -341,6 +343,7 @@ def render_all_submissions():
                 name="all",
                 submission=record,
                 display=display,
+                notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
                 form_home=True,
                 user=current_user,
                 menu=form_menu(checkFormGroup),
@@ -354,6 +357,7 @@ def render_all_submissions():
 def submissions_home():
     return render_template('app/submissions.html', 
             msg="Select a form from the left-hand menu to view past submissions.",
+            notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
             name="Submissions",
             type="submissions",
             submissions_home=True,
@@ -412,6 +416,7 @@ def submissions(form_name):
                 type="submissions",
                 name=form_name,
                 submission=record,
+                notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
                 display=display,
                 form_home=True,
                 user=current_user,
@@ -461,6 +466,7 @@ def render_user_submissions(user):
 
             return render_template('app/submissions.html',
                 type="submissions",
+                notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
                 name="all",
                 submission=record,
                 display=display,
@@ -563,6 +569,7 @@ def render_document(form_name, document_id):
             return render_template('app/submissions.html',
                 type="submissions",
                 name=form_name,
+                notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
                 submission=record,
                 msg=msg,
                 display=display,
@@ -704,6 +711,7 @@ def render_document_history(form_name, document_id):
                 name=form_name,
                 submission=display_data,
                 display=display,
+                notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
                 emphasize=emphasize,
                 breadcrumb=breadcrumb,
                 user=current_user,
@@ -812,6 +820,7 @@ def render_document_edit(form_name, document_id):
                     menu=form_menu(checkFormGroup),              # this returns the forms in libreform/forms to display in the lefthand menu
                     type="forms",       
                     default_overrides=overrides,
+                    notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
                     editing_existing_form=True,
                     options=options, 
                     display=display,
@@ -971,6 +980,7 @@ def review_document(form_name, document_id):
             type="submissions",
             name=form_name,
             submission=record,
+            notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
             msg=msg,
             display=display,
             form_approval=True,

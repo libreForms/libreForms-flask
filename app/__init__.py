@@ -15,7 +15,7 @@ __email__ = "signe@atreeus.com"
 
 
 import os, re, secrets
-from flask import Flask, render_template, session
+from flask import Flask, render_template, session, current_app
 import app.log_functions
 # from flask_admin import Admin
 from flask_sqlalchemy import SQLAlchemy
@@ -161,6 +161,8 @@ def create_app(test_config=None):
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
 
+    from app.action_needed import standardard_total_notifications
+
     # add some app configurations
     app.config.from_mapping(
         SECRET_KEY=display['secret_key'],
@@ -176,8 +178,8 @@ def create_app(test_config=None):
             'CELERY_BROKER_URL':'redis://localhost:6379/0',
             'CELERY_RESULT_BACKEND':'redis://localhost:6379/0'
         },
+        NOTIFICATIONS=standardard_total_notifications,
     )
-
 
     celery.conf.update(app.config)
 
@@ -324,11 +326,6 @@ def create_app(test_config=None):
         return User.query.get(int(id))  
 
 
-    # here we import the logic needed to determine notification
-    from app.action_needed import aggregate_notification_count
-    from app.submissions import aggregate_approval_count
-
-
     # define a home route
     @app.route('/')
     def home():
@@ -336,9 +333,7 @@ def create_app(test_config=None):
             homepage=True,
             site_name=display['site_name'],
             type="home",
-            notifications=aggregate_notification_count(
-                len(aggregate_approval_count(select_on=getattr(current_user,display['visible_signature_field'])).index)
-            ),
+            notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
             name=display['site_name'],
             display_warning_banner=True,
             display=display,
@@ -353,6 +348,7 @@ def create_app(test_config=None):
             site_name=display['site_name'],
             type="home",
             name='privacy',
+            notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
             display=display,
             user=current_user if current_user.is_authenticated else None,
         )

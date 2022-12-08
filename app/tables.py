@@ -26,6 +26,8 @@ from app.forms import parse_options, checkGroup, checkTableGroup, form_menu
 from app.submissions import set_digital_signature
 from app import display, log, mongodb
 
+
+
 # and finally, import other packages
 import os
 import pandas as pd
@@ -40,6 +42,7 @@ def tables_home():
             msg="Select a table from the left-hand menu.",
             name="Table",
             type="tables",
+            notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
             menu=form_menu(checkTableGroup),
             display=display,
             user=current_user,
@@ -104,6 +107,7 @@ def tables(form_name):
         type="tables",
         name=form_name,
         is_table=True,
+        notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
         options=parse_options(form=form_name),
         menu=form_menu(checkTableGroup),
         display=display,

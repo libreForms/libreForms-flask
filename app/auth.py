@@ -28,6 +28,7 @@ from flask_login import login_required, current_user, login_user
 from app.log_functions import aggregate_log_data
 from app.certification import generate_symmetric_key
 
+
 if display['enable_hcaptcha']:
     from app import hcaptcha
 
@@ -463,6 +464,7 @@ def bulk_register():
     return render_template('auth/add_users.html',
         site_name=display['site_name'],
         display_warning_banner=True,
+        notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
         name="Bulk Register",
         user=current_user,
         display=display,)
@@ -591,6 +593,7 @@ def edit_profile():
         site_name=display['site_name'],
         edit_profile=True,
         user=current_user,
+        notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
         display_warning_banner=True,
         name="Profile",
         display=display,)
@@ -632,6 +635,7 @@ def profile():
         type="profile",
         name=display['site_name'],
         display=display,
+        notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
         user=current_user,
         log_data=aggregate_log_data(keyword=f'- {current_user.username.upper()} -', limit=1000, pull_from='end') if display['enable_user_profile_log_aggregation'] else None,
     )
