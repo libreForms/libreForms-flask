@@ -423,6 +423,34 @@ def submissions(form_name):
                 menu=form_menu(checkFormGroup),
             )
 
+# this view shows the forms that are requiring current_user review
+@bp.route('/review/<user>')
+@login_required
+def render_user_review(user):
+
+        record = aggregate_approval_count(select_on=getattr(current_user,display['visible_signature_field']))
+
+        # # collections = mongodb.collections()
+        # for form in libreforms.forms.keys():
+        #     # print(form)
+        #     verify_group = parse_options(form=form)['_submission']
+            
+        #     if checkKey(verify_group, '_deny_read') and current_user.group in verify_group['_deny_read']:
+        #         # print(record.loc[record.form == form])
+        #         record = record.drop(record[record['form'] == form].index)
+    
+
+        return render_template('app/submissions.html',
+            type="submissions",
+            notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
+            name="review",
+            submission=record,
+            display=display,
+            form_home=True,
+            user=current_user,
+            menu=form_menu(checkFormGroup),
+        )
+
 # this is the user by user view; it allows any authenticated user to view, 
 # but only shows form for which their group has not been denied read access
 @bp.route('/user/<user>')
