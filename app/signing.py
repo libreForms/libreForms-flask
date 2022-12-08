@@ -184,8 +184,8 @@ from app import display, log
 from app.models import Signing, db
 
 # here we generate a signing key with a default length of 24
-def generate_key(length:int=24, old_method=False):
-    if old_method:
+def generate_key(length:int=24, urandom_method=False):
+    if urandom_method:
         key = ''
         while True:
             temp = os.urandom(1)
