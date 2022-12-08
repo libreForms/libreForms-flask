@@ -8,7 +8,7 @@ forms.py: implementation of views and base logic for form submission
 __name__ = "app.forms"
 __author__ = "Sig Janoska-Bedi"
 __credits__ = ["Sig Janoska-Bedi"]
-__version__ = "1.0.1"
+__version__ = "1.0.2"
 __license__ = "AGPL-3.0"
 __maintainer__ = "Sig Janoska-Bedi"
 __email__ = "signe@atreeus.com"
@@ -399,11 +399,14 @@ def verify_form_approval(form_name):
     #   'type': 'user-specified',
     #   'target': ['manager'],}
 
+    # '_form_approval': {
+    #   'type': 'static',
+    #   'target': ['username@example.com'],}
+
 
     # '_form_approval': {
     #   'type': 'group',
     #   'target': ['manager'],}
-
 
     # '_form_approval': {
     #   'type': 'select_from_group',
