@@ -196,7 +196,10 @@ def generate_full_document_history(form, document_id, user=None):
 def check_args_for_changes(parsed_args, overrides):
     TEMP = {}
 
-    del overrides['Journal'] # this is unnecessary space to iterate through...
+    # from pprint import pprint
+    # pprint (overrides)
+    if 'Journal' in overrides:
+        del overrides['Journal'] # this is unnecessary space to iterate through, so drop if exists
 
     # print(parsed_args, '\n~~~\n', overrides)
 
@@ -217,33 +220,43 @@ def check_args_for_changes(parsed_args, overrides):
 def set_digital_signature(      username, 
                                 # this is the encrypted string we'd like to verify
                                 encrypted_string, 
+                                base_string,
                                 # most cases benefit from markup with badges; but some 
                                 # (like PDFs) are better off with simple strings
                                 return_markup=True): 
+    
+    # for various reasons, the string that we expect to be encrypted is actually a
+    # Nonetype - this is because the encrypted string just hasn't been set yet...
+    # so, let's just return that Nonetype and go about our business
+    if not encrypted_string:
+        return None
+        
     try:
         with db.engine.connect() as conn:
-                reporter = db.session.query(User).filter_by(username=username).first()
+            reporter = db.session.query(User).filter_by(username=username).first()
+
+        visible_signature_field = getattr(reporter, display['visible_signature_field'])
 
 
-        verify_signature = verify_symmetric_key(
-            key=reporter.certificate,
-            encrypted_string=encrypted_string,
-            base_string=reporter.email)
+        verify_signature = verify_symmetric_key (key=reporter.certificate,
+                                                encrypted_string=encrypted_string,
+                                                base_string=base_string)
 
         if not return_markup:
             if verify_signature:
-                return reporter.email + ' (verified)'
+                return visible_signature_field + ' (verified)'
 
-            else:
-                return reporter.email + ' (**unverified)'
+
+
+            return visible_signature_field + ' (**unverified)'
 
 
 
         if verify_signature:
-            return Markup(f'{reporter.email} <span class="badge bg-success" data-bs-toggle="tooltip" data-bs-placement="right" title="This form has a verified signature from {reporter.email}">Signature Verified</span>')
+            return Markup(f'{visible_signature_field} <span class="badge bg-success" data-bs-toggle="tooltip" data-bs-placement="right" title="This form has a verified signature from {reporter.email}">Signature Verified</span>')
 
         else:
-            return Markup(f'{reporter.email} <span class="badge bg-warning" data-bs-toggle="tooltip" data-bs-placement="right" title="This form does not have a verifiable signature from {reporter.email}">Signature Cannot Be Verified</span>')
+            return Markup(f'{visible_signature_field} <span class="badge bg-warning" data-bs-toggle="tooltip" data-bs-placement="right" title="This form does not have a verifiable signature from {reporter.email}">Signature Cannot Be Verified</span>')
 
     except:
         return None
@@ -452,7 +465,9 @@ def render_document(form_name, document_id):
             # Added signature verification, see https://github.com/signebedi/libreForms/issues/8
             if 'Signature' in record.columns:
                 if options['_digitally_sign']:
-                    record['Signature'].iloc[0] = set_digital_signature(username=record['Owner'].iloc[0],encrypted_string=record['Signature'].iloc[0])
+                    record['Signature'].iloc[0] = set_digital_signature(username=record['Owner'].iloc[0],
+                                                                        encrypted_string=record['Signature'].iloc[0], 
+                                                                        base_string=display['signature_key'])
                 else:
                     record.drop(columns=['Signature'], inplace=True)
 
@@ -460,7 +475,8 @@ def render_document(form_name, document_id):
             if 'Approval' in record.columns and record['Approval'].iloc[0]:
                 try:
                     record['Approval'].iloc[0] = set_digital_signature(username=db.session.query(User).filter_by(email=record['Approver'].iloc[0]).first().username,
-                            encrypted_string=record['Approval'].iloc[0])
+                            encrypted_string=record['Approval'].iloc[0],
+                            base_string=display['approval_key'])
 
                 except:
                     record['Approval'].iloc[0] = None
@@ -568,14 +584,17 @@ def render_document_history(form_name, document_id):
             # Added signature verification, see https://github.com/signebedi/libreForms/issues/8
             if 'Signature' in display_data.columns:
                 if options['_digitally_sign']:
-                    display_data['Signature'].iloc[0] = set_digital_signature(username=display_data['Owner'].iloc[0],encrypted_string=display_data['Signature'].iloc[0])
+                    display_data['Signature'].iloc[0] = set_digital_signature(username=display_data['Owner'].iloc[0],
+                                                                                encrypted_string=display_data['Signature'].iloc[0], 
+                                                                                base_string=display['signature_key'])
 
             # Added signature verification, see https://github.com/signebedi/libreForms/issues/144    
             if 'Approval' in display_data.columns:
                 if pd.notnull(display_data['Approval'].iloc[0]): # verify that this is not nan, see https://stackoverflow.com/a/57044299/13301284
-                    print(display_data['Approval'].iloc[0])
+                    # print(display_data['Approval'].iloc[0])
                     display_data['Approval'].iloc[0] = set_digital_signature(username=db.session.query(User).filter_by(email=display_data['Approver'].iloc[0]).first().username,
-                                    encrypted_string=display_data['Approval'].iloc[0])
+                                    encrypted_string=display_data['Approval'].iloc[0],
+                                    base_string=display['approval_key'])
                 
                 # After https://github.com/signebedi/libreForms/issues/145, adding this to ensure that
                 # `Approval` is never None. 
@@ -697,7 +716,7 @@ def render_document_edit(form_name, document_id):
                     # from pprint import pprint
                     # pprint(parsed_args)
 
-                    digital_signature = encrypt_with_symmetric_key(current_user.certificate, current_user.email) if options['_digitally_sign'] else None
+                    digital_signature = encrypt_with_symmetric_key(current_user.certificate, display['signature_key']) if options['_digitally_sign'] else None
 
                     # here we pass a modification
                     mongodb.write_document_to_collection(parsed_args, form_name, reporter=current_user.username, modification=True, digital_signature=digital_signature)
@@ -782,33 +801,59 @@ def review_document(form_name, document_id):
             approve = request.form['approve']
             comment = request.form['comment']
             
-            # print(approve, comment)
+            # print(str(approve), str(comment))
 
-            if approve in ['','no']:
-                flash('You have not approved this form. ')
+            # if approve == 'not-now':
+            #     flash('You have not approved this form. ')
+
+            # elif approve == 'no':
+            #     flash('You disapproved this form. ')
+
+            # elif approve == 'yes':
+            #     flash('You have approved this form. ')
             
-            elif approve == 'yes':
+            # if comment == '':
+            #     flash('You have not added any comments to this form. ')
+            # else:
+            #     flash('You have added comments to this form. ')
+
+            if approve == 'yes':
                 flash('You have approved this form. ')
-            
+                digital_signature = encrypt_with_symmetric_key(current_user.certificate, display['approval_key']) if options['_digitally_sign'] else None
+            elif approve == 'no':
+                flash('You disapproved this form. ')
+                digital_signature = encrypt_with_symmetric_key(current_user.certificate, display['disapproval_key']) if options['_digitally_sign'] else None
+            else:
+                flash('You have not approved this form. ')
+                digital_signature = None
+
             if comment == '':
+                # set comment to None if the arrived empty
+                comment = None
                 flash('You have not added any comments to this form. ')
             else:
                 flash('You have added comments to this form. ')
+ 
 
-            # data = record.iloc[0].to_dict()
-            
-            digital_signature = encrypt_with_symmetric_key(current_user.certificate, current_user.email) if options['_digitally_sign'] else None
+            # here we pull the default values to assess the POSTed values against
+            overrides = record.iloc[0].to_dict()
+                    
+            # here we drop any elements that are not changed from the overrides
+            verify_changes_to_approval = check_args_for_changes({'Approval': digital_signature}, overrides)
+            verify_changes_to_approver_comment = check_args_for_changes({'Approver_Comment': comment}, overrides)
 
+           
             # presuming there is a change, write the change
-            if approve != 'no' or comment != '':
+            # if approve != 'no' or comment != '':
 
-                document_id = mongodb.write_document_to_collection({'_id': ObjectId(document_id)}, form_name, 
-                            reporter=current_user.username, 
-                            modification=True,
-                            approval=digital_signature if approve == 'yes' else None,
-                            approver_comment=comment if comment != '' else None)
+            mongodb.write_document_to_collection({'_id': ObjectId(document_id)}, form_name, 
+                                                    reporter=current_user.username, 
+                                                    modification=True,
+                                                    # if these pass check_args_for_changes(), then pass values; else None
+                                                    approval=verify_changes_to_approval['Approval'] if 'Approval' in verify_changes_to_approval else None,
+                                                    approver_comment=verify_changes_to_approver_comment['Approver_Comment'] if 'Approver_Comment' in verify_changes_to_approver_comment else None)
 
-                return redirect(url_for('submissions.render_document', form_name=form_name, document_id=document_id))
+            return redirect(url_for('submissions.render_document', form_name=form_name, document_id=document_id))
 
 
             # if approval == '' and comment != '':
@@ -822,14 +867,17 @@ def review_document(form_name, document_id):
         # Added signature verification, see https://github.com/signebedi/libreForms/issues/8
         if 'Signature' in record.columns:
             if options['_digitally_sign']:
-                record['Signature'].iloc[0] = set_digital_signature(username=record['Owner'].iloc[0],encrypted_string=record['Signature'].iloc[0])
+                record['Signature'].iloc[0] = set_digital_signature(username=record['Owner'].iloc[0],
+                                                                    encrypted_string=record['Signature'].iloc[0], 
+                                                                    base_string=display['signature_key'])
             else:
                 record.drop(columns=['Signature'], inplace=True)
         # Added signature verification, see https://github.com/signebedi/libreForms/issues/144    
         if 'Approval' in record.columns and record['Approval'].iloc[0]:
             try:
                 record['Approval'].iloc[0] = set_digital_signature(username=db.session.query(User).filter_by(email=record['Approver'].iloc[0]).first().username,
-                                encrypted_string=record['Approval'].iloc[0])
+                                encrypted_string=record['Approval'].iloc[0],
+                                base_string=display['approval_key'])
             except:
                 record['Approval'].iloc[0] = None
 
@@ -908,7 +956,10 @@ def generate_pdf(form_name, document_id):
             # Added signature verification, see https://github.com/signebedi/libreForms/issues/8
             if 'Signature' in record.columns:
                 if test_the_form_options['_digitally_sign']:
-                    record['Signature'].iloc[0] = set_digital_signature(username=record['Owner'].iloc[0],encrypted_string=record['Signature'].iloc[0], return_markup=False)
+                    record['Signature'].iloc[0] = set_digital_signature(username=record['Owner'].iloc[0],
+                                                                        encrypted_string=record['Signature'].iloc[0], 
+                                                                        base_string=display['signature_key'], 
+                                                                        return_markup=False)
                 else:
                     record.drop(columns=['Signature'], inplace=True)
             
@@ -916,7 +967,9 @@ def generate_pdf(form_name, document_id):
             if 'Approval' in record.columns and record['Approval'].iloc[0]:
                 try:
                     record['Approval'].iloc[0] = set_digital_signature(username=db.session.query(User).filter_by(email=record['Approver'].iloc[0]).first().username,
-                                encrypted_string=record['Approval'].iloc[0], return_markup=False)
+                                encrypted_string=record['Approval'].iloc[0], 
+                                base_string=display['approval_key'],
+                                return_markup=False)
 
                 except:
                     record['Approval'].iloc[0] = None

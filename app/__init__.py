@@ -100,6 +100,9 @@ else:
 log = app.log_functions.set_logger('log/libreforms.log',__name__)
 log.info('LIBREFORMS - started libreforms web application.')
 
+# turn off pandas warnings to avoid a rather silly one being dropped in the 
+# terminal, see https://stackoverflow.com/a/20627316/13301284. 
+pd.options.mode.chained_assignment = None
 
 # here we add code (that probably NEEDS REVIEW) to verify that
 # it is possible to connect to a different / external database, see

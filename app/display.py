@@ -82,6 +82,9 @@ display['signature_key'] = collect_secrets_from_file('signature_key')
 display['approval_key'] = collect_secrets_from_file('approval_key')
 display['disapproval_key'] = collect_secrets_from_file('disapproval_key')
 
+# as a default, we will display a user's username as their 'signature' 
+# when they have digitally signed a document
+display['visible_signature_field'] = 'username'
 
 display['allow_anonymous_registration'] = True
 
