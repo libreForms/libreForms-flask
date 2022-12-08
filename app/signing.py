@@ -201,7 +201,7 @@ def write_key_to_database(scope:str=None, expiration:int=1, active:int=1, email:
 
     # loop until a unique key is generated
     while True:
-        key = generate_key()
+        key = generate_key(length=display['signing_key_length'])
         if not Signing.query.filter_by(signature=key).first(): break
 
     new_key = Signing(
