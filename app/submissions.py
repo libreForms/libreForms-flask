@@ -479,7 +479,7 @@ def render_document(form_name, document_id):
             record = record.loc[record['id'] == str(document_id)]
             # we abort if the form doesn't exist
             if len(record.index)<1:
-                abort(404)
+                return abort(404)
 
             record.drop(columns=['Journal'], inplace=True)
 
@@ -719,7 +719,7 @@ def render_document_edit(form_name, document_id):
                 record = record.loc[record['id'] == str(document_id)]
                 # we abort if the form doesn't exist
                 if len(record.index)<1:
-                    abort(404)
+                    return abort(404)
 
                 # here we convert the slice to a dictionary to use to override default values
                 overrides = record.iloc[0].to_dict()
@@ -792,7 +792,7 @@ def review_document(form_name, document_id):
         options = parse_options(form=form_name)
         verify_group = options['_submission']
         if not options['_form_approval']:
-            abort(404)
+            return abort(404)
             # return redirect(url_for('submissions.render_document', form_name=form_name,document_id=document_id))
 
     except Exception as e:
@@ -812,11 +812,11 @@ def review_document(form_name, document_id):
         record = record.loc[record['id'] == str(document_id)]
         # we abort if the form doesn't exist
         if len(record.index)<1:
-            abort(404)
+            return abort(404)
 
         # if the approver verification doesn't check out
         if not 'Approver' in record.columns or not record['Approver'].iloc[0] or record['Approver'].iloc[0] != current_user.email:
-            abort(404)
+            return abort(404)
 
 
         if request.method == 'POST':
@@ -971,7 +971,7 @@ def generate_pdf(form_name, document_id):
             record = record.loc[record['id'] == str(document_id)]
             # we abort if the form doesn't exist
             if len(record.index)<1:
-                abort(404)
+                return abort(404)
 
             record.drop(columns=['Journal'], inplace=True)
 

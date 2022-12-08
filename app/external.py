@@ -63,7 +63,7 @@ if display['allow_anonymous_form_submissions']:
             forms = parse_options(form_name)
         except Exception as e:
             log.error(f'LIBREFORMS - {e}')
-            abort(404)
+            return abort(404)
 
         if not checkGroup(group='anonymous', struct=parse_options(form_name)):
             flash(f'Your system administrator has disabled this form for anonymous users.')
@@ -163,11 +163,11 @@ if display['allow_anonymous_form_submissions']:
 
             except Exception as e:
                 print(e)
-                abort(404)
+                return abort(404)
                 return None
 
         else:
-            abort(404)
+            return abort(404)
             return None
 
 
@@ -194,5 +194,5 @@ if display['allow_anonymous_form_submissions']:
             return send_from_directory(tempfile_path,
                                     filename, as_attachment=True)
         else:
-            abort(404)
+            return abort(404)
 

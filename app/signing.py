@@ -155,7 +155,7 @@ one of two ways: first, as a conditional:
 if not signing.verify_signatures(signature, scope="forgot_password"):
     return YOUR VIEW HERE
 else:
-    abort(404)
+    return abort(404)
 ```
 
 Alternatively, if you set the `abort_on_error` option to True, then you can simply call it in your view
@@ -291,7 +291,7 @@ def verify_signatures(      signature, # the key to validate
 
     if not Signing.query.filter_by(signature=signature).first():
         if abort_on_error:
-            abort(404)
+            return abort(404)
         flash(flash_msg)
         return redirect(url_for(redirect_to))
 
@@ -303,7 +303,7 @@ def verify_signatures(      signature, # the key to validate
     # this might be redundant to the above condition - but is a good redundancy for now
     if Signing.query.filter_by(signature=signature).first().active == 0:
         if abort_on_error:
-            abort(404)
+            return abort(404)
         flash(flash_msg)
         return redirect(url_for(redirect_to))
 
@@ -311,7 +311,7 @@ def verify_signatures(      signature, # the key to validate
     # return an invalid error
     if not Signing.query.filter_by(signature=signature).first().scope == scope:
         if abort_on_error:
-            abort(404)
+            return abort(404)
         flash(flash_msg)
         return redirect(url_for(redirect_to))
 

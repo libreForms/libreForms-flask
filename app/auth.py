@@ -315,7 +315,7 @@ if display['enable_rest_api']:
     @bp.route('/register/api/<signature>', methods=('GET', 'POST'))
     def anonymous_generate_api_key(signature):
 
-        abort(404)
+        return abort(404)
         # flash('This feature has not been enabled by your system administrator.')
         # return redirect(url_for('home'))
 

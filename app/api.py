@@ -50,7 +50,7 @@ if display['enable_rest_api']:
         signature = str(signature)
 
         if not display['enable_rest_api']:
-            abort(404)
+            return abort(404)
             return "This feature has not been enabled by your system administrator."
 
         # here we make it so that API users can only access forms that are in the
@@ -58,7 +58,7 @@ if display['enable_rest_api']:
         # appear ... form admins will need to manage change cautiously until further
         # controls, see https://github.com/signebedi/libreForms/issues/130
         if not form_name in libreforms.forms.keys():
-            abort(404)
+            return abort(404)
 
         signing.verify_signatures(signature, scope="api_key", abort_on_error=True)
 
@@ -85,5 +85,5 @@ if display['enable_rest_api']:
             return json.loads(json_util.dumps(df.to_dict())) # borrowed from https://stackoverflow.com/a/18405626
 
         except Exception as e:
-            abort(404)
+            return abort(404)
 
