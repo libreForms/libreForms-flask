@@ -476,7 +476,7 @@ def forms(form_name):
                 #     print(parsed_args[item])
                 # print(parsed_args)
 
-                digital_signature = encrypt_with_symmetric_key(current_user.certificate, current_user.email) if options['_digitally_sign'] else None
+                digital_signature = encrypt_with_symmetric_key(current_user.certificate, display['signature_key']) if options['_digitally_sign'] else None
                 
                 approver = verify_form_approval(form_name)
                 # print(approver)
