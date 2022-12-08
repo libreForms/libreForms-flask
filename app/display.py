@@ -78,6 +78,7 @@ display['registration_phone_required'] = False
 
 
 display['secret_key'] = collect_secrets_from_file('secret_key')
+display['signature_key'] = collect_secrets_from_file('signature_key')
 display['approval_key'] = collect_secrets_from_file('approval_key')
 display['disapproval_key'] = collect_secrets_from_file('disapproval_key')
 
