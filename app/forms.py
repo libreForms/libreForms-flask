@@ -485,7 +485,7 @@ def forms(form_name):
                 document_id = mongodb.write_document_to_collection(parsed_args, form_name, 
                                 reporter=current_user.username, 
                                 digital_signature=digital_signature,
-                                approver=approver.email if approver else None)
+                                approver=getattr(approver, display['visible_signature_field']) if approver else None)
 
                 flash(str(parsed_args))
                                 
