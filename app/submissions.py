@@ -242,6 +242,11 @@ def set_digital_signature(      username,
                                 # this is the encrypted string we'd like to verify
                                 encrypted_string, 
                                 base_string,
+                                # we allow ourselves to set a fallback string
+                                # to assess the encrypted string against in the 
+                                # event of a failure; this will return a DENIED
+                                # badge.
+                                fallback_string=None,
                                 # select_on=display['visible_signature_field'],
                                 # most cases benefit from markup with badges; but some 
                                 # (like PDFs) are better off with simple strings
@@ -264,21 +269,29 @@ def set_digital_signature(      username,
                                                 encrypted_string=encrypted_string,
                                                 base_string=base_string)
 
+        # test whether the fallback passes instead
+        verify_fallback = verify_symmetric_key (key=reporter.certificate,
+                                                encrypted_string=encrypted_string,
+                                                base_string=fallback_string)
+
+
         if not return_markup:
             if verify_signature:
-                return visible_signature_field + ' (verified)'
+                return visible_signature_field + ' (Signed, Verified)'
+            elif verify_fallback:
+                return visible_signature_field + ' (Disapproved, Verified)'
 
 
-
-            return visible_signature_field + ' (**unverified)'
+            return visible_signature_field + ' (**Unverified)'
 
 
 
         if verify_signature:
-            return Markup(f'{visible_signature_field} <span class="badge bg-success" data-bs-toggle="tooltip" data-bs-placement="right" title="This form has a verified signature from {reporter.email}">Signature Verified</span>')
+            return Markup(f'{visible_signature_field} <span class="badge bg-success" data-bs-toggle="tooltip" data-bs-placement="right" title="This form has a verified signature from {reporter.email}">Signed</span>')
+        elif verify_fallback:
+            return Markup(f'{visible_signature_field} <span class="badge bg-danger" data-bs-toggle="tooltip" data-bs-placement="right" title="This form has a verified signature from {reporter.email}">Disapproved</span>')
 
-        else:
-            return Markup(f'{visible_signature_field} <span class="badge bg-warning" data-bs-toggle="tooltip" data-bs-placement="right" title="This form does not have a verifiable signature from {reporter.email}">Signature Cannot Be Verified</span>')
+        return Markup(f'{visible_signature_field} <span class="badge bg-warning" data-bs-toggle="tooltip" data-bs-placement="right" title="This form does not have a verifiable signature from {reporter.email}">Unverified</span>')
 
     except:
         return None
@@ -571,7 +584,8 @@ def render_document(form_name, document_id):
                 try:
                     record['Approval'].iloc[0] = set_digital_signature(username=manager.username,
                             encrypted_string=record['Approval'].iloc[0],
-                            base_string=display['approval_key'])
+                            base_string=display['approval_key'],
+                            fallback_string=display['disapproval_key'],)
 
                 except:
                     record['Approval'].iloc[0] = None
@@ -696,7 +710,8 @@ def render_document_history(form_name, document_id):
                     # print(display_data['Approval'].iloc[0])
                     display_data['Approval'].iloc[0] = set_digital_signature(username=manager.username,
                                     encrypted_string=display_data['Approval'].iloc[0],
-                                    base_string=display['approval_key'])
+                                    base_string=display['approval_key'],
+                                    fallback_string=display['disapproval_key'],)
                 
                 # After https://github.com/signebedi/libreForms/issues/145, adding this to ensure that
                 # `Approval` is never None. 
@@ -989,7 +1004,8 @@ def review_document(form_name, document_id):
                 # this needs to set the filter using eg. getattr(approver, display['visible_signature_field']) 
                 record['Approval'].iloc[0] = set_digital_signature(username=manager.username,
                                                                     encrypted_string=record['Approval'].iloc[0],
-                                                                    base_string=display['approval_key'])
+                                                                    base_string=display['approval_key'],
+                                                                    fallback_string=display['disapproval_key'],)
             except:
                 record['Approval'].iloc[0] = None
 
@@ -1087,6 +1103,7 @@ def generate_pdf(form_name, document_id):
                     record['Approval'].iloc[0] = set_digital_signature(username=manager.username,
                                 encrypted_string=record['Approval'].iloc[0], 
                                 base_string=display['approval_key'],
+                                fallback_string=display['disapproval_key'],
                                 return_markup=False)
 
                 except:
