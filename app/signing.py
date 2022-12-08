@@ -177,21 +177,23 @@ __license__ = "AGPL-3.0"
 __maintainer__ = "Sig Janoska-Bedi"
 __email__ = "signe@atreeus.com"
 
-import os, datetime, threading, time, functools
+import os, datetime, secrets, threading, time, functools
 import pandas as pd
 from flask import current_app, flash, redirect, url_for, abort
 from app import display, log
 from app.models import Signing, db
 
 # here we generate a signing key with a default length of 24
-def generate_key(length:int=24):
-    key = ''
-    while True:
-        temp = os.urandom(1)
-        if temp.isdigit() or temp.isalpha():
-            key = key + temp.decode("utf-8") 
-        if len(key) == length:
-            return key
+def generate_key(length:int=24, old_method=False):
+    if old_method:
+        key = ''
+        while True:
+            temp = os.urandom(1)
+            if temp.isdigit() or temp.isalpha():
+                key = key + temp.decode("utf-8") 
+            if len(key) == length:
+                return key
+    return secrets.token_urlsafe(length)
 
 
 # maybe the `active` parameter should be set to bool ... again, this is a bug or feature,
