@@ -90,9 +90,12 @@ def gen_hyperlink(row, form_name):
 
 
 # in this method we aggregate all the relevant information
-def aggregate_form_data(user=None):
+def aggregate_form_data(*args, user=None):
 
-    df = pd.DataFrame(columns=['form', 'Timestamp', 'id', 'hyperlink', 'Reporter'])
+    columns=['form', 'Timestamp', 'id', 'hyperlink', 'Reporter']+[x for x in args]
+    # print (columns)
+
+    df = pd.DataFrame(columns=columns)
     collections = mongodb.collections()
 
     if len(collections) > 0:
@@ -107,7 +110,23 @@ def aggregate_form_data(user=None):
             if isinstance(temp_df, pd.DataFrame):
 
                 for index, row in temp_df.iterrows():
-                    z = pd.Series({'Reporter':row['Reporter'], 'Timestamp':row['Timestamp'], 'form':form, 'id':row['id'], 'hyperlink':gen_hyperlink(row, form),}).to_frame().T
+
+                    TEMP = {'Reporter':row['Reporter'], 
+                            'Timestamp':row['Timestamp'], 
+                            'form':form, 
+                            'id':row['id'], 
+                            'hyperlink':gen_hyperlink(row, form),
+                            }
+
+                    for a in args:
+                        TEMP[a] = row[a] if a in row else None
+
+                    # print(TEMP)
+
+
+                    z = pd.Series(TEMP).to_frame().T
+
+                    # print (z)
                     df = pd.concat([df, z], ignore_index=True)
                     
 
@@ -260,6 +279,20 @@ def set_digital_signature(      username,
 
     except:
         return None
+# this function is used to generate a list of approvals for the current user
+# select_on is the field upon which we will select the approval value.
+# this is written such that `len(aggregate_approval_count(select_on=current_user.email).index)`
+# will return the number of unsigned approvals
+def aggregate_approval_count(select_on=None): 
+
+        record = aggregate_form_data('Approver', 'Approval', user=None)
+
+        # first we drop values that are not tied to the current list of acceptible forms
+        record = record.drop(record.loc[~record.form.isin(libreforms.forms.keys())].index)
+
+        # then we return those whose approver is set to the select_on parameter
+        return record.loc[(record['Approver'] == select_on) and (record['Approval'].isna())]
+            
 
 
 bp = Blueprint('submissions', __name__, url_prefix='/submissions')
