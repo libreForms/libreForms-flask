@@ -19,7 +19,7 @@ __email__ = "signe@atreeus.com"
 
 import os, re, secrets
 from app.csv_files import init_tmp_fs
-from app.display import display
+from app.display import display, collect_secrets_from_file
 from app.log_functions import cleanup_stray_log_handlers
 from app.certification import generate_symmetric_key
 
@@ -31,6 +31,13 @@ def pre_fork(server, worker):
         with open('secret_key', 'w') as f: 
             secret_key = secrets.token_urlsafe(16)
             f.write(secret_key)
+
+    # this approach from https://github.com/signebedi/libreForms/issues/148 allows us
+    # to generate secret_key files pre-fork
+    for filename in ['secret_key', 'signature_key', 'approval_key', 'disapproval_key']:
+        collect_secrets_from_file(filename)
+
+
 
     # cleanup any stray log files prior to forking the work processes
     if not os.path.exists ("log/"):
