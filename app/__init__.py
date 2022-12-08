@@ -324,6 +324,11 @@ def create_app(test_config=None):
         return User.query.get(int(id))  
 
 
+    # here we import the logic needed to determine notification
+    from app.action_needed import aggregate_notification_count
+    from app.submissions import aggregate_approval_count
+
+
     # define a home route
     @app.route('/')
     def home():
@@ -331,6 +336,9 @@ def create_app(test_config=None):
             homepage=True,
             site_name=display['site_name'],
             type="home",
+            notifications=aggregate_notification_count(
+                len(aggregate_approval_count(select_on=getattr(current_user,display['visible_signature_field'])).index)
+            ),
             name=display['site_name'],
             display_warning_banner=True,
             display=display,

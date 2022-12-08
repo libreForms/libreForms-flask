@@ -282,7 +282,7 @@ def set_digital_signature(      username,
         return None
 # this function is used to generate a list of approvals for the current user
 # select_on is the field upon which we will select the approval value.
-# this is written such that `len(aggregate_approval_count(select_on=current_user.email).index)`
+# this is written such that `len(aggregate_approval_count(select_on=getattr(current_user,display['visible_signature_field'])).index)`
 # will return the number of unsigned approvals
 def aggregate_approval_count(select_on=None): 
 
@@ -292,7 +292,7 @@ def aggregate_approval_count(select_on=None):
         record = record.drop(record.loc[~record.form.isin(libreforms.forms.keys())].index)
 
         # then we return those whose approver is set to the select_on parameter
-        return record.loc[(record['Approver'] == select_on) and (record['Approval'].isna())]
+        return record.loc[(record['Approver'] == select_on) & (record['Approval'].isna())]
             
 
 
