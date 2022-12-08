@@ -120,10 +120,16 @@ class MongoDB:
                 # data['Approval'] = None
                 # data['Approver_Comment'] = None
 
-            if approval:
-                data['Approval'] = approval
-            if approver_comment:
-                data['Approver_Comment'] = approver_comment
+            # trying a slightly different approach to allow easy overwriting of previously-set Approval 
+            # data, see https://github.com/signebedi/libreForms/issues/149. This logic reads the approval
+            # and approver_comment kwargs, but drops them if None... I think this will induce desired behavior.
+            data['Approval'] = approval
+            if not ['Approval']:
+                del data['Approval']
+
+            data['Approver_Comment'] = approver_comment
+            if not ['Approver_Comment']:
+                del data['Approver_Comment']
 
             # setting the timestamp sooner so it's included in the Journal data, thus removing the
             # need for a data copy.
