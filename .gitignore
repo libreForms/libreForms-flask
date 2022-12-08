@@ -143,5 +143,6 @@ smtp_creds
 ldap_creds
 config/*
 redis-stable/*
+signature_key
 approval_key
 disapproval_key
