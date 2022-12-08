@@ -83,13 +83,19 @@ display['approval_key'] = collect_secrets_from_file('approval_key')
 display['disapproval_key'] = collect_secrets_from_file('disapproval_key')
 
 # as a default, we will display a user's username as their 'signature' 
-# when they have digitally signed a document
+# when they have digitally signed a document; Nb. this must be a 
+# field in the User database.
 display['visible_signature_field'] = 'username'
 
 display['allow_anonymous_registration'] = True
 
 
 display['allow_password_resets'] = True
+
+
+# by default, the signing keys generated and managed in app.signing are
+# 24 characters long.
+display['signing_key_length'] = 24
 
 
 display['smtp_enabled'] = True
