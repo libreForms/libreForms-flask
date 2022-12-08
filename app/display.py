@@ -27,10 +27,25 @@ __email__ = "signe@atreeus.com"
 # define default page display and,
 # if a display_overrides file exists, 
 # use it to overwrite defaults
-import os
+import os, secrets
 from libreforms import __version__
 from markupsafe import Markup
 from flask import current_app
+
+# Added based on https://github.com/signebedi/libreForms/issues/148 to
+# support creating secrets and writing them to file if they don't exist.
+def collect_secrets_from_file(filename):
+    if not os.path.exists(filename):
+        with open(filename, 'w') as f: 
+            # create, write, and return secret key if doesn't exist
+            secret_key = secrets.token_urlsafe(16)
+            f.write(secret_key)
+            return secret_key
+    
+    with open(filename, 'r') as f: 
+        return f.readlines()[0].strip()
+
+
 
 display = {}
 display['site_name'] = "libreForms"
@@ -61,6 +76,10 @@ display['registration_email_required'] = True
 display['registration_organization_required'] = False
 display['registration_phone_required'] = False
 
+
+display['secret_key'] = collect_secrets_from_file('secret_key')
+display['approval_key'] = collect_secrets_from_file('approval_key')
+display['disapproval_key'] = collect_secrets_from_file('disapproval_key')
 
 
 display['allow_anonymous_registration'] = True

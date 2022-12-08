@@ -71,16 +71,6 @@ if not display['smtp_enabled'] and (display['enable_email_verification'] or \
                         reports, or allow anonymous form submissions.")
 
 
-# we create the secret key for the application if it doesn't exist
-if not os.path.exists('secret_key'):
-    with open('secret_key', 'w') as f: 
-        secret_key = secrets.token_urlsafe(16)
-        f.write(secret_key)
-else:
-    with open('secret_key', 'r') as f: 
-        secret_key = f.readlines()[0].strip()
-
-
 # initialize mongodb database
 mongodb = mongo.MongoDB(
                         user=display['mongodb_user'], 
@@ -170,7 +160,7 @@ def create_app(test_config=None):
 
     # add some app configurations
     app.config.from_mapping(
-        SECRET_KEY=secret_key,
+        SECRET_KEY=display['secret_key'],
         # getting started on allowing other SQL databases than SQLite, but defaulting to that. 
         SQLALCHEMY_DATABASE_URI = f'{db_driver}://{db_host}:{db_pw}@{db_host}:{str(db_port)}/' if display['custom_sql_db'] == True else f'sqlite:///{os.path.join(app.instance_path, "app.sqlite")}',
         # SQLALCHEMY_DATABASE_URI = f'sqlite:///{os.path.join(app.instance_path, "app.sqlite")}',
