@@ -27,6 +27,7 @@ from app.csv_files import init_tmp_fs, tempfile_init_tmp_fs
 from app import smtp, mongo
 from celery import Celery
 from app.models import db
+from app.reports import reportManager
 from app.certification import generate_symmetric_key
 
 
@@ -71,6 +72,11 @@ if not display['smtp_enabled'] and (display['enable_email_verification'] or \
 
   raise Exception("Please enable SMTP if you'd like to enable email verification, allow password resets, send \
                         reports, or allow anonymous form submissions.")
+
+
+# create a report manager object, see app.reports and 
+# https://github.com/signebedi/libreForms/issues/73
+reports = reportManager(send_reports=display['send_reports'])
 
 
 # initialize mongodb database
@@ -342,6 +348,12 @@ def create_app(test_config=None):
                             cc_address_list=cc_address_list, logfile=log)
     
     app.config['MAILER'] = send_mail_asynch if display['send_mail_asynchronously'] else mailer.send_mail
+
+    @celery.task()
+    def _():
+        pass
+
+
 
     # define a home route
     @app.route('/')

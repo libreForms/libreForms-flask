@@ -1,6 +1,43 @@
 """ 
 tables.py: generate email and other forms of reports
 
+This script anticipates that there will be two kinds of `report` 
+expected from a system like this: (1) system-wide reports, which can
+be configured in the app config by setting the `send_reports` variable, 
+and (2) user-specific reports, which the blueprint below can allow
+users to configure and manage. It implements this on top of its own 
+database table.
+
+
+# Reports database
+
+
+class Reports(db.Model):
+    __tablename__ = 'reports'
+    report_id = db.Column(db.String, primary_key=True) 
+    email = db.Column(db.String(100))
+    conditions = db.Column(db.String(100))
+    active = db.Column(db.Integer)
+    timestamp = db.Column(db.Float)
+    start_at = db.Column(db.Float)
+
+
+
+# Scheduling
+
+
+# Methods
+
+At this time, email reports are the only supported method, but 
+feasibly other methods of report conveyance can be devised, see 
+https://github.com/signebedi/libreForms/issues/73 for more information.
+
+
+# reportManager()
+
+
+
+
 
 
 """
@@ -33,7 +70,79 @@ from app import display, log, mongodb
 import os
 import pandas as pd
 
+
+
+
+
+# frequency of emails
+    # daily
+    # hourly
+    # weekly
+    # monthly
+    # annually 
+# time range applied to, relative to the time of the report
+    # start time
+    # end time
+    ### OR ###
+    # last week
+    # last month
+    # last year
+    # last hour
+    # all time
+    
+# form applied to
+    # select option from current forms you have view access for
+
+# conditions of forms to be met
+    # form field value conditionality, as a dict, used in a `pd.DataFrame.loc` statement
+
+class reportManager():
+    def __init__(self, send_reports=True):
+        if not send_reports:
+            return None
+
+        #### ELSE FIND SOME WAY TO HANDLE THIS, system level report
+        # 'some_name_for_report': {
+        #     'type': 'timed',
+        #     'trigger': "* * * * *",
+        #     'start_date': datetime.datetime.now(),
+        #     'method': 'email',
+        #     'query': None,
+        # },
+
+
+
+    def create(self, frequency, time, forms, conditions, db):
+        pass # create a new report
+
+
+    def modify():
+        pass # modify an existing report
+
+    def trigger(self, db, conditions:dict):
+        pass
+
+    def handler(self, db):
+        pass
+
+
 bp = Blueprint('reports', __name__, url_prefix='/reports')
+
+@bp.route(f'/reports', methods=['GET', 'POST'])
+@login_required
+def reports():
+    pass # show list of current reports, and interface to create new ones
+
+@bp.route(f'/reports/create', methods=['GET', 'POST'])
+@login_required
+def create_reports():
+    pass # create a new report
+
+@bp.route(f'/reports/<report_id>', methods=['GET', 'POST'])
+@login_required
+def manage_reports():
+    pass # modify / delete existing report
+
 
 
 
