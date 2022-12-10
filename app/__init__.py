@@ -30,21 +30,23 @@ from app.models import db
 from app.certification import generate_symmetric_key
 
 
-# def make_celery():
-#     celery = Celery(__name__, broker='redis://localhost:6379/0')
+def make_celery(app):
+    celery = Celery(app.import_name, 
+                    backend=display['celery_backend'], 
+                    broker=display['celery_broker'])
 
-#     class ContextTask(celery.Task):
-#         def __call__(self, *args, **kwargs):
-#             with app.app_context():
-#                 return self.run(*args, **kwargs)
+    class ContextTask(celery.Task):
+        def __call__(self, *args, **kwargs):
+            with app.app_context():
+                return self.run(*args, **kwargs)
 
-#     celery.Task = ContextTask
-#     return celery
+    celery.Task = ContextTask
+    return celery
 
 # celery = make_celery()
 # celery = Celery(__name__, broker='redis://localhost:6379/0')
 
-celery = Celery(__name__, broker='redis://localhost:6379/0')
+# celery = Celery(__name__, backend=display['celery_backend'], broker=display['celery_broker'])
 
 # defining a decorator that applies a parent decorator 
 # based on the truth-value of a condition
@@ -174,13 +176,19 @@ def create_app(test_config=None):
         HCAPTCHA_ENABLED = display['enable_hcaptcha'],
         HCAPTCHA_SITE_KEY = display['hcaptcha_site_key'] if display['hcaptcha_site_key'] else None,
         HCAPTCHA_SECRET_KEY = display['hcaptcha_secret_key'] if display['hcaptcha_secret_key'] else None,
+        
         CELERY_CONFIG={
-            'CELERY_BROKER_URL':'redis://localhost:6379/0',
-            'CELERY_RESULT_BACKEND':'redis://localhost:6379/0'
+            'broker_url':display['celery_broker'],
+            'result_backend':display['celery_backend'],
+            'task_serializer':'json',
+            'accept_content':['json'],
+            'result_serializer':'json',
+            'enable_utc':True,
         },
         NOTIFICATIONS=standardard_total_notifications,
     )
 
+    celery = make_celery(app)
     celery.conf.update(app.config)
 
     # admin = Admin(app, name='libreForms', template_mode='bootstrap4')
@@ -325,6 +333,15 @@ def create_app(test_config=None):
     def load_user(id):
         return User.query.get(int(id))  
 
+
+    #### CELERY TASKS DEFINED HERE:
+
+    @celery.task()
+    def send_mail_asynch(subject, content, to_address, logfile=log):
+        mailer.send_mail(   subject=subject, content=content, to_address=to_address, 
+                            cc_address_list=None, logfile=log)
+    
+    app.config['MAILER'] = send_mail_asynch if display['send_mail_asynchronously'] else mailer.send_mail
 
     # define a home route
     @app.route('/')

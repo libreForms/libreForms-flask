@@ -849,7 +849,7 @@ def render_document_edit(form_name, document_id):
                     content = f"This email serves to verify that {current_user.username} ({current_user.email}) has just updated the {form_name} form, which you can view at {display['domain']}/submissions/{form_name}/{document_id}. {'; '.join(key + ': ' + str(value) for key, value in parsed_args.items() if key != 'Journal') if options['_send_form_with_email_notification'] else ''}"
                     
                     # and then we send our message
-                    mailer.send_mail(subject=subject, content=content, to_address=current_user.email, cc_address_list=rationalize_routing_routing_list(form_name), logfile=log)
+                    current_app.config['MAILER'](subject=subject, content=content, to_address=current_user.email, cc_address_list=rationalize_routing_routing_list(form_name), logfile=log)
 
                     # and then we redirect to the forms view page
                     return redirect(url_for('submissions.render_document', form_name=form_name, document_id=document_id))

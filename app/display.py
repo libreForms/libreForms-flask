@@ -77,6 +77,12 @@ display['registration_organization_required'] = False
 display['registration_phone_required'] = False
 
 
+# setting some celery configurations here to give 
+# a single place for admins to make modifications
+display['celery_broker'] = 'pyamqp://'
+display['celery_backend'] = 'rpc://'
+
+
 display['secret_key'] = collect_secrets_from_file('secret_key')
 display['signature_key'] = collect_secrets_from_file('signature_key')
 display['approval_key'] = collect_secrets_from_file('approval_key')
@@ -106,7 +112,7 @@ display['custom_sql_db'] = False
 
 
 display['enable_email_verification'] = False
-
+display['send_mail_asynchronously'] = False
 
 display['allow_anonymous_form_submissions'] = False
 display['require_auth_users_to_initiate_external_forms'] = True

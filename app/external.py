@@ -85,7 +85,7 @@ if display['allow_anonymous_form_submissions']:
                 try: 
                     key = signing.write_key_to_database(scope=f'external_{form_name.lower()}', expiration=48, active=1, email=email)
                     content = f"You may now submit form {form_name} at the following address: {display['domain']}/external/{form_name}/{key}. Please note this link will expire after 48 hours."
-                    mailer.send_mail(subject=f'{display["site_name"]} {form_name} Submission Link', content=content, to_address=email, logfile=log)
+                    current_app.config['MAILER'](subject=f'{display["site_name"]} {form_name} Submission Link', content=content, to_address=email, logfile=log)
                     flash("Form submission link successfully sent.")
                 except Exception as e:
                     flash(e)
@@ -144,7 +144,7 @@ if display['allow_anonymous_form_submissions']:
                     content = f"This email serves to verify that an anonymous user {signature} (linked to {email}) has just submitted the {form_name} form. {'; '.join(key + ': ' + str(value) for key, value in parsed_args.items() if key != 'Journal') if options['_send_form_with_email_notification'] else ''}"
                     
                     # and then we send our message
-                    mailer.send_mail(subject=subject, content=content, to_address=current_user.email, cc_address_list=rationalize_routing_routing_list(form_name), logfile=log)
+                    current_app.config['MAILER'](subject=subject, content=content, to_address=current_user.email, cc_address_list=rationalize_routing_routing_list(form_name), logfile=log)
 
 
                     return redirect(url_for('home'))
