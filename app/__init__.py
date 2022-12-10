@@ -46,7 +46,7 @@ def make_celery(app):
 # celery = make_celery()
 # celery = Celery(__name__, broker='redis://localhost:6379/0')
 
-# celery = Celery(__name__, backend=display['celery_backend'], broker=display['celery_broker'])
+celery = Celery(__name__, backend=display['celery_backend'], broker=display['celery_broker'])
 
 # defining a decorator that applies a parent decorator 
 # based on the truth-value of a condition
@@ -188,7 +188,7 @@ def create_app(test_config=None):
         NOTIFICATIONS=standardard_total_notifications,
     )
 
-    celery = make_celery(app)
+    # celery = make_celery(app)
     celery.conf.update(app.config)
 
     # admin = Admin(app, name='libreForms', template_mode='bootstrap4')
