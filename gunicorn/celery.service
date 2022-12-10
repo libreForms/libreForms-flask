@@ -1,0 +1,13 @@
+[Unit]
+Description=libreForms celery daemon
+After=network.target
+
+[Service]
+User=libreforms
+Group=libreforms
+WorkingDirectory=/opt/libreForms/
+Environment="PATH=/opt/libreForms/venv/bin"
+ExecStart=/opt/libreForms/venv/bin/celery -A app.celery worker --loglevel=info
+
+[Install]
+WantedBy=multi-user.target
