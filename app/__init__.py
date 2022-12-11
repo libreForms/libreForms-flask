@@ -27,26 +27,10 @@ from app.csv_files import init_tmp_fs, tempfile_init_tmp_fs
 from app import smtp, mongo
 from celery import Celery
 from app.models import db
-from app.reports import reportManager
 from app.certification import generate_symmetric_key
 
 
-def make_celery(app):
-    celery = Celery(app.import_name, 
-                    backend=display['celery_backend'], 
-                    broker=display['celery_broker'])
-
-    class ContextTask(celery.Task):
-        def __call__(self, *args, **kwargs):
-            with app.app_context():
-                return self.run(*args, **kwargs)
-
-    celery.Task = ContextTask
-    return celery
-
-# celery = make_celery()
-# celery = Celery(__name__, broker='redis://localhost:6379/0')
-
+# here we create the celery object
 celery = Celery(__name__, backend=display['celery_backend'], broker=display['celery_broker'])
 
 # defining a decorator that applies a parent decorator 
@@ -73,10 +57,6 @@ if not display['smtp_enabled'] and (display['enable_email_verification'] or \
   raise Exception("Please enable SMTP if you'd like to enable email verification, allow password resets, send \
                         reports, or allow anonymous form submissions.")
 
-
-# create a report manager object, see app.reports and 
-# https://github.com/signebedi/libreForms/issues/73
-reports = reportManager(send_reports=display['send_reports'])
 
 
 # initialize mongodb database
@@ -349,9 +329,23 @@ def create_app(test_config=None):
     
     app.config['MAILER'] = send_mail_asynch if display['send_mail_asynchronously'] else mailer.send_mail
 
+
+    from app.reports import reportManager
+
+    # create a report manager object, see app.reports and 
+    # https://github.com/signebedi/libreForms/issues/73
+    reports = reportManager(send_reports=display['send_reports'])
+
     @celery.task()
-    def _():
+    def _(*args):
         pass
+
+
+    @celery.on_after_configure.connect
+    def setup_periodic_tasks(sender, **kwargs):
+
+        # Calls test('world') every 30 seconds
+        sender.add_periodic_task(3600.0, _.s('test'), name='check reports hourly')
 
 
 
