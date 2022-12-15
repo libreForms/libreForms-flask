@@ -337,15 +337,16 @@ def create_app(test_config=None):
     reports = reportManager(send_reports=display['send_reports'])
 
     @celery.task()
-    def _(*args):
+    def send_reports(reports, *args):
+        # select all reports whose conditions are met under reportManager.trigger, 
+        # and pass these to the execution reportManager.handler
         pass
-
 
     @celery.on_after_configure.connect
     def setup_periodic_tasks(sender, **kwargs):
 
-        # Calls test('world') every 30 seconds
-        sender.add_periodic_task(3600.0, _.s('test'), name='check reports hourly')
+        # periodically calls send_reports 
+        sender.add_periodic_task(3600.0, send_reports.s(reports), name='send reports periodically')
 
 
 

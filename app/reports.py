@@ -17,7 +17,7 @@ class Report(db.Model):
     report_id = db.Column(db.String, primary_key=True) 
     user_id = db.Column(db.Integer)
     conditions = db.Column(db.String(100))
-    active = db.Column(db.Integer)
+    active = db.Column(db.Boolean)
     timestamp = db.Column(db.Float)
     start_at = db.Column(db.Float) # this is an optional timestamp for when we'd like this report to go into effect
     end_at = db.Column(db.Float) # this is an optional timestamp for when we'd like this report to stop sending / expire (set `active` > False)
