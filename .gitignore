@@ -146,3 +146,5 @@ redis-stable/*
 signature_key
 approval_key
 disapproval_key
+celerybeat-schedule
+celery_worker
