@@ -1,5 +1,5 @@
 """ 
-__init__.py: the parent script for the web application
+__init__.py: the init script for the libreForms web application
 
 
 
@@ -129,8 +129,7 @@ if display['smtp_enabled']: # we should do something with this later on
     else: 
         log.error('LIBREFORMS - no SMTP credentials file found, outgoing mail will not be enabled.')
         # I think we need to stop the system here if we are trying to enable SMTP but no creds have been provided
-        raise Exception("SMTP is enabled but now SMTP credentials have been provided. Please see the \
-            documentation at https://github.com/signebedi/libreForms#mail for more details.")
+        raise Exception("SMTP is enabled but no SMTP credentials have been provided. Please see the documentation at https://github.com/signebedi/libreForms#mail for more details.")
 else:
     # we want the mailer object to exist still but by passing `enabled` to False we 
     # prevent mail from being sent

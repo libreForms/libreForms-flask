@@ -1,5 +1,5 @@
 [Unit]
-Description=libreForms celery daemon
+Description=libreForms celerybeat daemon
 After=network.target
 
 [Service]
@@ -7,7 +7,7 @@ User=libreforms
 Group=libreforms
 WorkingDirectory=/opt/libreForms/
 Environment="PATH=/opt/libreForms/venv/bin"
-ExecStart=/opt/libreForms/venv/bin/celery -A app.celery worker --loglevel=info
+ExecStart=/opt/libreForms/venv/bin/celery -A app.celery beat --loglevel=info
 Restart=always
 
 [Install]
