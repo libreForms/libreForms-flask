@@ -6,7 +6,7 @@ expected from a system like this: (1) system-wide reports, which can
 be configured in the app config by setting the `send_reports` variable, 
 and (2) user-specific reports, which the blueprint below can allow
 users to configure and manage. It implements this on top of its own 
-database table.
+database table and allows administrators to define complex behavior.
 
 
 # Reports database
@@ -22,6 +22,14 @@ class Report(db.Model):
     start_at = db.Column(db.Float) # this is an optional timestamp for when we'd like this report to go into effect
     end_at = db.Column(db.Float) # this is an optional timestamp for when we'd like this report to stop sending / expire (set `active` > False)
 
+
+This largely responds to the anticipated user experience. We want 
+users to be able to define some complex reort behavior in the UI,
+presuming admins have enabled the correct display variables:
+
+    `enable_reports` > None or True
+    `system_reports` > None or Dict
+    `user_defined_reports` > True or False
 
 
 # Scheduling
