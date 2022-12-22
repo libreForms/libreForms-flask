@@ -1,18 +1,27 @@
 """ 
 display.py: collection of default app configs
 
+This script sets default configurations for the
+web application.
+
 
 
 ## display_overrides.py
 
-Overrides of these defaults should be stored in a file called 
-app/display_overrides.py, where adminstrators can overwrite 
-individual configs by creating a `display` object as follows:
+The default application configuration should be modified with
+app.display_overrides, where adminstrators can set unique configs 
+by creating a `display` object as follows:
 
 display = {
     'config_name': NEW_VALUE,
     ...
 }
+
+Please note that display_overrides.py must be created in order for the 
+web application to function. In addition, it must include a field for
+`libreforms_user_email` to set the email for the default `libreforms` 
+user, otherwise the application will fail.
+
 
 """
 
@@ -44,16 +53,22 @@ def collect_secrets_from_file(filename):
     with open(filename, 'r') as f: 
         return f.readlines()[0].strip()
 
-
-
+# create application config dictionary
 display = {}
+
+##########################
+# Look-and-Feel
+##########################
+
+# set the default site name
 display['site_name'] = "libreForms"
 
-# remove the Markup designation if you don't want to treat this as safe.
+# remove the Markup designation if you don't want to render this as HTML.
 display['homepage_msg'] = Markup("<p>Welcome to libreForms, an extensible form building abstraction \
                             layer implemented in Flask. Select a view from above to get started. \
                             Review the docs at <a href='https://github.com/signebedi/libreForms'> \
                             https://github.com/signebedi/libreForms</a>.</p>")
+display['domain'] = None
 display['dark_mode'] = True 
 display['warning_banner'] = "" 
 display['theme'] = "" # unused
@@ -65,7 +80,16 @@ display['version'] = __version__
 display['privacy_policy'] = ''
 
 
+##########################
+# User Registration / Auth
+##########################
+
 display['user_registration_fields'] = None
+
+display['libreforms_user_email'] = None
+
+display['default_group'] = 'default'
+display['groups'] = None
 
 # these fields allow you to determine whether email, phone, 
 # and organization are required fields at registration, see 
@@ -74,12 +98,6 @@ display['user_registration_fields'] = None
 display['registration_email_required'] = True
 display['registration_organization_required'] = False
 display['registration_phone_required'] = False
-
-
-# setting some celery configurations here to give 
-# a single place for admins to make modifications
-display['celery_broker'] = 'pyamqp://'
-display['celery_backend'] = 'rpc://'
 
 
 display['secret_key'] = collect_secrets_from_file('secret_key')
@@ -103,9 +121,18 @@ display['allow_password_resets'] = True
 display['signing_key_length'] = 24
 
 
+
+##########################
+# Configure Add'l Features
+##########################
+
 display['smtp_enabled'] = True
 display['ldap_enabled'] = False
 
+# setting some celery configurations here to give 
+# a single place for admins to make modifications
+display['celery_broker'] = 'pyamqp://'
+display['celery_backend'] = 'rpc://'
 
 display['custom_sql_db'] = False
 
@@ -117,8 +144,6 @@ display['allow_anonymous_form_submissions'] = False
 display['require_auth_users_to_initiate_external_forms'] = True
 
 display['allow_bulk_registration'] = False
-
-display['domain'] = None
 
 
 display['allow_forms_access_to_user_list'] = False
@@ -139,17 +164,12 @@ display['enable_user_profile_log_aggregation'] = False
 display['send_reports'] = False
 
 
-display['libreforms_user_email'] = None
-
 
 display['mongodb_user'] = 'root'
 display['mongodb_host'] = 'localhost'
 display['mongodb_port'] = 27017
 display['mongodb_pw']   = None
 
-display['default_group'] = 'default'
-display['groups'] = None
-# display['allow_all_groups_default'] = True # DEPRECATED, allowing access by default
 
 
 if os.path.exists ("app/display_overrides.py"):
