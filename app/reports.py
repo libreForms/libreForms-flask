@@ -59,8 +59,6 @@ __license__ = "AGPL-3.0"
 __maintainer__ = "Sig Janoska-Bedi"
 __email__ = "signe@atreeus.com"
 
-from crontab import CronTab
-from croniter import croniter
 from datetime import datetime
 from app import log, mailer, display, tempfile_path
 

@@ -28,7 +28,6 @@ __email__ = "signe@atreeus.com"
 # if a display_overrides file exists, 
 # use it to overwrite defaults
 import os, secrets
-from libreforms import __version__
 from markupsafe import Markup
 from flask import current_app
 
