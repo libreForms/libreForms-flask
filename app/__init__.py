@@ -1,6 +1,18 @@
 """ 
 __init__.py: the init the libreForms app object
 
+This application employs the Flask factory pattern, which moves 
+the Flask app object into a function called create_app, which is
+itself called in wsgi.py. In theory, this makes the application
+easier to test with various different instances & settings, see
+https://flask.palletsprojects.com/en/2.0.x/patterns/appfactories/.
+
+
+In addition, the application relies heavily on SQL Alchemy (see
+https://flask-sqlalchemy.palletsprojects.com/en/3.0.x/) and Celery 
+(see https://flask.palletsprojects.com/en/2.1.x/patterns/celery/)
+to make things work. It also leverages Flask-Login because this 
+makes managing basic auth significantly more straightforward.
 
 
 """
@@ -13,22 +25,25 @@ __license__ = "AGPL-3.0"
 __maintainer__ = "Sig Janoska-Bedi"
 __email__ = "signe@atreeus.com"
 
+##########################
+# Import Dependencies
+##########################
 
-import os, re, secrets
-from flask import Flask, render_template, session, current_app
-import app.log_functions
-# from flask_admin import Admin
-from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager, current_user
-from libreforms import __version__
-from app.display import display
+# basic dependencies
+import os, re
 import pandas as pd
-from app.csv_files import init_tmp_fs, tempfile_init_tmp_fs
-from app import smtp, mongo
 from celery import Celery
+
+# Flask-specific dependencies
+from flask import Flask, render_template, current_app
+from flask_login import LoginManager, current_user
+
+# application-specific dependencies
+from app import smtp, mongo, log_functions
+from app.display import display
+from app.csv_files import tempfile_init_tmp_fs
 from app.models import db, User
 from app.certification import generate_symmetric_key
-
 
 
 ##########################
@@ -83,10 +98,10 @@ if not os.path.exists ("log/"):
     os.mkdir('log/')
 else:
     # if the log path exists, let's clean up old log handlers
-    app.log_functions.cleanup_stray_log_handlers(os.getpid())
+    log_functions.cleanup_stray_log_handlers(os.getpid())
 
 # we instantiate a log object that we'll use across the app
-log = app.log_functions.set_logger('log/libreforms.log',__name__)
+log = log_functions.set_logger('log/libreforms.log',__name__)
 log.info('LIBREFORMS - started libreforms web application.')
 
 # here we add code (that probably NEEDS REVIEW) to verify that
