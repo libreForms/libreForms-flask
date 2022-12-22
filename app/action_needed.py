@@ -3,8 +3,11 @@ action_needed.py: action-needed tooltips and badge notifications
 
 This script works closely with app/submissions.py to calculate 
 a user's set of tasks where action is needed (approval, etc.)
+and then returns a value - or set of values - than can whether
+to show a notification badge and, if so, what kind of badge.
 
-https://github.com/signebedi/libreForms/issues/147
+For more information, see the discussion at the following link:
+https://github.com/signebedi/libreForms/issues/147.
 
 """
 

@@ -1,5 +1,5 @@
 """ 
-__init__.py: the init script for the libreForms web application
+__init__.py: the init the libreForms app object
 
 
 
@@ -26,22 +26,14 @@ import pandas as pd
 from app.csv_files import init_tmp_fs, tempfile_init_tmp_fs
 from app import smtp, mongo
 from celery import Celery
-from app.models import db
+from app.models import db, User
 from app.certification import generate_symmetric_key
 
 
-# here we create the celery object
-celery = Celery(__name__, backend=display['celery_backend'], broker=display['celery_broker'])
 
-# defining a decorator that applies a parent decorator 
-# based on the truth-value of a condition
-def conditional_decorator(dec, condition):
-    def decorator(func):
-        if not condition:
-            # Return the function unchanged, not decorated.
-            return func
-        return dec(func)
-    return decorator
+##########################
+# Common Sense Checks - ensure any relevant assumptions are met before the app initializes
+##########################
 
 if display['libreforms_user_email'] == None:
   raise Exception("Please specify an admin email for the libreforms user in the 'libreforms_user_email' app config.")
@@ -58,6 +50,13 @@ if not display['smtp_enabled'] and (display['enable_email_verification'] or \
                         reports, or allow anonymous form submissions.")
 
 
+
+##########################
+# Objects and Configs- ensure that objects are created / configured before initializing app
+##########################
+
+# here we create the celery object
+celery = Celery(__name__, backend=display['celery_backend'], broker=display['celery_broker'])
 
 # initialize mongodb database
 mongodb = mongo.MongoDB(
@@ -76,21 +75,19 @@ if display['enable_hcaptcha']:
 # which we'll use to store tempfiles, uploads, etc.
 tempfile_path = tempfile_init_tmp_fs()
 
-# if application log path doesn't exist, make it
+# if application log path doesn't exist, make it; nb. this (and
+# much of other logic in this section of code) is replicated in 
+# in gunicorn/gunicorn.conf.py to ensure it runs pre-fork in a 
+# production setup.
 if not os.path.exists ("log/"):
     os.mkdir('log/')
 else:
     # if the log path exists, let's clean up old log handlers
     app.log_functions.cleanup_stray_log_handlers(os.getpid())
 
-# we instantiate a log object that 
-# we'll propagate across the app
+# we instantiate a log object that we'll use across the app
 log = app.log_functions.set_logger('log/libreforms.log',__name__)
 log.info('LIBREFORMS - started libreforms web application.')
-
-# turn off pandas warnings to avoid a rather silly one being dropped in the 
-# terminal, see https://stackoverflow.com/a/20627316/13301284. 
-pd.options.mode.chained_assignment = None
 
 # here we add code (that probably NEEDS REVIEW) to verify that
 # it is possible to connect to a different / external database, see
@@ -98,7 +95,6 @@ pd.options.mode.chained_assignment = None
     # https://github.com/signebedi/libreForms/issues/69
 # if this truly implemented, we should probably also add it to
 # gunicorn/gunicorn.conf.py to handle pre-fork 
-
 if display['custom_sql_db'] == True:
     if os.path.exists ("user_db_creds"):
         user_db_creds = pd.read_csv("user_db_creds", dtype=str) # expecting the CSV format: db_driver,db_user, db_pw, db_host, db_port
@@ -140,15 +136,27 @@ else:
     # if display['ldap_enabled'] == True: # we should do something with this later on
         # log.info(f'LIBREFORMS - found an LDAP credentials file using {ldap_creds.ldap_server[0]}.')
 
+# turn off pandas warnings to avoid a rather silly one being dropped in the 
+# terminal, see https://stackoverflow.com/a/20627316/13301284. 
+pd.options.mode.chained_assignment = None
+
+
+
+##########################
+# Flask App - define a Flask app using the create_app() / factory method with blueprints
+##########################
+
 
 # here we create the Flask app using the Factory pattern,
 # see https://flask.palletsprojects.com/en/2.2.x/patterns/appfactories/
 def create_app(test_config=None):
  
-    # create and configure the app
+    # create the app object
     app = Flask(__name__, instance_relative_config=True)
 
+    # import any context-bound libraries
     from app.action_needed import standardard_total_notifications
+    from app.reports import reportManager
 
     # add some app configurations
     app.config.from_mapping(
@@ -157,7 +165,6 @@ def create_app(test_config=None):
         SQLALCHEMY_DATABASE_URI = f'{db_driver}://{db_host}:{db_pw}@{db_host}:{str(db_port)}/' if display['custom_sql_db'] == True else f'sqlite:///{os.path.join(app.instance_path, "app.sqlite")}',
         # SQLALCHEMY_DATABASE_URI = f'sqlite:///{os.path.join(app.instance_path, "app.sqlite")}',
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
-        # FLASK_ADMIN_SWATCH='darkly',
         HCAPTCHA_ENABLED = display['enable_hcaptcha'],
         HCAPTCHA_SITE_KEY = display['hcaptcha_site_key'] if display['hcaptcha_site_key'] else None,
         HCAPTCHA_SECRET_KEY = display['hcaptcha_secret_key'] if display['hcaptcha_secret_key'] else None,
@@ -170,34 +177,43 @@ def create_app(test_config=None):
             'result_serializer':'json',
             'enable_utc':True,
         },
-        NOTIFICATIONS=standardard_total_notifications,
+        # this might be a little hackish, but we define a callable in app 
+        # config so we can easily figure out how many notifications a given
+        # user has at any given moment. I welcome feedback if there is a 
+        # better way to call a context-bound function from the current_app. 
+        NOTIFICATIONS=standardard_total_notifications, 
     )
 
-    # celery = make_celery(app)
+    # here we update the celery object (which we originally 
+    # created outside the app context, see https://github.com/signebedi/libreForms/issues/73
+    # and https://blog.miguelgrinberg.com/post/celery-and-the-flask-application-factory-pattern
+    # for more explanation on this approach, which was driven by our use of the Flask factory 
+    # pattern, which uses create_app) with the configs passed in the app config under `CELERY_CONFIG`. 
     celery.conf.update(app.config)
 
-    # admin = Admin(app, name='libreForms', template_mode='bootstrap4')
-    # Add administrative views here
+    # if test_config is None:
+    #     # load the instance config, if it exists, when not testing
+    #     app.config.from_pyfile('config.py', silent=True)
+    # else:
+    #     # load the test config if passed in
+    #     app.config.from_mapping(test_config)
 
-    if test_config is None:
-        # load the instance config, if it exists, when not testing
-        app.config.from_pyfile('config.py', silent=True)
-    else:
-        # load the test config if passed in
-        app.config.from_mapping(test_config)
-
-    # ensure the instance folder exists
+    # we use the instance folder to store instance-specific files,
+    # especially the default sqlite db; here we ensure the folder exists
     try:
         os.makedirs(app.instance_path)
     except OSError:
         pass
 
-    # initialize hCaptcha if enabled
+    # initialize hCaptcha object defined outside the app context, 
+    # but only if hCaptcha is enabled in the app config
     if display['enable_hcaptcha']:
         hcaptcha.init_app(app)
 
-    from .models import User
 
+    # This application allows adminstrators to define fields beyond the default fields set in app.models.
+    # In order to do this, administrators should define these additional fields in the app config using the
+    # `user_registration_fields` key; see https://github.com/signebedi/libreForms/issues/61 for more details.
     # here we append any additional fields described in the display.user_registration_fields variable
     if display['user_registration_fields']:
         for key, value in display['user_registration_fields'].items():
@@ -206,49 +222,20 @@ def create_app(test_config=None):
             if value['type'] == str:
                 setattr(User, key, db.Column(db.String(1000)))
                 # print(key,value)
+
             elif value['type'] == int:
                 setattr(User, key, db.Column(db.Integer))
                 # print(key,value)
 
-    # initialize the database
+
+    # initialize the database object defined outside the app context above
     db.init_app(app=app)
 
-    
-    # #  THIS CAN PROBABLY BE DEPRECATED BECAUSE WE ARE ABLE TO CREATE THE 
-    # #  TABLE WITH THE CORRECT COLUMNS BY RUNNING THE CODE ABOVE...
-    # # borrowed from https://stackoverflow.com/a/17243132
-    # if display['user_registration_fields']:
 
-    #     with app.app_context():
-
-    #         # we create a method that we'll run to modify the user table
-    #         # to include any additional fields 
-    #         def add_column(table_name, column, engine=db.engine):
-    #             column_name = column.compile(dialect=engine.dialect)
-    #             column_type = column.type.compile(engine.dialect)
-    #             engine.execute('ALTER TABLE %s ADD COLUMN %s %s' % (table_name, column_name, column_type))
-
-
-    #         # borrow from https://www.geeksforgeeks.org/python-sqlalchemy-get-column-names-dynamically/
-    #         with db.engine.connect() as conn:
-    #             result = conn.execute(f"SELECT * FROM {User.__tablename__}")
-    #             cols = []
-    #             for elem in result.cursor.description:
-    #                 cols.append(elem[0])
-
-    #         engine=db.engine
-    #         for key, value in display['user_registration_fields'].items():
-    #                 if key not in cols:
-    #                     if value['type'] == str:
-    #                         column = db.Column(key, db.String(1000))
-    #                         add_column(User.__tablename__, column)
-
-    #                     elif value['type'] == int:
-    #                         column = db.Column(key, db.Column(db.Integer), primary_key=True)
-    #                         add_column(User.__tablename__, column)
-
-
-    # create the database if it doesn't exist
+    # create the database if it doesn't exist; this, like many other
+    # steps in this script, are replicated in gunicorn/gunicorn.conf.py
+    # because they need to occur before the application forks into multiple
+    # processes.
     if not os.path.exists(os.path.join('instance','app.sqlite')):
         db.create_all(app=app)
 
@@ -268,48 +255,9 @@ def create_app(test_config=None):
                 db.session.add(initial_user)
                 db.session.commit()
 
-    # this is just some debug code
-    # from app import signing
-    # with app.app_context():
-        # from app import reports       
-        # signing.write_key_to_database(scope=None, expiration=0, active=1, email=None)
-        # print(signing.flush_key_db())
-        # signing.expire_key(key="iqmwd44IKhsoE0HWjKGZohaN")
-        # print(pd.read_sql_table("signing", con=db.engine.connect()))
 
-        # signing_df = pd.read_sql_table("signing", con=db.engine.connect())
-        # print(signing_df)
-        # print(signing_df.loc[ signing_df.active == 1 ].expiration.min())
- 
-        # next_expiration = datetime.datetime.fromtimestamp (
-        #     signing_df.loc[ signing_df.active == 1 ].expiration.min()
-        # # if there are no signing keys, then we check every minute
-        # ) if len(signing_df.index > 0) else datetime.datetime.now()+datetime.timedelta(minutes=1)
-        # print(next_expiration)
-
-        # time.sleep((next_expiration - datetime.datetime.now()).total_seconds())
-
-        # import asyncio
-        # asyncio.run(signing.sleep_until_next_expiration())
-
-        # import datetime, time, threading
-        # import app.signing as signing
-        # # signing.sleep_until_next_expiration()
-
-        # x = threading.Thread(target=signing.sleep_until_next_expiration)
-        # x.start()
-
-        # from app.signing import flushTimer
-            
-        # i = threading.Thread(target=sleep_until_next_expiration(
-        #     signing_df)
-        #     ).start()
-
-        # t = flushTimer(signing_df)
-        # reporter = reports.reportHandler()
-        # reporter.set_cron_jobs()
-
-
+    # here we employ some Flask-Login boilerplate to make 
+    # user auth and session management a little easier. 
     login_manager = LoginManager()
     login_manager.login_view = 'auth.login'
     login_manager.init_app(app)
@@ -319,20 +267,25 @@ def create_app(test_config=None):
         return User.query.get(int(id))  
 
 
-    #### CELERY TASKS DEFINED HERE:
 
+    ##########################
+    # Celery Tasks - define and implement context-bound celery tasks
+    ##########################
+
+    # here we define a tasks to send emails asynchonously - it's just a 
+    # celery wrapper for the function library defined in app.smtp.
     @celery.task()
     def send_mail_asynch(subject, content, to_address, cc_address_list=None, logfile=log):
         mailer.send_mail(   subject=subject, content=content, to_address=to_address, 
                             cc_address_list=cc_address_list, logfile=log)
     
+    # maybe a little hackish, but if we set `send_mail_asynchronously`, which defaults to True,
+    # then we configure the application to send mail asynchronously using the current_app;
+    # otherwise, we fall back to synchronous mail
     app.config['MAILER'] = send_mail_asynch if display['send_mail_asynchronously'] else mailer.send_mail
 
-
-    from app.reports import reportManager
-
-    # create a report manager object, see app.reports and 
-    # https://github.com/signebedi/libreForms/issues/73
+    # create a report manager object to send scheduled email reports, see 
+    # app.reports and https://github.com/signebedi/libreForms/issues/73
     reports = reportManager(send_reports=display['send_reports'])
 
     @celery.task()
@@ -347,7 +300,9 @@ def create_app(test_config=None):
         # periodically calls send_reports 
         sender.add_periodic_task(3600.0, send_reports.s(reports), name='send reports periodically')
 
-
+    ##########################
+    # Routes and Blueprints - define default URL routes and import others from blueprints
+    ##########################
 
     # define a home route
     @app.route('/')
@@ -364,7 +319,7 @@ def create_app(test_config=None):
         )
 
 
-    # define a home route
+    # define a route to show the application's privacy policy 
     @app.route('/privacy')
     def privacy():
         return render_template('app/privacy.html', 
@@ -376,32 +331,41 @@ def create_app(test_config=None):
             user=current_user if current_user.is_authenticated else None,
         )
 
+    # import the `auth` blueprint for user / session management
     from . import auth
     app.register_blueprint(auth.bp)
 
+    # import the `forms` blueprint for form submission
     from . import forms
     app.register_blueprint(forms.bp)
 
+    # import the `submissionss` blueprint for post-submission form view / management
+    from . import submissions
+    app.register_blueprint(submissions.bp)
+
+    # import the `dashboard` blueprint for data visualization
     from . import dashboards
     app.register_blueprint(dashboards.bp)
 
+    # import the `table` blueprint for tabular views of form data
     from . import tables
     app.register_blueprint(tables.bp)
 
+    # import the `api` blueprint for RESTful API support
     from . import api
     app.register_blueprint(api.bp)
 
-
+    # if administrators have enabled anonymous / external form submission, then we
+    # import the `external` blueprint to create the external access endpoint
     if display ['allow_anonymous_form_submissions']:
         from . import external
         app.register_blueprint(external.bp)
 
+    # import the `reports` blueprint for 
     from . import reports
     app.register_blueprint(reports.bp)
 
-    from . import submissions
-    app.register_blueprint(submissions.bp)
-
+    # return the app object with the above configurations
     return app
 
 

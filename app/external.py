@@ -23,7 +23,7 @@ from flask_login import current_user
 
 # import custom packages from the current repository
 import libreforms
-from app import display, log, tempfile_path, mailer, mongodb, conditional_decorator
+from app import display, log, tempfile_path, mailer, mongodb
 from app.auth import login_required, session
 from app.forms import parse_form_fields, checkGroup, reconcile_form_data_struct, \
     progagate_forms, parse_options, compile_depends_on_data, rationalize_routing_routing_list
@@ -35,6 +35,16 @@ from app.models import Signing, db
 import os
 import pandas as pd
 
+
+# defining a decorator that applies a parent decorator 
+# based on the truth-value of a condition
+def conditional_decorator(dec, condition):
+    def decorator(func):
+        if not condition:
+            # Return the function unchanged, not decorated.
+            return func
+        return dec(func)
+    return decorator
 
 
 if display['allow_anonymous_form_submissions']:
