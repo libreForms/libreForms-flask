@@ -248,13 +248,13 @@ def parse_form_fields(form=False, user_group=None, args=None):
 
 
 # this is probably over-engineering and can be merged into other functions
-# in the future. In short, it takes a progagate_forms() object and returns
+# in the future. In short, it takes a parse_out_form_fields() object and returns
 # a by-field breakdown of how the data should be treated when collected and
 # then when parsed (eg. take many inputs, parse as many outputs)
 def reconcile_form_data_struct(form=False):
 
-    # this function expencts a progagate_forms() object to be passed as
-    # the form arg, as in `form = progagate_forms(form=form)``
+    # this function expencts a parse_out_form_fields() object to be passed as
+    # the form arg, as in `form = parse_out_form_fields(form=form)``
 
     MATCH = {}
 
@@ -280,10 +280,11 @@ def reconcile_form_data_struct(form=False):
 
     return MATCH
 
-
-# this function creates a list of the form fields 
-# we want to pass to the web application
-def progagate_forms(form=False, group=None):
+# every form defined under libreforms/ contains a series of key-value pairs for fields and configs. 
+# Fields constitute the actual input fields that end users will see and complete when completing forms.
+# This method, largely analogous to the parse_out_form_configs() method below, creates a list of the 
+# form fields we want to pass to the web application and returns them.
+def parse_out_form_fields(form=False, group=None):
     
     try:
         list_fields = libreforms.forms[form]
@@ -455,7 +456,7 @@ def forms(form_name):
 
         try:
             options = parse_out_form_configs(form_name)
-            forms = progagate_forms(form_name, group=current_user.group)
+            forms = parse_out_form_fields(form_name, group=current_user.group)
 
 
             if request.method == 'POST':
@@ -539,7 +540,7 @@ def forms(form_name):
 def download_file(filename):
 
     # this is our first stab at building templates, without accounting for nesting or repetition
-    df = pd.DataFrame (columns=[x for x in progagate_forms(filename.replace('.csv', ''), group=current_user.group).keys()])
+    df = pd.DataFrame (columns=[x for x in parse_out_form_fields(filename.replace('.csv', ''), group=current_user.group).keys()])
 
     fp = os.path.join(tempfile_path, filename)
     df.to_csv(fp, index=False)

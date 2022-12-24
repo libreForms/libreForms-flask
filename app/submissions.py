@@ -29,7 +29,7 @@ from app.models import User, db
 from app.auth import login_required, session
 from app.certification import encrypt_with_symmetric_key, verify_symmetric_key
 from app.forms import form_menu, checkGroup, checkFormGroup, \
-    checkKey, parse_out_form_configs, progagate_forms, parse_form_fields, \
+    checkKey, parse_out_form_configs, parse_out_form_fields, parse_form_fields, \
     collect_list_of_users, compile_depends_on_data, rationalize_routing_routing_list
 
 
@@ -806,7 +806,7 @@ def render_document_edit(form_name, document_id):
             else:
         
                 options = parse_out_form_configs(form_name)
-                forms = progagate_forms(form_name, group=current_user.group)
+                forms = parse_out_form_fields(form_name, group=current_user.group)
 
                 if not str(document_id) in record['id'].values:
                     flash('You do not have edit access to this form.')

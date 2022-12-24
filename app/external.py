@@ -26,7 +26,7 @@ import libreforms
 from app import config, log, tempfile_path, mailer, mongodb
 from app.auth import login_required, session
 from app.forms import parse_form_fields, checkGroup, reconcile_form_data_struct, \
-    progagate_forms, parse_out_form_configs, compile_depends_on_data, rationalize_routing_routing_list
+    parse_out_form_fields, parse_out_form_configs, compile_depends_on_data, rationalize_routing_routing_list
 import app.signing as signing
 from app.models import Signing, db
 
@@ -128,7 +128,7 @@ if config['allow_anonymous_form_submissions']:
 
             try:
                 options = parse_out_form_configs(form_name)
-                forms = progagate_forms(form_name)
+                forms = parse_out_form_fields(form_name)
 
                 if request.method == 'POST':
                     parsed_args = flaskparser.parser.parse(parse_form_fields(form_name), request, location="form")
@@ -196,7 +196,7 @@ if config['allow_anonymous_form_submissions']:
 
 
             # this is our first stab at building templates, without accounting for nesting or repetition
-            df = pd.DataFrame (columns=[x for x in progagate_forms(filename.replace('.csv', '')).keys()])
+            df = pd.DataFrame (columns=[x for x in parse_out_form_fields(filename.replace('.csv', '')).keys()])
 
             fp = os.path.join(tempfile_path, filename)
             df.to_csv(fp, index=False)
