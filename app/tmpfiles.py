@@ -45,7 +45,8 @@ def init_tmp_fs(delete_first=False):
             os.mkdir('app/static/tmp/')    
 
 
-# process a csv upload, with add'l options to treat 
-# the file as safe (defaults to unsafe)
-def handle_csv_upload(csv_path, form=None, safe=False):
-    pass
+#  deprecated: this will be handled in the application code
+# # process a csv upload, with add'l options to treat 
+# # the file as safe (defaults to unsafe)
+# def handle_csv_upload(csv_path, form=None, safe=False):
+#     pass
