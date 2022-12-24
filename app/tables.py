@@ -24,7 +24,7 @@ import libreforms as libreforms
 from app.auth import login_required
 from app.forms import parse_options, checkGroup, checkTableGroup, form_menu
 from app.submissions import set_digital_signature
-from app import display, log, mongodb
+from app import config, log, mongodb
 
 
 
@@ -44,7 +44,7 @@ def tables_home():
             type="tables",
             notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
             menu=form_menu(checkTableGroup),
-            display=display,
+            config=config,
             user=current_user,
         ) 
 
@@ -63,7 +63,6 @@ def tables(form_name):
 
 
     try:
-        # pd.set_option('display.max_colwidth', 0)
         data = mongodb.read_documents_from_collection(form_name)
         df = pd.DataFrame(list(data))
 
@@ -97,12 +96,8 @@ def tables(form_name):
         return redirect(url_for('tables.tables_home'))
 
 
-    # set the max column width
-    # pd.set_option('display.max_colwidth', 10)
-
-
     return render_template('app/tables.html',
-        table=Markup(df.to_html(index=False, classes=f"table {'text-dark' if not (display['dark_mode'] or current_user.theme == 'dark') else ''}")),
+        table=Markup(df.to_html(index=False, classes=f"table {'text-dark' if not (config['dark_mode'] or current_user.theme == 'dark') else ''}")),
         # table=df,
         type="tables",
         name=form_name,
@@ -110,6 +105,6 @@ def tables(form_name):
         notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
         options=parse_options(form=form_name),
         menu=form_menu(checkTableGroup),
-        display=display,
+        config=config,
         user=current_user,
     )

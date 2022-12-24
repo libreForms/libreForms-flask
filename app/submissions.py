@@ -24,7 +24,7 @@ import numpy as np
 
 # import custom packages from the current repository
 import libreforms
-from app import display, log, tempfile_path, mailer, mongodb
+from app import config, log, tempfile_path, mailer, mongodb
 from app.models import User, db
 from app.auth import login_required, session
 from app.certification import encrypt_with_symmetric_key, verify_symmetric_key
@@ -87,8 +87,8 @@ def get_record_of_submissions(form_name=None, user=None, remove_underscores=True
 
 
 def gen_hyperlink(row, form_name):
-    # return Markup(f"<p><a href=\"{display['domain']}/submissions/{form_name}/{row.id}\">{form_name}</a></p>")
-    return Markup(f"<a href=\"{display['domain']}/submissions/{form_name}/{row.id}\">{display['domain']}/submissions/{form_name}/{row.id}</a>")
+    # return Markup(f"<p><a href=\"{config['domain']}/submissions/{form_name}/{row.id}\">{form_name}</a></p>")
+    return Markup(f"<a href=\"{config['domain']}/submissions/{form_name}/{row.id}\">{config['domain']}/submissions/{form_name}/{row.id}</a>")
 
 
 # in this method we aggregate all the relevant information
@@ -247,7 +247,7 @@ def set_digital_signature(      username,
                                 # event of a failure; this will return a DENIED
                                 # badge.
                                 fallback_string=None,
-                                # select_on=display['visible_signature_field'],
+                                # select_on=config['visible_signature_field'],
                                 # most cases benefit from markup with badges; but some 
                                 # (like PDFs) are better off with simple strings
                                 return_markup=True): 
@@ -262,7 +262,7 @@ def set_digital_signature(      username,
         with db.engine.connect() as conn:
             reporter = db.session.query(User).filter_by(username=username).first()
 
-        visible_signature_field = getattr(reporter, display['visible_signature_field'])
+        visible_signature_field = getattr(reporter, config['visible_signature_field'])
 
 
         verify_signature = verify_symmetric_key (key=reporter.certificate,
@@ -297,7 +297,7 @@ def set_digital_signature(      username,
         return None
 # this function is used to generate a list of approvals for the current user
 # select_on is the field upon which we will select the approval value.
-# this is written such that `len(aggregate_approval_count(select_on=getattr(current_user,display['visible_signature_field'])).index)`
+# this is written such that `len(aggregate_approval_count(select_on=getattr(current_user,config['visible_signature_field'])).index)`
 # will return the number of unsigned approvals
 def aggregate_approval_count(select_on=None): 
 
@@ -355,7 +355,7 @@ def render_all_submissions():
                 type="submissions",
                 name="all",
                 submission=record,
-                display=display,
+                config=config,
                 notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
                 form_home=True,
                 user=current_user,
@@ -375,7 +375,7 @@ def submissions_home():
             type="submissions",
             submissions_home=True,
             menu=form_menu(checkFormGroup),
-            display=display,
+            config=config,
             user=current_user,
         ) 
 
@@ -430,7 +430,7 @@ def submissions(form_name):
                 name=form_name,
                 submission=record,
                 notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
-                display=display,
+                config=config,
                 form_home=True,
                 user=current_user,
                 menu=form_menu(checkFormGroup),
@@ -441,7 +441,7 @@ def submissions(form_name):
 @login_required
 def render_user_review(user):
 
-        record = aggregate_approval_count(select_on=getattr(current_user,display['visible_signature_field']))
+        record = aggregate_approval_count(select_on=getattr(current_user,config['visible_signature_field']))
 
         # # collections = mongodb.collections()
         # for form in libreforms.forms.keys():
@@ -458,7 +458,7 @@ def render_user_review(user):
             notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
             name="review",
             submission=record,
-            display=display,
+            config=config,
             form_home=True,
             user=current_user,
             menu=form_menu(checkFormGroup),
@@ -510,7 +510,7 @@ def render_user_submissions(user):
                 notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
                 name="all",
                 submission=record,
-                display=display,
+                config=config,
                 form_home=True,
                 user=current_user,
                 menu=form_menu(checkFormGroup),
@@ -570,22 +570,22 @@ def render_document(form_name, document_id):
                 if options['_digitally_sign']:
                     record['Signature'].iloc[0] = set_digital_signature(username=record['Owner'].iloc[0],
                                                                         encrypted_string=record['Signature'].iloc[0], 
-                                                                        base_string=display['signature_key'])
+                                                                        base_string=config['signature_key'])
                 else:
                     record.drop(columns=['Signature'], inplace=True)
 
             # Added signature verification, see https://github.com/signebedi/libreForms/issues/144    
             if 'Approval' in record.columns and record['Approval'].iloc[0]:
                 filters = (
-                getattr(User, display['visible_signature_field']) == getattr(current_user, display['visible_signature_field']),
+                getattr(User, config['visible_signature_field']) == getattr(current_user, config['visible_signature_field']),
                 )
                 manager = db.session.query(User).filter(*filters).first()
 
                 try:
                     record['Approval'].iloc[0] = set_digital_signature(username=manager.username,
                             encrypted_string=record['Approval'].iloc[0],
-                            base_string=display['approval_key'],
-                            fallback_string=display['disapproval_key'],)
+                            base_string=config['approval_key'],
+                            fallback_string=config['disapproval_key'],)
 
                 except:
                     record['Approval'].iloc[0] = None
@@ -594,19 +594,19 @@ def render_document(form_name, document_id):
             record.replace({np.nan:None}, inplace=True)
 
 
-            msg = Markup(f"<a href = '{display['domain']}/submissions/{form_name}/{document_id}/history'>view document history</a>")
+            msg = Markup(f"<a href = '{config['domain']}/submissions/{form_name}/{document_id}/history'>view document history</a>")
 
             # print (current_user.username)
             # print (record['Reporter'].iloc[0])
 
             if ((not checkKey(verify_group, '_deny_write') or not current_user.group in verify_group['_deny_write'])) or current_user.username == record['Reporter'].iloc[0]:
-                msg = msg + Markup(f"<a href = '{display['domain']}/submissions/{form_name}/{document_id}/edit'>edit this document</a>")
+                msg = msg + Markup(f"<a href = '{config['domain']}/submissions/{form_name}/{document_id}/edit'>edit this document</a>")
 
-            if parse_options(form_name)['_form_approval'] and 'Approver' in record.columns and record['Approver'].iloc[0] == getattr(current_user,display['visible_signature_field']):
-                msg = msg + Markup(f"<a href = '{display['domain']}/submissions/{form_name}/{document_id}/review'>go to form approval</a>")
+            if parse_options(form_name)['_form_approval'] and 'Approver' in record.columns and record['Approver'].iloc[0] == getattr(current_user,config['visible_signature_field']):
+                msg = msg + Markup(f"<a href = '{config['domain']}/submissions/{form_name}/{document_id}/review'>go to form approval</a>")
 
             if parse_options(form_name)['_allow_pdf_download']:
-                msg = msg + Markup(f"<a href = '{display['domain']}/submissions/{form_name}/{document_id}/download'>download PDF</a>")
+                msg = msg + Markup(f"<a href = '{config['domain']}/submissions/{form_name}/{document_id}/download'>download PDF</a>")
             
             return render_template('app/submissions.html',
                 type="submissions",
@@ -614,7 +614,7 @@ def render_document(form_name, document_id):
                 notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
                 submission=record,
                 msg=msg,
-                display=display,
+                config=config,
                 user=current_user,
                 menu=form_menu(checkFormGroup),
             )
@@ -673,12 +673,12 @@ def render_document_history(form_name, document_id):
             # I'm experimenting with creating the Jinja element in the backend ...
             # it makes applying certain logic -- like deciding which element to mark
             # as active -- much more straightforward. 
-            breadcrumb = Markup(f'<ol style="--bs-breadcrumb-divider: \'>\';" class="breadcrumb {"" if display["dark_mode"] and not current_user.theme == "light" else "bg-transparent text-dark"}">')
+            breadcrumb = Markup(f'<ol style="--bs-breadcrumb-divider: \'>\';" class="breadcrumb {"" if config["dark_mode"] and not current_user.theme == "light" else "bg-transparent text-dark"}">')
             for item in record.columns:
                 if item == timestamp:
                     breadcrumb = breadcrumb + Markup(f'<li class="breadcrumb-item active">{item}</li>')
                 else:
-                    breadcrumb = breadcrumb + Markup(f'<li class="breadcrumb-item"><a href="?Timestamp={item}" class="{"" if display["dark_mode"] and not current_user.theme == "light" else "text-dark"}">{item}</a></li>')
+                    breadcrumb = breadcrumb + Markup(f'<li class="breadcrumb-item"><a href="?Timestamp={item}" class="{"" if config["dark_mode"] and not current_user.theme == "light" else "text-dark"}">{item}</a></li>')
             breadcrumb = breadcrumb + Markup('</ol>')
 
 
@@ -696,22 +696,22 @@ def render_document_history(form_name, document_id):
                 if options['_digitally_sign']:
                     display_data['Signature'].iloc[0] = set_digital_signature(username=display_data['Owner'].iloc[0],
                                                                                 encrypted_string=display_data['Signature'].iloc[0], 
-                                                                                base_string=display['signature_key'])
+                                                                                base_string=config['signature_key'])
 
             # Added signature verification, see https://github.com/signebedi/libreForms/issues/144    
             if 'Approval' in display_data.columns:
                 if pd.notnull(display_data['Approval'].iloc[0]): # verify that this is not nan, see https://stackoverflow.com/a/57044299/13301284
                     
                     filters = (
-                    getattr(User, display['visible_signature_field']) == getattr(current_user, display['visible_signature_field']),
+                    getattr(User, config['visible_signature_field']) == getattr(current_user, config['visible_signature_field']),
                     )
                     manager = db.session.query(User).filter(*filters).first()
                     
                     # print(display_data['Approval'].iloc[0])
                     display_data['Approval'].iloc[0] = set_digital_signature(username=manager.username,
                                     encrypted_string=display_data['Approval'].iloc[0],
-                                    base_string=display['approval_key'],
-                                    fallback_string=display['disapproval_key'],)
+                                    base_string=config['approval_key'],
+                                    fallback_string=config['disapproval_key'],)
                 
                 # After https://github.com/signebedi/libreForms/issues/145, adding this to ensure that
                 # `Approval` is never None. 
@@ -730,30 +730,30 @@ def render_document_history(form_name, document_id):
             flash(f'The following values changed in this version and are emphasized below: {", ".join(emphasize)}. ')
 
 
-            msg = Markup(f"<a href = '{display['domain']}/submissions/{form_name}/{document_id}'>go back to document</a>")
+            msg = Markup(f"<a href = '{config['domain']}/submissions/{form_name}/{document_id}'>go back to document</a>")
 
             # print (current_user.username)
             # print (record.transpose()['Reporter'].iloc[0])
             # print (record['Reporter'].iloc[0])
 
             if ((not checkKey(verify_group, '_deny_write') or not current_user.group in verify_group['_deny_write'])) or current_user.username == record['Reporter'].iloc[0]:
-                msg = msg + Markup(f"<a href = '{display['domain']}/submissions/{form_name}/{document_id}/edit'>edit this document</a>")
+                msg = msg + Markup(f"<a href = '{config['domain']}/submissions/{form_name}/{document_id}/edit'>edit this document</a>")
             
 
-            if parse_options(form_name)['_form_approval'] and 'Approver' in display_data.columns and display_data['Approver'].iloc[0] == getattr(current_user,display['visible_signature_field']):
-                msg = msg + Markup(f"<a href = '{display['domain']}/submissions/{form_name}/{document_id}/review'>go to form approval</a>")
+            if parse_options(form_name)['_form_approval'] and 'Approver' in display_data.columns and display_data['Approver'].iloc[0] == getattr(current_user,config['visible_signature_field']):
+                msg = msg + Markup(f"<a href = '{config['domain']}/submissions/{form_name}/{document_id}/review'>go to form approval</a>")
 
             # eventually, we may wish to add support for downloading past versions 
             # of the PDF, too; not just the current form of the PDF; the logic does 
             # seem to support this, eg. sending the `display_data`
             if parse_options(form_name)['_allow_pdf_download']:
-                msg = msg + Markup(f"<a href = '{display['domain']}/submissions/{form_name}/{document_id}/download'>download PDF</a>")
+                msg = msg + Markup(f"<a href = '{config['domain']}/submissions/{form_name}/{document_id}/download'>download PDF</a>")
 
             return render_template('app/submissions.html',
                 type="submissions",
                 name=form_name,
                 submission=display_data,
-                display=display,
+                config=config,
                 notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
                 emphasize=emphasize,
                 breadcrumb=breadcrumb,
@@ -834,7 +834,7 @@ def render_document_edit(form_name, document_id):
                     # from pprint import pprint
                     # pprint(parsed_args)
 
-                    digital_signature = encrypt_with_symmetric_key(current_user.certificate, display['signature_key']) if options['_digitally_sign'] else None
+                    digital_signature = encrypt_with_symmetric_key(current_user.certificate, config['signature_key']) if options['_digitally_sign'] else None
 
                     # here we pass a modification
                     mongodb.write_document_to_collection(parsed_args, form_name, reporter=current_user.username, modification=True, digital_signature=digital_signature)
@@ -845,8 +845,8 @@ def render_document_edit(form_name, document_id):
                     log.info(f'{current_user.username.upper()} - updated \'{form_name}\' form, document no. {document_id}.')
 
                     # here we build our message and subject, customized for anonymous users
-                    subject = f'{display["site_name"]} {form_name} Updated ({document_id})'
-                    content = f"This email serves to verify that {current_user.username} ({current_user.email}) has just updated the {form_name} form, which you can view at {display['domain']}/submissions/{form_name}/{document_id}. {'; '.join(key + ': ' + str(value) for key, value in parsed_args.items() if key != 'Journal') if options['_send_form_with_email_notification'] else ''}"
+                    subject = f'{config["site_name"]} {form_name} Updated ({document_id})'
+                    content = f"This email serves to verify that {current_user.username} ({current_user.email}) has just updated the {form_name} form, which you can view at {config['domain']}/submissions/{form_name}/{document_id}. {'; '.join(key + ': ' + str(value) for key, value in parsed_args.items() if key != 'Journal') if options['_send_form_with_email_notification'] else ''}"
                     
                     # and then we send our message
                     current_app.config['MAILER'](subject=subject, content=content, to_address=current_user.email, cc_address_list=rationalize_routing_routing_list(form_name), logfile=log)
@@ -866,11 +866,11 @@ def render_document_edit(form_name, document_id):
                     notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
                     editing_existing_form=True,
                     options=options, 
-                    display=display,
+                    config=config,
                     filename = f'{form_name.lower().replace(" ","")}.csv' if options['_allow_csv_templates'] else False,
                     user=current_user,
                     depends_on=compile_depends_on_data(form_name, user_group=current_user.group),
-                    user_list = collect_list_of_users() if display['allow_forms_access_to_user_list'] else [],
+                    user_list = collect_list_of_users() if config['allow_forms_access_to_user_list'] else [],
                     )
 
     except Exception as e:
@@ -912,7 +912,7 @@ def review_document(form_name, document_id):
             return abort(404)
 
         # if the approver verification doesn't check out
-        if not 'Approver' in record.columns or not record['Approver'].iloc[0] or record['Approver'].iloc[0] != getattr(current_user,display['visible_signature_field']):
+        if not 'Approver' in record.columns or not record['Approver'].iloc[0] or record['Approver'].iloc[0] != getattr(current_user,config['visible_signature_field']):
             return abort(404)
 
 
@@ -938,10 +938,10 @@ def review_document(form_name, document_id):
 
             if approve == 'yes':
                 flash('You have approved this form. ')
-                digital_signature = encrypt_with_symmetric_key(current_user.certificate, display['approval_key']) if options['_digitally_sign'] else None
+                digital_signature = encrypt_with_symmetric_key(current_user.certificate, config['approval_key']) if options['_digitally_sign'] else None
             elif approve == 'no':
                 flash('You disapproved this form. ')
-                digital_signature = encrypt_with_symmetric_key(current_user.certificate, display['disapproval_key']) if options['_digitally_sign'] else None
+                digital_signature = encrypt_with_symmetric_key(current_user.certificate, config['disapproval_key']) if options['_digitally_sign'] else None
             else:
                 flash('You have not approved this form. ')
                 digital_signature = None
@@ -988,7 +988,7 @@ def review_document(form_name, document_id):
             if options['_digitally_sign']:
                 record['Signature'].iloc[0] = set_digital_signature(username=record['Owner'].iloc[0],
                                                                     encrypted_string=record['Signature'].iloc[0], 
-                                                                    base_string=display['signature_key'])
+                                                                    base_string=config['signature_key'])
             else:
                 record.drop(columns=['Signature'], inplace=True)
         # Added signature verification, see https://github.com/signebedi/libreForms/issues/144    
@@ -996,16 +996,16 @@ def review_document(form_name, document_id):
             try:
 
                 filters = (
-                getattr(User, display['visible_signature_field']) == getattr(current_user, display['visible_signature_field']),
+                getattr(User, config['visible_signature_field']) == getattr(current_user, config['visible_signature_field']),
                 )
                 manager = db.session.query(User).filter(*filters).first()
 
 
-                # this needs to set the filter using eg. getattr(approver, display['visible_signature_field']) 
+                # this needs to set the filter using eg. getattr(approver, config['visible_signature_field']) 
                 record['Approval'].iloc[0] = set_digital_signature(username=manager.username,
                                                                     encrypted_string=record['Approval'].iloc[0],
-                                                                    base_string=display['approval_key'],
-                                                                    fallback_string=display['disapproval_key'],)
+                                                                    base_string=config['approval_key'],
+                                                                    fallback_string=config['disapproval_key'],)
             except:
                 record['Approval'].iloc[0] = None
 
@@ -1013,8 +1013,8 @@ def review_document(form_name, document_id):
         record.replace({np.nan:None}, inplace=True)
 
 
-        msg = Markup(f"<a href = '{display['domain']}/submissions/{form_name}/{document_id}'>go back to document</a>")
-        msg = msg + Markup(f"<a href = '{display['domain']}/submissions/{form_name}/{document_id}/history'>view document history</a>")
+        msg = Markup(f"<a href = '{config['domain']}/submissions/{form_name}/{document_id}'>go back to document</a>")
+        msg = msg + Markup(f"<a href = '{config['domain']}/submissions/{form_name}/{document_id}/history'>view document history</a>")
 
         # print (current_user.username)
         # print (record['Reporter'].iloc[0])
@@ -1026,7 +1026,7 @@ def review_document(form_name, document_id):
             submission=record,
             notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
             msg=msg,
-            display=display,
+            config=config,
             form_approval=True,
             user=current_user,
             menu=form_menu(checkFormGroup),
@@ -1087,7 +1087,7 @@ def generate_pdf(form_name, document_id):
                 if test_the_form_options['_digitally_sign']:
                     record['Signature'].iloc[0] = set_digital_signature(username=record['Owner'].iloc[0],
                                                                         encrypted_string=record['Signature'].iloc[0], 
-                                                                        base_string=display['signature_key'], 
+                                                                        base_string=config['signature_key'], 
                                                                         return_markup=False)
                 else:
                     record.drop(columns=['Signature'], inplace=True)
@@ -1095,15 +1095,15 @@ def generate_pdf(form_name, document_id):
             # Added signature verification, see https://github.com/signebedi/libreForms/issues/144    
             if 'Approval' in record.columns and record['Approval'].iloc[0]:
                 filters = (
-                getattr(User, display['visible_signature_field']) == getattr(current_user, display['visible_signature_field']),
+                getattr(User, config['visible_signature_field']) == getattr(current_user, config['visible_signature_field']),
                 )
                 manager = db.session.query(User).filter(*filters).first()
 
                 try:
                     record['Approval'].iloc[0] = set_digital_signature(username=manager.username,
                                 encrypted_string=record['Approval'].iloc[0], 
-                                base_string=display['approval_key'],
-                                fallback_string=display['disapproval_key'],
+                                base_string=config['approval_key'],
+                                fallback_string=config['disapproval_key'],
                                 return_markup=False)
 
                 except:

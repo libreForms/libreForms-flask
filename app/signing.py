@@ -180,7 +180,7 @@ __email__ = "signe@atreeus.com"
 import os, datetime, secrets, threading, time, functools
 import pandas as pd
 from flask import current_app, flash, redirect, url_for, abort
-from app import display, log
+from app import config, log
 from app.models import Signing, db
 
 # here we generate a signing key with a default length of 24
@@ -203,7 +203,7 @@ def write_key_to_database(scope:str=None, expiration:int=1, active:int=1, email:
 
     # loop until a unique key is generated
     while True:
-        key = generate_key(length=display['signing_key_length'])
+        key = generate_key(length=config['signing_key_length'])
         if not Signing.query.filter_by(signature=key).first(): break
 
     new_key = Signing(

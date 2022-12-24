@@ -24,7 +24,7 @@ from sqlalchemy.sql import text
 
 # import custom packages from the current repository
 import libreforms
-from app import display, log, tempfile_path, mailer, mongodb
+from app import config, log, tempfile_path, mailer, mongodb
 from app.models import User, db
 from app.auth import login_required, session
 from app.certification import encrypt_with_symmetric_key
@@ -67,7 +67,7 @@ def rationalize_routing_routing_list(form_name):
     # then, we check if SMTP is enabled and, if not & the administrator has set a 
     # non-Nonetype value for _routing_list['type'], we then we log a warning but 
     # gracefully return an empty list
-    if routing_list['type'] and not display['smtp_enabled']:
+    if routing_list['type'] and not config['smtp_enabled']:
         log.warning('LIBREFORMS - administrators have set a routing list {routing_list} for form {form_name} but SMTP has not been enabled.')
         return []
 
@@ -142,7 +142,7 @@ def compile_depends_on_data(form=None, user_group=None):
             # if checkKey(libreforms.forms[form][field], '_group_access') and \
             #         (user_group in libreforms.forms[form][field]['_group_access']['deny']) \
             #         or (user_group not in libreforms.forms[form][field]['_group_access']['allow'] \
-            #         and display['allow_all_groups_default'] == False):
+            #         and config['allow_all_groups_default'] == False):
             #     pass
 
             # else:
@@ -206,7 +206,7 @@ def parse_form_fields(form=False, user_group=None, args=None):
         # or if they are simply not included in the `allow` field and the we don't allow access by default.
         # elif user_group in libreforms.forms[form][field]['_group_access']['deny'] \
         #         or user_group not in libreforms.forms[form][field]['_group_access']['allow'] \
-        #         and display['allow_all_groups_default'] == False:
+        #         and config['allow_all_groups_default'] == False:
         #     pass
 
         elif not checkGroup(user_group, libreforms.forms[form][field]):
@@ -432,7 +432,7 @@ def forms_home():
             type="forms",
             notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
             menu=form_menu(checkFormGroup),
-            display=display,
+            config=config,
             user=current_user,
         ) 
         
@@ -482,7 +482,7 @@ def forms(form_name):
                 #     print(parsed_args[item])
                 # print(parsed_args)
 
-                digital_signature = encrypt_with_symmetric_key(current_user.certificate, display['signature_key']) if options['_digitally_sign'] else None
+                digital_signature = encrypt_with_symmetric_key(current_user.certificate, config['signature_key']) if options['_digitally_sign'] else None
                 
                 approver = verify_form_approval(form_name)
                 # print(approver)
@@ -491,22 +491,22 @@ def forms(form_name):
                 document_id = mongodb.write_document_to_collection(parsed_args, form_name, 
                                 reporter=current_user.username, 
                                 digital_signature=digital_signature,
-                                approver=getattr(approver, display['visible_signature_field']) if approver else None)
+                                approver=getattr(approver, config['visible_signature_field']) if approver else None)
 
                 flash(str(parsed_args))
                                 
                 log.info(f'{current_user.username.upper()} - submitted \'{form_name}\' form, document no. {document_id}.')
                 
                 # here we build our message and subject
-                subject = f'{display["site_name"]} {form_name} Submitted ({document_id})'
-                content = f"This email serves to verify that {current_user.username} ({current_user.email}) has just submitted the {form_name} form, which you can view at {display['domain']}/submissions/{form_name}/{document_id}. {'; '.join(key + ': ' + str(value) for key, value in parsed_args.items() if key != 'Journal') if options['_send_form_with_email_notification'] else ''}"
+                subject = f'{config["site_name"]} {form_name} Submitted ({document_id})'
+                content = f"This email serves to verify that {current_user.username} ({current_user.email}) has just submitted the {form_name} form, which you can view at {config['domain']}/submissions/{form_name}/{document_id}. {'; '.join(key + ': ' + str(value) for key, value in parsed_args.items() if key != 'Journal') if options['_send_form_with_email_notification'] else ''}"
                                 
                 # and then we send our message
                 current_app.config['MAILER'](subject=subject, content=content, to_address=current_user.email, cc_address_list=rationalize_routing_routing_list(form_name), logfile=log)
 
                 if approver:
-                    subject = f'{display["site_name"]} {form_name} Requires Approval ({document_id})'
-                    content = f"This email serves to notify that {current_user.username} ({current_user.email}) has just submitted the {form_name} form for your review, which you can view at {display['domain']}/submissions/{form_name}/{document_id}/review."
+                    subject = f'{config["site_name"]} {form_name} Requires Approval ({document_id})'
+                    content = f"This email serves to notify that {current_user.username} ({current_user.email}) has just submitted the {form_name} form for your review, which you can view at {config['domain']}/submissions/{form_name}/{document_id}/review."
                     current_app.config['MAILER'](subject=subject, content=content, to_address=approver.email, cc_address_list=rationalize_routing_routing_list(form_name), logfile=log)
 
                 return redirect(url_for('submissions.render_document', form_name=form_name, document_id=document_id))
@@ -517,12 +517,12 @@ def forms(form_name):
                 menu=form_menu(checkFormGroup),              # this returns the forms in libreform/forms to display in the lefthand menu
                 type="forms",       
                 options=options, 
-                display=display,
+                config=config,
                 notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
                 filename = f'{form_name.lower().replace(" ","")}.csv' if options['_allow_csv_templates'] else False,
                 user=current_user,
                 depends_on=compile_depends_on_data(form_name, user_group=current_user.group),
-                user_list = collect_list_of_users() if display['allow_forms_access_to_user_list'] else [],
+                user_list = collect_list_of_users() if config['allow_forms_access_to_user_list'] else [],
                 )
 
         except Exception as e:

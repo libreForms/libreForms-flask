@@ -23,7 +23,7 @@ from flask_login import current_user
 
 # import custom packages from the current repository
 import libreforms
-from app import display, log, tempfile_path, mailer, mongodb
+from app import config, log, tempfile_path, mailer, mongodb
 from app.auth import login_required, session
 from app.forms import parse_form_fields, checkGroup, reconcile_form_data_struct, \
     progagate_forms, parse_options, compile_depends_on_data, rationalize_routing_routing_list
@@ -47,7 +47,7 @@ def conditional_decorator(dec, condition):
     return decorator
 
 
-if display['allow_anonymous_form_submissions']:
+if config['allow_anonymous_form_submissions']:
 
 
     # this forks forms.py to provide slightly different functionality; yes, it allows you 
@@ -65,7 +65,7 @@ if display['allow_anonymous_form_submissions']:
     @bp.route(f'/<form_name>', methods=['GET', 'POST'])
     # here we apply the login_required decorator if admins require users to be authenticated in order
     # to initiate external submissions, see 'require_auth_users_to_initiate_external_forms'.
-    @conditional_decorator(login_required, display['require_auth_users_to_initiate_external_forms'])
+    @conditional_decorator(login_required, config['require_auth_users_to_initiate_external_forms'])
     def request_external_forms(form_name):
 
         # first make sure this form existss
@@ -81,7 +81,7 @@ if display['allow_anonymous_form_submissions']:
 
 
         # if the appropriate configurations are set, all us to proceed
-        if request.method == 'POST' and display["allow_anonymous_form_submissions"] and forms['_allow_anonymous_access']:
+        if request.method == 'POST' and config["allow_anonymous_form_submissions"] and forms['_allow_anonymous_access']:
             email = request.form['email']
             
             if not email:
@@ -94,8 +94,8 @@ if display['allow_anonymous_form_submissions']:
             if not error:
                 try: 
                     key = signing.write_key_to_database(scope=f'external_{form_name.lower()}', expiration=48, active=1, email=email)
-                    content = f"You may now submit form {form_name} at the following address: {display['domain']}/external/{form_name}/{key}. Please note this link will expire after 48 hours."
-                    current_app.config['MAILER'](subject=f'{display["site_name"]} {form_name} Submission Link', content=content, to_address=email, logfile=log)
+                    content = f"You may now submit form {form_name} at the following address: {config['domain']}/external/{form_name}/{key}. Please note this link will expire after 48 hours."
+                    current_app.config['MAILER'](subject=f'{config["site_name"]} {form_name} Submission Link', content=content, to_address=email, logfile=log)
                     flash("Form submission link successfully sent.")
                 except Exception as e:
                     flash(e)
@@ -104,9 +104,9 @@ if display['allow_anonymous_form_submissions']:
                 
         return render_template('app/external_request.html', 
             name=form_name,             
-            display=display,
+            config=config,
             suppress_navbar=True,
-            user=current_user if display['require_auth_users_to_initiate_external_forms'] else None,
+            user=current_user if config['require_auth_users_to_initiate_external_forms'] else None,
             type='external',
             )
 
@@ -114,7 +114,7 @@ if display['allow_anonymous_form_submissions']:
     @bp.route(f'/<form_name>/<signature>', methods=['GET', 'POST'])
     def external_forms(form_name, signature):
 
-        if not display['allow_anonymous_form_submissions']:
+        if not config['allow_anonymous_form_submissions']:
             flash('This feature has not been enabled by your system administrator.')
             return redirect(url_for('home'))
 
@@ -150,7 +150,7 @@ if display['allow_anonymous_form_submissions']:
                     signing.expire_key(signature)
 
                     # here we build our message and subject, customized for anonymous users
-                    subject = f'{display["site_name"]} {form_name} Submitted ({document_id})'
+                    subject = f'{config["site_name"]} {form_name} Submitted ({document_id})'
                     content = f"This email serves to verify that an anonymous user {signature} (linked to {email}) has just submitted the {form_name} form. {'; '.join(key + ': ' + str(value) for key, value in parsed_args.items() if key != 'Journal') if options['_send_form_with_email_notification'] else ''}"
                     
                     # and then we send our message
@@ -163,7 +163,7 @@ if display['allow_anonymous_form_submissions']:
                     context=forms,
                     name=form_name,             
                     options=options, 
-                    display=display,
+                    config=config,
                     suppress_navbar=True,
                     signed_url=signature,
                     type='external',
@@ -187,7 +187,7 @@ if display['allow_anonymous_form_submissions']:
     @bp.route('/download/<path:filename>/<signature>')
     def download_file(filename, signature):
 
-        if not display['allow_anonymous_form_submissions']:
+        if not config['allow_anonymous_form_submissions']:
             flash('This feature has not been enabled by your system administrator.')
             return redirect(url_for('home'))
 

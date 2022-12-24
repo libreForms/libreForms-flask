@@ -60,7 +60,7 @@ __maintainer__ = "Sig Janoska-Bedi"
 __email__ = "signe@atreeus.com"
 
 from datetime import datetime
-from app import log, mailer, display, tempfile_path
+from app import log, mailer, config, tempfile_path
 
 
 # import flask-related packages
@@ -71,7 +71,7 @@ from markupsafe import Markup
 # import custom packages from the current repository
 import libreforms as libreforms
 from app.auth import login_required
-from app import display, log, mongodb
+from app import config, log, mongodb
 
 # and finally, import other packages
 import os

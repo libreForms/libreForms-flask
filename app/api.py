@@ -25,7 +25,7 @@ from flask import current_app, Blueprint, request, abort
 
 # import custom packages from the current repository
 from app.auth import login_required
-from app import log, display, mongodb
+from app import log, config, mongodb
 from app.models import Signing, db
 import app.signing as signing
 import libreforms
@@ -38,7 +38,7 @@ import pandas as pd
 
 bp = Blueprint('api', __name__, url_prefix='/api')
 
-if display['enable_rest_api']:
+if config['enable_rest_api']:
 
 
     # here we add the api route v1
@@ -49,7 +49,7 @@ if display['enable_rest_api']:
         # here we capture the string-ified API key passed by the user
         signature = str(signature)
 
-        if not display['enable_rest_api']:
+        if not config['enable_rest_api']:
             return abort(404)
             return "This feature has not been enabled by your system administrator."
 

@@ -63,7 +63,7 @@ __email__ = "signe@atreeus.com"
 
 from flask import current_app
 from flask_login import UserMixin
-from app.display import display
+from app.config import config
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()

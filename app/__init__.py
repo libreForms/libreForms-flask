@@ -40,7 +40,7 @@ from flask_login import LoginManager, current_user
 
 # application-specific dependencies
 from app import smtp, mongo, log_functions
-from app.display import display
+from app.config import config
 from app.csv_files import tempfile_init_tmp_fs
 from app.models import db, User
 from app.certification import generate_symmetric_key
@@ -50,16 +50,16 @@ from app.certification import generate_symmetric_key
 # Common Sense Checks - ensure any relevant assumptions are met before the app initializes
 ##########################
 
-if display['libreforms_user_email'] == None:
+if config['libreforms_user_email'] == None:
   raise Exception("Please specify an admin email for the libreforms user in the 'libreforms_user_email' app config.")
 
-if not re.fullmatch(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', display['libreforms_user_email']):
+if not re.fullmatch(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', config['libreforms_user_email']):
     raise Exception("The email you specified in the'libreforms_user_email' app config is invalid.")
 
 # system breaks initially if configs are set that require SMTP, but SMTP isn't enabled.
-if not display['smtp_enabled'] and (display['enable_email_verification'] or \
-            display['send_reports'] or display['allow_password_resets'] or \
-            display['allow_anonymous_form_submissions']):
+if not config['smtp_enabled'] and (config['enable_email_verification'] or \
+            config['send_reports'] or config['allow_password_resets'] or \
+            config['allow_anonymous_form_submissions']):
 
   raise Exception("Please enable SMTP if you'd like to enable email verification, allow password resets, send \
                         reports, or allow anonymous form submissions.")
@@ -71,18 +71,18 @@ if not display['smtp_enabled'] and (display['enable_email_verification'] or \
 ##########################
 
 # here we create the celery object
-celery = Celery(__name__, backend=display['celery_backend'], broker=display['celery_broker'])
+celery = Celery(__name__, backend=config['celery_backend'], broker=config['celery_broker'])
 
 # initialize mongodb database
 mongodb = mongo.MongoDB(
-                        user=display['mongodb_user'], 
-                        host=display['mongodb_host'], 
-                        port=display['mongodb_port'], 
-                        dbpw=display['mongodb_pw'], 
+                        user=config['mongodb_user'], 
+                        host=config['mongodb_host'], 
+                        port=config['mongodb_port'], 
+                        dbpw=config['mongodb_pw'], 
                     )
 
 # create hCaptcha object if enabled
-if display['enable_hcaptcha']:
+if config['enable_hcaptcha']:
     from flask_hcaptcha import hCaptcha
     hcaptcha = hCaptcha()
 
@@ -110,7 +110,7 @@ log.info('LIBREFORMS - started libreforms web application.')
     # https://github.com/signebedi/libreForms/issues/69
 # if this truly implemented, we should probably also add it to
 # gunicorn/gunicorn.conf.py to handle pre-fork 
-if display['custom_sql_db'] == True:
+if config['custom_sql_db'] == True:
     if os.path.exists ("user_db_creds"):
         user_db_creds = pd.read_csv("user_db_creds", dtype=str) # expecting the CSV format: db_driver,db_user, db_pw, db_host, db_port
         db_driver = user_db_creds.db_driver[0] # eg. postgres, mysql
@@ -120,13 +120,13 @@ if display['custom_sql_db'] == True:
         db_port = user_db_creds.db_port[0]
 
     else:
-        display['custom_sql_db'] = False
+        config['custom_sql_db'] = False
         log.warning('LIBREFORMS - no user db credentials file found, custom sql database will not be enabled.')
 
 
 # here we start up the SMTP `mailer` object that we'll propagate like the 
 # log object above and use to send mail
-if display['smtp_enabled']: # we should do something with this later on
+if config['smtp_enabled']: # we should do something with this later on
     if os.path.exists ("smtp_creds"):
         smtp_creds = pd.read_csv("smtp_creds", dtype=str) # expecting the CSV format: smtp_server,port,username,password,from_address
         log.info(f'LIBREFORMS - found an SMTP credentials file using {smtp_creds.mail_server[0]}.')
@@ -136,7 +136,7 @@ if display['smtp_enabled']: # we should do something with this later on
                             username = smtp_creds.username[0],
                             password = smtp_creds.password[0],
                             from_address = smtp_creds.from_address[0])
-        mailer.send_mail(subject=f"{display['site_name']} online", content=f"{display['site_name']} is now online at {display['domain']}.", to_address=display['libreforms_user_email'], logfile=log)
+        mailer.send_mail(subject=f"{config['site_name']} online", content=f"{config['site_name']} is now online at {config['domain']}.", to_address=config['libreforms_user_email'], logfile=log)
     else: 
         log.error('LIBREFORMS - no SMTP credentials file found, outgoing mail will not be enabled.')
         # I think we need to stop the system here if we are trying to enable SMTP but no creds have been provided
@@ -148,7 +148,7 @@ else:
 
 # if os.path.exists ("ldap_creds"):
     # ldap_creds = pd.read_csv("ldap_creds", dtype=str) # expecting CSV format
-    # if display['ldap_enabled'] == True: # we should do something with this later on
+    # if config['ldap_enabled'] == True: # we should do something with this later on
         # log.info(f'LIBREFORMS - found an LDAP credentials file using {ldap_creds.ldap_server[0]}.')
 
 # turn off pandas warnings to avoid a rather silly one being dropped in the 
@@ -175,18 +175,18 @@ def create_app(test_config=None):
 
     # add some app configurations
     app.config.from_mapping(
-        SECRET_KEY=display['secret_key'],
+        SECRET_KEY=config['secret_key'],
         # getting started on allowing other SQL databases than SQLite, but defaulting to that. 
-        SQLALCHEMY_DATABASE_URI = f'{db_driver}://{db_host}:{db_pw}@{db_host}:{str(db_port)}/' if display['custom_sql_db'] == True else f'sqlite:///{os.path.join(app.instance_path, "app.sqlite")}',
+        SQLALCHEMY_DATABASE_URI = f'{db_driver}://{db_host}:{db_pw}@{db_host}:{str(db_port)}/' if config['custom_sql_db'] == True else f'sqlite:///{os.path.join(app.instance_path, "app.sqlite")}',
         # SQLALCHEMY_DATABASE_URI = f'sqlite:///{os.path.join(app.instance_path, "app.sqlite")}',
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
-        HCAPTCHA_ENABLED = display['enable_hcaptcha'],
-        HCAPTCHA_SITE_KEY = display['hcaptcha_site_key'] if display['hcaptcha_site_key'] else None,
-        HCAPTCHA_SECRET_KEY = display['hcaptcha_secret_key'] if display['hcaptcha_secret_key'] else None,
+        HCAPTCHA_ENABLED = config['enable_hcaptcha'],
+        HCAPTCHA_SITE_KEY = config['hcaptcha_site_key'] if config['hcaptcha_site_key'] else None,
+        HCAPTCHA_SECRET_KEY = config['hcaptcha_secret_key'] if config['hcaptcha_secret_key'] else None,
         
         CELERY_CONFIG={
-            'broker_url':display['celery_broker'],
-            'result_backend':display['celery_backend'],
+            'broker_url':config['celery_broker'],
+            'result_backend':config['celery_backend'],
             'task_serializer':'json',
             'accept_content':['json'],
             'result_serializer':'json',
@@ -222,16 +222,16 @@ def create_app(test_config=None):
 
     # initialize hCaptcha object defined outside the app context, 
     # but only if hCaptcha is enabled in the app config
-    if display['enable_hcaptcha']:
+    if config['enable_hcaptcha']:
         hcaptcha.init_app(app)
 
 
     # This application allows adminstrators to define fields beyond the default fields set in app.models.
     # In order to do this, administrators should define these additional fields in the app config using the
     # `user_registration_fields` key; see https://github.com/signebedi/libreForms/issues/61 for more details.
-    # here we append any additional fields described in the display.user_registration_fields variable
-    if display['user_registration_fields']:
-        for key, value in display['user_registration_fields'].items():
+    # here we append any additional fields described in the `user_registration_fields` app config
+    if config['user_registration_fields']:
+        for key, value in config['user_registration_fields'].items():
 
             # might eventually be worth adding support for unique fields...
             if value['type'] == str:
@@ -261,10 +261,10 @@ def create_app(test_config=None):
                 initial_user = User(id=1,
                                     username='libreforms', 
                                     active=1,
-                                    theme='dark' if display['dark_mode'] else 'light',
+                                    theme='dark' if config['dark_mode'] else 'light',
                                     group='admin',
                                     certificate=generate_symmetric_key(),
-                                    email=display['libreforms_user_email'] if display['libreforms_user_email'] and re.fullmatch(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', display['libreforms_user_email']) else None,
+                                    email=config['libreforms_user_email'] if config['libreforms_user_email'] and re.fullmatch(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', config['libreforms_user_email']) else None,
                                     password='pbkdf2:sha256:260000$nQVWxd59E8lmkruy$13d8c4d408185ccc3549d3629be9cd57267a7d660abef389b3be70850e1bbfbf',
                                     created_date='2022-06-01 00:00:00',)
                 db.session.add(initial_user)
@@ -297,11 +297,11 @@ def create_app(test_config=None):
     # maybe a little hackish, but if we set `send_mail_asynchronously`, which defaults to True,
     # then we configure the application to send mail asynchronously using the current_app;
     # otherwise, we fall back to synchronous mail
-    app.config['MAILER'] = send_mail_asynch if display['send_mail_asynchronously'] else mailer.send_mail
+    app.config['MAILER'] = send_mail_asynch if config['send_mail_asynchronously'] else mailer.send_mail
 
     # create a report manager object to send scheduled email reports, see 
     # app.reports and https://github.com/signebedi/libreForms/issues/73
-    reports = reportManager(send_reports=display['send_reports'])
+    reports = reportManager(send_reports=config['send_reports'])
 
     @celery.task()
     def send_reports(reports, *args):
@@ -324,12 +324,12 @@ def create_app(test_config=None):
     def home():
         return render_template('app/index.html', 
             homepage=True,
-            site_name=display['site_name'],
+            site_name=config['site_name'],
             type="home",
             notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
-            name=display['site_name'],
+            name=config['site_name'],
             display_warning_banner=True,
-            display=display,
+            config=config,
             user=current_user if current_user.is_authenticated else None,
         )
 
@@ -338,11 +338,11 @@ def create_app(test_config=None):
     @app.route('/privacy')
     def privacy():
         return render_template('app/privacy.html', 
-            site_name=display['site_name'],
+            site_name=config['site_name'],
             type="home",
             name='privacy',
             notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
-            display=display,
+            config=config,
             user=current_user if current_user.is_authenticated else None,
         )
 
@@ -372,7 +372,7 @@ def create_app(test_config=None):
 
     # if administrators have enabled anonymous / external form submission, then we
     # import the `external` blueprint to create the external access endpoint
-    if display ['allow_anonymous_form_submissions']:
+    if config['allow_anonymous_form_submissions']:
         from . import external
         app.register_blueprint(external.bp)
 

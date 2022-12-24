@@ -135,6 +135,7 @@ add_ons.py
 api_keys
 secret_key
 display_overrides.py
+config_overrides.py
 mongodb_creds
 log/*
 app/static/tmp/*

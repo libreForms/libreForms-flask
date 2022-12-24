@@ -12,58 +12,58 @@
       </div>
 
       <div class="form-group">
-        <label class="form-label mt-4{%if display['registration_email_required'] %} required{%endif%}" for="email">Email</label>
+        <label class="form-label mt-4{%if config['registration_email_required'] %} required{%endif%}" for="email">Email</label>
         <!-- <input type="email" name="email" id="email"> -->
-        <input class="form-control" name="email" id="email" placeholder="Enter a unique email"{%if edit_profile%} value="{{user.email}}" disabled=""{%endif%}{%if display['registration_email_required'] %} required{%endif%}>  
+        <input class="form-control" name="email" id="email" placeholder="Enter a unique email"{%if edit_profile%} value="{{user.email}}" disabled=""{%endif%}{%if config['registration_email_required'] %} required{%endif%}>  
       </div>
 
       <div class="form-group">
-        <label class="form-label mt-4{%if display['registration_organization_required'] %} required{%endif%}" for="organization">Organization</label>
-        <input class="form-control" name="organization" {% if display.default_org != ""  %} value="{{ display.default_org }}" {% else %} placeholder="Enter your organization" {% endif %}id="organization"{%if edit_profile%} value="{{user.organization}}"{%endif%}{%if display['registration_organization_required'] %} required{%endif%}>  
+        <label class="form-label mt-4{%if config['registration_organization_required'] %} required{%endif%}" for="organization">Organization</label>
+        <input class="form-control" name="organization" {% if config.default_org != ""  %} value="{{ config.default_org }}" {% else %} placeholder="Enter your organization" {% endif %}id="organization"{%if edit_profile%} value="{{user.organization}}"{%endif%}{%if config['registration_organization_required'] %} required{%endif%}>  
       </div>
       
       <div class="form-group">
-        <label class="form-label mt-4{%if display['registration_phone_required'] %} required{%endif%}" for="phone">Phone</label>
+        <label class="form-label mt-4{%if config['registration_phone_required'] %} required{%endif%}" for="phone">Phone</label>
         <!-- <input type="tel" name="phone" id="phone" pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}"> -->
-        <input class="form-control" name="phone" id="phone" placeholder="Enter your phone number"{%if edit_profile%} value="{{user.phone}}"{%endif%}{%if display['registration_phone_required'] %} required{%endif%}>  
+        <input class="form-control" name="phone" id="phone" placeholder="Enter your phone number"{%if edit_profile%} value="{{user.phone}}"{%endif%}{%if config['registration_phone_required'] %} required{%endif%}>  
       </div>
 
-      {% if display['user_registration_fields'] is defined %}
+      {% if config['user_registration_fields'] is defined %}
 
-      {% for attribute in display['user_registration_fields'].keys() %}
+      {% for attribute in config['user_registration_fields'].keys() %}
 
-      {% if display['user_registration_fields'][attribute].input_type == "hidden" %}
+      {% if config['user_registration_fields'][attribute].input_type == "hidden" %}
 
 
 
-      {% elif display['user_registration_fields'][attribute].input_type == "autocomplete" %}
+      {% elif config['user_registration_fields'][attribute].input_type == "autocomplete" %}
       <div class="form-group autocomplete">
-        <label class="form-label mt-4{% if display['user_registration_fields'][attribute].required==true %} required{% endif %}" for="{{ attribute }}" {% if display['user_registration_fields'][attribute].description %}data-bs-toggle="tooltip" data-bs-placement="right" title="{{display['user_registration_fields'][attribute].description}}"{% endif %}>{{ attribute | replace('_', ' ') | capitalize}}</label>
-        <input class="form-control" type="text" value="" id="{{ attribute }}" name="{{ attribute }}"{%if edit_profile%} value="{{user[attribute]}}{%endif%}{% if display['user_registration_fields'][attribute].required==true %} required{% endif %}/>
+        <label class="form-label mt-4{% if config['user_registration_fields'][attribute].required==true %} required{% endif %}" for="{{ attribute }}" {% if config['user_registration_fields'][attribute].description %}data-bs-toggle="tooltip" data-bs-placement="right" title="{{config['user_registration_fields'][attribute].description}}"{% endif %}>{{ attribute | replace('_', ' ') | capitalize}}</label>
+        <input class="form-control" type="text" value="" id="{{ attribute }}" name="{{ attribute }}"{%if edit_profile%} value="{{user[attribute]}}{%endif%}{% if config['user_registration_fields'][attribute].required==true %} required{% endif %}/>
       </div>
 
       <script>
         /*An array containing all values passed for this field:*/
-        var {{ attribute }} = {{ display['user_registration_fields'][attribute].content | safe }};
+        var {{ attribute }} = {{ config['user_registration_fields'][attribute].content | safe }};
         autocomplete(document.getElementById("{{ attribute }}"), {{ attribute }});
       </script>
 
-      {% elif display['user_registration_fields'][attribute].input_type == "select" %}
+      {% elif config['user_registration_fields'][attribute].input_type == "select" %}
       <div class="form-group">
-        <label class="form-label mt-4{% if display['user_registration_fields'][attribute].required==true %} required{% endif %}" for="{{ attribute }}" {% if display['user_registration_fields'][attribute].description %}data-bs-toggle="tooltip" data-bs-placement="right" title="{{display['user_registration_fields'][attribute].description}}"{% endif %}>{{ attribute | replace('_', ' ') | capitalize}}</label>
-        <select name="{{ attribute }}" class="form-select" {% if display['user_registration_fields'][attribute].required==true %}required{% endif %}>
-        {% for item in display['user_registration_fields'][attribute].content %}
+        <label class="form-label mt-4{% if config['user_registration_fields'][attribute].required==true %} required{% endif %}" for="{{ attribute }}" {% if config['user_registration_fields'][attribute].description %}data-bs-toggle="tooltip" data-bs-placement="right" title="{{config['user_registration_fields'][attribute].description}}"{% endif %}>{{ attribute | replace('_', ' ') | capitalize}}</label>
+        <select name="{{ attribute }}" class="form-select" {% if config['user_registration_fields'][attribute].required==true %}required{% endif %}>
+        {% for item in config['user_registration_fields'][attribute].content %}
             <option value="{{ item }}" id="{{ field }} {{ item }}" name="{{ attribute }}"{%if edit_profile and user[attribute] and item in user[attribute]%} selected="selected" {%endif%}>{{ item }}</option>
         {% endfor %}
         </select>
       </div>
-      {% elif display['user_registration_fields'][attribute].input_type == "radio" or display['user_registration_fields'][attribute].input_type == "checkbox" %}
+      {% elif config['user_registration_fields'][attribute].input_type == "radio" or config['user_registration_fields'][attribute].input_type == "checkbox" %}
       <div class="form-group">
-        <label class="form-label mt-4{% if display['user_registration_fields'][attribute].required==true %} required{% endif %}" for="" {% if display['user_registration_fields'][attribute].description %}data-bs-toggle="tooltip" data-bs-placement="right" title="{{display['user_registration_fields'][attribute].description}}"{% endif %}>{{ attribute | replace('_', ' ') | capitalize}}</label>
-        {% for item in display['user_registration_fields'][attribute].content %}
+        <label class="form-label mt-4{% if config['user_registration_fields'][attribute].required==true %} required{% endif %}" for="" {% if config['user_registration_fields'][attribute].description %}data-bs-toggle="tooltip" data-bs-placement="right" title="{{config['user_registration_fields'][attribute].description}}"{% endif %}>{{ attribute | replace('_', ' ') | capitalize}}</label>
+        {% for item in config['user_registration_fields'][attribute].content %}
         <div class="form-check">
           <label class='form-check-label' for="{{ attribute }} {{ item }}">{{ item }}
-            <input class="form-check-input" style="{{'border: 1px solid;' if not dark_mode else ''}}" type="{{ display['user_registration_fields'][attribute].input_type }}" value="{{ item }}" id="{{ attribute }} {{ item }}" name="{{ attribute }}" {%if edit_profile and user[attribute] and item in user[attribute]%} checked="checked" {%endif%}/>
+            <input class="form-check-input" style="{{'border: 1px solid;' if not dark_mode else ''}}" type="{{ config['user_registration_fields'][attribute].input_type }}" value="{{ item }}" id="{{ attribute }} {{ item }}" name="{{ attribute }}" {%if edit_profile and user[attribute] and item in user[attribute]%} checked="checked" {%endif%}/>
           </label>
         </div>
         {% endfor %}
@@ -95,8 +95,8 @@
       </div>
       {% endif %}
 
-      {% if display['enable_hcaptcha'] and not edit_profile %}
-      <br><div class="h-captcha" data-theme="{{'dark' if dark_mode else 'light'}}" data-sitekey="{{ display['hcaptcha_site_key'] }}"></div>
+      {% if config['enable_hcaptcha'] and not edit_profile %}
+      <br><div class="h-captcha" data-theme="{{'dark' if dark_mode else 'light'}}" data-sitekey="{{ config['hcaptcha_site_key'] }}"></div>
       {% endif %}
 
 

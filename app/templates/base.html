@@ -9,7 +9,7 @@
     {% if user %}                
       {% set dark_mode = true if user and user.theme == 'dark' else false %}
     {% else %}                                              
-      {% set dark_mode = display['dark_mode'] %}
+      {% set dark_mode = config['dark_mode'] %}
     {% endif %}                                              
 
     <!-- Bootstrap -->
@@ -22,15 +22,15 @@
     <!-- Other -->
     <link rel="stylesheet" href="{{ url_for('static', filename='autocomplete.css') }}">
     <script src="{{ url_for('static', filename='autocomplete.js') }}"></script>
-    {% if display['enable_hcaptcha'] %}
+    {% if config['enable_hcaptcha'] %}
     <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
     {% endif %}
     
     <!-- Remaining header data -->
-    <link rel="shortcut icon" href='{{ url_for('static', filename=display.favicon) }}' />
-    <link rel='shortcut icon' type='image/x-icon' href='{{ url_for('static', filename=display.favicon) }}' />
+    <link rel="shortcut icon" href='{{ url_for('static', filename=config.favicon) }}' />
+    <link rel='shortcut icon' type='image/x-icon' href='{{ url_for('static', filename=config.favicon) }}' />
 
-    <title>{{ display['site_name'] }} {{ name }}</title>
+    <title>{{ config['site_name'] }} {{ name }}</title>
     <style>
     .required::before {
       content: "* ";
@@ -44,7 +44,7 @@
 
   <body class="{{ 'p-3 mb-2 bg-dark text-white' if dark_mode else 'p-3 mb-2 bg-transparent text-dark' }}">        
       <nav class="navbar navbar-expand-lg fixed-top {{'navbar-dark bg-dark' if dark_mode else 'navbar-light bg-light text-dark'}} border-bottom" style="padding-left: 30px;z-index:999999 !important;">
-          <a href="{% if type == 'external' %}#{% else %}{{ url_for('home') }}{% endif %}" class="navbar-brand">{{ display['site_name'] }} <small class="{{'text-muted' if dark_mode else 'text-secondary'}}">v.{{ display['version'] }}</small></a>    
+          <a href="{% if type == 'external' %}#{% else %}{{ url_for('home') }}{% endif %}" class="navbar-brand">{{ config['site_name'] }} <small class="{{'text-muted' if dark_mode else 'text-secondary'}}">v.{{ config['version'] }}</small></a>    
             <ul class="nav navbar-nav">
               {% if user %}
                 <li class="nav-item"><a class="nav-link" href="{{ url_for( 'forms.forms_home' ) }}">Forms</a></li>
@@ -56,7 +56,7 @@
               {% elif suppress_navbar %}   
               {% else %}
                 <li class="nav-item"><a class="nav-link" href="{{ url_for( 'auth.login' ) }}">Login</a></li>
-                {% if display.allow_anonymous_registration %}
+                {% if config.allow_anonymous_registration %}
                 <li class="nav-item"><a class="nav-link" href="{{ url_for( 'auth.register' ) }}">Register</a></li>
                 {% endif %}
               {% endif %}
@@ -91,9 +91,9 @@
 
             {% block content %}{% endblock %}
             
-            {% if display.warning_banner %}
+            {% if config.warning_banner %}
             <br/><br/><br/><br/><br/><br/><hr/>
-            {{ display.warning_banner }}
+            {{ config.warning_banner }}
             {% endif %}          
           </div>
 

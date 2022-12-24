@@ -19,7 +19,7 @@ __email__ = "signe@atreeus.com"
 
 import os, re, secrets
 from app.csv_files import init_tmp_fs
-from app.display import display, collect_secrets_from_file
+from app.config import config, collect_secrets_from_file
 from app.log_functions import cleanup_stray_log_handlers
 from app.certification import generate_symmetric_key
 
@@ -60,9 +60,9 @@ def pre_fork(server, worker):
         # initialize the database
         db.init_app(app=app)     
         
-        # here we append any additional fields described in the display.user_registration_fields variable
-        if display['user_registration_fields']:
-            for key, value in display['user_registration_fields'].items():
+        # here we append any additional fields described in the user_registration_fields variable
+        if config['user_registration_fields']:
+            for key, value in config['user_registration_fields'].items():
 
                 # might eventually be worth adding support for unique fields...
                 if value == str:
@@ -82,10 +82,10 @@ def pre_fork(server, worker):
                 initial_user = User(id=1,
                                     username='libreforms', 
                                     active=1,
-                                    theme='dark' if display['dark_mode'] else 'light',
+                                    theme='dark' if config['dark_mode'] else 'light',
                                     group='admin',
                                     certificate=generate_symmetric_key(),
-                                    email=display['libreforms_user_email'] if display['libreforms_user_email'] and re.fullmatch(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', display['libreforms_user_email']) else None,
+                                    email=config['libreforms_user_email'] if config['libreforms_user_email'] and re.fullmatch(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', config['libreforms_user_email']) else None,
                                     password='pbkdf2:sha256:260000$nQVWxd59E8lmkruy$13d8c4d408185ccc3549d3629be9cd57267a7d660abef389b3be70850e1bbfbf',
                                     created_date='2022-06-01 00:00:00',)
                 db.session.add(initial_user)

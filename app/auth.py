@@ -21,7 +21,7 @@ from flask import current_app, Blueprint, flash, g, redirect, render_template, r
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 
-from app import display, log, mailer, tempfile_path
+from app import config, log, mailer, tempfile_path
 import app.signing as signing
 from app.models import User, Signing, db
 from flask_login import login_required, current_user, login_user
@@ -29,13 +29,13 @@ from app.log_functions import aggregate_log_data
 from app.certification import generate_symmetric_key
 
 
-if display['enable_hcaptcha']:
+if config['enable_hcaptcha']:
     from app import hcaptcha
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
 # failsafe code in case we need to pivot away from using Flask-hCaptcha
-def hcaptcha_verify(SECRET_KEY=display['hcaptcha_secret_key'], VERIFY_URL = "https://hcaptcha.com/siteverify"):
+def hcaptcha_verify(SECRET_KEY=config['hcaptcha_secret_key'], VERIFY_URL = "https://hcaptcha.com/siteverify"):
     import json, requests
     # Retrieve token from post data with key 'h-captcha-response'.
     token =  request.form.get('h-captcha-response')
@@ -56,7 +56,7 @@ def reset_password(signature):
     if current_user.is_authenticated:
         return redirect(url_for('home'))
 
-    if not display['allow_password_resets']:
+    if not config['allow_password_resets']:
         flash('This feature has not been enabled by your system administrator.')
         return redirect(url_for('auth.forgot_password'))
     
@@ -90,11 +90,11 @@ def reset_password(signature):
                 flash(error)
     
         return render_template('auth/forgot_password.html',
-            site_name=display['site_name'],
+            site_name=config['site_name'],
             display_warning_banner=True,
             name="Reset Password", 
             reset=True,
-            display=display)
+            config=config)
         
     return redirect(url_for('auth.login'))
 
@@ -107,7 +107,7 @@ def forgot_password():
     if current_user.is_authenticated:
         return redirect(url_for('home'))
 
-    if request.method == 'POST' and display["smtp_enabled"]:
+    if request.method == 'POST' and config["smtp_enabled"]:
         email = request.form['email']
 
         if not User.query.filter_by(email=email.lower()).first():
@@ -115,15 +115,15 @@ def forgot_password():
                         
         else: error=None
         
-        if display['enable_hcaptcha']:
+        if config['enable_hcaptcha']:
             if not hcaptcha.verify():
                 error = 'Captcha validation error.'
 
         if error is None:
             try: 
                 key = signing.write_key_to_database(scope='forgot_password', expiration=1, active=1, email=email)
-                content = f"A password reset request has been submitted for your account. Please follow this link to complete the reset. {display['domain']}/auth/forgot_password/{key}. Please note this link will expire after one hour."
-                current_app.config['MAILER'](subject=f'{display["site_name"]} Password Reset', content=content, to_address=email, logfile=log)
+                content = f"A password reset request has been submitted for your account. Please follow this link to complete the reset. {config['domain']}/auth/forgot_password/{key}. Please note this link will expire after one hour."
+                current_app.config['MAILER'](subject=f'{config["site_name"]} Password Reset', content=content, to_address=email, logfile=log)
                 flash("Password reset link successfully sent.")
             except Exception as e:
                 flash(e)
@@ -131,12 +131,12 @@ def forgot_password():
         else:
             flash(error)
 
-    if display["smtp_enabled"]:
+    if config["smtp_enabled"]:
         return render_template('auth/forgot_password.html',
-            site_name=display['site_name'],
+            site_name=config['site_name'],
             display_warning_banner=True,
             name="Forgot Password", 
-            display=display)
+            config=config)
 
     else:
         flash('This feature has not been enabled by your system administrator.')
@@ -145,7 +145,7 @@ def forgot_password():
 @bp.route('/register', methods=('GET', 'POST'))
 def register():
 
-    if not display['allow_anonymous_registration']:
+    if not config['allow_anonymous_registration']:
         flash('This feature has not been enabled by your system administrator.')
         return redirect(url_for('auth.login'))
 
@@ -163,15 +163,15 @@ def register():
         created_date = datetime.datetime.today().strftime("%Y-%m-%d %H:%M:%S")
         
         TEMP = {}
-        for item in display['user_registration_fields'].keys():
-            if display['user_registration_fields'][item]['input_type'] != 'hidden':
+        for item in config['user_registration_fields'].keys():
+            if config['user_registration_fields'][item]['input_type'] != 'hidden':
 
-                if display['user_registration_fields'][item]['input_type'] == 'checkbox':
+                if config['user_registration_fields'][item]['input_type'] == 'checkbox':
                     
                     TEMP[item] = str(request.form.getlist(item))
 
                 else:
-                    TEMP[item] = str(request.form[item]) if display['user_registration_fields'][item]['type'] == str else float(request.form[item])
+                    TEMP[item] = str(request.form[item]) if config['user_registration_fields'][item]['type'] == str else float(request.form[item])
 
         if phone == "":
             phone = None
@@ -191,11 +191,11 @@ def register():
         
         # added these per https://github.com/signebedi/libreForms/issues/122
         # to give the freedom to set these as required fields
-        elif display['registration_email_required'] and not email:
+        elif config['registration_email_required'] and not email:
             error = 'Email is required.'
-        elif display['registration_phone_required'] and not phone:
+        elif config['registration_phone_required'] and not phone:
             error = 'Phone is required.'
-        elif display['registration_organization_required'] and not organization:
+        elif config['registration_organization_required'] and not organization:
             error = 'Organization is required.'
 
         elif not re.fullmatch(r"^\w\w\w\w+$", username) or len(username) > 36:
@@ -208,7 +208,7 @@ def register():
             error = 'Email is already registered.' 
         elif User.query.filter_by(username=username.lower()).first():
             error = f'Username {username.lower()} is already registered.' 
-        elif display['enable_hcaptcha']:
+        elif config['enable_hcaptcha']:
             if not hcaptcha.verify():
                 error = 'Captcha validation error.'
 
@@ -219,22 +219,22 @@ def register():
                             username=username.lower(), 
                             password=generate_password_hash(password, method='sha256'),
                             organization=organization,
-                            group=display['default_group'],
+                            group=config['default_group'],
                             certificate=generate_symmetric_key(),
                             phone=phone,
-                            theme='dark' if display['dark_mode'] else 'light', # we default to the application default
+                            theme='dark' if config['dark_mode'] else 'light', # we default to the application default
                             created_date=created_date,
-                            active=0 if display["enable_email_verification"] else 1,
+                            active=0 if config["enable_email_verification"] else 1,
                             **TEMP, # https://stackoverflow.com/a/5710402
                         ) 
                 db.session.add(new_user)
                 db.session.commit()
-                if display["enable_email_verification"]:
+                if config["enable_email_verification"]:
                     key = signing.write_key_to_database(scope='email_verification', expiration=48, active=1, email=email)
-                    current_app.config['MAILER'](subject=f'{display["site_name"]} User Registered', content=f"This email serves to notify you that the user {username} has just been registered for this email address at {display['domain']}. Please verify your email by clicking the following link: {display['domain']}/auth/verify_email/{key}. Please note this link will expire after 48 hours.", to_address=email, logfile=log)
+                    current_app.config['MAILER'](subject=f'{config["site_name"]} User Registered', content=f"This email serves to notify you that the user {username} has just been registered for this email address at {config['domain']}. Please verify your email by clicking the following link: {config['domain']}/auth/verify_email/{key}. Please note this link will expire after 48 hours.", to_address=email, logfile=log)
                     flash(f'Successfully created user \'{username.lower()}\'. Please check your email for an activation link. ')
                 else:
-                    current_app.config['MAILER'](subject=f'{display["site_name"]} User Registered', content=f"This email serves to notify you that the user {username} has just been registered for this email address at {display['domain']}.", to_address=email, logfile=log)
+                    current_app.config['MAILER'](subject=f'{config["site_name"]} User Registered', content=f"This email serves to notify you that the user {username} has just been registered for this email address at {config['domain']}.", to_address=email, logfile=log)
                     flash(f'Successfully created user \'{username.lower()}\'.')
                 log.info(f'{username.upper()} - successfully registered with email {email}.')
             except:
@@ -247,10 +247,10 @@ def register():
         flash(error)
 
     return render_template('auth/register.html',
-        site_name=display['site_name'],
+        site_name=config['site_name'],
         display_warning_banner=True,
         name="Register",
-        display=display,)
+        config=config,)
 
 
 @bp.route('/verify_email/<signature>', methods=('GET', 'POST'))
@@ -259,7 +259,7 @@ def verify_email(signature):
     if current_user.is_authenticated:
         return redirect(url_for('home'))
 
-    if not display['enable_email_verification']:
+    if not config['enable_email_verification']:
         flash('This feature has not been enabled by your system administrator.')
         return redirect(url_for('auth.login'))
 
@@ -288,25 +288,25 @@ def verify_email(signature):
     
     return redirect(url_for('auth.login'))
 
-if display['enable_rest_api']:
+if config['enable_rest_api']:
 
     @bp.route('/register/api', methods=('GET', 'POST'))
     @login_required 
     def generate_api_key():
 
-        if display['limit_rest_api_keys_per_user']:
+        if config['limit_rest_api_keys_per_user']:
             signing_df = pd.read_sql_table("signing", con=db.engine.connect())
 
             # note that this behavior will not apply when an email has not been specified for a given key, which
             # shouldn't be the case as long as emails are required fields at user registration; however, the `libreforms`
             # user, which ships by default with the application, does not have an email set - meaning that the default
             # user will not be constrained by this behavior. This can be viewed as a bug or a feature, depending on context.
-            if len(signing_df.loc[(signing_df.email == current_user.email) & (signing_df.scope == 'api_key') & (signing_df.active == 1)]) >= display['limit_rest_api_keys_per_user']:
+            if len(signing_df.loc[(signing_df.email == current_user.email) & (signing_df.scope == 'api_key') & (signing_df.active == 1)]) >= config['limit_rest_api_keys_per_user']:
                 flash(f'This user has already registered the number of API keys they are permitted. ')
                 return redirect(url_for('auth.profile'))
 
         key = signing.write_key_to_database(scope='api_key', expiration=5640, active=1, email=current_user.email)
-        current_app.config['MAILER'](subject=f'{display["site_name"]} API Key Generated', content=f"This email serves to notify you that the user {current_user.username} has just generated an API key for this email address at {display['domain']}. The API key is: {key}. Please note this key will expire after 365 days.", to_address=current_user.email, logfile=log)
+        current_app.config['MAILER'](subject=f'{config["site_name"]} API Key Generated', content=f"This email serves to notify you that the user {current_user.username} has just generated an API key for this email address at {config['domain']}. The API key is: {key}. Please note this key will expire after 365 days.", to_address=current_user.email, logfile=log)
         flash(f'Successfully generated API key {key} for \'{current_user.username.lower()}\'. They should check their email for further instructions. ')
 
         return redirect(url_for('auth.profile'))
@@ -321,7 +321,7 @@ if display['enable_rest_api']:
         # return redirect(url_for('home'))
 
         # key = signing.write_key_to_database(scope='api_key', expiration=5640, active=1, email=current_user.email)
-        # current_app.config['MAILER'](subject=f'{display["site_name"]} API Key Generated', content=f"This email serves to notify you that the user {current_user.username} has just generated an API key for this email address at {display['domain']}. The API key is: {key}. Please note this key will expire after 365 days.", to_address=current_user.email, logfile=log)
+        # current_app.config['MAILER'](subject=f'{config["site_name"]} API Key Generated', content=f"This email serves to notify you that the user {current_user.username} has just generated an API key for this email address at {config['domain']}. The API key is: {key}. Please note this key will expire after 365 days.", to_address=current_user.email, logfile=log)
         # flash(f'Successfully generated API key {key} for \'{current_user.username.lower()}\'. They should check their email for further instructions. ')
 
         # return redirect(url_for('auth.profile'))
@@ -331,7 +331,7 @@ if display['enable_rest_api']:
 @login_required
 def bulk_register():
 
-    if not display['allow_bulk_registration']:
+    if not config['allow_bulk_registration']:
         flash('This feature has not been enabled by your system administrator.')
         return redirect(url_for('home'))
 
@@ -367,17 +367,17 @@ def bulk_register():
                     # config, see https://github.com/signebedi/libreForms/issues/122;
                     # however, they DO NOT require that this field be populated for
                     # each row of data entered. See issue above for more discussion.
-                    if display['registration_email_required']:
+                    if config['registration_email_required']:
                         assert 'email' in bulk_user_df.columns
-                    if display['registration_organization_required']:
+                    if config['registration_organization_required']:
                         assert 'organization' in bulk_user_df.columns
-                    if display['registration_phone_required']:
+                    if config['registration_phone_required']:
                         assert 'phone' in bulk_user_df.columns
 
                     #verify that, if there are any custom fields that are required, these exist here
-                    if display['user_registration_fields']:
-                        for x in display['user_registration_fields'].keys():
-                            if display['user_registration_fields'][x]['input_type'] != 'hidden' and display['user_registration_fields'][x]['required'] == True:
+                    if config['user_registration_fields']:
+                        for x in config['user_registration_fields'].keys():
+                            if config['user_registration_fields'][x]['input_type'] != 'hidden' and config['user_registration_fields'][x]['required'] == True:
                                 assert x in bulk_user_df.columns
 
 
@@ -398,24 +398,24 @@ def bulk_register():
                         flash(f"Could not register at row {row}. Username is required. ")
                     elif not row.password:
                         flash(f"Could not register {row.username.lower()}. Password is required. ")
-                    elif display['registration_email_required'] and not row.email:
+                    elif config['registration_email_required'] and not row.email:
                         flash(f"Could not register {row.username.lower()}. Email is required. ")
-                    elif display['registration_organization_required'] and not row.organization:
+                    elif config['registration_organization_required'] and not row.organization:
                         flash(f"Could not register {row.username.lower()}. Organization is required. ")
-                    elif display['registration_phone_required'] and not row.phone:
+                    elif config['registration_phone_required'] and not row.phone:
                         flash(f"Could not register {row.username.lower()} under email {row.email.lower()}. Phone is required. ")
 
 
                     # set to default group if non is passed
                     if row.group == "" or None:
-                        row.group = display['default_group']
+                        row.group = config['default_group']
 
                     else:
 
                         TEMP = {}
-                        for item in display['user_registration_fields'].keys():
-                            if display['user_registration_fields'][item]['input_type'] != 'hidden':
-                                TEMP[item] = str(row[item]) if display['user_registration_fields'][item]['type'] == str else float(row[item])
+                        for item in config['user_registration_fields'].keys():
+                            if config['user_registration_fields'][item]['input_type'] != 'hidden':
+                                TEMP[item] = str(row[item]) if config['user_registration_fields'][item]['type'] == str else float(row[item])
 
                         try: 
                             new_user = User(
@@ -428,18 +428,18 @@ def bulk_register():
                                         created_date=created_date,
                                         group = row.group,
                                         certificate=generate_symmetric_key(),
-                                        active=0 if display["enable_email_verification"] else 1,
+                                        active=0 if config["enable_email_verification"] else 1,
                                         **TEMP
                                     )
                             db.session.add(new_user)
                             db.session.commit()
 
-                            if display["enable_email_verification"]:
+                            if config["enable_email_verification"]:
                                 key = signing.write_key_to_database(scope='email_verification', expiration=48, active=1, email=row.email)
-                                current_app.config['MAILER'](subject=f'{display["site_name"]} User Registered', content=f"This email serves to notify you that the user {row.username} has just been registered for this email address at {display['domain']}. Please verify your email by clicking the following link: {display['domain']}/auth/verify_email/{key}. Please note this link will expire after 48 hours.", to_address=row.email, logfile=log)
+                                current_app.config['MAILER'](subject=f'{config["site_name"]} User Registered', content=f"This email serves to notify you that the user {row.username} has just been registered for this email address at {config['domain']}. Please verify your email by clicking the following link: {config['domain']}/auth/verify_email/{key}. Please note this link will expire after 48 hours.", to_address=row.email, logfile=log)
                                 flash(f'Successfully created user \'{row.username.lower()}\'. They should check their email for an activation link. ')
                             else:
-                                current_app.config['MAILER'](subject=f'{display["site_name"]} User Registered', content=f"This email serves to notify you that the user {row.username} has just been registered for this email address at {display['domain']}.", to_address=row.email, logfile=log)
+                                current_app.config['MAILER'](subject=f'{config["site_name"]} User Registered', content=f"This email serves to notify you that the user {row.username} has just been registered for this email address at {config['domain']}.", to_address=row.email, logfile=log)
                                 flash(f'Successfully created user \'{row.username.lower()}\'.')
 
                             log.info(f'{row.username.upper()} - successfully registered with email {row.email}.')
@@ -462,12 +462,12 @@ def bulk_register():
 
 
     return render_template('auth/add_users.html',
-        site_name=display['site_name'],
+        site_name=config['site_name'],
         display_warning_banner=True,
         notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
         name="Bulk Register",
         user=current_user,
-        display=display,)
+        config=config,)
 
 
 @bp.route('/login', methods=('GET', 'POST'))
@@ -507,10 +507,10 @@ def login():
         flash(error)
 
     return render_template('auth/login.html',
-            site_name=display['site_name'],
+            site_name=config['site_name'],
             name="Login",
             display_warning_banner=True,   
-            display=display,)
+            config=config,)
 
 @bp.before_app_request
 def load_logged_in_user():
@@ -539,15 +539,15 @@ def edit_profile():
         theme = request.form['theme']
         
         TEMP = {}
-        for item in display['user_registration_fields'].keys():
-            if display['user_registration_fields'][item]['input_type'] != 'hidden':
+        for item in config['user_registration_fields'].keys():
+            if config['user_registration_fields'][item]['input_type'] != 'hidden':
 
-                if display['user_registration_fields'][item]['input_type'] == 'checkbox':
+                if config['user_registration_fields'][item]['input_type'] == 'checkbox':
                     
                     TEMP[item] = str(request.form.getlist(item))
 
                 else:
-                    TEMP[item] = str(request.form[item]) if display['user_registration_fields'][item]['type'] == str else float(request.form[item])
+                    TEMP[item] = str(request.form[item]) if config['user_registration_fields'][item]['type'] == str else float(request.form[item])
 
         if phone == "" or None or "None":
             phone = None
@@ -562,9 +562,9 @@ def edit_profile():
 
         # added these per https://github.com/signebedi/libreForms/issues/122
         # to give the freedom to set these as required fields
-        if display['registration_phone_required'] and not phone:
+        if config['registration_phone_required'] and not phone:
             error = 'Phone is required.'
-        elif display['registration_organization_required'] and not organization:
+        elif config['registration_organization_required'] and not organization:
             error = 'Organization is required.'
         elif phone and not re.fullmatch(r'^[a-z0-9]{3}-[a-z0-9]{3}-[a-z0-9]{4}$', phone):
             error = 'Invalid phone number (xxx-xxx-xxxx).' 
@@ -590,13 +590,13 @@ def edit_profile():
         flash(error)
 
     return render_template('auth/register.html',
-        site_name=display['site_name'],
+        site_name=config['site_name'],
         edit_profile=True,
         user=current_user,
         notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
         display_warning_banner=True,
         name="Profile",
-        display=display,)
+        config=config,)
 
 @bp.route('/profile', methods=('GET', 'POST'))
 @login_required
@@ -633,11 +633,11 @@ def profile():
 
     return render_template('auth/profile.html', 
         type="profile",
-        name=display['site_name'],
-        display=display,
+        name=config['site_name'],
+        config=config,
         notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
         user=current_user,
-        log_data=aggregate_log_data(keyword=f'- {current_user.username.upper()} -', limit=1000, pull_from='end') if display['enable_user_profile_log_aggregation'] else None,
+        log_data=aggregate_log_data(keyword=f'- {current_user.username.upper()} -', limit=1000, pull_from='end') if config['enable_user_profile_log_aggregation'] else None,
     )
 
 # this is the download link for files in the temp directory
@@ -649,11 +649,11 @@ def download_bulk_user_template(filename='bulk_user_template.csv'):
     df = pd.DataFrame (columns=["username", "email", "password", "group", "phone", "organization",'theme'])
 
     # if we set custom user fields, add these here
-    if display['user_registration_fields']:
-        for x in display['user_registration_fields'].keys():
+    if config['user_registration_fields']:
+        for x in config['user_registration_fields'].keys():
 
             # we only add the field if it is not a 'hidden' registration field
-            if display['user_registration_fields'][x]['input_type'] != 'hidden':
+            if config['user_registration_fields'][x]['input_type'] != 'hidden':
                 df[x] = None
 
 

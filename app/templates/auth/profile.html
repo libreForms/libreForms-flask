@@ -3,7 +3,7 @@
 {% block content %}
 <div class="position-relative">
     <div class="position-absolute top-0 end-0">
-        <a class="justify-content-end" href="{{display['domain']}}/auth/profile/edit">Edit Profile</a>
+        <a class="justify-content-end" href="{{config['domain']}}/auth/profile/edit">Edit Profile</a>
     </div>
 </div>
 <h4>Profile</h4>
@@ -15,15 +15,15 @@
 <tr><td><b>Organization</b>: <span>{{ user.organization }}</span></td></tr>
 <tr><td><b>Phone</b>: <span>{{ user.phone }}</span></td></tr>
 <tr><td><b>Theme</b>: <span>{{ user.theme }}</span></td></tr>
-{% if display['user_registration_fields'] is defined %}
-{% for attribute in display['user_registration_fields'] %}
+{% if config['user_registration_fields'] is defined %}
+{% for attribute in config['user_registration_fields'] %}
 <tr><td><b>{{attribute | capitalize | replace("_", " ")}}</b>: {{ user[attribute] }}</td></tr>
 {% endfor %}
 {% endif %}
 </td></tr>
 <tr><td><b>Created</b>: {{ user.created_date }}</td></tr>
-<tr><td><b>Submissions</b>: <a href="{{display['domain']}}/submissions/user/{{ user.username }}">view here</a></td></tr>
-<tr><td><b>Review</b>: <a href="{{display['domain']}}/submissions/review/{{ user.username }}">view here</a> {%if notifications%} <sup class="badge rounded-pill bg-primary">{{notifications}}</sup>{%endif%}
+<tr><td><b>Submissions</b>: <a href="{{config['domain']}}/submissions/user/{{ user.username }}">view here</a></td></tr>
+<tr><td><b>Review</b>: <a href="{{config['domain']}}/submissions/review/{{ user.username }}">view here</a> {%if notifications%} <sup class="badge rounded-pill bg-primary">{{notifications}}</sup>{%endif%}
 </td></tr>
 </table>
 
