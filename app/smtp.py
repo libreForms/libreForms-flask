@@ -1,21 +1,36 @@
 """ 
 smtp.py: implementation of SMTP mail logic
 
+This script creates a Mailer class to store the smtp server credentials 
+in memory, and then allows us to send mail using the send_mail method.
+
 
 
 # Routing lists
 
+The libreForms configuration allows administrators to define routing lists for
+each form. These routing lists are used to notify various groups when a form has 
+been submitted or changed, see https://github.com/signebedi/libreForms/issues/94.
+This is closely tied to, but not entirely analogous with, the form approval process,
+see https://github.com/signebedi/libreForms/issues/8. 
 
+In this script, the `send_mail` method accepts an optional list `cc_address_list`,
+which expects a list of emails to carbon copy on an outgoing email. This can be
+more broadly used than just routing lists, however. 
 
-# Mailer() class
-
-
+To see the logic that implements the routing list, see the `rationalize_routing_list`
+method in app.forms.
 
 
 # send_mail() method
 
+This is the primary method of the Mailer class; it's used to send outgoing mail
+using smtplib. It creates a connection with the mail server each time mail is sent.
 
-
+It is implemented synchronously; however, there is a celery wrapper that is disabled 
+by default to send mail asynchronously, see config.send_mail_asynchronously for the 
+configuration. The asynchronous method is named `send_mail_asynch` and defined in 
+app/__init__.py.
 
 
 """
