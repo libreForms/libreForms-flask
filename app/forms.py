@@ -59,9 +59,9 @@ def get_list_of_emails_by_group(group, **kwargs):
 # routing and approval generally at: https://github.com/signebedi/libreForms/issues/8.
 def rationalize_routing_routing_list(form_name):
 
-    # first, we draw on parse_options() for the form in question
+    # first, we draw on parse_out_form_configs() for the form in question
     # to apply defaults for missing values.
-    routing_list = parse_options(form_name)['_routing_list']
+    routing_list = parse_out_form_configs(form_name)['_routing_list']
     # print(routing_list)
 
     # then, we check if SMTP is enabled and, if not & the administrator has set a 
@@ -115,17 +115,17 @@ def checkFieldGroup(form, field, group):
         in libreforms.forms[form][field]['_deny_groups'] else True
 
 def checkFormGroup(form, group):
-    return False if checkKey(parse_options(form), '_deny_groups') and group \
-        in parse_options(form)['_deny_groups'] else True
+    return False if checkKey(parse_out_form_configs(form), '_deny_groups') and group \
+        in parse_out_form_configs(form)['_deny_groups'] else True
 
 def checkTableGroup(form, group):
-    return False if checkKey(parse_options(form)['_table'], '_deny_groups') and group \
-        in parse_options(form)['_table']['_deny_groups'] else True
+    return False if checkKey(parse_out_form_configs(form)['_table'], '_deny_groups') and group \
+        in parse_out_form_configs(form)['_table']['_deny_groups'] else True
 
-# using parse_options to clean up some values here
+# using parse_out_form_configs to clean up some values here
 def checkDashboardGroup(form, group):
-    return False if checkKey(parse_options(form)['_dashboard'], '_deny_groups') and group \
-        in parse_options(form)['_dashboard']['_deny_groups'] else True
+    return False if checkKey(parse_out_form_configs(form)['_dashboard'], '_deny_groups') and group \
+        in parse_out_form_configs(form)['_dashboard']['_deny_groups'] else True
 
 
 # this function just compiles 'depends_on' data for each form
@@ -300,9 +300,12 @@ def progagate_forms(form=False, group=None):
     except:
         return {}
 
-# will be used to parse the configurations for a given form and - maybe most importantly
-# as a gateway to apply default values to missing fields from the admin-defined form config.
-def parse_options(form=False):
+
+# every form defined under libreforms/ contains a series of key-value pairs for fields and configs. 
+# Configs define unique behavior for each form and are denoted by a _ at the beginning of the key;
+# for example `_dashboard` or `_allow_uploads`. This method parses the configs for a given form and,
+# more importantly, applies default values to missing fields from the admin-defined form config.
+def parse_out_form_configs(form=False):
     
     try:
         # we start by reading the user defined forms into memory
@@ -366,7 +369,7 @@ def parse_options(form=False):
 # added to enable routing of forms to managers for approval,
 # see https://github.com/signebedi/libreForms/issues/8.
 def verify_form_approval(form_name):
-    approval = parse_options(form_name)['_form_approval']
+    approval = parse_out_form_configs(form_name)['_form_approval']
     
     
     # this method entails selecting a field from the user
@@ -444,14 +447,14 @@ def forms_home():
 def forms(form_name):
 
 
-    if not checkGroup(group=current_user.group, struct=parse_options(form_name)):
+    if not checkGroup(group=current_user.group, struct=parse_out_form_configs(form_name)):
         flash(f'You do not have access to this dashboard.')
         return redirect(url_for('forms.forms_home'))
 
     else:
 
         try:
-            options = parse_options(form_name)
+            options = parse_out_form_configs(form_name)
             forms = progagate_forms(form_name, group=current_user.group)
 
 

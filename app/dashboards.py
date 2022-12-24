@@ -20,7 +20,7 @@ from flask_login import current_user
 # import custom packages from the current repository
 import libreforms
 from app.auth import login_required
-from app.forms import parse_options, checkGroup, checkDashboardGroup, form_menu
+from app.forms import parse_out_form_configs, checkGroup, checkDashboardGroup, form_menu
 from app import config, log, mongodb
 from app.models import db
 
@@ -60,11 +60,11 @@ def dashboards(form_name):
         flash('This form does not exist.')
         return redirect(url_for('dashboards.dashboards_home'))
 
-    if not checkGroup(group=current_user.group, struct=parse_options(form_name)['_dashboard']):
+    if not checkGroup(group=current_user.group, struct=parse_out_form_configs(form_name)['_dashboard']):
         flash(f'You do not have access to this dashboard.')
         return redirect(url_for('dashboards.dashboards_home'))
 
-    if parse_options(form=form_name)["_dashboard"] == False:
+    if parse_out_form_configs(form=form_name)["_dashboard"] == False:
         flash('Your system administrator has not enabled any dashboards for this form.')
         return redirect(url_for('dashboards.dashboards_home'))
 
@@ -135,7 +135,7 @@ def dashboards(form_name):
         site_name=config['site_name'],
         notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
         menu=form_menu(checkDashboardGroup),
-        options=parse_options(form=form_name),
+        options=parse_out_form_configs(form=form_name),
         config=config,
         user=current_user,
     )

@@ -22,7 +22,7 @@ from markupsafe import Markup
 # import custom packages from the current repository
 import libreforms as libreforms
 from app.auth import login_required
-from app.forms import parse_options, checkGroup, checkTableGroup, form_menu
+from app.forms import parse_out_form_configs, checkGroup, checkTableGroup, form_menu
 from app.submissions import set_digital_signature
 from app import config, log, mongodb
 
@@ -57,7 +57,7 @@ def tables(form_name):
         flash('This form does not exist.')
         return redirect(url_for('tables.tables_home'))
 
-    if not checkGroup(group=current_user.group, struct=parse_options(form_name)['_table']):
+    if not checkGroup(group=current_user.group, struct=parse_out_form_configs(form_name)['_table']):
         flash(f'You do not have access to this dashboard.')
         return redirect(url_for('tables.tables_home'))
 
@@ -68,7 +68,7 @@ def tables(form_name):
 
         # Added signature verification, see https://github.com/signebedi/libreForms/issues/8
         if 'Signature' in df.columns:
-            if parse_options(form_name)['_digitally_sign']:
+            if parse_out_form_configs(form_name)['_digitally_sign']:
                 df['Signature'] = df.apply(lambda row: set_digital_signature(username=row['Reporter'],encrypted_string=row['Signature'],return_markup=False), axis=1)
             else:
                 df.drop(columns=['Signature'], inplace=True)
@@ -103,7 +103,7 @@ def tables(form_name):
         name=form_name,
         is_table=True,
         notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
-        options=parse_options(form=form_name),
+        options=parse_out_form_configs(form=form_name),
         menu=form_menu(checkTableGroup),
         config=config,
         user=current_user,
