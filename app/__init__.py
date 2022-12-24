@@ -41,7 +41,7 @@ from flask_login import LoginManager, current_user
 # application-specific dependencies
 from app import smtp, mongo, log_functions
 from app.config import config
-from app.csv_files import tempfile_init_tmp_fs
+from app.tmpfiles import tempfile_init_tmp_fs
 from app.models import db, User
 from app.certification import generate_symmetric_key
 
