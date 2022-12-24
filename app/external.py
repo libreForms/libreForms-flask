@@ -26,7 +26,7 @@ import libreforms
 from app import config, log, tempfile_path, mailer, mongodb
 from app.auth import login_required, session
 from app.forms import define_webarg_form_data_types, checkGroup, reconcile_form_data_struct, \
-    propagate_form_fields, propagate_form_configs, compile_depends_on_data, rationalize_routing_routing_list
+    propagate_form_fields, propagate_form_configs, compile_depends_on_data, rationalize_routing_list
 import app.signing as signing
 from app.models import Signing, db
 
@@ -154,7 +154,7 @@ if config['allow_anonymous_form_submissions']:
                     content = f"This email serves to verify that an anonymous user {signature} (linked to {email}) has just submitted the {form_name} form. {'; '.join(key + ': ' + str(value) for key, value in parsed_args.items() if key != 'Journal') if options['_send_form_with_email_notification'] else ''}"
                     
                     # and then we send our message
-                    current_app.config['MAILER'](subject=subject, content=content, to_address=current_user.email, cc_address_list=rationalize_routing_routing_list(form_name), logfile=log)
+                    current_app.config['MAILER'](subject=subject, content=content, to_address=current_user.email, cc_address_list=rationalize_routing_list(form_name), logfile=log)
 
 
                     return redirect(url_for('home'))

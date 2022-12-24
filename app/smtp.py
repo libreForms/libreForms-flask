@@ -7,7 +7,7 @@ smtp.py: implementation of SMTP mail logic
 
 
 
-# sendMail() class
+# Mailer() class
 
 
 
@@ -35,7 +35,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from flask import current_app
 
-class sendMail():
+class Mailer():
     def __init__(self, mail_server=None, port=None, 
                         username=None, password=None, 
                         from_address=None, enabled=True):
@@ -78,7 +78,7 @@ class sendMail():
                     server.login(self.username, self.password)
 
                     # sending a plain text email
-                    server.sendmail(self.from_address, [to_address]+cc_address_list, msg.as_string())
+                    server.Mailer(self.from_address, [to_address]+cc_address_list, msg.as_string())
                     # server.send_message(msg.as_string())
 
                     if logfile: logfile.info(f'successfully sent an email to {to_address}')
