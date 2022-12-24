@@ -1,7 +1,19 @@
 """ 
 tmpfiles.py: implementation of temp filesystem
 
+For a number of reasons, the web application needs to read 
+and write to a temporary filesystem to manage document 
+uploads and downloads. This script contains the methods
+needed to do so.
 
+# init_tmp()
+
+It took awhile for us to get to this approach, which
+to this day seems like the easiest way to initialize a 
+temporary filesystem, and deprecate the previous method,
+which is still included below, called init_tmp_fs().
+One of the major advantages of this approach is that it 
+just creates a temporary folder in /tmp and logs the name.
 
 """
 
@@ -15,15 +27,13 @@ __email__ = "signe@atreeus.com"
 
 import os, tempfile
 import pandas as pd
-import libreforms
-# from .forms import parse_options, progagate_forms
 
 
-def tempfile_init_tmp_fs():
+def init_tmp():
     temp_folder = tempfile.mkdtemp()
     return temp_folder
 
-## deprecated in favor of tempfile_init_tmp_fs()
+## deprecated in favor of init_tmp()
 def init_tmp_fs(delete_first=False):
     if delete_first:
 # if application tmp/ path doesn't exist, make it
@@ -35,5 +45,7 @@ def init_tmp_fs(delete_first=False):
             os.mkdir('app/static/tmp/')    
 
 
-def handle_csv_upload(csv_path, form=None):
+# process a csv upload, with add'l options to treat 
+# the file as safe (defaults to unsafe)
+def handle_csv_upload(csv_path, form=None, safe=False):
     pass

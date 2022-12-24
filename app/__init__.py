@@ -41,7 +41,7 @@ from flask_login import LoginManager, current_user
 # application-specific dependencies
 from app import smtp, mongo, log_functions
 from app.config import config
-from app.tmpfiles import tempfile_init_tmp_fs
+from app.tmpfiles import init_tmp
 from app.models import db, User
 from app.certification import generate_symmetric_key
 
@@ -70,26 +70,6 @@ if not config['smtp_enabled'] and (config['enable_email_verification'] or \
 # Objects and Configs- ensure that objects are created / configured before initializing app
 ##########################
 
-# here we create the celery object
-celery = Celery(__name__, backend=config['celery_backend'], broker=config['celery_broker'])
-
-# initialize mongodb database
-mongodb = mongo.MongoDB(
-                        user=config['mongodb_user'], 
-                        host=config['mongodb_host'], 
-                        port=config['mongodb_port'], 
-                        dbpw=config['mongodb_pw'], 
-                    )
-
-# create hCaptcha object if enabled
-if config['enable_hcaptcha']:
-    from flask_hcaptcha import hCaptcha
-    hcaptcha = hCaptcha()
-
-# we instantiate a tempfile path for the current worker instance, 
-# which we'll use to store tempfiles, uploads, etc.
-tempfile_path = tempfile_init_tmp_fs()
-
 # if application log path doesn't exist, make it; nb. this (and
 # much of other logic in this section of code) is replicated in 
 # in gunicorn/gunicorn.conf.py to ensure it runs pre-fork in a 
@@ -103,6 +83,32 @@ else:
 # we instantiate a log object that we'll use across the app
 log = log_functions.set_logger('log/libreforms.log',__name__)
 log.info('LIBREFORMS - started libreforms web application.')
+
+
+# we instantiate a tempfile path for the current worker instance, 
+# which we'll use to store tempfiles, uploads, etc.
+tempfile_path = init_tmp()
+log.info(f'LIBREFORMS - initialized temp filesystem at {tempfile_path}.')
+
+# here we create the celery object
+celery = Celery(__name__, backend=config['celery_backend'], broker=config['celery_broker'])
+log.info(f'LIBREFORMS - initialized celery object.')
+
+# initialize mongodb database
+mongodb = mongo.MongoDB(
+                        user=config['mongodb_user'], 
+                        host=config['mongodb_host'], 
+                        port=config['mongodb_port'], 
+                        dbpw=config['mongodb_pw'], 
+                    )
+log.info(f'LIBREFORMS - connected to MongoDB.')
+
+# create hCaptcha object if enabled
+if config['enable_hcaptcha']:
+    from flask_hcaptcha import hCaptcha
+    hcaptcha = hCaptcha()
+    log.info(f'LIBREFORMS - initialized hCaptcha object.')
+
 
 # here we add code (that probably NEEDS REVIEW) to verify that
 # it is possible to connect to a different / external database, see
@@ -118,6 +124,7 @@ if config['custom_sql_db'] == True:
         db_pw = user_db_creds.db_pw[0] # in the future, support other way to store secrets
         db_host = user_db_creds.db_host[0]
         db_port = user_db_creds.db_port[0]
+        log.info(f'LIBREFORMS - loaded custom SQL database settings.')
 
     else:
         config['custom_sql_db'] = False
@@ -145,6 +152,8 @@ else:
     # we want the mailer object to exist still but by passing `enabled` to False we 
     # prevent mail from being sent
     mailer=smtp.sendMail(enabled=False)
+    log.info(f'LIBREFORMS - outgoing mail is not enabled.')
+
 
 # if os.path.exists ("ldap_creds"):
     # ldap_creds = pd.read_csv("ldap_creds", dtype=str) # expecting CSV format
