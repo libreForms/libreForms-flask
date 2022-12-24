@@ -25,8 +25,8 @@ from flask_login import current_user
 import libreforms
 from app import config, log, tempfile_path, mailer, mongodb
 from app.auth import login_required, session
-from app.forms import parse_form_fields, checkGroup, reconcile_form_data_struct, \
-    parse_out_form_fields, parse_out_form_configs, compile_depends_on_data, rationalize_routing_routing_list
+from app.forms import define_webarg_form_data_types, checkGroup, reconcile_form_data_struct, \
+    propagate_form_fields, propagate_form_configs, compile_depends_on_data, rationalize_routing_routing_list
 import app.signing as signing
 from app.models import Signing, db
 
@@ -70,12 +70,12 @@ if config['allow_anonymous_form_submissions']:
 
         # first make sure this form existss
         try:
-            forms = parse_out_form_configs(form_name)
+            forms = propagate_form_configs(form_name)
         except Exception as e:
             log.error(f'LIBREFORMS - {e}')
             return abort(404)
 
-        if not checkGroup(group='anonymous', struct=parse_out_form_configs(form_name)):
+        if not checkGroup(group='anonymous', struct=propagate_form_configs(form_name)):
             flash(f'Your system administrator has disabled this form for anonymous users.')
             return redirect(url_for('home'))
 
@@ -118,7 +118,7 @@ if config['allow_anonymous_form_submissions']:
             flash('This feature has not been enabled by your system administrator.')
             return redirect(url_for('home'))
 
-        if not checkGroup(group='anonymous', struct=parse_out_form_configs(form_name)):
+        if not checkGroup(group='anonymous', struct=propagate_form_configs(form_name)):
             flash(f'Your system administrator has disabled this form for anonymous users.')
             return redirect(url_for('home'))
 
@@ -127,11 +127,11 @@ if config['allow_anonymous_form_submissions']:
 
 
             try:
-                options = parse_out_form_configs(form_name)
-                forms = parse_out_form_fields(form_name)
+                options = propagate_form_configs(form_name)
+                forms = propagate_form_fields(form_name)
 
                 if request.method == 'POST':
-                    parsed_args = flaskparser.parser.parse(parse_form_fields(form_name), request, location="form")
+                    parsed_args = flaskparser.parser.parse(define_webarg_form_data_types(form_name), request, location="form")
                     
                     # we query quickly for the email address associated with this signing key
                     email = Signing.query.filter_by(signature=signature).first().email
@@ -196,7 +196,7 @@ if config['allow_anonymous_form_submissions']:
 
 
             # this is our first stab at building templates, without accounting for nesting or repetition
-            df = pd.DataFrame (columns=[x for x in parse_out_form_fields(filename.replace('.csv', '')).keys()])
+            df = pd.DataFrame (columns=[x for x in propagate_form_fields(filename.replace('.csv', '')).keys()])
 
             fp = os.path.join(tempfile_path, filename)
             df.to_csv(fp, index=False)

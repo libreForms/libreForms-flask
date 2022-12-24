@@ -36,7 +36,7 @@ import pandas as pd
 
 
 
-# this logic was written generally to support rationalize_routing_routing_list()
+# this logic was written generally to support rationalize_routing_list()
 # by accepting a group name as a parameter and returning a list of email addresses
 # belonging to each user in that group.
 def get_list_of_emails_by_group(group, **kwargs):
@@ -57,11 +57,11 @@ def get_list_of_emails_by_group(group, **kwargs):
 # send notifications once a form is submitted. See documentation of this feature at:
 # https://github.com/signebedi/libreForms/issues/94, as well as documentation on
 # routing and approval generally at: https://github.com/signebedi/libreForms/issues/8.
-def rationalize_routing_routing_list(form_name):
+def rationalize_routing_list(form_name):
 
-    # first, we draw on parse_out_form_configs() for the form in question
+    # first, we draw on propagate_form_configs() for the form in question
     # to apply defaults for missing values.
-    routing_list = parse_out_form_configs(form_name)['_routing_list']
+    routing_list = propagate_form_configs(form_name)['_routing_list']
     # print(routing_list)
 
     # then, we check if SMTP is enabled and, if not & the administrator has set a 
@@ -100,6 +100,11 @@ def rationalize_routing_routing_list(form_name):
     else:
         return []
 
+
+# The group of methods below are used to check group permissions to access certain resource.
+# Yes, it's ugly. But it gets the job done by creating a set of different methods that return
+# True or False if a resource can be accessed by a user of a given group.
+
 def checkKey(dic, key):
     return True if dic and key in dic.keys() else False
 
@@ -115,17 +120,17 @@ def checkFieldGroup(form, field, group):
         in libreforms.forms[form][field]['_deny_groups'] else True
 
 def checkFormGroup(form, group):
-    return False if checkKey(parse_out_form_configs(form), '_deny_groups') and group \
-        in parse_out_form_configs(form)['_deny_groups'] else True
+    return False if checkKey(propagate_form_configs(form), '_deny_groups') and group \
+        in propagate_form_configs(form)['_deny_groups'] else True
 
 def checkTableGroup(form, group):
-    return False if checkKey(parse_out_form_configs(form)['_table'], '_deny_groups') and group \
-        in parse_out_form_configs(form)['_table']['_deny_groups'] else True
+    return False if checkKey(propagate_form_configs(form)['_table'], '_deny_groups') and group \
+        in propagate_form_configs(form)['_table']['_deny_groups'] else True
 
-# using parse_out_form_configs to clean up some values here
+# using propagate_form_configs to clean up some values here
 def checkDashboardGroup(form, group):
-    return False if checkKey(parse_out_form_configs(form)['_dashboard'], '_deny_groups') and group \
-        in parse_out_form_configs(form)['_dashboard']['_deny_groups'] else True
+    return False if checkKey(propagate_form_configs(form)['_dashboard'], '_deny_groups') and group \
+        in propagate_form_configs(form)['_dashboard']['_deny_groups'] else True
 
 
 # this function just compiles 'depends_on' data for each form
@@ -181,7 +186,13 @@ def generate_list_of_users(db=db):
     col = User.query.with_entities(User.username, User.email).distinct()
     return [(row.email, row.username) for row in col.all()]
 
-def parse_form_fields(form=False, user_group=None, args=None):
+
+# webargs allows us to dynamically define form fields and assign them 
+# data types with ease - this was one of the reasons we opted initially
+# to use webargs, though we've been considering a pivot back to WTForms
+# to avoid bloat, if this feature can be replicated, see discussion at
+# https://github.com/signebedi/libreForms/issues/30.
+def define_webarg_form_data_types(form=False, user_group=None, args=None):
 
     FORM_ARGS = {}  
 
@@ -248,13 +259,13 @@ def parse_form_fields(form=False, user_group=None, args=None):
 
 
 # this is probably over-engineering and can be merged into other functions
-# in the future. In short, it takes a parse_out_form_fields() object and returns
+# in the future. In short, it takes a propagate_form_fields() object and returns
 # a by-field breakdown of how the data should be treated when collected and
 # then when parsed (eg. take many inputs, parse as many outputs)
 def reconcile_form_data_struct(form=False):
 
-    # this function expencts a parse_out_form_fields() object to be passed as
-    # the form arg, as in `form = parse_out_form_fields(form=form)``
+    # this function expencts a propagate_form_fields() object to be passed as
+    # the form arg, as in `form = propagate_form_fields(form=form)``
 
     MATCH = {}
 
@@ -282,9 +293,9 @@ def reconcile_form_data_struct(form=False):
 
 # every form defined under libreforms/ contains a series of key-value pairs for fields and configs. 
 # Fields constitute the actual input fields that end users will see and complete when completing forms.
-# This method, largely analogous to the parse_out_form_configs() method below, creates a list of the 
-# form fields we want to pass to the web application and returns them.
-def parse_out_form_fields(form=False, group=None):
+# This method, largely analogous to the propagate_out_form_configs() method below, creates a list of 
+# the form fields we want to pass to the web application and returns them.
+def propagate_form_fields(form=False, group=None):
     
     try:
         list_fields = libreforms.forms[form]
@@ -306,7 +317,7 @@ def parse_out_form_fields(form=False, group=None):
 # Configs define unique behavior for each form and are denoted by a _ at the beginning of the key;
 # for example `_dashboard` or `_allow_uploads`. This method parses the configs for a given form and,
 # more importantly, applies default values to missing fields from the admin-defined form config.
-def parse_out_form_configs(form=False):
+def propagate_form_configs(form=False):
     
     try:
         # we start by reading the user defined forms into memory
@@ -370,7 +381,7 @@ def parse_out_form_configs(form=False):
 # added to enable routing of forms to managers for approval,
 # see https://github.com/signebedi/libreForms/issues/8.
 def verify_form_approval(form_name):
-    approval = parse_out_form_configs(form_name)['_form_approval']
+    approval = propagate_form_configs(form_name)['_form_approval']
     
     
     # this method entails selecting a field from the user
@@ -444,19 +455,19 @@ def forms_home():
 # this creates the route to each of the forms
 @bp.route(f'/<form_name>', methods=['GET', 'POST'])
 @login_required
-# @flaskparser.use_args(parse_form_fields(form=form_name), location='form')
+# @flaskparser.use_args(define_webarg_form_data_types(form=form_name), location='form')
 def forms(form_name):
 
 
-    if not checkGroup(group=current_user.group, struct=parse_out_form_configs(form_name)):
+    if not checkGroup(group=current_user.group, struct=propagate_form_configs(form_name)):
         flash(f'You do not have access to this dashboard.')
         return redirect(url_for('forms.forms_home'))
 
     else:
 
         try:
-            options = parse_out_form_configs(form_name)
-            forms = parse_out_form_fields(form_name, group=current_user.group)
+            options = propagate_form_configs(form_name)
+            forms = propagate_form_fields(form_name, group=current_user.group)
 
 
             if request.method == 'POST':
@@ -464,7 +475,7 @@ def forms(form_name):
                 # print([x for x in list(request.form)])
                 # for x in list(request.form):
                 #     print(x)
-                parsed_args = flaskparser.parser.parse(parse_form_fields(form_name, user_group=current_user.group, args=list(request.form)), request, location="form")
+                parsed_args = flaskparser.parser.parse(define_webarg_form_data_types(form_name, user_group=current_user.group, args=list(request.form)), request, location="form")
                 # parsed_args = {}
 
                 # for item in libreforms.forms[form_name].keys():
@@ -506,12 +517,12 @@ def forms(form_name):
                 content = f"This email serves to verify that {current_user.username} ({current_user.email}) has just submitted the {form_name} form, which you can view at {config['domain']}/submissions/{form_name}/{document_id}. {'; '.join(key + ': ' + str(value) for key, value in parsed_args.items() if key != 'Journal') if options['_send_form_with_email_notification'] else ''}"
                                 
                 # and then we send our message
-                current_app.config['MAILER'](subject=subject, content=content, to_address=current_user.email, cc_address_list=rationalize_routing_routing_list(form_name), logfile=log)
+                current_app.config['MAILER'](subject=subject, content=content, to_address=current_user.email, cc_address_list=rationalize_routing_list(form_name), logfile=log)
 
                 if approver:
                     subject = f'{config["site_name"]} {form_name} Requires Approval ({document_id})'
                     content = f"This email serves to notify that {current_user.username} ({current_user.email}) has just submitted the {form_name} form for your review, which you can view at {config['domain']}/submissions/{form_name}/{document_id}/review."
-                    current_app.config['MAILER'](subject=subject, content=content, to_address=approver.email, cc_address_list=rationalize_routing_routing_list(form_name), logfile=log)
+                    current_app.config['MAILER'](subject=subject, content=content, to_address=approver.email, cc_address_list=rationalize_routing_list(form_name), logfile=log)
 
                 return redirect(url_for('submissions.render_document', form_name=form_name, document_id=document_id))
 
@@ -540,7 +551,7 @@ def forms(form_name):
 def download_file(filename):
 
     # this is our first stab at building templates, without accounting for nesting or repetition
-    df = pd.DataFrame (columns=[x for x in parse_out_form_fields(filename.replace('.csv', ''), group=current_user.group).keys()])
+    df = pd.DataFrame (columns=[x for x in propagate_form_fields(filename.replace('.csv', ''), group=current_user.group).keys()])
 
     fp = os.path.join(tempfile_path, filename)
     df.to_csv(fp, index=False)

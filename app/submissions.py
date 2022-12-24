@@ -29,7 +29,7 @@ from app.models import User, db
 from app.auth import login_required, session
 from app.certification import encrypt_with_symmetric_key, verify_symmetric_key
 from app.forms import form_menu, checkGroup, checkFormGroup, \
-    checkKey, parse_out_form_configs, parse_out_form_fields, parse_form_fields, \
+    checkKey, propagate_form_configs, propagate_form_fields, define_webarg_form_data_types, \
     collect_list_of_users, compile_depends_on_data, rationalize_routing_routing_list
 
 
@@ -339,7 +339,7 @@ def render_all_submissions():
         # collections = mongodb.collections()
         for form in libreforms.forms.keys():
             # print(form)
-            verify_group = parse_out_form_configs(form=form)['_submission']
+            verify_group = propagate_form_configs(form=form)['_submission']
             
             if checkKey(verify_group, '_deny_read') and current_user.group in verify_group['_deny_read']:
                 # print(record.loc[record.form == form])
@@ -386,27 +386,27 @@ def submissions_home():
 def submissions(form_name):
 
 
-    if not checkGroup(group=current_user.group, struct=parse_out_form_configs(form_name)):
+    if not checkGroup(group=current_user.group, struct=propagate_form_configs(form_name)):
             flash(f'You do not have access to this view. ')
             return redirect(url_for('submissions.submissions_home'))
 
     else:
 
         try:
-            verify_group = parse_out_form_configs(form=form_name)['_submission']
+            verify_group = propagate_form_configs(form=form_name)['_submission']
         except Exception as e:
             flash('This form does not exist.')
             log.warning(f'{current_user.username.upper()} - {e}')
             return redirect(url_for('submissions.submissions_home'))
 
 
-        # by routing these condition through parse_out_form_configs, we make the logic easier to
+        # by routing these condition through propagate_form_configs, we make the logic easier to
         # verify using default values if none are passed; meaning we can presume something
         # about the datastructure ..
         # if checkKey(libreforms.forms, form_name) and \
         #     checkKey(libreforms.forms[form_name], '_enable_universal_form_access') and \
         #     libreforms.forms[form_name]['_enable_universal_form_access']:
-        if parse_out_form_configs(form=form_name)['_submission']['_enable_universal_form_access'] and not \
+        if propagate_form_configs(form=form_name)['_submission']['_enable_universal_form_access'] and not \
             (checkKey(verify_group, '_deny_read') and current_user.group in verify_group['_deny_read']):
                 flash("Note: this form permits broad view access all its submissions. ")
                 record = get_record_of_submissions(form_name=form_name)
@@ -446,7 +446,7 @@ def render_user_review(user):
         # # collections = mongodb.collections()
         # for form in libreforms.forms.keys():
         #     # print(form)
-        #     verify_group = parse_out_form_configs(form=form)['_submission']
+        #     verify_group = propagate_form_configs(form=form)['_submission']
             
         #     if checkKey(verify_group, '_deny_read') and current_user.group in verify_group['_deny_read']:
         #         # print(record.loc[record.form == form])
@@ -496,7 +496,7 @@ def render_user_submissions(user):
         # collections = mongodb.collections()
         for form in libreforms.forms.keys():
             # print(form)
-            verify_group = parse_out_form_configs(form=form)['_submission']
+            verify_group = propagate_form_configs(form=form)['_submission']
             
             if checkKey(verify_group, '_deny_read') and current_user.group in verify_group['_deny_read']:
                 # print(record.loc[record.form == form])
@@ -520,14 +520,14 @@ def render_user_submissions(user):
 @bp.route('/<form_name>/<document_id>')
 @login_required
 def render_document(form_name, document_id):
-    if not checkGroup(group=current_user.group, struct=parse_out_form_configs(form_name)):
+    if not checkGroup(group=current_user.group, struct=propagate_form_configs(form_name)):
             flash(f'You do not have access to this view. ')
             return redirect(url_for('submissions.submissions_home'))
 
     else:
 
         try:
-            options = parse_out_form_configs(form=form_name)
+            options = propagate_form_configs(form=form_name)
             verify_group = options['_submission']
         except Exception as e:
             flash('This form does not exist.')
@@ -542,7 +542,7 @@ def render_document(form_name, document_id):
         # if checkKey(libreforms.forms, form_name) and \
         #     checkKey(libreforms.forms[form_name], '_enable_universal_form_access') and \
         #     libreforms.forms[form_name]['_enable_universal_form_access']:
-        if parse_out_form_configs(form=form_name)['_submission']['_enable_universal_form_access'] and not \
+        if propagate_form_configs(form=form_name)['_submission']['_enable_universal_form_access'] and not \
             (checkKey(verify_group, '_deny_read') and current_user.group in verify_group['_deny_read']):
             flash("Note: this form permits broad view access all its submissions. ")
             record = get_record_of_submissions(form_name=form_name)
@@ -602,10 +602,10 @@ def render_document(form_name, document_id):
             if ((not checkKey(verify_group, '_deny_write') or not current_user.group in verify_group['_deny_write'])) or current_user.username == record['Reporter'].iloc[0]:
                 msg = msg + Markup(f"<a href = '{config['domain']}/submissions/{form_name}/{document_id}/edit'>edit this document</a>")
 
-            if parse_out_form_configs(form_name)['_form_approval'] and 'Approver' in record.columns and record['Approver'].iloc[0] == getattr(current_user,config['visible_signature_field']):
+            if propagate_form_configs(form_name)['_form_approval'] and 'Approver' in record.columns and record['Approver'].iloc[0] == getattr(current_user,config['visible_signature_field']):
                 msg = msg + Markup(f"<a href = '{config['domain']}/submissions/{form_name}/{document_id}/review'>go to form approval</a>")
 
-            if parse_out_form_configs(form_name)['_allow_pdf_download']:
+            if propagate_form_configs(form_name)['_allow_pdf_download']:
                 msg = msg + Markup(f"<a href = '{config['domain']}/submissions/{form_name}/{document_id}/download'>download PDF</a>")
             
             return render_template('app/submissions.html',
@@ -624,7 +624,7 @@ def render_document(form_name, document_id):
 @login_required
 def render_document_history(form_name, document_id):
 
-    if not checkGroup(group=current_user.group, struct=parse_out_form_configs(form_name)):
+    if not checkGroup(group=current_user.group, struct=propagate_form_configs(form_name)):
             flash(f'You do not have access to this view. ')
             return redirect(url_for('submissions.submissions_home'))
 
@@ -632,7 +632,7 @@ def render_document_history(form_name, document_id):
 
 
         try:
-            options = parse_out_form_configs(form=form_name)
+            options = propagate_form_configs(form=form_name)
             verify_group = options['_submission']
         except Exception as e:
             flash('This form does not exist.')
@@ -647,7 +647,7 @@ def render_document_history(form_name, document_id):
         # if checkKey(libreforms.forms, form_name) and \
         #     checkKey(libreforms.forms[form_name], '_enable_universal_form_access') and \
         #     libreforms.forms[form_name]['_enable_universal_form_access']:
-        if parse_out_form_configs(form=form_name)['_submission']['_enable_universal_form_access'] and not \
+        if propagate_form_configs(form=form_name)['_submission']['_enable_universal_form_access'] and not \
             (checkKey(verify_group, '_deny_read') and current_user.group in verify_group['_deny_read']):
 
             flash("Note: this form permits broad view access all its submissions. ")
@@ -740,13 +740,13 @@ def render_document_history(form_name, document_id):
                 msg = msg + Markup(f"<a href = '{config['domain']}/submissions/{form_name}/{document_id}/edit'>edit this document</a>")
             
 
-            if parse_out_form_configs(form_name)['_form_approval'] and 'Approver' in display_data.columns and display_data['Approver'].iloc[0] == getattr(current_user,config['visible_signature_field']):
+            if propagate_form_configs(form_name)['_form_approval'] and 'Approver' in display_data.columns and display_data['Approver'].iloc[0] == getattr(current_user,config['visible_signature_field']):
                 msg = msg + Markup(f"<a href = '{config['domain']}/submissions/{form_name}/{document_id}/review'>go to form approval</a>")
 
             # eventually, we may wish to add support for downloading past versions 
             # of the PDF, too; not just the current form of the PDF; the logic does 
             # seem to support this, eg. sending the `display_data`
-            if parse_out_form_configs(form_name)['_allow_pdf_download']:
+            if propagate_form_configs(form_name)['_allow_pdf_download']:
                 msg = msg + Markup(f"<a href = '{config['domain']}/submissions/{form_name}/{document_id}/download'>download PDF</a>")
 
             return render_template('app/submissions.html',
@@ -768,14 +768,14 @@ def render_document_history(form_name, document_id):
 def render_document_edit(form_name, document_id):
     try:
 
-        if not checkGroup(group=current_user.group, struct=parse_out_form_configs(form_name)):
+        if not checkGroup(group=current_user.group, struct=propagate_form_configs(form_name)):
                 flash(f'You do not have access to this view. ')
                 return redirect(url_for('submissions.submissions_home'))
 
         else:
 
             try:
-                verify_group = parse_out_form_configs(form=form_name)['_submission']
+                verify_group = propagate_form_configs(form=form_name)['_submission']
             except Exception as e:
                 flash('This form does not exist.')
                 log.warning(f'{current_user.username.upper()} - {e}')
@@ -789,7 +789,7 @@ def render_document_edit(form_name, document_id):
             # if checkKey(libreforms.forms, form_name) and \
             #     checkKey(libreforms.forms[form_name], '_enable_universal_form_access') and \
             #     libreforms.forms[form_name]['_enable_universal_form_access']:
-            if parse_out_form_configs(form=form_name)['_submission']['_enable_universal_form_access'] and not \
+            if propagate_form_configs(form=form_name)['_submission']['_enable_universal_form_access'] and not \
             (checkKey(verify_group, '_deny_write') and current_user.group in verify_group['_deny_write']):
                 # flash("Warning: this form lets everyone view all its submissions. ")
                 record = get_record_of_submissions(form_name=form_name,remove_underscores=False)
@@ -805,8 +805,8 @@ def render_document_edit(form_name, document_id):
         
             else:
         
-                options = parse_out_form_configs(form_name)
-                forms = parse_out_form_fields(form_name, group=current_user.group)
+                options = propagate_form_configs(form_name)
+                forms = propagate_form_fields(form_name, group=current_user.group)
 
                 if not str(document_id) in record['id'].values:
                     flash('You do not have edit access to this form.')
@@ -823,7 +823,7 @@ def render_document_edit(form_name, document_id):
 
                 if request.method == 'POST':
                     
-                    parsed_args = flaskparser.parser.parse(parse_form_fields(form_name, user_group=current_user.group, args=list(request.form)), request, location="form")
+                    parsed_args = flaskparser.parser.parse(define_webarg_form_data_types(form_name, user_group=current_user.group, args=list(request.form)), request, location="form")
                     
                     # here we drop any elements that are not changes
                     parsed_args = check_args_for_changes(parsed_args, overrides)
@@ -878,7 +878,7 @@ def render_document_edit(form_name, document_id):
         return redirect(url_for('submissions.submissions_home'))
 
 # this is a replica of render_document() above, just modified to check for 
-# parse_out_form_configs(form_name)['_form_approval'] and verify that the current_user
+# propagate_form_configs(form_name)['_form_approval'] and verify that the current_user
 # is the form approver, otherwise abort. See https://github.com/signebedi/libreForms/issues/8.
 
 @bp.route('/<form_name>/<document_id>/review', methods=['GET', 'POST'])
@@ -886,7 +886,7 @@ def render_document_edit(form_name, document_id):
 def review_document(form_name, document_id):
     
     try:
-        options = parse_out_form_configs(form=form_name)
+        options = propagate_form_configs(form=form_name)
         verify_group = options['_submission']
         if not options['_form_approval']:
             return abort(404)
@@ -1040,7 +1040,7 @@ def review_document(form_name, document_id):
 def generate_pdf(form_name, document_id):
 
     try:
-        test_the_form_options = parse_out_form_configs(form=form_name)
+        test_the_form_options = propagate_form_configs(form=form_name)
 
     except Exception as e:
         flash('This form does not exist.')
