@@ -7,13 +7,19 @@ application should, in the long-run, be written to be totally abstract
 as to the application used to store data; in reality, however, it is 
 strongly tied to using MongoDB. 
 
+# Form Data Structure
+
+
+
+
+
 # class MongoDB()
 
 This connects, by default, to a local MongoDB server with user 'root' and
 on port 27017. Administrators can over ride these defaults using the 
 'mongodb_user', 'mongodb_host', and 'mongodb_port' application configs.
 
-# with MongoClient()
+# `with MongoClient()`
 
 Leaving the MongoClient connection open for the lifespan of the MongoDB 
 object is not feasible given that MongoDB is not write safe in a multi-
@@ -23,6 +29,52 @@ worker environment like WSGI, see:
     2. https://stackoverflow.com/a/18401169
 
 and the following issue: https://github.com/signebedi/libreForms/issues/128. 
+
+As a result, we use context management and re-establish the connection at each 
+transaction. 'Is this efficient?' you ask inquisitively. If the MongoDB server
+is hosted on the same server, it probably will not be an issue. There may be 
+some latency issues with this approach at scale with an externalized database, 
+but we'll cross this bridge when we come to it. 
+
+
+# collections()
+
+This returns a list of current collections (or forms) stored in the MongoDB
+database. It's a useful shorthand to test whether an active form has received
+any submissions, and whether an inactive form has past submissions still in 
+the system - especially, in the latter case, when administrators are migrating
+or cleaning up data.
+
+
+# write_document_to_collection()
+
+This is the bread-and-butter of the web application's MongoDB wrapper library 
+by defining the application's behavior when writing a form submission to the 
+database.
+
+We start by asking whether this is a new submission (from app.forms), or a 
+modification to an existing form (coming from app.submissions). If it's a new 
+submission, we assign the same value to `Reporter` and `Owner`, and then create
+the `Journal` using a carbon copy of the form data, except for the timestamp, 
+which is used for the `Journal` unique key. If the web application has sent data
+about digital signatures and approvals, then we include those as well. If the
+submission is a modification, then we overwrite the data that changed and save 
+the differences to the `Journal` with a new timestamp; this will also wipe out 
+any past approvals / signatures that the form had received.
+
+
+# read_documents_from_collection()
+
+This method returns a list of documents for a given collection / form name. This is 
+used primarily in app.submissions (see the wrapper function get_record_of_submissions
+in app.submissions) when querying submissions for a given form. It's generally useful
+when examining data at a form-by-form level. For example, maybe an administrator has 
+some form `B-207: request for leave`, and they want to examine longitudinal data about
+leave requests, especially when employees tend to make the most requests, to ensure 
+management can make informed staffing decisions around these periods. An administrator 
+can simply invoke this method, with the form name as an argument, and get a list of each
+unique form submission for this form that they can parse using any data science toolkit 
+they might choose.
 
 
 """
@@ -131,10 +183,12 @@ class MongoDB:
             if not ['Approver_Comment']:
                 del data['Approver_Comment']
 
-            # setting the timestamp sooner so it's included in the Journal data, thus removing the
+            # setting the timestamp sooner so it's included in the Journal data, perhaps removing the
             # need for a data copy.
             data['Timestamp'] = timestamp
 
+            # but we create a copy anyways to keep things segmented and avoid potential
+            # recursion problems.
             data_copy = data.copy()
 
             # here we define the behavior of the `Journal` metadata field 
