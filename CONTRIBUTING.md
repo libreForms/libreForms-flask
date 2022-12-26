@@ -1,5 +1,7 @@
 ## How to contribute to libreForms
 
+This is an open source project that depends on community contributions like bug reports & patches, enhancement requests, and new feature contributions.
+
 #### **Did you find a bug?**
 
 * **Ensure the bug was not already reported** by searching on GitHub under [Issues](https://github.com/signebedi/libreForms/issues) with the \[bug\] tag.
@@ -10,7 +12,7 @@
 
 * Open a new GitHub pull request with the patch.
 
-* Ensure the PR description clearly describes the problem and solution. Include the relevant issue number if applicable.
+* Ensure the PR description clearly describes the problem and solution. Include the relevant issue number if applicable (see below for formatting guidelines).
 
 #### **Did you fix whitespace, format code, or make a purely cosmetic patch?**
 
@@ -18,13 +20,13 @@ Changes that are solely cosmetic in nature and do not add anything substantial t
 
 #### **Do you intend to add a new feature or change an existing one?**
 
-* Suggest your change under [Issues](https://github.com/signebedi/libreForms/issues) with the \[enhancement\] tag before making any pull requests.
+* Suggest your change under [Issues](https://github.com/signebedi/libreForms/issues) with the \[enhancement\] tag before making any pull requests, as it is usually best to discuss proposed modifications, and understand how that might effect the codebase, before making them
 * Ensure that any new scripts you add conform to the project's [standard boilerplate](https://github.com/signebedi/libreForms/issues/78).
-* Ensure that any changes you've proposed to existing scripts include your name in the \_\_credits\_\_ list of that script.
+* Ensure that any changes you've proposed to existing scripts include your name in the \_\_credits\_\_ list of that script - you've earned it!
 
 #### **Do you have questions about the source code?**
 
-* Ask any question about how to use libreForms under [Issues](https://github.com/signebedi/libreForms/issues) with the \[question\] tag.
+* Ask any questions about how to use libreForms under [Issues](https://github.com/signebedi/libreForms/issues) with the \[question\] tag.
 
 #### **Do you want to contribute to the libreForms documentation?**
 
@@ -32,7 +34,7 @@ Changes that are solely cosmetic in nature and do not add anything substantial t
 
 #### **Are there general approaches to how commits and PRs should be made?**
 
-Git contribution messages should generally be prepended with the following conventions (with major conventions bolded):
+Git contribution messages should generally be prepended with the following conventions:
 
 - **Added**: a catch-all for additions to the code base
 - **Removed**: dropping a significant component of an existing feature
@@ -40,15 +42,11 @@ Git contribution messages should generally be prepended with the following conve
 - **Fixed**: a broken feature or bug fix
 - **Docs**: modified the codebase documentation
 - **Tests**: modified the codebase tests
-- Routine: clerical and minor changes or refactors not affecting the API
-- Grumble: progress not yet sufficient to result in any changes above
 
 Generally, contributors should aim to link all of their contributions to [Issues](https://github.com/signebedi/libreForms/issues) to help with code review. We'd appreciate if you'd append an issue number to the header of any contribution message. Here's an example of a commit message that would conform to these guidelines:
 
 ```
-Added: standard boilerplate to app/signing.py (#78)
-
-libreForms contributing guidelines generally require scripts to include standard boilerplate to explain the scripts functionality and any appropriate discussion of key decisions that were made. In addition, the guidelines require additional metadata variables. This contribution modifies app/signing.py to conform to these guidelines.
+Added: standard boilerplate to app.signing (#78)
 ```
 
 Thanks for your interest in the libreForms project.
