@@ -112,6 +112,9 @@ config['disapproval_key'] = collect_secrets_from_file('disapproval_key')
 # instead of using usernames, which may not be sufficiently descriptive.
 config['visible_signature_field'] = 'username'
 
+config['require_password_for_electronic_signatures'] = True
+
+
 config['allow_anonymous_registration'] = True
 
 
