@@ -26,12 +26,14 @@ marshmallow==3.19.0
 numpy==1.24.0
 packaging==22.0
 pandas==1.5.2
+Pillow==9.3.0
 plotly==5.11.0
 prompt-toolkit==3.0.36
 pycparser==2.21
 pymongo==4.3.3
 python-dateutil==2.8.2
 pytz==2022.7
+reportlab==3.6.12
 requests==2.28.1
 six==1.16.0
 SQLAlchemy==1.4.45
