@@ -106,8 +106,10 @@ config['approval_key'] = collect_secrets_from_file('approval_key')
 config['disapproval_key'] = collect_secrets_from_file('disapproval_key')
 
 # as a default, we will config a user's username as their 'signature' 
-# when they have digitally signed a document; Nb. this must be a 
-# field in the User database.
+# when they have electronically signed a document; Nb. this must be a 
+# field in the User database. For example, administrators may wish to
+# display the user's full name (if this is specified as a custom field)
+# instead of using usernames, which may not be sufficiently descriptive.
 config['visible_signature_field'] = 'username'
 
 config['allow_anonymous_registration'] = True
