@@ -24,7 +24,7 @@ from sqlalchemy.sql import text
 
 # import custom packages from the current repository
 import libreforms
-from app import config, log, tempfile_path, mailer, mongodb
+from app import config, log, mailer, mongodb#, tempfile_path
 from app.models import User, db
 from app.auth import login_required, session
 from app.certification import encrypt_with_symmetric_key
@@ -553,8 +553,11 @@ def download_file(filename):
     # this is our first stab at building templates, without accounting for nesting or repetition
     df = pd.DataFrame (columns=[x for x in propagate_form_fields(filename.replace('.csv', ''), group=current_user.group).keys()])
 
-    fp = os.path.join(tempfile_path, filename)
-    df.to_csv(fp, index=False)
+    from app.tmpfiles import temporary_directory
+    with temporary_directory() as tempfile_path:
 
-    return send_from_directory(tempfile_path,
-                            filename, as_attachment=True)
+        fp = os.path.join(tempfile_path, filename)
+        df.to_csv(fp, index=False)
+
+        return send_from_directory(tempfile_path,
+                                filename, as_attachment=True)

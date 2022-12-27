@@ -18,7 +18,6 @@ __email__ = "signe@atreeus.com"
 
 
 import os, re, secrets
-from app.tmpfiles import init_tmp_fs
 from app.config import config, collect_secrets_from_file
 from app.log_functions import cleanup_stray_log_handlers
 from app.certification import generate_symmetric_key
@@ -92,9 +91,6 @@ def pre_fork(server, worker):
                 db.session.commit()
                 db.session.close()
 
-
-    # destructively initialize a tmp file system for the app 
-    # init_tmp_fs(delete_first=True)
 
 
 

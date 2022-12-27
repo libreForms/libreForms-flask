@@ -24,7 +24,7 @@ import numpy as np
 
 # import custom packages from the current repository
 import libreforms
-from app import config, log, tempfile_path, mailer, mongodb
+from app import config, log, mailer, mongodb#, tempfile_path
 from app.models import User, db
 from app.auth import login_required, session
 from app.certification import encrypt_with_symmetric_key, verify_symmetric_key
@@ -1117,14 +1117,19 @@ def generate_pdf(form_name, document_id):
             import datetime
             from app.pdf import generate_pdf
             filename = f"{form_name}_{document_id}.pdf"
-            fp = os.path.join(tempfile_path, filename)
-            # document_name= f'{datetime.datetime.utcnow().strftime("%Y-%m-%d")}_{current_user.username}_{form_name}.pdf'
 
-            generate_pdf(   form_name=form_name, 
-                            data_structure=dict(record.iloc[0]), 
-                            username=current_user.username,
-                            document_name=fp,
-                            skel=libreforms.forms[form_name]    )
+            from app.tmpfiles import temporary_directory
+            with temporary_directory() as tempfile_path:
 
-            return send_from_directory(tempfile_path,
-                                    filename, as_attachment=True)
+
+                fp = os.path.join(tempfile_path, filename)
+                # document_name= f'{datetime.datetime.utcnow().strftime("%Y-%m-%d")}_{current_user.username}_{form_name}.pdf'
+
+                generate_pdf(   form_name=form_name, 
+                                data_structure=dict(record.iloc[0]), 
+                                username=current_user.username,
+                                document_name=fp,
+                                skel=libreforms.forms[form_name]    )
+
+                return send_from_directory(tempfile_path,
+                                        filename, as_attachment=True)

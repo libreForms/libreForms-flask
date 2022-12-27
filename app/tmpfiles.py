@@ -25,8 +25,21 @@ __license__ = "AGPL-3.0"
 __maintainer__ = "Sig Janoska-Bedi"
 __email__ = "signe@atreeus.com"
 
-import os, tempfile
-import pandas as pd
+import os 
+import tempfile
+import contextlib
+import shutil
+
+# borrowed from https://stackoverflow.com/a/21922442/13301284
+# to enable context management when using temp directories, see
+# https://github.com/signebedi/libreForms/issues/169
+@contextlib.contextmanager
+def temporary_directory(*args, **kwargs):
+    d = tempfile.mkdtemp(*args, **kwargs)
+    try:
+        yield d
+    finally:
+        shutil.rmtree(d)
 
 
 def init_tmp():

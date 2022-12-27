@@ -60,7 +60,7 @@ __maintainer__ = "Sig Janoska-Bedi"
 __email__ = "signe@atreeus.com"
 
 from datetime import datetime
-from app import log, mailer, config, tempfile_path
+from app import log, mailer, config
 
 
 # import flask-related packages
