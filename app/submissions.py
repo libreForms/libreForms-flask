@@ -24,7 +24,7 @@ import numpy as np
 
 # import custom packages from the current repository
 import libreforms
-from app import config, log, mailer, mongodb#, tempfile_path
+from app import config, log, mailer, mongodb
 from app.models import User, db
 from app.auth import login_required, session
 from app.certification import encrypt_with_symmetric_key, verify_symmetric_key
@@ -1118,6 +1118,9 @@ def generate_pdf(form_name, document_id):
             from app.pdf import generate_pdf
             filename = f"{form_name}_{document_id}.pdf"
 
+
+            # here we employ a context-bound temp directory to stage this file for download, see
+            # discussion in app.tmpfiles and https://github.com/signebedi/libreForms/issues/169.
             from app.tmpfiles import temporary_directory
             with temporary_directory() as tempfile_path:
 

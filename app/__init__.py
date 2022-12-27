@@ -41,7 +41,6 @@ from flask_login import LoginManager, current_user
 # application-specific dependencies
 from app import smtp, mongo, log_functions
 from app.config import config
-from app.tmpfiles import init_tmp
 from app.models import db, User
 from app.certification import generate_symmetric_key
 
@@ -84,11 +83,6 @@ else:
 log = log_functions.set_logger('log/libreforms.log',__name__)
 log.info('LIBREFORMS - started libreforms web application.')
 
-
-# we instantiate a tempfile path for the current worker instance, 
-# which we'll use to store tempfiles, uploads, etc.
-tempfile_path = init_tmp()
-log.info(f'LIBREFORMS - initialized temp filesystem at {tempfile_path}.')
 
 # here we create the celery object
 celery = Celery(__name__, backend=config['celery_backend'], broker=config['celery_broker'])

@@ -21,7 +21,7 @@ from flask import current_app, Blueprint, flash, g, redirect, render_template, r
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 
-from app import config, log, mailer#, tempfile_path
+from app import config, log, mailer
 import app.signing as signing
 from app.models import User, Signing, db
 from flask_login import login_required, current_user, login_user
@@ -655,6 +655,9 @@ def download_bulk_user_template(filename='bulk_user_template.csv'):
             # we only add the field if it is not a 'hidden' registration field
             if config['user_registration_fields'][x]['input_type'] != 'hidden':
                 df[x] = None
+
+    # here we employ a context-bound temp directory to stage this file for download, see
+    # discussion in app.tmpfiles and https://github.com/signebedi/libreForms/issues/169.        
     from app.tmpfiles import temporary_directory
     with temporary_directory() as tempfile_path:
         fp = os.path.join(tempfile_path, filename)

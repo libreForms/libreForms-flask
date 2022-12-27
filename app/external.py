@@ -23,7 +23,7 @@ from flask_login import current_user
 
 # import custom packages from the current repository
 import libreforms
-from app import config, log, mailer, mongodb#, tempfile_path
+from app import config, log, mailer, mongodb
 from app.auth import login_required, session
 from app.forms import define_webarg_form_data_types, checkGroup, reconcile_form_data_struct, \
     propagate_form_fields, propagate_form_configs, compile_depends_on_data, rationalize_routing_list
@@ -198,6 +198,8 @@ if config['allow_anonymous_form_submissions']:
             # this is our first stab at building templates, without accounting for nesting or repetition
             df = pd.DataFrame (columns=[x for x in propagate_form_fields(filename.replace('.csv', '')).keys()])
 
+            # here we employ a context-bound temp directory to stage this file for download, see
+            # discussion in app.tmpfiles and https://github.com/signebedi/libreForms/issues/169.
             from app.tmpfiles import temporary_directory
             with temporary_directory() as tempfile_path:
 
