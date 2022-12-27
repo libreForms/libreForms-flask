@@ -6,14 +6,39 @@ and write to a temporary filesystem to manage document
 uploads and downloads. This script contains the methods
 needed to do so.
 
+# temporary_directory()
+
+This approach allows us to use context management to create
+temp directories for a purpose, then delete them immediately
+after so to avoid sprawl in unused temp directories. This
+does a little garbage collection for us, in cases where
+we have no reason to allow the filesystem to persist 
+beyond its immediate use. This approach was borrowed from
+https://stackoverflow.com/a/21922442/13301284, and is discussed
+further at https://github.com/signebedi/libreForms/issues/169.
+
+
+There are two kinds of file storage needed: ephemeral and persistent. 
+Ephemeral storage encapsulates when (a) the application is generating 
+a temp file and needs a file path to temporarily store it at; (b) when 
+an end user uploads some file (typically a CSV) to read into the 
+application, but does not need to reuse. Persistent storage encapsulates 
+attachments or file uploads that will need to be re-accessed; these should 
+be stored in a separate, noexec filesystem with antivirus scanning 
+(like ClamAV).
+
 # init_tmp()
 
 It took awhile for us to get to this approach, which
 to this day seems like the easiest way to initialize a 
-temporary filesystem, and deprecate the previous method,
-which is still included below, called init_tmp_fs().
+temporary filesystem that doesn't need to be context-
+bound, and deprecated the previous method, which is 
+still included below, called init_tmp_fs(), as it includes
+a numer of potentially useful tidbits that we may reuse.
 One of the major advantages of this approach is that it 
-just creates a temporary folder in /tmp and logs the name.
+just creates a temporary folder in /tmp and returns the name.
+This approach, however, was generally deprecated in favor of
+the context-bound temporary_directory() approach, see above.
 
 """
 
@@ -32,7 +57,7 @@ import shutil
 
 # borrowed from https://stackoverflow.com/a/21922442/13301284
 # to enable context management when using temp directories, see
-# https://github.com/signebedi/libreForms/issues/169
+# https://github.com/signebedi/libreForms/issues/169.
 @contextlib.contextmanager
 def temporary_directory(*args, **kwargs):
     d = tempfile.mkdtemp(*args, **kwargs)
@@ -41,7 +66,8 @@ def temporary_directory(*args, **kwargs):
     finally:
         shutil.rmtree(d)
 
-
+# deprecated in favor of context-bound temporary_directory(), but keeping
+# in place in case there is a use case for a persistent temp directory. 
 def init_tmp():
     temp_folder = tempfile.mkdtemp()
     return temp_folder
