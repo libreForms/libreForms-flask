@@ -81,7 +81,7 @@ config['warning_banner'] = ''
 # User Registration / Auth
 ##########################
 
-config['user_registration_fields'] = None
+config['user_registration_fields'] = {}
 
 config['libreforms_user_email'] = None
 

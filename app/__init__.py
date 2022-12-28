@@ -232,17 +232,16 @@ def create_app(test_config=None):
     # In order to do this, administrators should define these additional fields in the app config using the
     # `user_registration_fields` key; see https://github.com/signebedi/libreForms/issues/61 for more details.
     # here we append any additional fields described in the `user_registration_fields` app config
-    if config['user_registration_fields']:
-        for key, value in config['user_registration_fields'].items():
+    for key, value in config['user_registration_fields'].items():
 
-            # might eventually be worth adding support for unique fields...
-            if value['type'] == str:
-                setattr(User, key, db.Column(db.String(1000)))
-                # print(key,value)
+        # might eventually be worth adding support for unique fields...
+        if value['type'] == str:
+            setattr(User, key, db.Column(db.String(1000)))
+            # print(key,value)
 
-            elif value['type'] == int:
-                setattr(User, key, db.Column(db.Integer))
-                # print(key,value)
+        elif value['type'] == int:
+            setattr(User, key, db.Column(db.Integer))
+            # print(key,value)
 
 
     # initialize the database object defined outside the app context above
