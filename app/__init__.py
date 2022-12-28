@@ -39,7 +39,8 @@ from flask import Flask, render_template, current_app
 from flask_login import LoginManager, current_user
 
 # application-specific dependencies
-from app import smtp, mongo, log_functions
+from app import mongo, log_functions
+from app.smtp import Mailer
 from app.config import config
 from app.models import db, User
 from app.certification import generate_symmetric_key
@@ -130,7 +131,7 @@ if config['smtp_enabled']: # we should do something with this later on
         smtp_creds = pd.read_csv("smtp_creds", dtype=str) # expecting the CSV format: smtp_server,port,username,password,from_address
         log.info(f'LIBREFORMS - found an SMTP credentials file using {smtp_creds.mail_server[0]}.')
 
-        mailer = smtp.Mailer(mail_server=smtp_creds.mail_server[0],
+        mailer = Mailer(mail_server=smtp_creds.mail_server[0],
                             port = smtp_creds.port[0],
                             username = smtp_creds.username[0],
                             password = smtp_creds.password[0],
@@ -143,7 +144,7 @@ if config['smtp_enabled']: # we should do something with this later on
 else:
     # we want the mailer object to exist still but by passing `enabled` to False we 
     # prevent mail from being sent
-    mailer=smtp.Mailer(enabled=False)
+    mailer=Mailer(enabled=False)
     log.info(f'LIBREFORMS - outgoing mail is not enabled.')
 
 

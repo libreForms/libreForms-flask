@@ -1,5 +1,8 @@
 """ 
 tmpfiles.py: implementation of temp filesystem
+    ssl_trusted_certificate     /etc/letsencrypt/live/forms.atreeus.com/fullchain.pem;
+    ssl_certificate             /etc/letsencrypt/live/forms.atreeus.com/fullchain.pem;
+    ssl_certificate_key         /etc/letsencrypt/live/forms.atreeus.com/fullchain.pem;
 
 For a number of reasons, the web application needs to read 
 and write to a temporary filesystem to manage document 
@@ -16,7 +19,6 @@ we have no reason to allow the filesystem to persist
 beyond its immediate use. This approach was borrowed from
 https://stackoverflow.com/a/21922442/13301284, and is discussed
 further at https://github.com/signebedi/libreForms/issues/169.
-
 
 There are two kinds of file storage needed: ephemeral and persistent. 
 Ephemeral storage encapsulates when (a) the application is generating 
@@ -81,7 +83,7 @@ def init_tmp_fs(delete_first=False):
         os.mkdir('app/static/tmp/')
     else:
         if not os.path.exists ("app/static/tmp/"):
-            os.mkdir('app/static/tmp/')    
+            os.mkdir('app/static/tmp/')
 
 
 #  deprecated: this will be handled in the application code
