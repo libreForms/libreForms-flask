@@ -71,12 +71,13 @@ def pre_fork(server, worker):
                     setattr(User, key, db.Column(db.Integer))
                     print (key, value)
    
-        
-        db.create_all(app=app)
 
-        # create default user if doesn't exist
+        # create database and default user if doesn't exist
         # solution from https://stackoverflow.com/a/39288652
         with app.app_context():
+            
+            db.create_all()
+
             if db.session.query(User).filter_by(username='libreforms').count() < 1:
                 initial_user = User(id=1,
                                     username='libreforms', 
