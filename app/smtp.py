@@ -93,7 +93,7 @@ class Mailer():
                     server.login(self.username, self.password)
 
                     # sending a plain text email
-                    server.Mailer(self.from_address, [to_address]+cc_address_list, msg.as_string())
+                    server.sendmail(self.from_address, [to_address]+cc_address_list, msg.as_string())
                     # server.send_message(msg.as_string())
 
                     if logfile: logfile.info(f'successfully sent an email to {to_address}')
