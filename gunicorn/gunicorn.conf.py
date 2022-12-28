@@ -48,11 +48,7 @@ def pre_fork(server, worker):
     # create the app database if it doesn't exist
     if not os.path.exists(os.path.join('instance','app.sqlite')):
         from app import create_app    
-        from app.models import User
-        from flask_sqlalchemy import SQLAlchemy
-
-        # create the database if one doesn't exist
-        db = SQLAlchemy()
+        from app.models import User, db
 
         app=create_app()
 
