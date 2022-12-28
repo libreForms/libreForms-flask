@@ -477,9 +477,10 @@ def render_user_submissions(user):
 
         except Exception as e:
             return flash('No submissions found for this user. ')
+            return abort(404)
 
         if not isinstance(record, pd.DataFrame):
-            return abort(404)
+            return flash('No submissions found for this user. ')
 
         # we start by dropping out any entries that no longer have 
         # form configurations; some vestigial forms may exist in the 
