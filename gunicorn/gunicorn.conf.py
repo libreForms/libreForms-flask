@@ -28,9 +28,8 @@ def pre_fork(server, worker):
     # this approach from https://github.com/signebedi/libreForms/issues/148 allows us
     # to generate secret_key files pre-fork
     for filename in ['secret_key', 'signature_key', 'approval_key', 'disapproval_key']:
-        collect_secrets_from_file(filename)
-
-
+        # collect_secrets_from_file(filename)
+        print (collect_secrets_from_file(filename))
 
     # cleanup any stray log files prior to forking the work processes
     if not os.path.exists ("log/"):
@@ -38,6 +37,7 @@ def pre_fork(server, worker):
     else:
         # if the log path exists, let's clean up old log handlers
         cleanup_stray_log_handlers()
+        print('cleanup')
 
     # create the app database if it doesn't exist
     if not os.path.exists(os.path.join('instance','app.sqlite')):
@@ -45,9 +45,11 @@ def pre_fork(server, worker):
         from app.models import User, db
 
         app=create_app()
+        print('create app')
 
         # initialize the database
-        db.init_app(app=app)     
+        db.init_app(app=app)
+        print('init app')
         
         # here we append any additional fields described in the user_registration_fields variable
         for key, value in config['user_registration_fields'].items():
@@ -80,6 +82,8 @@ def pre_fork(server, worker):
                 db.session.add(initial_user)
                 db.session.commit()
                 db.session.close()
+
+            print('db done')
 
 
 
