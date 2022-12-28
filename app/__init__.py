@@ -300,7 +300,7 @@ def create_app(test_config=None):
     # maybe a little hackish, but if we set `send_mail_asynchronously`, which defaults to True,
     # then we configure the application to send mail asynchronously using the current_app;
     # otherwise, we fall back to synchronous mail
-    current_app.config['MAILER'] = send_mail_asynch if config['send_mail_asynchronously'] else mailer.send_mail
+    app.config['MAILER'] = send_mail_asynch if config['send_mail_asynchronously'] else mailer.send_mail
 
     # create a report manager object to send scheduled email reports, see 
     # app.reports and https://github.com/signebedi/libreForms/issues/73
