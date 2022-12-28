@@ -18,7 +18,7 @@ __email__ = "signe@atreeus.com"
 
 
 import os, re, secrets
-from app.config import config, collect_secrets_from_file
+from app.config import config as appconfig, collect_secrets_from_file
 from app.log_functions import cleanup_stray_log_handlers
 from app.certification import generate_symmetric_key
 
@@ -52,7 +52,7 @@ def pre_fork(server, worker):
         print('init app')
         
         # here we append any additional fields described in the user_registration_fields variable
-        for key, value in config['user_registration_fields'].items():
+        for key, value in appconfig['user_registration_fields'].items():
 
             # might eventually be worth adding support for unique fields...
             if value == str:
@@ -73,10 +73,10 @@ def pre_fork(server, worker):
                 initial_user = User(id=1,
                                     username='libreforms', 
                                     active=1,
-                                    theme='dark' if config['dark_mode'] else 'light',
+                                    theme='dark' if appconfig['dark_mode'] else 'light',
                                     group='admin',
                                     certificate=generate_symmetric_key(),
-                                    email=config['libreforms_user_email'] if config['libreforms_user_email'] and re.fullmatch(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', config['libreforms_user_email']) else None,
+                                    email=appconfig['libreforms_user_email'] if appconfig['libreforms_user_email'] and re.fullmatch(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', appconfig['libreforms_user_email']) else None,
                                     password='pbkdf2:sha256:260000$nQVWxd59E8lmkruy$13d8c4d408185ccc3549d3629be9cd57267a7d660abef389b3be70850e1bbfbf',
                                     created_date='2022-06-01 00:00:00',)
                 db.session.add(initial_user)
