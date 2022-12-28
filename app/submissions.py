@@ -476,7 +476,7 @@ def render_user_submissions(user):
             record = aggregate_form_data(user=user)
 
         except Exception as e:
-            return abort(404)
+            return flash('No submissions found for this user. ')
 
         if not isinstance(record, pd.DataFrame):
             return abort(404)
