@@ -310,7 +310,7 @@ def aggregate_approval_count(select_on=None):
             # then we return those whose approver is set to the select_on parameter
             return record.loc[(record['Approver'] == select_on) & (record['Approval'].isna())]
         except: 
-            return 0
+            return pd.DataFrame()
             
 
 
