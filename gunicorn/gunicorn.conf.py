@@ -23,13 +23,7 @@ from app.log_functions import cleanup_stray_log_handlers
 from app.certification import generate_symmetric_key
 
 # here we add pre-fork tasks that need to be handled prior to setting up concurrent sessions
-def pre_fork(server, worker):
-
-    # we create the secret key for the application if it doesn't exist
-    if not os.path.exists('secret_key'):
-        with open('secret_key', 'w') as f: 
-            secret_key = secrets.token_urlsafe(16)
-            f.write(secret_key)
+def pre_fork(server, worker):            
 
     # this approach from https://github.com/signebedi/libreForms/issues/148 allows us
     # to generate secret_key files pre-fork
@@ -56,16 +50,15 @@ def pre_fork(server, worker):
         db.init_app(app=app)     
         
         # here we append any additional fields described in the user_registration_fields variable
-        if config['user_registration_fields']:
-            for key, value in config['user_registration_fields'].items():
+        for key, value in config['user_registration_fields'].items():
 
-                # might eventually be worth adding support for unique fields...
-                if value == str:
-                    setattr(User, key, db.Column(db.String(1000)))
-                    print (key, value)
-                elif value == int:
-                    setattr(User, key, db.Column(db.Integer))
-                    print (key, value)
+            # might eventually be worth adding support for unique fields...
+            if value == str:
+                setattr(User, key, db.Column(db.String(1000)))
+                print (key, value)
+            elif value == int:
+                setattr(User, key, db.Column(db.Integer))
+                print (key, value)
    
 
         # create database and default user if doesn't exist
