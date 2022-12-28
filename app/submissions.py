@@ -301,13 +301,16 @@ def set_digital_signature(      username,
 # will return the number of unsigned approvals
 def aggregate_approval_count(select_on=None): 
 
-        record = aggregate_form_data('Approver', 'Approval', user=None)
+        try:
+            record = aggregate_form_data('Approver', 'Approval', user=None)
 
-        # first we drop values that are not tied to the current list of acceptible forms
-        record = record.drop(record.loc[~record.form.isin(libreforms.forms.keys())].index)
+            # first we drop values that are not tied to the current list of acceptible forms
+            record = record.drop(record.loc[~record.form.isin(libreforms.forms.keys())].index)
 
-        # then we return those whose approver is set to the select_on parameter
-        return record.loc[(record['Approver'] == select_on) & (record['Approval'].isna())]
+            # then we return those whose approver is set to the select_on parameter
+            return record.loc[(record['Approver'] == select_on) & (record['Approval'].isna())]
+        except: 
+            return 0
             
 
 
