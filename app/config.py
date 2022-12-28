@@ -181,5 +181,5 @@ config['mongodb_pw']   = None
 if os.path.exists ("app/config_overrides.py"):
     from app.config_overrides import config as config_override
     for conf in config_override.keys():
-        print(conf, config_override[conf])
+        # print(conf, config_override[conf])
         config[conf] = config_override[conf]
