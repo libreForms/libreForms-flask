@@ -74,6 +74,7 @@ config['favicon'] = "default_favicon.ico"
 config['default_org'] = "" 
 config['version'] = __version__
 config['privacy_policy'] = ''
+config['warning_banner'] = ''
 
 
 ##########################
@@ -85,7 +86,7 @@ config['user_registration_fields'] = None
 config['libreforms_user_email'] = None
 
 config['default_group'] = 'default'
-config['groups'] = None
+config['groups'] = ['admin', 'default']
 
 # these fields allow you to determine whether email, phone, 
 # and organization are required fields at registration, see 
@@ -178,6 +179,7 @@ config['mongodb_pw']   = None
 
 
 if os.path.exists ("app/config_overrides.py"):
-    import app.config_overrides
-    for conf in app.config_overrides.config.keys():
-        config[conf] = app.config_overrides.config[conf]
+    from app.config_overrides import config as config_override
+    for conf in config_override.keys():
+        print(conf, config_override[conf])
+        config[conf] = config_override[conf]
