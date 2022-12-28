@@ -254,7 +254,8 @@ def create_app(test_config=None):
     # because they need to occur before the application forks into multiple
     # processes.
     if not os.path.exists(os.path.join('instance','app.sqlite')):
-        db.create_all(app=app)
+        with app.app_context():
+            db.create_all()
 
         # create default user if doesn't exist
         # solution from https://stackoverflow.com/a/39288652
