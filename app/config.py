@@ -64,14 +64,10 @@ config = {}
 config['site_name'] = "libreForms"
 
 # remove the Markup designation if you don't want to render this as HTML.
-config['homepage_msg'] = Markup("<p>Welcome to libreForms, an extensible form building abstraction \
-                            layer implemented in Flask. Select a view from above to get started. \
-                            Review the docs at <a href='https://github.com/signebedi/libreForms'> \
-                            https://github.com/signebedi/libreForms</a>.</p>")
+config['homepage_msg'] = Markup("<p>Welcome to libreForms, an extensible form building abstraction layer implemented in Flask. Select a view from above to get started. Review the docs at <a href='https://github.com/signebedi/libreForms'>https://github.com/signebedi/libreForms</a>.</p>")
 config['domain'] = None
 config['dark_mode'] = True 
 config['warning_banner'] = "" 
-config['theme'] = "" # unused
 config['favicon'] = "" # unused
 config['image'] = "" # unused
 config['favicon'] = "default_favicon.ico" 
