@@ -134,9 +134,11 @@ chown -R libreforms:libreforms /opt/libreForms
 4. systemd service
 
 ```
-cp /opt/libreForms/gunicorn/libreforms.service /etc/systemd/system
+cp /opt/libreForms/gunicorn/*.service /etc/systemd/system
 systemctl daemon-reload
-systemctl enable --now libreforms
+systemctl enable --now libreforms-gunicorn
+systemctl enable --now libreforms-celery
+systemctl enable --now libreforms-celerybeat
 ```
 
 ### Amazon Linux 2
@@ -194,9 +196,11 @@ chown -R libreforms:libreforms /opt/libreForms
 4. systemd service
 
 ```
-cp /opt/libreForms/gunicorn/libreforms.service /etc/systemd/system
+cp /opt/libreForms/gunicorn/*.service /etc/systemd/system
 systemctl daemon-reload
-systemctl enable --now libreforms
+systemctl enable --now libreforms-gunicorn
+systemctl enable --now libreforms-celery
+systemctl enable --now libreforms-celerybeat
 ```
 
 
@@ -206,7 +210,7 @@ systemctl enable --now libreforms
 
 ```
 apt update -y && apt upgrade -y
-apt install -y mongodb python3-pip python3-ldap python3-venv # for the most up to date version of mongodb, see https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-ubuntu/
+apt install -y mongodb python3-pip python3-ldap python3-venv rabbitmq-server # for the most up to date version of mongodb, see https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-ubuntu/
 systemctl enable --now mongodb
 ```
 
@@ -248,9 +252,11 @@ chown -R libreforms:libreforms /opt/libreForms
 4. systemd service
 
 ```
-cp /opt/libreForms/gunicorn/libreforms.service /etc/systemd/system
+cp /opt/libreForms/gunicorn/*.service /etc/systemd/system
 systemctl daemon-reload
-systemctl enable --now libreforms
+systemctl enable --now libreforms-gunicorn
+systemctl enable --now libreforms-celery
+systemctl enable --now libreforms-celerybeat
 ```
 
 ### MongoDB
