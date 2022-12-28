@@ -10,7 +10,7 @@ cohesive data structure.
 
 The libreForms abstraction layer is defined in ```libreforms/forms/__init__.py``` 
 and expects organizations to overwrite the default form by adding a file called 
-```libreforms/add_ons.py```. At this time, the abstraction layer can handle the 
+```libreforms/form.py```. At this time, the abstraction layer can handle the 
 "text", "password", "radio", "select", "checkbox", "date", "hidden", and "number" 
 input types, and can write to Python's str, float, int, and list data types. 
 
@@ -101,13 +101,13 @@ forms = {
     },
 }
 
-# read forms from file as add_ons
-# overwrite/append add_ons to forms in this file
+# read forms from file as form
+# overwrite/append form to forms in this file
 try:
-    import libreforms.add_ons as add_ons
+    import libreforms.form_config as form_config
     forms_appended = dict(forms)            # this creates a copy of the original dictionary, to
-    forms_appended.update(add_ons.forms)    # which we will append the add_ons data
-    forms = add_ons.forms # this is the default behavior, which overwrites the default behavior   
+    forms_appended.update(form_config.forms)    # which we will append the form data
+    forms = form_config.forms # this is the default behavior, which overwrites the default behavior   
 except Exception as e: # if anything above fails, we skip 
     print (e)
 
