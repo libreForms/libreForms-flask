@@ -476,11 +476,11 @@ def render_user_submissions(user):
             record = aggregate_form_data(user=user)
 
         except Exception as e:
-            return flash('No submissions found for this user. ')
             return abort(404)
 
         if not isinstance(record, pd.DataFrame):
-            return flash('No submissions found for this user. ')
+            flash('No submissions found for this user. ')
+            return redirect(url_for('auth.profile'))
 
         # we start by dropping out any entries that no longer have 
         # form configurations; some vestigial forms may exist in the 
