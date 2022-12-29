@@ -1,8 +1,5 @@
 """ 
 tmpfiles.py: implementation of temp filesystem
-    ssl_trusted_certificate     /etc/letsencrypt/live/forms.atreeus.com/fullchain.pem;
-    ssl_certificate             /etc/letsencrypt/live/forms.atreeus.com/fullchain.pem;
-    ssl_certificate_key         /etc/letsencrypt/live/forms.atreeus.com/fullchain.pem;
 
 For a number of reasons, the web application needs to read 
 and write to a temporary filesystem to manage document 

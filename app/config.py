@@ -198,39 +198,45 @@ config['ldap_enabled'] = False
 config['celery_broker'] = 'pyamqp://'
 config['celery_backend'] = 'rpc://'
 
+# this config enables support for sending emails asynchronously using Celery.
 config['send_mail_asynchronously'] = False
-
 
 # UNTESTED: when users want to specify a custom SQL database rather than the 
 # default SQLite database created by the application.
 config['custom_sql_db'] = False
 
-
-
+# these configs determine whether to employ hCaptcha to verify low trust 
+# environments, see https://github.com/signebedi/libreForms/issues/63.
 config['enable_hcaptcha'] = False
 config['hcaptcha_site_key'] = False
 config['hcaptcha_secret_key'] = False
 
-
+# these configurations determine whether RESTful API access is enabled
+# for the application, see https://github.com/signebedi/libreForms/issues/75
+# and https://github.com/signebedi/libreForms/issues/72. You can also set an
+# integer to determine how many RESTful API keys each user can create.
 config['enable_rest_api'] = False
 config['limit_rest_api_keys_per_user'] = False
 
-
+# this config determines whether users will see their logs aggregated in
+# their user profiles, see https://github.com/signebedi/libreForms/issues/35.
 config['enable_user_profile_log_aggregation'] = False
 
-
+# this config determines whether periodic reports will be sent, see
+# https://github.com/signebedi/libreForms/issues/73. 
 config['send_reports'] = False
 
-
+# UNTESTED: these configs specify the login credentials for the MongoDB 
+# database, especially useful for externalized databases.
 config['mongodb_user'] = 'root'
 config['mongodb_host'] = 'localhost'
 config['mongodb_port'] = 27017
 config['mongodb_pw']   = None
 
 
-
+# here we overwrite the defaults above with any user-specified 
+# configurations in app.config_overrides, if it exists.
 if os.path.exists ("app/config_overrides.py"):
     from app.config_overrides import config as config_override
     for conf in config_override.keys():
-        # print(conf, config_override[conf])
         config[conf] = config_override[conf]

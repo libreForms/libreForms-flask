@@ -271,59 +271,59 @@ forms = {
         # "Remarks":"NA",    
         # "allow_repeat":True,          
     # },
-    # "b1": {
-    #     # "Name": {
-    #     #     "input_field": {"type": "text", "content": ["NA"]},
-    #     #     "output_data": {"type": "str", "required": False, "validators": [], "description": "",},
-    #     # },
-    #     # "Date": {
-    #     #     "input_field": {"type": "text", "content": ["NA"]},
-    #     #     "output_data": {"type": "str", "required": False, "validators": [], "description": "",},
-    #     # },
-    #     # "Confirmation": {
-    #     #     "input_field": {"type": "text", "content": ["NA"]},
-    #     #     "output_data": {"type": "str", "required": False, "validators": [], "description": "",},
-    #     # },
-    #     "Program": {
-    #         "input_field": {"type": "text", "content": ["NA"]},
-    #         "output_data": {"type": "str", "required": True, "validators": [], "description": "Enter the Program/Tech Tree that this falls under",},
-    #     },
-    #     "Project": {
-    #         "input_field": {"type": "text", "content": ["NA"]},
-    #         "output_data": {"type": "str", "required": False, "validators": [], "description": "You may enter the Project that this falls under",},
-    #     },
-    #     "Item": {
-    #         "input_field": {"type": "text", "content": ["NA"]},
-    #         "output_data": {"type": "str", "required": True, "validators": [], "description": "Enter the name of the item you would like to purchase",},
-    #     },
-    #     "Link": {
-    #         "input_field": {"type": "text", "content": ["NA"]},
-    #         "output_data": {"type": "str", "required": False, "validators": [], "description": "Provide a link to the item you would like to purchase",},
-    #     },
-    #     "Comments": {
-    #         "input_field": {"type": "text", "content": ["NA"]},
-    #         "output_data": {"type": "str", "required": False, "validators": [], "description": "Enter any additional comments you have",},
-    #     },
-    #     "Cost": {
-    #         "input_field": {"type": "text", "content": ["NA"]},
-    #         "output_data": {"type": "str", "required": True, "validators": [], "description": "Please use numbers and decimals only; no commas or currency symbols",},
-    #     },
-    #     "_dashboard": {             # defaults to False
-    #         "type": "scatter",      # this is a highly powerful feature but requires
-    #         "fields": {             # some knowledge of plotly dashboards; currently
-    #             "x": "Timestamp",   # only line charts with limited features supported
-    #             "y": "Int_Field",
-    #             "color": "Text_Field"
-    #         },
-    #         # '_deny_groups': ['admin'],
-    #     },
-    #     "_description": "This form is for the purpose of requesting money to purchase equipment that one finds necessary for the program. This should be straightforward and easy to use. Additionally, the end result should be secure, with at least one identity check.",
-    #     "_allow_repeat": False, # defaults to False
-    #     "_allow_uploads": True, # defaults to False
-    #     "_allow_csv_templates": True, # defaults to False
-    #     "_suppress_default_values": False, # defaults to False
-    #     # "_table":{'_deny_groups': ['admin'],},
-    # },
+    "b1": {
+        # "Name": {
+        #     "input_field": {"type": "text", "content": ["NA"]},
+        #     "output_data": {"type": "str", "required": False, "validators": [], "description": "",},
+        # },
+        # "Date": {
+        #     "input_field": {"type": "text", "content": ["NA"]},
+        #     "output_data": {"type": "str", "required": False, "validators": [], "description": "",},
+        # },
+        # "Confirmation": {
+        #     "input_field": {"type": "text", "content": ["NA"]},
+        #     "output_data": {"type": "str", "required": False, "validators": [], "description": "",},
+        # },
+        "Program": {
+            "input_field": {"type": "text", "content": ["NA"]},
+            "output_data": {"type": "str", "required": True, "validators": [], "description": "Enter the Program/Tech Tree that this falls under",},
+        },
+        "Project": {
+            "input_field": {"type": "text", "content": ["NA"]},
+            "output_data": {"type": "str", "required": False, "validators": [], "description": "You may enter the Project that this falls under",},
+        },
+        "Item": {
+            "input_field": {"type": "text", "content": ["NA"]},
+            "output_data": {"type": "str", "required": True, "validators": [], "description": "Enter the name of the item you would like to purchase",},
+        },
+        "Link": {
+            "input_field": {"type": "text", "content": ["NA"]},
+            "output_data": {"type": "str", "required": False, "validators": [], "description": "Provide a link to the item you would like to purchase",},
+        },
+        "Comments": {
+            "input_field": {"type": "text", "content": ["NA"]},
+            "output_data": {"type": "str", "required": False, "validators": [], "description": "Enter any additional comments you have",},
+        },
+        "Cost": {
+            "input_field": {"type": "text", "content": ["NA"]},
+            "output_data": {"type": "str", "required": True, "validators": [], "description": "Please use numbers and decimals only; no commas or currency symbols",},
+        },
+        "_dashboard": {             # defaults to False
+            "type": "scatter",      # this is a highly powerful feature but requires
+            "fields": {             # some knowledge of plotly dashboards; currently
+                "x": "Timestamp",   # only line charts with limited features supported
+                "y": "Int_Field",
+                "color": "Text_Field"
+            },
+            # '_deny_groups': ['admin'],
+        },
+        "_description": "This form is for the purpose of requesting money to purchase equipment that one finds necessary for the program. This should be straightforward and easy to use. Additionally, the end result should be secure, with at least one identity check.",
+        "_allow_repeat": False, # defaults to False
+        "_allow_uploads": True, # defaults to False
+        "_allow_csv_templates": True, # defaults to False
+        "_suppress_default_values": False, # defaults to False
+        # "_table":{'_deny_groups': ['admin'],},
+    },
     "request": {
         # "Existing_Request": {
         #     "input_field": {"type": "autocomplete", "content": [r'{}'.format(x) for x in _db_lookup("perstat", "Reporter", "Timestamp", combine=True)['combine']]},
