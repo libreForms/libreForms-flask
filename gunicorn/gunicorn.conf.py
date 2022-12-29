@@ -74,7 +74,7 @@ def pre_fork(server, worker):
                                     username='libreforms', 
                                     active=1,
                                     theme='dark' if appconfig['dark_mode'] else 'light',
-                                    group='admin',
+                                    group=appconfig['admin_group'],
                                     certificate=generate_symmetric_key(),
                                     email=appconfig['libreforms_user_email'] if appconfig['libreforms_user_email'] and re.fullmatch(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', appconfig['libreforms_user_email']) else None,
                                     password='pbkdf2:sha256:260000$nQVWxd59E8lmkruy$13d8c4d408185ccc3549d3629be9cd57267a7d660abef389b3be70850e1bbfbf',

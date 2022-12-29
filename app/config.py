@@ -113,8 +113,11 @@ config['libreforms_user_email'] = None
 # group that new users are part of; this application employs a one-to-one user:group
 # mapping - every user can only have one group - so there is some potentially complex
 # setups with this approach, and we probably need to create an admin view for user/group
-# management, see https://github.com/signebedi/libreForms/issues/82.
+# management, see https://github.com/signebedi/libreForms/issues/82. We also assign the 
+# admin group, which is used to restrict access to the admin views like bulk user 
+# registration, see https://github.com/signebedi/libreForms/issues/170
 config['default_group'] = 'default'
+config['admin_group'] = 'admin'
 config['groups'] = ['admin', 'default']
 
 # these fields allow you to determine whether email, phone, and organization are required 
