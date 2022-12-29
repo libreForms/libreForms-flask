@@ -234,6 +234,13 @@ config['mongodb_port'] = 27017
 config['mongodb_pw']   = None
 
 
+# these configs define the application behavior when dealing with persistent
+# file uploads, see https://github.com/signebedi/libreForms/issues/10.
+config['allowed_extensions'] = ['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif']
+config['upload_folder'] = 'downloads/'
+config['max_upload_size'] = 16 * 1000 * 1000
+
+
 # here we overwrite the defaults above with any user-specified 
 # configurations in app.config_overrides, if it exists.
 if os.path.exists ("app/config_overrides.py"):

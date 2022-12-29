@@ -182,6 +182,8 @@ def create_app(test_config=None):
         SQLALCHEMY_DATABASE_URI = f'{db_driver}://{db_host}:{db_pw}@{db_host}:{str(db_port)}/' if config['custom_sql_db'] == True else f'sqlite:///{os.path.join(app.instance_path, "app.sqlite")}',
         # SQLALCHEMY_DATABASE_URI = f'sqlite:///{os.path.join(app.instance_path, "app.sqlite")}',
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
+        UPLOAD_FOLDER = config['upload_folder'],
+        MAX_CONTENT_LENGTH = config['max_upload_size'],
         HCAPTCHA_ENABLED = config['enable_hcaptcha'],
         HCAPTCHA_SITE_KEY = config['hcaptcha_site_key'] if config['hcaptcha_site_key'] else None,
         HCAPTCHA_SECRET_KEY = config['hcaptcha_secret_key'] if config['hcaptcha_secret_key'] else None,
