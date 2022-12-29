@@ -330,7 +330,6 @@ def create_app(test_config=None):
             type="home",
             notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
             name=config['site_name'],
-            display_warning_banner=True,
             config=config,
             user=current_user if current_user.is_authenticated else None,
         )

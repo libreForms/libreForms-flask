@@ -1,9 +1,9 @@
 """ 
 config.py: collection of default app configs
 
-This script sets default configurations for the
-web application.
-
+This script sets default configurations for the libreForms
+web application. The values contained here are overriden by
+an admin-supplied config_overrides.py file.
 
 
 ## config_overrides.py
@@ -22,7 +22,6 @@ web application to function. In addition, it must include a field for
 `libreforms_user_email` to set the email for the default `libreforms` 
 user, otherwise the application will fail.
 
-
 """
 
 __name__ = "app.config"
@@ -33,12 +32,8 @@ __license__ = "AGPL-3.0"
 __maintainer__ = "Sig Janoska-Bedi"
 __email__ = "signe@atreeus.com"
 
-# define default page config and,
-# if a config_overrides file exists, 
-# use it to overwrite defaults
 import os, secrets
 from markupsafe import Markup
-from flask import current_app
 
 # Added based on https://github.com/signebedi/libreForms/issues/148 to
 # support creating secrets and writing them to file if they don't exist.
@@ -63,40 +58,73 @@ config = {}
 # set the default site name
 config['site_name'] = "libreForms"
 
-# remove the Markup designation if you don't want to render this as HTML.
+# this sets the welcome message for the website, so customization is expected;
+# you can remove the Markup designation if you don't want to render this as HTML.
 config['homepage_msg'] = Markup("<p>Welcome to libreForms, an extensible form building abstraction layer implemented in Flask. Select a view from above to get started. Review the docs at <a href='https://github.com/signebedi/libreForms'>https://github.com/signebedi/libreForms</a>.</p>")
-config['domain'] = None
+
+# sometimes, the application needs to hardcode URL endpoints; in these cases, it 
+# needs to set the application domain, which defaults to the bind address for the 
+# gunicorn application. Overrides should generally include protocol and ports, eg:
+    # 192.168.0.15:8000
+    # http://libreforms.example.com
+    # https://forms.mysite.org
+config['domain'] = "0.0.0.0:8000"
+
+# this sets the default theme mode (dark or light) for the web application, which
+# can be overridden by the user when they modify their user profile; it is a bool,
+# and a value of True will set the theme to dark mode, for more discussion, see
+# https://github.com/signebedi/libreForms/issues/129.
 config['dark_mode'] = True 
-config['warning_banner'] = "" 
-config['favicon'] = "" # unused
-config['image'] = "" # unused
-config['favicon'] = "default_favicon.ico" 
-config['default_org'] = "" 
-config['version'] = __version__
+
+# some organizations may wish to set a privacy policy and/or warning banner, which 
+# these configurations allow them to do; privacy_policy is rendered at the /privacy
+# route, while the warning_banner is rendered on all pages.
 config['privacy_policy'] = ''
 config['warning_banner'] = ''
+
+# this config, once implemented, will allow organizations to set a logo for the site,
+# see https://github.com/signebedi/libreForms/issues/50.
+config['image'] = "" # unused
+
+# this config sets the favicon, which can be overridden
+config['favicon'] = "default_favicon.ico" 
+
+# this config allows admins to set the default organization for those registering for
+# accounts, which is useful when standardization of this field is desired.
+config['default_org'] = "" 
+
+# this sets the app version
+config['version'] = __version__
 
 
 ##########################
 # User Registration / Auth
 ##########################
 
+# this config sets any additional user fields that administrators want users 
+# to set during registration, see https://github.com/signebedi/libreForms/issues/61.
 config['user_registration_fields'] = {}
 
+# this config, added per https://github.com/signebedi/libreForms/issues/83, requires
+# administrators to set a unique email for the `libreforms` default user.
 config['libreforms_user_email'] = None
 
+# these configs define the groups available for users to fall under, and the default
+# group that new users are part of; this application employs a one-to-one user:group
+# mapping - every user can only have one group - so there is some potentially complex
+# setups with this approach, and we probably need to create an admin view for user/group
+# management, see https://github.com/signebedi/libreForms/issues/82.
 config['default_group'] = 'default'
 config['groups'] = ['admin', 'default']
 
-# these fields allow you to determine whether email, phone, 
-# and organization are required fields at registration, see 
-# https://github.com/signebedi/libreForms/issues/122
-
+# these fields allow you to determine whether email, phone, and organization are required 
+# fields at registration, see https://github.com/signebedi/libreForms/issues/122.
 config['registration_email_required'] = True
 config['registration_organization_required'] = False
 config['registration_phone_required'] = False
 
-
+# here we set various keys using collect_secrets_from_file to read keys from their
+# corresponding files, or to create them if they don't exist.
 config['secret_key'] = collect_secrets_from_file('secret_key')
 config['signature_key'] = collect_secrets_from_file('signature_key')
 config['approval_key'] = collect_secrets_from_file('approval_key')
@@ -110,49 +138,69 @@ config['disapproval_key'] = collect_secrets_from_file('disapproval_key')
 config['visible_signature_field'] = 'username'
 
 
-# this config toggles whether users must re-enter their
-# passwords when electronically signing documents, see 
-# https://github.com/signebedi/libreForms/issues/167.
+# this config toggles whether users must re-enter their passwords when electronically 
+# signing documents, see https://github.com/signebedi/libreForms/issues/167.
 config['require_password_for_electronic_signatures'] = True
 
-
+# this config determines whether anonymous users can register for user accounts using
+# the auth/register endpoint; this should be set to false when users are created centrally,
+# or when auth is externalized eg. using LDAP, see https://github.com/signebedi/libreForms/issues/7.
 config['allow_anonymous_registration'] = True
 
-
+# this config determines whether users can reset their passwords anonymously, using the 
+# auth/forgot_password route; administrator password resets, as well as password resets
+# through the user profile while authenticated, will still be supported.
 config['allow_password_resets'] = True
 
-
-# by default, the signing keys generated and managed in app.signing are
-# 24 characters long.
+# by default, the signing keys generated and managed in app.signing are 24 characters long,
+# but these can be extended eg. to 48 when needed.
 config['signing_key_length'] = 24
 
+# this config, when set to True, will send verification emails when new users are registered;
+# it will require users to verify their accounts prior to activation, for more details,
+# see https://github.com/signebedi/libreForms/issues/58.
+config['enable_email_verification'] = False
 
+# this config determines whether the /external route is enabled; this is the basis for users
+# submitting forms without authenticating first, see https://github.com/signebedi/libreForms/issues/67.
+config['allow_anonymous_form_submissions'] = False
+
+# this config, if set to True, only allows authenticated users to invite non-authenticated 
+# users to complete form submissions anonymously, see https://github.com/signebedi/libreForms/issues/85
+config['require_auth_users_to_initiate_external_forms'] = True
+
+# this config determines whether users can be registered in bulk, see https://github.com/signebedi/libreForms/issues/64;
+# note that this feature will allow administraotrs to restrict user's ability to do this by group,
+# see https://github.com/signebedi/libreForms/issues/170. 
+config['allow_bulk_registration'] = False
+
+# this config allows forms to access the current user list as a field, which carries some 
+# implicit security risk.
+config['allow_forms_access_to_user_list'] = False
 
 ##########################
 # Configure Add'l Features
 ##########################
 
+# these configurations determine whether to enable / disable additional 
+# (technically) optional features like SMTP and LDAP.
 config['smtp_enabled'] = True
 config['ldap_enabled'] = False
 
-# setting some celery configurations here to give 
-# a single place for admins to make modifications
+# setting some celery configurations here to give a single place for admins 
+# to make modifications to the default broker and backend; both of which default 
+# to rabbit-mq but can easily be changed to use redis by switching both values 
+# to `redis://`, see https://flask.palletsprojects.com/en/2.0.x/patterns/celery/.
 config['celery_broker'] = 'pyamqp://'
 config['celery_backend'] = 'rpc://'
 
-config['custom_sql_db'] = False
-
-
-config['enable_email_verification'] = False
 config['send_mail_asynchronously'] = False
 
-config['allow_anonymous_form_submissions'] = False
-config['require_auth_users_to_initiate_external_forms'] = True
 
-config['allow_bulk_registration'] = False
+# UNTESTED: when users want to specify a custom SQL database rather than the 
+# default SQLite database created by the application.
+config['custom_sql_db'] = False
 
-
-config['allow_forms_access_to_user_list'] = False
 
 
 config['enable_hcaptcha'] = False
@@ -168,7 +216,6 @@ config['enable_user_profile_log_aggregation'] = False
 
 
 config['send_reports'] = False
-
 
 
 config['mongodb_user'] = 'root'

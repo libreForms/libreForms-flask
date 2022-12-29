@@ -91,7 +91,6 @@ def reset_password(signature):
     
         return render_template('auth/forgot_password.html',
             site_name=config['site_name'],
-            display_warning_banner=True,
             name="Reset Password", 
             reset=True,
             config=config)
@@ -134,7 +133,6 @@ def forgot_password():
     if config["smtp_enabled"]:
         return render_template('auth/forgot_password.html',
             site_name=config['site_name'],
-            display_warning_banner=True,
             name="Forgot Password", 
             config=config)
 
@@ -248,7 +246,6 @@ def register():
 
     return render_template('auth/register.html',
         site_name=config['site_name'],
-        display_warning_banner=True,
         name="Register",
         config=config,)
 
@@ -463,7 +460,6 @@ def bulk_register():
 
     return render_template('auth/add_users.html',
         site_name=config['site_name'],
-        display_warning_banner=True,
         notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
         name="Bulk Register",
         user=current_user,
@@ -509,7 +505,6 @@ def login():
     return render_template('auth/login.html',
             site_name=config['site_name'],
             name="Login",
-            display_warning_banner=True,   
             config=config,)
 
 @bp.before_app_request
@@ -594,7 +589,6 @@ def edit_profile():
         edit_profile=True,
         user=current_user,
         notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
-        display_warning_banner=True,
         name="Profile",
         config=config,)
 
