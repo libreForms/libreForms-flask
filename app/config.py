@@ -115,7 +115,7 @@ config['libreforms_user_email'] = None
 # setups with this approach, and we probably need to create an admin view for user/group
 # management, see https://github.com/signebedi/libreForms/issues/82. We also assign the 
 # admin group, which is used to restrict access to the admin views like bulk user 
-# registration, see https://github.com/signebedi/libreForms/issues/170
+# registration, see https://github.com/signebedi/libreForms/issues/170.
 config['default_group'] = 'default'
 config['admin_group'] = 'admin'
 config['groups'] = ['admin', 'default']
@@ -173,9 +173,10 @@ config['allow_anonymous_form_submissions'] = False
 config['require_auth_users_to_initiate_external_forms'] = True
 
 # this config determines whether users can be registered in bulk, see https://github.com/signebedi/libreForms/issues/64;
-# note that this feature will allow administraotrs to restrict user's ability to do this by group,
+# note that this feature will by default restrict user's ability to do this to the admin group,
 # see https://github.com/signebedi/libreForms/issues/170. 
 config['allow_bulk_registration'] = False
+config['limit_bulk_registration_to_admin_group'] = True
 
 # this config allows forms to access the current user list as a field, which carries some 
 # implicit security risk.

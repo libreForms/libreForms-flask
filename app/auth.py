@@ -332,6 +332,10 @@ def bulk_register():
         flash('This feature has not been enabled by your system administrator.')
         return redirect(url_for('home'))
 
+    # limit access to admin group users when the corresponding configuration is set to true,
+    # see https://github.com/signebedi/libreForms/issues/170.
+    if config['limit_bulk_registration_to_admin_group'] and current_user.group != config['admin_group']:
+        return abort(404)
 
     if request.method == 'POST':
 
