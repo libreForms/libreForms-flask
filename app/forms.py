@@ -18,6 +18,7 @@ from cmath import e
 from fileinput import filename
 from flask import Blueprint, flash, render_template, request, send_from_directory, \
                                 send_file, redirect, url_for, current_app
+from werkzeug.security import check_password_hash        
 from webargs import fields, flaskparser
 from flask_login import current_user
 from sqlalchemy.sql import text
@@ -196,6 +197,10 @@ def define_webarg_form_data_types(form=False, user_group=None, args=None):
 
     FORM_ARGS = {}  
 
+    # options = propagate_form_configs[form]
+    # if config['require_password_for_electronic_signatures'] and options['_digitally_sign']:
+    FORM_ARGS['_password'] = fields.String(load_only=True)
+
     # print(list(args))
 
     # for field in args if args else libreforms.forms[form].keys():
@@ -220,7 +225,7 @@ def define_webarg_form_data_types(form=False, user_group=None, args=None):
         #         and config['allow_all_groups_default'] == False:
         #     pass
 
-        elif not checkGroup(user_group, libreforms.forms[form][field]):
+        elif not checkGroup(user_group, libreforms.forms[form][field]):            
             pass
         
         # adding this due to problems parsing checkboxes and (presumably) other
@@ -473,10 +478,29 @@ def forms(form_name):
 
             if request.method == 'POST':
                 
+
+                # here we conduct a passworde check if digital signatures are enabled and password
+                # protected, see  https://github.com/signebedi/libreForms/issues/167
+                if config['require_password_for_electronic_signatures'] and options['_digitally_sign']:
+                    password = request.form['_password']
+                
+                    if not check_password_hash(current_user.password, password):
+                        flash('Incorrect password.')
+                        return redirect(url_for('forms.forms', form_name=form_name))
+
+
                 # print([x for x in list(request.form)])
                 # for x in list(request.form):
                 #     print(x)
                 parsed_args = flaskparser.parser.parse(define_webarg_form_data_types(form_name, user_group=current_user.group, args=list(request.form)), request, location="form")
+
+
+                # here we remove the _password field from the parsed args so it's not written to the database,
+                # see https://github.com/signebedi/libreForms/issues/167. 
+                if '_password' in parsed_args:
+                    del parsed_args['_password']
+                # print(parsed_args)                
+                
                 # parsed_args = {}
 
                 # for item in libreforms.forms[form_name].keys():

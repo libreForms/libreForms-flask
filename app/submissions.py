@@ -17,6 +17,7 @@ __email__ = "signe@atreeus.com"
 from flask import current_app, Blueprint, g, flash, abort, render_template, \
     request, send_from_directory, send_file, redirect, url_for
 from webargs import fields, flaskparser
+from werkzeug.security import check_password_hash        
 from flask_login import current_user
 from markupsafe import Markup
 from bson import ObjectId
@@ -833,9 +834,24 @@ def render_document_edit(form_name, document_id):
                 # print(overrides)
 
                 if request.method == 'POST':
+
+                    # here we conduct a passworde check if digital signatures are enabled and password
+                    # protected, see  https://github.com/signebedi/libreForms/issues/167
+                    if config['require_password_for_electronic_signatures'] and options['_digitally_sign']:
+                        password = request.form['_password']
+                    
+                        if not check_password_hash(current_user.password, password):
+                            flash('Incorrect password.')
+                            return redirect(url_for('submissions.render_document_edit', form_name=form_name, document_id=document_id))
+
                     
                     parsed_args = flaskparser.parser.parse(define_webarg_form_data_types(form_name, user_group=current_user.group, args=list(request.form)), request, location="form")
                     
+                    # here we remove the _password field from the parsed args so it's not written to the database,
+                    # see https://github.com/signebedi/libreForms/issues/167. 
+                    if '_password' in parsed_args:
+                        del parsed_args['_password']
+
                     # here we drop any elements that are not changes
                     parsed_args = check_args_for_changes(parsed_args, overrides)
 
@@ -932,6 +948,17 @@ def review_document(form_name, document_id):
 
 
         if request.method == 'POST':
+
+            # here we conduct a passworde check if digital signatures are enabled and password
+            # protected, see  https://github.com/signebedi/libreForms/issues/167
+            if config['require_password_for_electronic_signatures'] and options['_digitally_sign']:
+                password = request.form['_password']
+            
+                if not check_password_hash(current_user.password, password):
+                    flash('Incorrect password.')
+                    return redirect(url_for('submissions.review_document', form_name=form_name, document_id=document_id))
+
+
             approve = request.form['approve']
             comment = request.form['comment']
             
