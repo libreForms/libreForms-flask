@@ -105,9 +105,11 @@ chown -R libreforms:libreforms /opt/libreForms
 4. systemd service
 
 ```
-cp /opt/libreForms/gunicorn/libreforms.service /etc/systemd/system
+cp /opt/libreForms/gunicorn/*.service /etc/systemd/system
 systemctl daemon-reload
-systemctl enable --now libreforms
+systemctl enable --now libreforms-gunicorn
+systemctl enable --now libreforms-celery
+systemctl enable --now libreforms-celerybeat
 ```
 
 ### Amazon Linux 2
@@ -121,10 +123,9 @@ baseurl=https://repo.mongodb.org/yum/amazon/2/mongodb-org/6.0/x86_64/
 gpgcheck=1
 enabled=1
 gpgkey=https://www.mongodb.org/static/pgp/server-6.0.asc" | tee /etc/yum.repos.d/mongodb-org-6.0.repo 
-amazon-linux-extras install python3.8 epel
 yum update
 yum install mongodb-org
-yum update
+amazon-linux-extras install python3.8
 systemctl enable --now mongod
 ```
 
@@ -166,9 +167,11 @@ chown -R libreforms:libreforms /opt/libreForms
 4. systemd service
 
 ```
-cp /opt/libreForms/gunicorn/libreforms.service /etc/systemd/system
+cp /opt/libreForms/gunicorn/*.service /etc/systemd/system
 systemctl daemon-reload
-systemctl enable --now libreforms
+systemctl enable --now libreforms-gunicorn
+systemctl enable --now libreforms-celery
+systemctl enable --now libreforms-celerybeat
 ```
 
 
@@ -220,9 +223,11 @@ chown -R libreforms:libreforms /opt/libreForms
 4. systemd service
 
 ```
-cp /opt/libreForms/gunicorn/libreforms.service /etc/systemd/system
+cp /opt/libreForms/gunicorn/*.service /etc/systemd/system
 systemctl daemon-reload
-systemctl enable --now libreforms
+systemctl enable --now libreforms-gunicorn
+systemctl enable --now libreforms-celery
+systemctl enable --now libreforms-celerybeat
 ```
 
 ### MongoDB
@@ -254,7 +259,9 @@ And finally, run `echo YOUR_PASSWORD > /opt/libreForms/mongodb_creds`, replacing
 
 You should double check that this, and any other credential / key file like `smtp_creds` or `secret_key` are modified to have limited (at most 600) permissions by running `chmod 600 mongodb_creds secret_key smtp_creds`.
 
+
 ### Common Issues
+
 
 **Failure to start Systemd Unit**: if you experience a failure when you check `systemctl status libreforms`, then try chowning the program files and restarting the application.
 
