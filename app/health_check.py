@@ -1,12 +1,12 @@
 """ 
 health_check.py: health checks for the libreForms app
 
-
+Health checks can be useful methods to verify that the application is 
+working as expected. Here, we implement two health checks: alive and 
+ready; these are based on the liveness and readiness checks used in k8s:
 https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
-
-https://pypi.org/project/flask-healthz/
-
-https://github.com/signebedi/libreForms/issues/171
+And borrowed somewhat from the flask-healthz, see https://pypi.org/project/flask-healthz/.
+For further discussion, see https://github.com/signebedi/libreForms/issues/171.
 
 """
 
