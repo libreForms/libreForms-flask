@@ -370,14 +370,22 @@ def create_app(test_config=None):
     app.register_blueprint(tables.bp)
 
     # import the `api` blueprint for RESTful API support
-    from . import api
-    app.register_blueprint(api.bp)
+    if config['enable_rest_api']:
+        from . import api
+        app.register_blueprint(api.bp)
 
     # if administrators have enabled anonymous / external form submission, then we
     # import the `external` blueprint to create the external access endpoint
     if config['allow_anonymous_form_submissions']:
         from . import external
         app.register_blueprint(external.bp)
+
+    # if administrators have enabled health checks, then we import the `health`
+    # blueprint, see https://github.com/signebedi/libreForms/issues/171.
+    if config['enable_health_checks']:
+        from . import health_check
+        app.register_blueprint(health_check.bp)
+
 
     # import the `reports` blueprint for 
     from . import reports
