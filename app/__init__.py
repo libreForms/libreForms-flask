@@ -34,7 +34,7 @@ import os, re
 import pandas as pd
 
 # Flask-specific dependencies
-from flask import Flask, render_template, current_app
+from flask import Flask, render_template, current_app, jsonify, request
 from flask_login import LoginManager, current_user
 from werkzeug.middleware.proxy_fix import ProxyFix
 from celery import Celery
@@ -343,10 +343,9 @@ def create_app(test_config=None):
             user=current_user if current_user.is_authenticated else None,
         )
 
-    @app.route("/get_my_ip", methods=["GET"])
-    def get_my_ip():
-        from flask import jsonify, request
-        return jsonify({'ip': request.remote_addr}), 200
+    # @app.route("/ip", methods=["GET"])
+    # def get_my_ip():
+    #     return jsonify({'ip': request.remote_addr}), 200
 
     # define a route to show the application's privacy policy 
     @app.route('/privacy')
