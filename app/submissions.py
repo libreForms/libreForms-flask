@@ -883,6 +883,9 @@ def render_document_edit(form_name, document_id):
                     user=current_user,
                     depends_on=compile_depends_on_data(form_name, user_group=current_user.group),
                     user_list = collect_list_of_users() if config['allow_forms_access_to_user_list'] else [],
+                    # here we tell the jinja to include password re-entry for form signatures, if configured,
+                    # see https://github.com/signebedi/libreForms/issues/167.
+                    require_password=True if config['require_password_for_electronic_signatures'] and options['_digitally_sign'] else False,
                     )
 
     except Exception as e:
@@ -1043,6 +1046,9 @@ def review_document(form_name, document_id):
             form_approval=True,
             user=current_user,
             menu=form_menu(checkFormGroup),
+            # here we tell the jinja to include password re-entry for form signatures, if configured,
+            # see https://github.com/signebedi/libreForms/issues/167.
+            require_password=True if config['require_password_for_electronic_signatures'] and options['_digitally_sign'] else False,
         )
 
 

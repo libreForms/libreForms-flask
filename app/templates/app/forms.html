@@ -88,6 +88,15 @@
 					{% endfor %}
 					
 					{% if options._presubmit_msg %}<hr/><label>{{ options._presubmit_msg }}</label>{% endif %}
+
+					{% if require_password %}
+					
+					<div class="form-group">
+						<label class="form-label mt-4 required" for="password" data-bs-toggle="tooltip" data-bs-placement="right" title="Please re-enter your password to digitally sign this document">Password</label></td>
+						<input class="form-control" type="password" value="" id="password" name="password"/>
+					</div>	
+					{% endif %}
+
 					<div class="form-group">
 						<input class="btn btn-primary mt-4" type=submit value="Submit">
 					</div>

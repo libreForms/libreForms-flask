@@ -69,6 +69,14 @@
       <label for="comment" data-bs-toggle="tooltip" data-bs-placement="right" title="Please provide any comments you have on this submission">Comment</label>
       <textarea class="form-control" id="comment" name="comment" value="" rows="3"></textarea>    
     </div>
+
+    {% if require_password %}
+    <div class="form-group">
+      <label class="form-label mt-4 required" for="password" data-bs-toggle="tooltip" data-bs-placement="right" title="Please re-enter your password to digitally sign this document">Password</label></td>
+      <input class="form-control" type="password" value="" id="password" name="password"/>
+    </div>	
+    {% endif %}
+    
     <div class="form-group mt-4">
       <input class="btn btn-primary" type="submit" value="Submit">
     </div>
