@@ -238,7 +238,8 @@ config['mongodb_pw']   = None
 # ready conditions, we set some basic conditions to check before returning
 # a positive response, borrowed somewhat from https://stackoverflow.com/a/22738458/13301284.
 # Successes return 200 by default, while errors return 503, per the discussion
-# at https://stackoverflow.com/a/48005358/13301284.
+# at https://stackoverflow.com/a/48005358/13301284. The ready condition defaults to
+# None, which causes the view function to check database connections instead.
 config['enable_health_checks'] = True
 config['alive_condition'] = lambda: None
 config['ready_condition'] = None
