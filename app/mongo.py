@@ -205,7 +205,8 @@ class MongoDB:
             if not ['Approver_Comment']:
                 del data['Approver_Comment']
 
-            # here we collect IP addresses if they have been provided
+            # here we collect IP addresses if they have been provided, see 
+            # https://github.com/signebedi/libreForms/issues/175.
             data['IP_Address'] = ip_address
             if not ['IP_Address']:
                 del data['IP_Address']

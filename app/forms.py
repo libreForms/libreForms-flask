@@ -350,7 +350,8 @@ def propagate_form_configs(form=False):
             "_allow_pdf_download": True, 
             "_allow_pdf_past_versions": True, 
             "_digitally_sign": False,
-            "_form_approval": False
+            "_form_approval": False,
+            "_collect_client_ip":True,
         }
 
         for field in list_fields.keys():
@@ -506,7 +507,8 @@ def forms(form_name):
                 document_id = mongodb.write_document_to_collection(parsed_args, form_name, 
                                 reporter=current_user.username, 
                                 digital_signature=digital_signature,
-                                approver=getattr(approver, config['visible_signature_field']) if approver else None)
+                                approver=getattr(approver, config['visible_signature_field']) if approver else None,
+                                ip_address=request.remote_addr if options['_collect_client_ip'] else None,)
 
                 flash(str(parsed_args))
                                 

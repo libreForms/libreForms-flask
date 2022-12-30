@@ -841,7 +841,8 @@ def render_document_edit(form_name, document_id):
                     digital_signature = encrypt_with_symmetric_key(current_user.certificate, config['signature_key']) if options['_digitally_sign'] else None
 
                     # here we pass a modification
-                    mongodb.write_document_to_collection(parsed_args, form_name, reporter=current_user.username, modification=True, digital_signature=digital_signature)
+                    mongodb.write_document_to_collection(parsed_args, form_name, reporter=current_user.username, modification=True, digital_signature=digital_signature,
+                                                            ip_address=request.remote_addr if options['_collect_client_ip'] else None,)
                     
                     flash(str(parsed_args))
 
@@ -974,7 +975,8 @@ def review_document(form_name, document_id):
                                                     modification=True,
                                                     # if these pass check_args_for_changes(), then pass values; else None
                                                     approval=verify_changes_to_approval['Approval'] if 'Approval' in verify_changes_to_approval else None,
-                                                    approver_comment=verify_changes_to_approver_comment['Approver_Comment'] if 'Approver_Comment' in verify_changes_to_approver_comment else None)
+                                                    approver_comment=verify_changes_to_approver_comment['Approver_Comment'] if 'Approver_Comment' in verify_changes_to_approver_comment else None,
+                                                    ip_address=request.remote_addr if options['_collect_client_ip'] else None,)
 
             return redirect(url_for('submissions.render_document', form_name=form_name, document_id=document_id))
 
