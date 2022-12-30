@@ -151,7 +151,8 @@ class MongoDB:
                                                     # that might make sense to hash into a dictionary ... 
                                                     approver=None,
                                                     approval=None,
-                                                    approver_comment=None,):
+                                                    approver_comment=None,
+                                                    ip_address=None):
         import datetime
         from bson.objectid import ObjectId
 
@@ -203,6 +204,11 @@ class MongoDB:
             data['Approver_Comment'] = approver_comment
             if not ['Approver_Comment']:
                 del data['Approver_Comment']
+
+            # here we collect IP addresses if they have been provided
+            data['IP_Address'] = ip_address
+            if not ['IP_Address']:
+                del data['IP_Address']
 
             # setting the timestamp sooner so it's included in the Journal data, perhaps removing the
             # need for a data copy.
