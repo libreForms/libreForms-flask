@@ -149,3 +149,4 @@ approval_key
 disapproval_key
 celerybeat-schedule
 celery_worker
+form_config.py

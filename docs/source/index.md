@@ -42,9 +42,9 @@ Here is an example diagram for such a deployment:
     - plotly dashboards for data visualization
     - a document-oriented database to store form data 
     - basic local authentication
+    - user groups and routing lists for form review, approval, and notifications
+    - database lookups in form fields
     - \[future\] external identity providers
-    - \[future\] database lookups in form fields
-    - \[future\] user groups and routing lists for form review, approval, and notifications
 
 ## Installation
 
@@ -63,7 +63,7 @@ gpgcheck=1
 enabled=1
 gpgkey=https://www.mongodb.org/static/pgp/server-6.0.asc" | tee /etc/yum.repos.d/mongodb-org-6.0.repo
 yum update -y
-yum install python3.8 python3-ldap mongodb-org redis -y
+yum install python3.8 python3-ldap mongodb-org -y
 systemctl enable --now mongod
 ```
 
@@ -123,7 +123,7 @@ enabled=1
 gpgkey=https://www.mongodb.org/static/pgp/server-6.0.asc" | tee /etc/yum.repos.d/mongodb-org-6.0.repo 
 amazon-linux-extras install python3.8 epel
 yum update
-yum install mongodb-org redis
+yum install mongodb-org
 yum update
 systemctl enable --now mongod
 ```
@@ -178,7 +178,7 @@ systemctl enable --now libreforms
 
 ```
 apt update -y && apt upgrade -y
-apt install -y mongodb python3-pip python3-ldap python3-venv redis # for the most up to date version of mongodb, see https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-ubuntu/
+apt install -y mongodb python3-pip python3-ldap python3-venv rabbitmq-server # for the most up to date version of mongodb, see https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-ubuntu/
 systemctl enable --now mongodb
 ```
 
@@ -263,13 +263,19 @@ chown -R libreforms:libreforms /opt/libreForms
 systemctl restart libreforms
 ```
 
-**pymongo.errors.AutoReconnect: connection pool paused**: if you receive this error, try restarting the application by running `systemctl stop libreforms; systemctl start libreforms`.
+**pymongo.errors.AutoReconnect: connection pool paused**: if you receive this error, try restarting the application by running `systemctl stop libreforms; systemctl start libreforms`. If this doesn't work, try the following:
+
+```
+chown -R mongodb:mongodb /var/lib/mongodb # often the permissions aren't set up correctly
+chown mongodb:mongodb /tmp/mongodb-27017.sock # borrowed from https://stackoverflow.com/a/64810086
+systemctl restart mongod
+```
 
 ## Abstraction Layer
 
 libreForms constitutes a set of rules, or an abstraction layer, that can be used to build browser-based forms in Python. To accomplish this, the specification describes a configuration file that stores all the information needed to generate forms and parse form data into a cohesive data structure while accounting for additional features an organization might want to add.
 
-The libreForms specification is defined in ```libreforms/__init__.py``` and, when used in conjuction with the web application, it expects administrators will overwrite the default form used to illustrate the rules by adding a file called ```libreforms/add_ons.py```. At this time, the specification can handle the "text", "password", "radio", "select", "checkbox", "date", "hidden", and "number" input types, and can write to Python's str, float, int, and list data types. 
+The libreForms specification is defined in ```libreforms/__init__.py``` and, when used in conjuction with the web application, it expects administrators will overwrite the default form used to illustrate the rules by adding a file called ```libreforms/form_config.py```. At this time, the specification can handle the "text", "password", "radio", "select", "checkbox", "date", "hidden", and "number" input types, and can write to Python's str, float, int, and list data types. 
 
 At a high level, the abstraction layer breaks down individual forms into fields and configurations. A field must have a unique name, which must employ underscores instead of spaces ("My Form Field" would not work, but "My_Form_Field" is a correct field name). Configuration names are preceded by an underscore (eg. "_dashboard" or "_allow_repeats") and allow form administrators to define unique, custom form behavior. All built-in configurations default to a value of False.
 
@@ -331,7 +337,7 @@ Versions above `2.0.0` will introduce compatibility-breaking changes that are in
 
 ### Database Lookups
 
-You can configure the database lookups in the abstraction layer with some relatively straightforward hacking. For example, if you wanted the possible values of some field X in form Y to be drawn from the stored values for field A in form B, then you could add the following code to your `libreforms/add_ons.py` file.
+You can configure the database lookups in the abstraction layer with some relatively straightforward hacking. For example, if you wanted the possible values of some field X in form Y to be drawn from the stored values for field A in form B, then you could add the following code to your `libreforms/form_config.py` file.
 
 ```python
 import os
@@ -456,7 +462,7 @@ If you'd like to install Let's Encrypt certificates, follow your distribution's 
 
 ## Dependencies
 
-The flask application has a few dependencies that, in its current form, may be prone to obsolescence; there is an issue in the backlog to test for, among other things, obsolete and vulnerable dependencies. In addition to the standard requirements, like MongoDB, Python3, Python3-Pip, Python3-Venv, Python3-LDAP, and Redis, here is a list of dependencies that ship with the application under the static/ directory:
+The flask application has a few dependencies that, in its current form, may be prone to obsolescence; there is an issue in the backlog to test for, among other things, obsolete and vulnerable dependencies. In addition to the standard requirements, like MongoDB, Python3, Python3-Pip, Python3-Venv, Python3-LDAP, and Rabbit-mq (or Redis), here is a list of dependencies that ship with the application under the static/ directory:
 
 ```
 bootstrap-darkly-5.1.3.min.css
