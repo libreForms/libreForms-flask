@@ -32,11 +32,12 @@ __email__ = "signe@atreeus.com"
 # basic dependencies
 import os, re
 import pandas as pd
-from celery import Celery
 
 # Flask-specific dependencies
 from flask import Flask, render_template, current_app
 from flask_login import LoginManager, current_user
+from werkzeug.middleware.proxy_fix import ProxyFix
+from celery import Celery
 
 # application-specific dependencies
 from app import mongo, log_functions
@@ -203,6 +204,12 @@ def create_app(test_config=None):
         NOTIFICATIONS=standardard_total_notifications, 
     )
 
+    # here we configure the application to inherit the origin IP address of clients 
+    # from the reverse proxy, see https://stackoverflow.com/a/23504684/13301284
+    # and further dissuion here https://github.com/signebedi/libreForms/issues/175.
+    # This should enable us to access the client IP address using request.remote_addr.
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1)
+
     # here we update the celery object (which we originally 
     # created outside the app context, see https://github.com/signebedi/libreForms/issues/73
     # and https://blog.miguelgrinberg.com/post/celery-and-the-flask-application-factory-pattern
@@ -336,6 +343,10 @@ def create_app(test_config=None):
             user=current_user if current_user.is_authenticated else None,
         )
 
+    @app.route("/get_my_ip", methods=["GET"])
+    def get_my_ip():
+        from flask import jsonify, request
+        return jsonify({'ip': request.remote_addr}), 200
 
     # define a route to show the application's privacy policy 
     @app.route('/privacy')
