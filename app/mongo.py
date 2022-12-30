@@ -77,6 +77,11 @@ unique form submission for this form that they can parse using any data science 
 they might choose.
 
 
+# check_connection()
+
+This method will simply attempt to connect to the database and, if successful, return
+True, else False. This is useful for system health checks.
+
 """
 
 __name__ = "app.mongo"
@@ -89,6 +94,8 @@ __email__ = "signe@atreeus.com"
 
 from pymongo import MongoClient
 import os
+import contextlib
+
 
 class MongoDB:
     def __init__(self, user='libre', host='localhost', port=27017, dbpw=None):
@@ -254,4 +261,11 @@ class MongoDB:
 
             collection = db[collection_name]
             return list(collection.find())
+
+    def check_connection(self):
+        try:
+            with MongoClient(host=self.host, port=self.port) if not self.dbpw else MongoClient(f'mongodb://{self.user}:{self.dbpw}@{self.host}:{str(self.port)}/?authSource=admin&retryWrites=true&w=majority') as client:
+                return True
+        except:
+            return False
 
