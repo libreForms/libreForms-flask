@@ -234,8 +234,16 @@ config['mongodb_port'] = 27017
 config['mongodb_pw']   = None
 
 # this config enables the health check routes defined in app.health_checks,
-# see https://github.com/signebedi/libreForms/issues/171.
-config['enable_health_checks']   = True
+# see https://github.com/signebedi/libreForms/issues/171. For the alive and
+# ready conditions, we set some basic conditions to check before returning
+# a positive response, borrowed somewhat from https://stackoverflow.com/a/22738458/13301284.
+# Successes return 200 by default, while errors return 503, per the discussion
+# at https://stackoverflow.com/a/48005358/13301284.
+config['enable_health_checks'] = True
+config['alive_condition'] = lambda: None
+config['ready_condition'] = None
+config['success_code'] = 200
+config['error_code'] = 503
 
 # these configs define the application behavior when dealing with persistent
 # file uploads, see https://github.com/signebedi/libreForms/issues/10.
