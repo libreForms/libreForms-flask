@@ -233,6 +233,9 @@ config['mongodb_host'] = 'localhost'
 config['mongodb_port'] = 27017
 config['mongodb_pw']   = None
 
+# this config enables the health check routes defined in app.health_checks,
+# see https://github.com/signebedi/libreForms/issues/171.
+config['enable_health_checks']   = True
 
 # these configs define the application behavior when dealing with persistent
 # file uploads, see https://github.com/signebedi/libreForms/issues/10.
