@@ -82,6 +82,20 @@ they might choose.
 This method will simply attempt to connect to the database and, if successful, return
 True, else False. This is useful for system health checks.
 
+# make_connection()
+This method is a context-managed shorthand to reduce boilerplate when establishing new
+connections to the database.
+
+    @contextlib.contextmanager
+    def make_connection(self, *args, **kwargs):
+        try:
+            client = MongoClient(host=self.host, port=self.port) if not self.dbpw else MongoClient(f'mongodb://{self.user}:{self.dbpw}@{self.host}:{str(self.port)}/?authSource=admin&retryWrites=true&w=majority')
+            yield client
+        finally:
+            client.close()
+
+
+
 """
 
 __name__ = "app.mongo"
