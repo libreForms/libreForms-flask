@@ -250,7 +250,14 @@ def set_digital_signature(      username,
                                 # select_on=config['visible_signature_field'],
                                 # most cases benefit from markup with badges; but some 
                                 # (like PDFs) are better off with simple strings
-                                return_markup=True): 
+                                return_markup=True,
+                                # if the following are given a value, then include
+                                # this data in the signature rendered for the user;
+                                # IP address will only work if the _collect_client_ip
+                                # form config is set to True; for more discussion, see
+                                # https://github.com/signebedi/libreForms/issues/175
+                                include_timestamp=None,
+                                include_ip=None,): 
     
     # for various reasons, the string that we expect to be encrypted is actually a
     # Nonetype - this is because the encrypted string just hasn't been set yet...
