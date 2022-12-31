@@ -4,7 +4,7 @@ log_functions.py: a collection of log operations for a multi worker Flask app
 This script defines a set of operations to create, manage, and access log
 information for a Flask application. It is redundant with a few other 
 features, including the Gunicorn log, the behavior of which is defined in 
-gunicorn/gunicorn.conf.py. It leverages Python's standard logging library 
+etc/gunicorn.conf.py. It leverages Python's standard logging library 
 and employs various log handlers to ensure the log files generated conform
 to the requirements of the application - adding features that account for
 log rotation and a multi-process application.
@@ -17,7 +17,7 @@ underlying quirks.
     1. class PIDFileHandler(logging.handlers.WatchedFileHandler)
 
         Gunicorn handles its multiworker approach fine at its own level by 
-        creating a gunicorn access and error logs, see gunicorn/gunicorn.conf.py. 
+        creating a gunicorn access and error logs, see etc/gunicorn.conf.py. 
         But when we want to handle multiple processes at the application's level,
         we create PID-linked logfiles to manage potential concurrent-write issues.
 
@@ -53,7 +53,7 @@ PID to tell the method not to delete the logfile for the current app instance.
 It might not be necessary to pass the current PID if we run this before 
 instantiating a logfile for the current app instance...
 
-This is also run in gunicorn/gunicorn.conf.py but, because it is run before 
+This is also run in etc/gunicorn.conf.py but, because it is run before 
 Gunicorn forks into multiple worker processes, we don't need to pass the PID.
 
 You can see more discussion about this method in the application's Github
@@ -157,7 +157,7 @@ def set_logger(file_path, module, pid=os.getpid(), log_level=logging.INFO):
     return log
 
 # the current_pids should be the current flask and/or gunicorn pids.
-# this feature is implemented effectively in gunicorn/gunicorn.conf.py, as
+# this feature is implemented effectively in etc/gunicorn.conf.py, as
 # this is able to clean up stray files before forking worker processes.
 def cleanup_stray_log_handlers(current_pid=None):
     for log in os.listdir('log'):

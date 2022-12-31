@@ -10,14 +10,14 @@ including RESTful API access, email verification, & password resets.
 
 The code that implements this database is stored app/__init__.py 
 and app/auth.py. When Gunicorn is used, it will create the database
-using behavior defined in gunicorn/gunicorn.conf.py to avoid collision. 
+using behavior defined in etc/gunicorn.conf.py to avoid collision. 
 Specifically, the model creates a default user 'libreforms' for initial
 access to the web application. When used, Gunicorn will create this user
 before forking into multiple process to prevent errors from multiple 
 workers trying to create the same user. Further, if custom user fields 
 have been defined in the application's configuration file, these will 
 be added to the database at the point of instantiation, see 
-app/__init__.py and gunicorn/gunicorn.conf.py.
+app/__init__.py and etc/gunicorn.conf.py.
 
 To avoid too many changes to the user data model while still allowing
 granular access to forms, visualizations, and other features, we impose

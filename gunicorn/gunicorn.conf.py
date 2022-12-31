@@ -8,7 +8,7 @@ References:
 
 """
 
-__name__ = "gunicorn.gunicorn.conf.py"
+__name__ = "etc.gunicorn.conf.py"
 __author__ = "Sig Janoska-Bedi"
 __credits__ = ["Sig Janoska-Bedi"]
 __version__ = "1.2.0"

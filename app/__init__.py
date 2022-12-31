@@ -73,7 +73,7 @@ if not config['smtp_enabled'] and (config['enable_email_verification'] or \
 
 # if application log path doesn't exist, make it; nb. this (and
 # much of other logic in this section of code) is replicated in 
-# in gunicorn/gunicorn.conf.py to ensure it runs pre-fork in a 
+# in etc/gunicorn.conf.py to ensure it runs pre-fork in a 
 # production setup.
 if not os.path.exists ("log/"):
     os.mkdir('log/')
@@ -109,7 +109,7 @@ if config['enable_hcaptcha']:
     # https://github.com/signebedi/libreForms/issues/68
     # https://github.com/signebedi/libreForms/issues/69
 # if this truly implemented, we should probably also add it to
-# gunicorn/gunicorn.conf.py to handle pre-fork 
+# etc/gunicorn.conf.py to handle pre-fork 
 if config['custom_sql_db'] == True:
     if os.path.exists ("user_db_creds"):
         user_db_creds = pd.read_csv("user_db_creds", dtype=str) # expecting the CSV format: db_driver,db_user, db_pw, db_host, db_port
@@ -258,7 +258,7 @@ def create_app(test_config=None):
 
 
     # create the database if it doesn't exist; this, like many other
-    # steps in this script, are replicated in gunicorn/gunicorn.conf.py
+    # steps in this script, are replicated in etc/gunicorn.conf.py
     # because they need to occur before the application forks into multiple
     # processes.
     if not os.path.exists(os.path.join('instance','app.sqlite')):
