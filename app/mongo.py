@@ -311,9 +311,9 @@ class MongoDB:
                         data['Metadata']['signature_ip'] = ip_address
 
                 if approval:
-                    data['Metadata']['signature_timestamp'] = timestamp
+                    data['Metadata']['approval_timestamp'] = timestamp
                     if ip_address:
-                        data['Metadata']['signature_ip'] = ip_address
+                        data['Metadata']['approval_ip'] = ip_address
 
 
                 collection.update_one({'_id': ObjectId(data['_id'])}, { "$set": data}, upsert=False)

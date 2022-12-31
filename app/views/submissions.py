@@ -261,15 +261,18 @@ def set_digital_signature(      username,
                                 # IP address will only work if the _collect_client_ip
                                 # form config is set to True; for more discussion, see
                                 # https://github.com/signebedi/libreForms/issues/175
-                                include_timestamp=None,
-                                include_ip=None,): 
+                                timestamp=None,
+                                ip=None,): 
     
     # for various reasons, the string that we expect to be encrypted is actually a
     # Nonetype - this is because the encrypted string just hasn't been set yet...
     # so, let's just return that Nonetype and go about our business
     if not encrypted_string:
         return None
-        
+
+    # print(ip if ip else '')
+    # print(timestamp if timestamp else '')
+
     try:
         with db.engine.connect() as conn:
             reporter = db.session.query(User).filter_by(username=username).first()
@@ -289,9 +292,9 @@ def set_digital_signature(      username,
 
         if not return_markup:
             if verify_signature:
-                return visible_signature_field + ' (Signed, Verified)'
+                return visible_signature_field + f' (Signed{" on "+timestamp if timestamp else ""}{" from "+ip if ip else ""})'
             elif verify_fallback:
-                return visible_signature_field + ' (Disapproved, Verified)'
+                return visible_signature_field + f' (Disapproved{" on "+timestamp if timestamp else ""}{" from "+ip if ip else ""})'
 
 
             return visible_signature_field + ' (**Unverified)'
@@ -299,11 +302,11 @@ def set_digital_signature(      username,
 
 
         if verify_signature:
-            return Markup(f'{visible_signature_field} <span class="badge bg-success" data-bs-toggle="tooltip" data-bs-placement="right" title="This form has a verified signature from {reporter.email}">Signed</span>')
+            return Markup(f'{visible_signature_field} <span class="badge bg-success" data-bs-toggle="tooltip" data-bs-placement="right" title="This form has a verified signature from {reporter.username}{" on "+timestamp if timestamp else ""}{" from "+ip if ip else ""}">Signed</span>')
         elif verify_fallback:
-            return Markup(f'{visible_signature_field} <span class="badge bg-danger" data-bs-toggle="tooltip" data-bs-placement="right" title="This form has a verified signature from {reporter.email}">Disapproved</span>')
+            return Markup(f'{visible_signature_field} <span class="badge bg-danger" data-bs-toggle="tooltip" data-bs-placement="right" title="This form has a verified signature from {reporter.username}{" on "+timestamp if timestamp else ""}{" from "+ip if ip else ""}">Disapproved</span>')
 
-        return Markup(f'{visible_signature_field} <span class="badge bg-warning" data-bs-toggle="tooltip" data-bs-placement="right" title="This form does not have a verifiable signature from {reporter.email}">Unverified</span>')
+        return Markup(f'{visible_signature_field} <span class="badge bg-warning" data-bs-toggle="tooltip" data-bs-placement="right" title="This form does not have a verifiable signature from {reporter.username}">Unverified</span>')
 
     except:
         return None
@@ -580,13 +583,18 @@ def render_document(form_name, document_id):
 
             record.drop(columns=['Journal'], inplace=True)
 
+            # strangely enough, this is the only way we could get the `Metadata` struct to work here,
+            # seehttps://github.com/signebedi/libreForms/issues/175.
+            # print(dict(list(dict(record['Metadata']).values())[0]))
 
             # Added signature verification, see https://github.com/signebedi/libreForms/issues/8
             if 'Signature' in record.columns:
                 if options['_digitally_sign']:
                     record['Signature'].iloc[0] = set_digital_signature(username=record['Owner'].iloc[0],
                                                                         encrypted_string=record['Signature'].iloc[0], 
-                                                                        base_string=config['signature_key'])
+                                                                        base_string=config['signature_key'],
+                                                                        ip=dict(list(dict(record['Metadata']).values())[0])['signature_ip'] if 'signature_ip' in dict(list(dict(record['Metadata']).values())[0])else None,
+                                                                        timestamp=dict(list(dict(record['Metadata']).values())[0])['signature_timestamp'] if 'signature_timestamp' in dict(list(dict(record['Metadata']).values())[0])else None,)
                 else:
                     record.drop(columns=['Signature'], inplace=True)
 
@@ -601,7 +609,9 @@ def render_document(form_name, document_id):
                     record['Approval'].iloc[0] = set_digital_signature(username=manager.username,
                             encrypted_string=record['Approval'].iloc[0],
                             base_string=config['approval_key'],
-                            fallback_string=config['disapproval_key'],)
+                            fallback_string=config['disapproval_key'],
+                            ip=dict(list(dict(record['Metadata']).values())[0])['approval_ip'] if 'approval_ip' in dict(list(dict(record['Metadata']).values())[0])else None,
+                            timestamp=dict(list(dict(record['Metadata']).values())[0])['approval_timestamp'] if 'approval_timestamp' in dict(list(dict(record['Metadata']).values())[0])else None,)
 
                 except:
                     record['Approval'].iloc[0] = None
@@ -716,7 +726,9 @@ def render_document_history(form_name, document_id):
                 if options['_digitally_sign']:
                     display_data['Signature'].iloc[0] = set_digital_signature(username=display_data['Owner'].iloc[0],
                                                                                 encrypted_string=display_data['Signature'].iloc[0], 
-                                                                                base_string=config['signature_key'])
+                                                                                base_string=config['signature_key'],
+                                                                                ip=dict(list(dict(record['Metadata']).values())[0])['signature_ip'] if 'signature_ip' in dict(list(dict(record['Metadata']).values())[0])else None,
+                                                                                timestamp=dict(list(dict(record['Metadata']).values())[0])['signature_timestamp'] if 'signature_timestamp' in dict(list(dict(record['Metadata']).values())[0])else None,)
 
             # Added signature verification, see https://github.com/signebedi/libreForms/issues/144    
             if 'Approval' in display_data.columns:
@@ -731,7 +743,9 @@ def render_document_history(form_name, document_id):
                     display_data['Approval'].iloc[0] = set_digital_signature(username=manager.username,
                                     encrypted_string=display_data['Approval'].iloc[0],
                                     base_string=config['approval_key'],
-                                    fallback_string=config['disapproval_key'],)
+                                    fallback_string=config['disapproval_key'],
+                                    ip=dict(list(dict(record['Metadata']).values())[0])['approval_ip'] if 'approval_ip' in dict(list(dict(record['Metadata']).values())[0])else None,
+                                    timestamp=dict(list(dict(record['Metadata']).values())[0])['approval_timestamp'] if 'approval_timestamp' in dict(list(dict(record['Metadata']).values())[0])else None,)
                 
                 # After https://github.com/signebedi/libreForms/issues/145, adding this to ensure that
                 # `Approval` is never None. 
@@ -1031,7 +1045,7 @@ def review_document(form_name, document_id):
 
 
 
-        record.drop(columns=['Journal', 'Metadata'], inplace=True)
+        record.drop(columns=['Journal'], inplace=True)
 
 
         # Added signature verification, see https://github.com/signebedi/libreForms/issues/8
@@ -1039,8 +1053,10 @@ def review_document(form_name, document_id):
             if options['_digitally_sign']:
                 record['Signature'].iloc[0] = set_digital_signature(username=record['Owner'].iloc[0],
                                                                     encrypted_string=record['Signature'].iloc[0], 
-                                                                    base_string=config['signature_key'])
-            else:
+                                                                    base_string=config['signature_key'],
+                                                                    ip=dict(list(dict(record['Metadata']).values())[0])['signature_ip'] if 'signature_ip' in dict(list(dict(record['Metadata']).values())[0])else None,
+                                                                    timestamp=dict(list(dict(record['Metadata']).values())[0])['signature_timestamp'] if 'signature_timestamp' in dict(list(dict(record['Metadata']).values())[0])else None,)
+        else:
                 record.drop(columns=['Signature'], inplace=True)
         # Added signature verification, see https://github.com/signebedi/libreForms/issues/144    
         if 'Approval' in record.columns and record['Approval'].iloc[0]:
@@ -1056,12 +1072,17 @@ def review_document(form_name, document_id):
                 record['Approval'].iloc[0] = set_digital_signature(username=manager.username,
                                                                     encrypted_string=record['Approval'].iloc[0],
                                                                     base_string=config['approval_key'],
-                                                                    fallback_string=config['disapproval_key'],)
+                                                                    fallback_string=config['disapproval_key'],
+                                                                    ip=dict(list(dict(record['Metadata']).values())[0])['approval_ip'] if 'approval_ip' in dict(list(dict(record['Metadata']).values())[0])else None,
+                                                                    timestamp=dict(list(dict(record['Metadata']).values())[0])['approval_timestamp'] if 'approval_timestamp' in dict(list(dict(record['Metadata']).values())[0])else None,)
             except:
                 record['Approval'].iloc[0] = None
 
         # we set nan values to None
         record.replace({np.nan:None}, inplace=True)
+
+        # drop Metadata field since it's not generally meant to be viewed 
+        record.drop(columns=['Metadata'], inplace=True)
 
 
         msg = Markup(f"<a href = '{config['domain']}/submissions/{form_name}/{document_id}'>go back to document</a>")
@@ -1134,7 +1155,7 @@ def generate_pdf(form_name, document_id):
             if len(record.index)<1:
                 return abort(404)
 
-            record.drop(columns=['Journal', 'Metadata'], inplace=True)
+            record.drop(columns=['Journal'], inplace=True)
 
             # Added signature verification, see https://github.com/signebedi/libreForms/issues/8
             if 'Signature' in record.columns:
@@ -1142,7 +1163,9 @@ def generate_pdf(form_name, document_id):
                     record['Signature'].iloc[0] = set_digital_signature(username=record['Owner'].iloc[0],
                                                                         encrypted_string=record['Signature'].iloc[0], 
                                                                         base_string=config['signature_key'], 
-                                                                        return_markup=False)
+                                                                        return_markup=False,
+                                                                        ip=dict(list(dict(record['Metadata']).values())[0])['signature_ip'] if 'signature_ip' in dict(list(dict(record['Metadata']).values())[0])else None,
+                                                                        timestamp=dict(list(dict(record['Metadata']).values())[0])['signature_timestamp'] if 'signature_timestamp' in dict(list(dict(record['Metadata']).values())[0])else None,)
                 else:
                     record.drop(columns=['Signature'], inplace=True)
             
@@ -1158,13 +1181,18 @@ def generate_pdf(form_name, document_id):
                                 encrypted_string=record['Approval'].iloc[0], 
                                 base_string=config['approval_key'],
                                 fallback_string=config['disapproval_key'],
-                                return_markup=False)
+                                return_markup=False,
+                                ip=dict(list(dict(record['Metadata']).values())[0])['approval_ip'] if 'approval_ip' in dict(list(dict(record['Metadata']).values())[0])else None,
+                                timestamp=dict(list(dict(record['Metadata']).values())[0])['approval_timestamp'] if 'approval_timestamp' in dict(list(dict(record['Metadata']).values())[0])else None,)
 
                 except:
                     record['Approval'].iloc[0] = None
 
             # we set nan values to None
             record.replace({np.nan:None}, inplace=True)
+
+            # drop Metadata field since it's not generally meant to be viewed 
+            record.drop(columns=['Metadata'], inplace=True)
 
 
             import libreforms
