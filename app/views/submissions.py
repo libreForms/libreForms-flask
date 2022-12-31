@@ -223,6 +223,10 @@ def check_args_for_changes(parsed_args, overrides):
     if 'Journal' in overrides:
         del overrides['Journal'] # this is unnecessary space to iterate through, so drop if exists
 
+    if 'Metadata' in overrides:
+        del overrides['Metadata'] # this is unnecessary space to iterate through, so drop if exists
+
+
     # print(parsed_args, '\n~~~\n', overrides)
 
     for item in parsed_args:
@@ -605,6 +609,10 @@ def render_document(form_name, document_id):
             # we set nan values to None
             record.replace({np.nan:None}, inplace=True)
 
+            # we drop Metadata from the form that's rendered for the user, since this data
+            # is generally not intended to be visible
+            record.drop(columns=['Metadata'], inplace=True)
+
 
             msg = Markup(f"<a href = '{config['domain']}/submissions/{form_name}/{document_id}/history'>view document history</a>")
 
@@ -874,7 +882,7 @@ def render_document_edit(form_name, document_id):
 
                     # here we build our message and subject, customized for anonymous users
                     subject = f'{config["site_name"]} {form_name} Updated ({document_id})'
-                    content = f"This email serves to verify that {current_user.username} ({current_user.email}) has just updated the {form_name} form, which you can view at {config['domain']}/submissions/{form_name}/{document_id}. {'; '.join(key + ': ' + str(value) for key, value in parsed_args.items() if key != 'Journal') if options['_send_form_with_email_notification'] else ''}"
+                    content = f"This email serves to verify that {current_user.username} ({current_user.email}) has just updated the {form_name} form, which you can view at {config['domain']}/submissions/{form_name}/{document_id}. {'; '.join(key + ': ' + str(value) for key, value in parsed_args.items() if key not in ['Journal', 'Metadata']) if options['_send_form_with_email_notification'] else ''}"
                     
                     # and then we send our message
                     current_app.config['MAILER'](subject=subject, content=content, to_address=current_user.email, cc_address_list=rationalize_routing_list(form_name), logfile=log)
@@ -1023,7 +1031,7 @@ def review_document(form_name, document_id):
 
 
 
-        record.drop(columns=['Journal'], inplace=True)
+        record.drop(columns=['Journal', 'Metadata'], inplace=True)
 
 
         # Added signature verification, see https://github.com/signebedi/libreForms/issues/8
@@ -1126,7 +1134,7 @@ def generate_pdf(form_name, document_id):
             if len(record.index)<1:
                 return abort(404)
 
-            record.drop(columns=['Journal'], inplace=True)
+            record.drop(columns=['Journal', 'Metadata'], inplace=True)
 
             # Added signature verification, see https://github.com/signebedi/libreForms/issues/8
             if 'Signature' in record.columns:
