@@ -233,7 +233,7 @@ config['mongodb_host'] = 'localhost'
 config['mongodb_port'] = 27017
 config['mongodb_pw']   = None
 
-# this config enables the health check routes defined in app.health_checks,
+# this config enables the health check routes defined in app.views.health_checks,
 # see https://github.com/signebedi/libreForms/issues/171. For the alive and
 # ready conditions, we set some basic conditions to check before returning
 # a positive response, borrowed somewhat from https://stackoverflow.com/a/22738458/13301284.

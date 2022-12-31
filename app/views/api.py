@@ -11,7 +11,7 @@ api.py: implementation of REST api views and logic
 
 """
 
-__name__ = "app.api"
+__name__ = "app.views.api"
 __author__ = "Sig Janoska-Bedi"
 __credits__ = ["Sig Janoska-Bedi"]
 __version__ = "1.2.0"
@@ -24,7 +24,7 @@ __email__ = "signe@atreeus.com"
 from flask import current_app, Blueprint, request, abort
 
 # import custom packages from the current repository
-from app.auth import login_required
+from app.views.auth import login_required
 from app import log, config, mongodb
 from app.models import Signing, db
 import app.signing as signing

@@ -174,7 +174,7 @@ def create_app(test_config=None):
 
     # import any context-bound libraries
     from app.action_needed import standardard_total_notifications
-    from app.reports import reportManager
+    from app.views.reports import reportManager
 
     # add some app configurations
     app.config.from_mapping(
@@ -311,7 +311,7 @@ def create_app(test_config=None):
     app.config['MAILER'] = send_mail_asynch if config['send_mail_asynchronously'] else mailer.send_mail
 
     # create a report manager object to send scheduled email reports, see 
-    # app.reports and https://github.com/signebedi/libreForms/issues/73
+    # app.views.reports and https://github.com/signebedi/libreForms/issues/73
     reports = reportManager(send_reports=config['send_reports'])
 
     @celery.task()
@@ -360,45 +360,45 @@ def create_app(test_config=None):
         )
 
     # import the `auth` blueprint for user / session management
-    from . import auth
+    from .views import auth
     app.register_blueprint(auth.bp)
 
     # import the `forms` blueprint for form submission
-    from . import forms
+    from .views import forms
     app.register_blueprint(forms.bp)
 
     # import the `submissionss` blueprint for post-submission form view / management
-    from . import submissions
+    from .views import submissions
     app.register_blueprint(submissions.bp)
 
     # import the `dashboard` blueprint for data visualization
-    from . import dashboards
+    from .views import dashboards
     app.register_blueprint(dashboards.bp)
 
     # import the `table` blueprint for tabular views of form data
-    from . import tables
+    from .views import tables
     app.register_blueprint(tables.bp)
 
     # import the `api` blueprint for RESTful API support
     if config['enable_rest_api']:
-        from . import api
+        from .views import api
         app.register_blueprint(api.bp)
 
     # if administrators have enabled anonymous / external form submission, then we
     # import the `external` blueprint to create the external access endpoint
     if config['allow_anonymous_form_submissions']:
-        from . import external
+        from .views import external
         app.register_blueprint(external.bp)
 
     # if administrators have enabled health checks, then we import the `health`
     # blueprint, see https://github.com/signebedi/libreForms/issues/171.
     if config['enable_health_checks']:
-        from . import health_check
+        from .views import health_check
         app.register_blueprint(health_check.bp)
 
 
     # import the `reports` blueprint for 
-    from . import reports
+    from .views import reports
     app.register_blueprint(reports.bp)
 
     # return the app object with the above configurations

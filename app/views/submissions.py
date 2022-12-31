@@ -5,7 +5,7 @@ submissions.py: implementation of views for post-submission form management
 
 """
 
-__name__ = "app.submissions"
+__name__ = "app.views.submissions"
 __author__ = "Sig Janoska-Bedi"
 __credits__ = ["Sig Janoska-Bedi"]
 __version__ = "1.2.0"
@@ -27,9 +27,9 @@ import numpy as np
 import libreforms
 from app import config, log, mailer, mongodb
 from app.models import User, db
-from app.auth import login_required, session
+from app.views.auth import login_required, session
 from app.certification import encrypt_with_symmetric_key, verify_symmetric_key
-from app.forms import form_menu, checkGroup, checkFormGroup, \
+from app.views.forms import form_menu, checkGroup, checkFormGroup, \
     checkKey, propagate_form_configs, propagate_form_fields, define_webarg_form_data_types, \
     collect_list_of_users, compile_depends_on_data, rationalize_routing_list
 

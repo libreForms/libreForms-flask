@@ -5,7 +5,7 @@ auth.py: implementation of auth views and underlying logic
 
 """
 
-__name__ = "app.auth"
+__name__ = "app.views.auth"
 __author__ = "Sig Janoska-Bedi"
 __credits__ = ["Sig Janoska-Bedi"]
 __version__ = "1.2.0"

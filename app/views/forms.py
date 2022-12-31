@@ -5,7 +5,7 @@ forms.py: implementation of views and base logic for form submission
 
 """
 
-__name__ = "app.forms"
+__name__ = "app.views.forms"
 __author__ = "Sig Janoska-Bedi"
 __credits__ = ["Sig Janoska-Bedi"]
 __version__ = "1.2.0"
@@ -27,7 +27,7 @@ from sqlalchemy.sql import text
 import libreforms
 from app import config, log, mailer, mongodb
 from app.models import User, db
-from app.auth import login_required, session
+from app.views.auth import login_required, session
 from app.certification import encrypt_with_symmetric_key
 
 

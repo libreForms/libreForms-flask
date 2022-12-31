@@ -52,8 +52,8 @@ This is the bread-and-butter of the web application's MongoDB wrapper library
 by defining the application's behavior when writing a form submission to the 
 database.
 
-We start by asking whether this is a new submission (from app.forms), or a 
-modification to an existing form (coming from app.submissions). If it's a new 
+We start by asking whether this is a new submission (from app.views.forms), or a 
+modification to an existing form (coming from app.views.submissions). If it's a new 
 submission, we assign the same value to `Reporter` and `Owner`, and then create
 the `Journal` using a carbon copy of the form data, except for the timestamp, 
 which is used for the `Journal` unique key. If the web application has sent data
@@ -66,8 +66,8 @@ any past approvals / signatures that the form had received.
 # read_documents_from_collection()
 
 This method returns a list of documents for a given collection / form name. This is 
-used primarily in app.submissions (see the wrapper function get_record_of_submissions
-in app.submissions) when querying submissions for a given form. It's generally useful
+used primarily in app.views.submissions (see the wrapper function get_record_of_submissions
+in app.views.submissions) when querying submissions for a given form. It's generally useful
 when examining data at a form-by-form level. For example, maybe an administrator has 
 some form `B-207: request for leave`, and they want to examine longitudinal data about
 leave requests, especially when employees tend to make the most requests, to ensure 

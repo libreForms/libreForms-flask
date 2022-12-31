@@ -51,7 +51,7 @@ https://github.com/signebedi/libreForms/issues/73 for more information.
 
 """
 
-__name__ = "app.reports"
+__name__ = "app.views.reports"
 __author__ = "Sig Janoska-Bedi"
 __credits__ = ["Sig Janoska-Bedi"]
 __version__ = "1.2.0"
@@ -70,7 +70,7 @@ from markupsafe import Markup
 
 # import custom packages from the current repository
 import libreforms as libreforms
-from app.auth import login_required
+from app.views.auth import login_required
 from app import config, log, mongodb
 
 # and finally, import other packages

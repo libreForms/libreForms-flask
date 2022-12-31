@@ -5,7 +5,7 @@ external.py: implementation of views external submission of forms
 
 """
 
-__name__ = "app.external"
+__name__ = "app.views.external"
 __author__ = "Sig Janoska-Bedi"
 __credits__ = ["Sig Janoska-Bedi"]
 __version__ = "1.2.0"
@@ -24,8 +24,8 @@ from flask_login import current_user
 # import custom packages from the current repository
 import libreforms
 from app import config, log, mailer, mongodb
-from app.auth import login_required, session
-from app.forms import define_webarg_form_data_types, checkGroup, reconcile_form_data_struct, \
+from app.views.auth import login_required, session
+from app.views.forms import define_webarg_form_data_types, checkGroup, reconcile_form_data_struct, \
     propagate_form_fields, propagate_form_configs, compile_depends_on_data, rationalize_routing_list
 import app.signing as signing
 from app.models import Signing, db

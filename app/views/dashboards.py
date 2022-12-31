@@ -5,7 +5,7 @@ dashboards.py: implementation of views for dashboard rendering of forms
 
 """
 
-__name__ = "app.dashboards"
+__name__ = "app.views.dashboards"
 __author__ = "Sig Janoska-Bedi"
 __credits__ = ["Sig Janoska-Bedi"]
 __version__ = "1.2.0"
@@ -19,8 +19,8 @@ from flask_login import current_user
 
 # import custom packages from the current repository
 import libreforms
-from app.auth import login_required
-from app.forms import propagate_form_configs, checkGroup, checkDashboardGroup, form_menu
+from app.views.auth import login_required
+from app.views.forms import propagate_form_configs, checkGroup, checkDashboardGroup, form_menu
 from app import config, log, mongodb
 from app.models import db
 

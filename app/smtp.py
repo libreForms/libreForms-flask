@@ -19,7 +19,7 @@ which expects a list of emails to carbon copy on an outgoing email. This can be
 more broadly used than just routing lists, however. 
 
 To see the logic that implements the routing list, see the `rationalize_routing_list`
-method in app.forms.
+method in app.views.forms.
 
 
 # send_mail() method

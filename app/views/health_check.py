@@ -10,7 +10,7 @@ For further discussion, see https://github.com/signebedi/libreForms/issues/171.
 
 """
 
-__name__ = "app.health_check"
+__name__ = "app.views.health_check"
 __author__ = "Sig Janoska-Bedi"
 __credits__ = ["Sig Janoska-Bedi"]
 __version__ = "1.2.0"
