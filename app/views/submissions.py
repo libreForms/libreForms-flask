@@ -68,7 +68,7 @@ def get_record_of_submissions(form_name=None, user=None, remove_underscores=True
 
             if user:
                 try:
-                    df = df.loc[df['Reporter'] == user]
+                    df = df.loc[df['Owner'] == user]
                 except:
                     log.info(f"{user.upper()} - tried to query {form_name} database for user but no entries were found.")
                     return None
@@ -95,7 +95,7 @@ def gen_hyperlink(row, form_name):
 # in this method we aggregate all the relevant information
 def aggregate_form_data(*args, user=None):
 
-    columns=['form', 'Timestamp', 'id', 'hyperlink', 'Reporter']+[x for x in args]
+    columns=['form', 'Timestamp', 'id', 'hyperlink', 'Owner']+[x for x in args]
     # print (columns)
 
     df = pd.DataFrame(columns=columns)
@@ -114,7 +114,7 @@ def aggregate_form_data(*args, user=None):
 
                 for index, row in temp_df.iterrows():
 
-                    TEMP = {'Reporter':row['Reporter'], 
+                    TEMP = {'Owner':row['Owner'], 
                             'Timestamp':row['Timestamp'], 
                             'form':form, 
                             'id':row['id'], 
@@ -431,7 +431,7 @@ def submissions(form_name):
     
         else:
 
-            record = record [['Timestamp', 'id', 'Reporter']]
+            record = record [['Timestamp', 'id', 'Owner']]
             record['form'] = form_name
 
             record['hyperlink'] = record.apply(lambda x: gen_hyperlink(x, form_name), axis=1)
@@ -611,7 +611,7 @@ def render_document(form_name, document_id):
             # print (current_user.username)
             # print (record['Reporter'].iloc[0])
 
-            if ((not checkKey(verify_group, '_deny_write') or not current_user.group in verify_group['_deny_write'])) or current_user.username == record['Reporter'].iloc[0]:
+            if ((not checkKey(verify_group, '_deny_write') or not current_user.group in verify_group['_deny_write'])) or current_user.username == record['Owner'].iloc[0]:
                 msg = msg + Markup(f"<a href = '{config['domain']}/submissions/{form_name}/{document_id}/edit'>edit this document</a>")
 
             if propagate_form_configs(form_name)['_form_approval'] and 'Approver' in record.columns and record['Approver'].iloc[0] == getattr(current_user,config['visible_signature_field']):
@@ -748,7 +748,7 @@ def render_document_history(form_name, document_id):
             # print (record.transpose()['Reporter'].iloc[0])
             # print (record['Reporter'].iloc[0])
 
-            if ((not checkKey(verify_group, '_deny_write') or not current_user.group in verify_group['_deny_write'])) or current_user.username == record['Reporter'].iloc[0]:
+            if ((not checkKey(verify_group, '_deny_write') or not current_user.group in verify_group['_deny_write'])) or current_user.username == record['Owner'].iloc[0]:
                 msg = msg + Markup(f"<a href = '{config['domain']}/submissions/{form_name}/{document_id}/edit'>edit this document</a>")
             
 
