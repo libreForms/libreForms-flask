@@ -128,8 +128,8 @@ if config['custom_sql_db'] == True:
 # here we start up the SMTP `mailer` object that we'll propagate like the 
 # log object above and use to send mail
 if config['smtp_enabled']: # we should do something with this later on
-    if os.path.exists ("smtp_creds"):
-        smtp_creds = pd.read_csv("smtp_creds", dtype=str) # expecting the CSV format: smtp_server,port,username,password,from_address
+    if os.path.exists (os.path.join(config['config_folder'], 'smtp_creds')):
+        smtp_creds = pd.read_csv(os.path.join(config['config_folder'], 'smtp_creds'), dtype=str) # expecting the CSV format: smtp_server,port,username,password,from_address
         log.info(f'LIBREFORMS - found an SMTP credentials file using {smtp_creds.mail_server[0]}.')
 
         mailer = Mailer(mail_server=smtp_creds.mail_server[0],
@@ -224,10 +224,18 @@ def create_app(test_config=None):
     #     # load the test config if passed in
     #     app.config.from_mapping(test_config)
 
-    # we use the instance folder to store instance-specific files,
-    # especially the default sqlite db; here we ensure the folder exists
+    # create instance, config, and uploads folder to store instance-specific, 
+    # configuration, and uploaded files.
     try:
         os.makedirs(app.instance_path)
+    except OSError:
+        pass
+    try:
+        os.makedirs(config['upload_folder'])
+    except OSError:
+        pass
+    try:
+        os.makedirs(config['config_folder'])
     except OSError:
         pass
 
