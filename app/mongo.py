@@ -9,9 +9,18 @@ strongly tied to using MongoDB.
 
 # Form Data Structure
 
-
-
-
+Beyond form-specific data, the application adds the following metadata:
+    - Journal:
+    - Metadata: what sets this struct apart from others is that its content is 
+        generally not meant to be visible when the form is rendered 
+    - Timestamp:
+    - Reporter:
+    - Owner:
+    - Signature:
+    - IP_Address:
+    - Approver:
+    - Approval:
+    - Approver_Comment:
 
 # class MongoDB()
 
@@ -232,6 +241,25 @@ class MongoDB:
                 # In the past, we added an `initial_submission` tag the first time a form was submitted
                 # but this is probably very redundant, so deprecating it here. 
                 # data['Journal'][timestamp]['initial_submission'] = True 
+
+
+                # here we add a `Metadata` field, which is implemented per discussion in 
+                # https://github.com/signebedi/libreForms/issues/175 to capture form meta
+                # data not well suited to the `Journal`.
+                data['Metadata'] = {}
+
+                # if the form is submitted with new digital signature or approval data,
+                # then we attach related metadata
+                if digital_signature:
+                    data['Metadata']['signature_timestamp'] = timestamp
+                    if ip_address:
+                        data['Metadata']['signature_ip'] = ip_address
+
+                if approval:
+                    data['Metadata']['signature_timestamp'] = timestamp
+                    if ip_address:
+                        data['Metadata']['signature_ip'] = ip_address
+
             
             # here we define the behavior of the `Journal` metadata field 
             # if not modification:
@@ -270,6 +298,24 @@ class MongoDB:
                 # which we append to the `Journal` field of the parent dataframe
                 data['Journal'][data['Timestamp']] =  dict(journal_data)
                 # print(final_data['Journal'])
+
+                # create Metadata field if it doesn't exist
+                if not data['Metadata']:
+                    data['Metadata'] = {}
+
+                # if the form is submitted with new digital signature or approval data,
+                # then we attach related metadata
+                if digital_signature:
+                    data['Metadata']['signature_timestamp'] = timestamp
+                    if ip_address:
+                        data['Metadata']['signature_ip'] = ip_address
+
+                if approval:
+                    data['Metadata']['signature_timestamp'] = timestamp
+                    if ip_address:
+                        data['Metadata']['signature_ip'] = ip_address
+
+
                 collection.update_one({'_id': ObjectId(data['_id'])}, { "$set": data}, upsert=False)
 
                 return str(data['_id'])
