@@ -345,6 +345,12 @@ class MongoDB:
             if collection_name not in self.collections():
                 return False
 
+            # if an invalid ObjectID is passed, return false
+            try:
+                assert(ObjectId(document_id))
+            except:
+                return False
+
             collection = db[collection_name]
             df = pd.DataFrame(list(collection.find()))
 

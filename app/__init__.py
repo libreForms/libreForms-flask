@@ -34,10 +34,12 @@ import os, re
 import pandas as pd
 
 # Flask-specific dependencies
-from flask import Flask, render_template, current_app, jsonify, request
+from flask import Flask, render_template, current_app, jsonify, request, abort
 from flask_login import LoginManager, current_user
 from werkzeug.middleware.proxy_fix import ProxyFix
 from celery import Celery
+from markupsafe import Markup
+
 
 # application-specific dependencies
 from app import mongo, log_functions
@@ -322,8 +324,11 @@ def create_app(test_config=None):
     # method, which we'll implement when the `write_documents_asynchronously` config is set, see
     # https://github.com/libreForms/libreForms-flask/issues/180.
     @celery.task()
-    def write_document_to_collection_async():
-        pass
+    def write_document_to_collection_async(data, collection_name, reporter=None, modification=False, 
+                                            digital_signature=None, approver=None, approval=None, approver_comment=None, ip_address=None):
+        mongodb.write_document_to_collection(data, collection_name, reporter=reporter, modification=modification, 
+                                            digital_signature=digital_signature, approver=approver, approval=approval, 
+                                            approver_comment=approver_comment, ip_address=ip_address)
 
     # maybe a little hackish, but if we set `write_documents_asynchronously`, which defaults to True,
     # then we configure the application to write document to MongoDB asynchronously using the current_app;
@@ -383,15 +388,22 @@ def create_app(test_config=None):
 
     # define a route to show the application's privacy policy 
     @app.route('/loading/<form_name>/<document_id>')
-    def loading():
-        return render_template('app/loading.html', 
-            site_name=config['site_name'],
-            type="home",
-            name='loading',
-            notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
-            config=config,
-            user=current_user if current_user.is_authenticated else None,
-        )
+    def loading(form_name, document_id):
+
+        if mongodb.is_document_in_collection(form_name, document_id):
+
+            return render_template('app/loading.html', 
+                site_name=config['site_name'],
+                type="home",
+                name='loading',
+                notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
+                config=config,
+                user=current_user if current_user.is_authenticated else None,
+                msg=f'Submitting form data for {form_name} form, document ID {document_id}'
+            )
+
+        else:
+            return abort(404)
 
     # import the `auth` blueprint for user / session management
     from .views import auth
