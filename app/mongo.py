@@ -86,6 +86,12 @@ unique form submission for this form that they can parse using any data science 
 they might choose.
 
 
+# is_document_in_collection(collection_name, document_id)
+
+This function returns True if the collection_name exists in the MongoDB database and 
+there is corresponding document_id in the collection.
+
+
 # check_connection()
 
 This method will simply attempt to connect to the database and, if successful, return
@@ -118,6 +124,10 @@ __email__ = "signe@atreeus.com"
 from pymongo import MongoClient
 import os
 import contextlib
+import pandas as pd
+import datetime
+from bson.objectid import ObjectId
+
 
 
 class MongoDB:
@@ -162,8 +172,6 @@ class MongoDB:
                                                     approval=None,
                                                     approver_comment=None,
                                                     ip_address=None):
-        import datetime
-        from bson.objectid import ObjectId
 
         # to solve `connection paused` errors when in a forked
         # evironment, we connect and close after each write,
@@ -273,7 +281,6 @@ class MongoDB:
             else:
 
                 # some very overkill slicing to get the original 'Journal' value...
-                import pandas as pd
                 TEMP = self.read_documents_from_collection(collection_name)
 
                 df = pd.DataFrame(list(TEMP))
@@ -328,6 +335,23 @@ class MongoDB:
 
             collection = db[collection_name]
             return list(collection.find())
+
+
+    def is_document_in_collection(self, collection_name, document_id):
+        with MongoClient(host=self.host, port=self.port) if not self.dbpw else MongoClient(f'mongodb://{self.user}:{self.dbpw}@{self.host}:{str(self.port)}/?authSource=admin&retryWrites=true&w=majority') as client:
+            db = client['libreforms']
+
+            # if the collection doesn't exist, return false
+            if collection_name not in self.collections():
+                return False
+
+            collection = db[collection_name]
+            df = pd.DataFrame(list(collection.find()))
+
+            # print(df)
+
+            # we return True if the form exists
+            return True if len(df.loc[df['_id'] == ObjectId(document_id)]) > 0 else False
 
     def check_connection(self):
         try:
