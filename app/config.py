@@ -115,7 +115,13 @@ config['celery_broker'] = 'pyamqp://'
 config['celery_backend'] = 'rpc://'
 
 # this config enables support for sending emails asynchronously using Celery.
-config['send_mail_asynchronously'] = False
+config['send_mail_asynchronously'] = True
+
+
+# this config enables support for writing forms to MongoDB asynchronously using
+# Celery. See discussion at https://github.com/libreForms/libreForms-flask/issues/180.
+config['write_documents_asynchronously'] = True
+
 
 # UNTESTED: when users want to specify a custom SQL database rather than the 
 # default SQLite database created by the application.
