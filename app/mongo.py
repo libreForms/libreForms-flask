@@ -300,7 +300,7 @@ class MongoDB:
                 # print(final_data['Journal'])
 
                 # create Metadata field if it doesn't exist
-                if not data['Metadata']:
+                if 'Metadata' not in data:
                     data['Metadata'] = {}
 
                 # if the form is submitted with new digital signature or approval data,

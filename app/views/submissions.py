@@ -95,7 +95,7 @@ def gen_hyperlink(row, form_name):
 # in this method we aggregate all the relevant information
 def aggregate_form_data(*args, user=None):
 
-    columns=['form', 'Timestamp', 'id', 'hyperlink', 'Owner']+[x for x in args]
+    columns=['form', 'Timestamp', 'id', 'hyperlink', 'Owner', 'Owner']+[x for x in args]
     # print (columns)
 
     df = pd.DataFrame(columns=columns)
@@ -115,6 +115,7 @@ def aggregate_form_data(*args, user=None):
                 for index, row in temp_df.iterrows():
 
                     TEMP = {'Owner':row['Owner'], 
+                            'Reporter':row['Reporter'], 
                             'Timestamp':row['Timestamp'], 
                             'form':form, 
                             'id':row['id'], 
