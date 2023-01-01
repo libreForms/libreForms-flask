@@ -528,14 +528,22 @@ def forms(form_name):
                 # print(approver)
 
                 # here we insert the value and store the return value as the document ID
-                document_id = mongodb.write_document_to_collection(parsed_args, form_name, 
+                document_id = current_app.config['MONGODB_WRITER'](parsed_args, form_name, 
                                 reporter=current_user.username, 
                                 digital_signature=digital_signature,
                                 approver=getattr(approver, config['visible_signature_field']) if approver else None,
                                 ip_address=request.remote_addr if options['_collect_client_ip'] else None,)
 
-                flash(str(parsed_args))
-                                
+                # if config['write_documents_asynchronously']:
+                #     import time, requests
+                #     while True:
+                #         requests.get(url_for('taskstatus', task_id=document_id.task_id))
+                #         print(r.task_id)
+                #         time.sleep(.1)
+
+                if config['debug']:
+                    flash(str(parsed_args))
+                            
                 log.info(f'{current_user.username.upper()} - submitted \'{form_name}\' form, document no. {document_id}.')
                 
                 # here we build our message and subject

@@ -323,12 +323,23 @@ def create_app(test_config=None):
     # here we define an asynchronous wrapper function for the app.mongo.write_documents_to_collection 
     # method, which we'll implement when the `write_documents_asynchronously` config is set, see
     # https://github.com/libreForms/libreForms-flask/issues/180.
-    @celery.task()
-    def write_document_to_collection_async(data, collection_name, reporter=None, modification=False, 
+    @celery.task(bind=True)
+    def write_document_to_collection_async(self, data, collection_name, reporter=None, modification=False, 
                                             digital_signature=None, approver=None, approval=None, approver_comment=None, ip_address=None):
-        mongodb.write_document_to_collection(data, collection_name, reporter=reporter, modification=modification, 
+
+        # self.delay()
+
+        self.update_state(state='PENDING')
+        # print('PENDING')
+
+        document_id = mongodb.write_document_to_collection(data, collection_name, reporter=reporter, modification=modification, 
                                             digital_signature=digital_signature, approver=approver, approval=approval, 
                                             approver_comment=approver_comment, ip_address=ip_address)
+
+        self.update_state(state='COMPLETE')
+        # print('COMPLETE')
+
+        return document_id
 
     # maybe a little hackish, but if we set `write_documents_asynchronously`, which defaults to True,
     # then we configure the application to write document to MongoDB asynchronously using the current_app;
@@ -351,6 +362,20 @@ def create_app(test_config=None):
 
         # periodically calls send_reports 
         sender.add_periodic_task(3600.0, send_reports.s(reports), name='send reports periodically')
+
+
+    # create a task status endpoint
+    @app.route('/status/<task_id>', methods=['GET'])
+    def taskstatus(task_id=None):
+        try:
+            task = celery.AsyncResult(task_id)
+            response = {
+                'state': task.state,
+            }
+            return jsonify(response)
+        except:
+            return abort(404)
+
 
     ##########################
     # Routes and Blueprints - define default URL routes and import others from blueprints
@@ -387,23 +412,23 @@ def create_app(test_config=None):
 
 
     # define a route to show the application's privacy policy 
-    @app.route('/loading/<form_name>/<document_id>')
-    def loading(form_name, document_id):
+    # @app.route('/loading/<form_name>/<document_id>')
+    # def loading(form_name, document_id):
 
-        if mongodb.is_document_in_collection(form_name, document_id):
+    #     if mongodb.is_document_in_collection(form_name, document_id):
 
-            return render_template('app/loading.html', 
-                site_name=config['site_name'],
-                type="home",
-                name='loading',
-                notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
-                config=config,
-                user=current_user if current_user.is_authenticated else None,
-                msg=f'Submitting form data for {form_name} form, document ID {document_id}'
-            )
+    #         return render_template('app/loading.html', 
+    #             site_name=config['site_name'],
+    #             type="home",
+    #             name='loading',
+    #             notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
+    #             config=config,
+    #             user=current_user if current_user.is_authenticated else None,
+    #             msg=f'Submitting form data for {form_name} form, document ID {document_id}'
+    #         )
 
-        else:
-            return abort(404)
+    #     else:
+    #         return abort(404)
 
     # import the `auth` blueprint for user / session management
     from .views import auth

@@ -98,6 +98,11 @@ config['default_org'] = ""
 config['version'] = __version__
 
 
+# placing the app in debug mode here will enable some greater verbosity of output, 
+# eg. during form submission.
+config['debug'] = False
+
+
 ##########################
 # Configure Add'l Features
 ##########################

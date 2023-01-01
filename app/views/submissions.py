@@ -887,10 +887,18 @@ def render_document_edit(form_name, document_id):
                     digital_signature = encrypt_with_symmetric_key(current_user.certificate, config['signature_key']) if options['_digitally_sign'] else None
 
                     # here we pass a modification
-                    mongodb.write_document_to_collection(parsed_args, form_name, reporter=current_user.username, modification=True, digital_signature=digital_signature,
+                    r = current_app.config['MONGODB_WRITER'](parsed_args, form_name, reporter=current_user.username, modification=True, digital_signature=digital_signature,
                                                             ip_address=request.remote_addr if options['_collect_client_ip'] else None,)
                     
-                    flash(str(parsed_args))
+                    # if config['write_documents_asynchronously']:
+                    #     import time, requests
+                    #     while True:
+                    #         requests.get(url_for('taskstatus', task_id=r.task_id))
+                    #         print(r.task_id)
+                    #         time.sleep(.1)
+
+                    if config['debug']:
+                        flash(str(parsed_args))
 
                     # log the update
                     log.info(f'{current_user.username.upper()} - updated \'{form_name}\' form, document no. {document_id}.')
@@ -1030,7 +1038,7 @@ def review_document(form_name, document_id):
             # presuming there is a change, write the change
             # if approve != 'no' or comment != '':
 
-            mongodb.write_document_to_collection({'_id': ObjectId(document_id)}, form_name, 
+            current_app.config['MONGODB_WRITER']({'_id': ObjectId(document_id)}, form_name, 
                                                     reporter=current_user.username, 
                                                     modification=True,
                                                     # if these pass check_args_for_changes(), then pass values; else None
