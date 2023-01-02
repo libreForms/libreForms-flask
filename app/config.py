@@ -49,6 +49,8 @@ def collect_secrets_from_file(filename):
     with open(filepath, 'r') as f: 
         return f.readlines()[0].strip()
 
+
+
 # create application config dictionary
 config = {}
 
@@ -184,6 +186,11 @@ config['max_upload_size'] = 16 * 1000 * 1000
 # https://github.com/signebedi/libreForms/issues/173
 config['config_folder'] = 'config/'
 
+# make the config directory if it doesn't exist
+try:
+    os.makedirs(config['config_folder'])
+except OSError:
+    pass
 
 ##########################
 # User Registration / Auth
