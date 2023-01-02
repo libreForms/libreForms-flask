@@ -147,6 +147,7 @@ if config['allow_anonymous_form_submissions']:
                     #         print(r.task_id)
                     #         time.sleep(.1)
 
+                    flash(f'{form_name} form successfully submitted, document ID {document_id}. ')
                     if config['debug']:
                         flash(str(parsed_args))
 
