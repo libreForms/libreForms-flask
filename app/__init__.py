@@ -344,7 +344,8 @@ def create_app(test_config=None):
     # maybe a little hackish, but if we set `write_documents_asynchronously`, which defaults to True,
     # then we configure the application to write document to MongoDB asynchronously using the current_app;
     # otherwise, we fall back to synchronous submission method
-    app.config['MONGODB_WRITER'] = write_document_to_collection_async if config['write_documents_asynchronously'] else mongodb.write_document_to_collection
+    # app.config['MONGODB_WRITER'] = write_document_to_collection_async if config['write_documents_asynchronously'] else mongodb.write_document_to_collection
+    # app.config['MONGODB_WRITER'] = write_document_to_collection_async 
 
 
     # create a report manager object to send scheduled email reports, see 

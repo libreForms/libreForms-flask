@@ -527,19 +527,39 @@ def forms(form_name):
                 approver = verify_form_approval(form_name)
                 # print(approver)
 
-                # here we insert the value and store the return value as the document ID
-                document_id = current_app.config['MONGODB_WRITER'](parsed_args, form_name, 
+
+                document_id = mongodb.write_document_to_collection(parsed_args, form_name, 
                                 reporter=current_user.username, 
                                 digital_signature=digital_signature,
                                 approver=getattr(approver, config['visible_signature_field']) if approver else None,
                                 ip_address=request.remote_addr if options['_collect_client_ip'] else None,)
 
+
+
+                ## here we're trying out some logic to async submit forms, see 
+                ## https://github.com/libreForms/libreForms-flask/issues/180
                 # if config['write_documents_asynchronously']:
                 #     import time, requests
+                #     r = current_app.config['MONGODB_WRITER'].apply_async(kwargs={
+                #                 'data':parsed_args, 
+                #                 'collection_name':form_name, 
+                #                 'reporter':current_user.username, 
+                #                 'digital_signature':digital_signature,
+                #                 'approver':getattr(approver, config['visible_signature_field']) if approver else None,
+                #                 'ip_address':request.remote_addr if options['_collect_client_ip'] else None,})
                 #     while True:
-                #         requests.get(url_for('taskstatus', task_id=document_id.task_id))
+                #         a = requests.get(url_for('taskstatus', task_id=document_id.task_id))
                 #         print(r.task_id)
+                #         if a == 'COMPLETE': break
                 #         time.sleep(.1)
+                # else:
+                #     # here we insert the value and store the return value as the document ID
+                #     document_id = mongodb.write_document_to_collection(parsed_args, form_name, 
+                #                 reporter=current_user.username, 
+                #                 digital_signature=digital_signature,
+                #                 approver=getattr(approver, config['visible_signature_field']) if approver else None,
+                #                 ip_address=request.remote_addr if options['_collect_client_ip'] else None,)
+
 
                 flash(f'{form_name} form successfully submitted, document ID {document_id}. ')
                 if config['debug']:

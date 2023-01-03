@@ -137,7 +137,7 @@ if config['allow_anonymous_form_submissions']:
                     email = Signing.query.filter_by(signature=signature).first().email
                     
                     # we submit the document and store the returned Object ID as a document_id
-                    document_id = current_app.config['MONGODB_WRITER']( parsed_args, form_name, reporter=" ".join((email, signature)),
+                    document_id = mongodb.write_document_to_collection( parsed_args, form_name, reporter=" ".join((email, signature)),
                                                                         ip_address=request.remote_addr if options['_collect_client_ip'] else None) 
 
                     # if config['write_documents_asynchronously']:

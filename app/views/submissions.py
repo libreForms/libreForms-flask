@@ -887,7 +887,7 @@ def render_document_edit(form_name, document_id):
                     digital_signature = encrypt_with_symmetric_key(current_user.certificate, config['signature_key']) if options['_digitally_sign'] else None
 
                     # here we pass a modification
-                    r = current_app.config['MONGODB_WRITER'](parsed_args, form_name, reporter=current_user.username, modification=True, digital_signature=digital_signature,
+                    mongodb.write_document_to_collection(parsed_args, form_name, reporter=current_user.username, modification=True, digital_signature=digital_signature,
                                                             ip_address=request.remote_addr if options['_collect_client_ip'] else None,)
                     
                     # if config['write_documents_asynchronously']:
@@ -1039,7 +1039,7 @@ def review_document(form_name, document_id):
             # presuming there is a change, write the change
             # if approve != 'no' or comment != '':
 
-            current_app.config['MONGODB_WRITER']({'_id': ObjectId(document_id)}, form_name, 
+            mongodb.write_document_to_collection({'_id': ObjectId(document_id)}, form_name, 
                                                     reporter=current_user.username, 
                                                     modification=True,
                                                     # if these pass check_args_for_changes(), then pass values; else None
