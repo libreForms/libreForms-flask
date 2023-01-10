@@ -28,8 +28,8 @@ def pre_fork(server, worker):
     # this approach from https://github.com/signebedi/libreForms/issues/148 allows us
     # to generate secret_key files pre-fork
     for filename in ['secret_key', 'signature_key', 'approval_key', 'disapproval_key']:
-        # collect_secrets_from_file(filename)
-        print (collect_secrets_from_file(filename))
+        collect_secrets_from_file(filename)
+        # print (collect_secrets_from_file(filename))
 
     # cleanup any stray log files prior to forking the work processes
     if not os.path.exists ("log/"):
