@@ -51,6 +51,24 @@ improperly access a future user's scope. This risk is exacerbated because
 signatures are documented through users' emails and logs, meaning they 
 may retain access to the signature after it has expired.
 
+
+# Report database
+
+Reports are implemented in app.views.reports. There are two forms of reports:
+(1) administrator-defined reports, which are defined in the app config, and 
+which have customizable circulation; (2) user-defined reports, which are
+defined by users in the web application, and which only circulate reports
+to the requesting user. This data model only handles the latter.
+
+Reports stored in this database are given a unique `report_id`, which serves
+as the table's primary key. Each report is linked to the requesting `user_id`.
+The `frequency` field determined the send frequency (daily, weekly, monthly)
+Any logic conditions / filters are stored as strings in the `filters` field,
+and assessed by application logic. The `timestamp` stores the time the report
+is created, while `start_at` and `end_at` are two optional fields that, if 
+specified, will tailor when the reports start and stop sending. The `active`
+field will determine whether the report is actively sending or disabled.
+
 """
 
 __name__ = "app.models"
@@ -69,7 +87,7 @@ db = SQLAlchemy()
 
 class User(UserMixin, db.Model):
     __tablename__ = 'user'
-    id = db.Column(db.Integer, primary_key=True) # primary keys are required by SQLAlchemy
+    id = db.Column(db.Integer, primary_key=True) 
     email = db.Column(db.String(100))
     password = db.Column(db.String(100))
     username = db.Column(db.String(100), unique=True)
@@ -93,3 +111,16 @@ class Signing(db.Model):
     expiration_human_readable = db.Column(db.String(100))
     timestamp = db.Column(db.Float)
     expiration = db.Column(db.Float)
+
+
+class Report(db.Model):
+    __tablename__ = 'report'
+    report_id = db.Column(db.Integer, primary_key=True) 
+    user_id = db.Column(db.Integer) # we link the report to the user_id of the user who created to report
+    name = db.Column(db.String(100))
+    filters = db.Column(db.String(100))
+    frequency = db.Column(db.String(100))
+    active = db.Column(db.Boolean)
+    timestamp = db.Column(db.Float)
+    start_at = db.Column(db.Float) # this is an optional timestamp for when we'd like this report to go into effect
+    end_at = db.Column(db.Float) # this is an optional timestamp for when we'd like this report to stop sending / expire (set `active` > False)
