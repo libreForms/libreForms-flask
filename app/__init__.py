@@ -176,7 +176,7 @@ def create_app(test_config=None):
 
     # import any context-bound libraries
     from app.action_needed import standardard_total_notifications
-    from app.views.reports import reportManager
+    from app.reporting import reportManager
 
     # add some app configurations
     app.config.from_mapping(
@@ -349,7 +349,7 @@ def create_app(test_config=None):
 
 
     # create a report manager object to send scheduled email reports, see 
-    # app.views.reports and https://github.com/signebedi/libreForms/issues/73
+    # app.reporting and https://github.com/signebedi/libreForms/issues/73
     reports = reportManager(send_reports=config['send_reports'])
 
     @celery.task()

@@ -54,7 +54,8 @@ may retain access to the signature after it has expired.
 
 # Report database
 
-Reports are implemented in app.views.reports. There are two forms of reports:
+Reports are implemented in app.reporting and views are generated in 
+app.views.reports. In the web application, there are two forms of reports:
 (1) administrator-defined reports, which are defined in the app config, and 
 which have customizable circulation; (2) user-defined reports, which are
 defined by users in the web application, and which only circulate reports
