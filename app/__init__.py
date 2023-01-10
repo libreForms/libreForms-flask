@@ -268,28 +268,28 @@ def create_app(test_config=None):
 
 
     # create the database if it doesn't exist; this, like many other
-    # steps in this script, are replicated in etc/gunicorn.conf.py
-    # because they need to occur before the application forks into multiple
-    # processes.
-    if not os.path.exists(os.path.join('instance','app.sqlite')):
-        with app.app_context():
-            db.create_all()
+    # steps in this script, are replicated in etc/gunicorn.conf.py because
+    # they need to occur before the application forks into multiple processes.
+    with app.app_context():
+
+        db.create_all()
 
         # create default user if doesn't exist
         # solution from https://stackoverflow.com/a/39288652
-        with app.app_context():
-            if db.session.query(User).filter_by(username='libreforms').count() < 1:
-                initial_user = User(id=1,
-                                    username='libreforms', 
-                                    active=1,
-                                    theme='dark' if config['dark_mode'] else 'light',
-                                    group=config['admin_group'],
-                                    certificate=generate_symmetric_key(),
-                                    email=config['libreforms_user_email'] if config['libreforms_user_email'] and re.fullmatch(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', config['libreforms_user_email']) else None,
-                                    password='pbkdf2:sha256:260000$nQVWxd59E8lmkruy$13d8c4d408185ccc3549d3629be9cd57267a7d660abef389b3be70850e1bbfbf',
-                                    created_date='2022-06-01 00:00:00',)
-                db.session.add(initial_user)
-                db.session.commit()
+        if db.session.query(User).filter_by(username='libreforms').count() < 1:
+            initial_user = User(id=1,
+                                username='libreforms', 
+                                active=1,
+                                theme='dark' if config['dark_mode'] else 'light',
+                                group=config['admin_group'],
+                                certificate=generate_symmetric_key(),
+                                email=config['libreforms_user_email'] if config['libreforms_user_email'] and re.fullmatch(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', config['libreforms_user_email']) else None,
+                                password='pbkdf2:sha256:260000$nQVWxd59E8lmkruy$13d8c4d408185ccc3549d3629be9cd57267a7d660abef389b3be70850e1bbfbf',
+                                created_date='2022-06-01 00:00:00',)
+            db.session.add(initial_user)
+            db.session.commit()
+            log.info('LIBREFORMS - created the libreforms user.' )
+
 
 
     # here we employ some Flask-Login boilerplate to make 
@@ -468,8 +468,7 @@ def create_app(test_config=None):
         from .views import health_check
         app.register_blueprint(health_check.bp)
 
-
-    # import the `reports` blueprint for 
+    # import the `reports` blueprint 
     from .views import reports
     app.register_blueprint(reports.bp)
 

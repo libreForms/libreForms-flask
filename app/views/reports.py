@@ -155,7 +155,23 @@ def create_reports():
 
 @bp.route(f'/reports/<report_id>', methods=['GET', 'POST'])
 @login_required
-def manage_reports():
-    pass # modify / delete existing report
+def manage_reports(report_id):
+    pass # modify existing report
 
+
+@bp.route(f'/reports/<report_id>/activate', methods=['GET', 'POST'])
+@login_required
+def activate_report(report_id):
+    pass # activate existing report
+
+
+@bp.route(f'/reports/<report_id>/deactivate', methods=['GET', 'POST'])
+@login_required
+def deactivate_report(report_id):
+    pass # deactivate existing report
+
+@bp.route(f'/reports/<report_id>/send', methods=['GET', 'POST'])
+@login_required
+def send_report(report_id):
+    pass # send existing report now
 
