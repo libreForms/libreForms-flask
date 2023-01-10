@@ -37,7 +37,7 @@ def pre_fork(server, worker):
     else:
         # if the log path exists, let's clean up old log handlers
         cleanup_stray_log_handlers()
-        print('cleanup')
+        # print('cleanup')
 
     # create the app database if it doesn't exist
     if not os.path.exists(os.path.join('instance','app.sqlite')):
@@ -45,11 +45,11 @@ def pre_fork(server, worker):
         from app.models import User, db
 
         app=create_app()
-        print('create app')
+        # print('create app')
 
         # initialize the database
         db.init_app(app=app)
-        print('init app')
+        # print('init app')
         
         # here we append any additional fields described in the user_registration_fields variable
         for key, value in appconfig['user_registration_fields'].items():
@@ -57,10 +57,10 @@ def pre_fork(server, worker):
             # might eventually be worth adding support for unique fields...
             if value == str:
                 setattr(User, key, db.Column(db.String(1000)))
-                print (key, value)
+                # print (key, value)
             elif value == int:
                 setattr(User, key, db.Column(db.Integer))
-                print (key, value)
+                # print (key, value)
    
 
         # create database and default user if doesn't exist
@@ -83,7 +83,7 @@ def pre_fork(server, worker):
                 db.session.commit()
                 db.session.close()
 
-            print('db done')
+            # print('db done')
 
 
 
