@@ -370,6 +370,9 @@ def create_app(test_config=None):
         # sender.add_periodic_task(3600.0, send_reports.s(reports), name='send reports periodically')
         sender.add_periodic_task(1.0, celery_beat_logger.s(), name='log that celery beat is working')
 
+    # start the celery beat service
+    celery.beat.start()
+
 
     # create a task status endpoint
     @app.route('/status/<task_id>', methods=['GET'])
@@ -382,7 +385,6 @@ def create_app(test_config=None):
             return jsonify(response)
         except:
             return abort(404)
-
 
     ##########################
     # Routes and Blueprints - define default URL routes and import others from blueprints
