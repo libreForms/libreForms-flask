@@ -311,7 +311,7 @@ def create_app(test_config=None):
     # here we define a tasks to send emails asynchonously - it's just a 
     # celery wrapper for the function library defined in app.smtp.
     @celery.task()
-    def send_mail_asynch(subject, content, to_address, cc_address_list=None, logfile=log):
+    def send_mail_asynch(subject, content, to_address, cc_address_list=[], logfile=log):
         mailer.send_mail(   subject=subject, content=content, to_address=to_address, 
                             cc_address_list=cc_address_list, logfile=log)
     
