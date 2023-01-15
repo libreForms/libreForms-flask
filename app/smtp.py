@@ -82,7 +82,7 @@ class Mailer():
                     msg['From'] = self.from_address
                     msg['To'] = to_address
                     # print(cc_address_list)
-                    msg['Cc'] = ", ".join(cc_address_list) if len(cc_address_list)>0 else None
+                    msg['Cc'] = ", ".join(cc_address_list) if cc_address_list and len(cc_address_list)>0 else None
 
                     msg.attach(MIMEText(content))
 
