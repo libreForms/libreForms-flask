@@ -164,7 +164,7 @@ if config['allow_anonymous_form_submissions']:
                     content = f"This email serves to verify that an anonymous user {signature} (linked to {email}) has just submitted the {form_name} form. {'; '.join(key + ': ' + str(value) for key, value in parsed_args.items() if key != 'Journal') if options['_send_form_with_email_notification'] else ''}"
                     
                     # and then we send our message
-                    current_app.config['MAILER'](subject=subject, content=content, to_address=current_user.email, cc_address_list=rationalize_routing_list(form_name), logfile=log)
+                    current_app.config['MAILER'](subject=subject, content=content, to_address=email, cc_address_list=rationalize_routing_list(form_name), logfile=log)
 
 
                     return redirect(url_for('home'))
@@ -215,11 +215,14 @@ if config['allow_anonymous_form_submissions']:
             from app.tmpfiles import temporary_directory
             with temporary_directory() as tempfile_path:
 
-                fp = os.path.join(tempfile_path, filename)
+                # appending `template` to the start to avoid confusion with other downloads
+                template_filename = "template_"+filename
+
+                fp = os.path.join(tempfile_path, template_filename)
                 df.to_csv(fp, index=False)
 
                 return send_from_directory(tempfile_path,
-                                    filename, as_attachment=True)
+                                    template_filename, as_attachment=True)
         else:
             return abort(404)
 

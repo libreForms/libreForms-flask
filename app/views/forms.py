@@ -616,8 +616,11 @@ def download_file(filename):
     from app.tmpfiles import temporary_directory
     with temporary_directory() as tempfile_path:
 
-        fp = os.path.join(tempfile_path, filename)
+        # appending `template` to the start to avoid confusion with other downloads
+        template_filename = "template_"+filename
+
+        fp = os.path.join(tempfile_path, template_filename)
         df.to_csv(fp, index=False)
 
         return send_from_directory(tempfile_path,
-                                filename, as_attachment=True)
+                                template_filename, as_attachment=True)
