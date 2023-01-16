@@ -10,5 +10,15 @@
         {% if is_table %}
             {{ table }}
         {% endif %}	
-			
+
+        {% if filename %}
+        <br/>
+        <table>
+            <tr><td>
+            <a href="{{ url_for(type+'.download_file', filename = filename) }}">download this data as a CSV</a>
+            </td></tr>
+        </table>
+        {%endif%}
+
+
 {% endblock %}

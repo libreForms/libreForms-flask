@@ -320,7 +320,7 @@ def propagate_form_fields(form=False, group=None):
 
 # every form defined under libreforms/ contains a series of key-value pairs for fields and configs. 
 # Configs define unique behavior for each form and are denoted by a _ at the beginning of the key;
-# for example `_dashboard` or `_allow_uploads`. This method parses the configs for a given form and,
+# for example `_dashboard` or `_allow_csv_uploads`. This method parses the configs for a given form and,
 # more importantly, applies default values to missing fields from the admin-defined form config.
 def propagate_form_configs(form=False):
     
@@ -334,7 +334,7 @@ def propagate_form_configs(form=False):
             "_table": None,
             "_description": False,
             "_allow_repeat": False, 
-            "_allow_uploads": False, 
+            "_allow_csv_uploads": False, 
             "_allow_csv_templates": False,
             "_suppress_default_values": False,  
             "_allow_anonymous_access": False,  

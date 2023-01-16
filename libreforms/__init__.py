@@ -95,7 +95,7 @@ forms = {
         "_description": False, # defaults to False
         "_smtp_notifications": False, # defaults to False
         "_allow_anonymous_access": False, # defaults to False
-        "_allow_uploads": True, # defaults to False
+        "_allow_csv_uploads": True, # defaults to False
         "_allow_csv_templates": True, # defaults to False
         "_suppress_default_values": False, # defaults to False
     },
@@ -147,6 +147,6 @@ def lint(forms=forms):
         # if field == "_dashboard":
         #     assert forms[form]["_dashboard"]
         # assert forms[form]["_allow_repeat"]
-        # assert forms[form]["_allow_uploads"]
+        # assert forms[form]["_allow_csv_uploads"]
         # assert forms[form]["_allow_csv_templates"]
         # assert forms[form]["_suppress_default_values"]
