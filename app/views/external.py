@@ -204,7 +204,7 @@ if config['allow_anonymous_form_submissions']:
         if not signing.verify_signatures(signature, redirect_to='home', 
                                              # the following is a little hacky, but allows us to avoid needing to reiterate the 
                                              # form_name in the URL...
-                                            scope=f'external_{(filename.split(".")[0]).lower()}'):
+                                            scope=f'external_{filename.replace(".csv", "").lower()}'):
 
 
             # this is our first stab at building templates, without accounting for nesting or repetition
