@@ -1,5 +1,5 @@
 """ 
-celeryd/__init__.py: the init script for the libreForms celery app
+celery/__init__.py: the init script for the libreForms celery app
 
 This application has toyed with implementing celery at a number of
 different points, to manage long-running background tasks & set up
@@ -31,7 +31,7 @@ this script in the application working directory.
 
 """
 
-__name__ = "celeryd"
+__name__ = "celery"
 __author__ = "Sig Janoska-Bedi"
 __credits__ = ["Sig Janoska-Bedi"]
 __version__ = "1.2.0"
