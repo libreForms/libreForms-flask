@@ -170,19 +170,3 @@ def download_file(filename):
 
         return send_from_directory(tempfile_path,
                                 filename, as_attachment=True)
-
-
-
-
-            # data = mongodb.read_documents_from_collection(form_name)
-            # df = pd.DataFrame(list(data))
-            # df.drop(columns=["_id"], inplace=True)
-            
-            # # here we allow the user to select fields they want to use, 
-            # # overriding the default view-all.
-            # # warning, this may be buggy
-
-            # for col in df.columns:
-            #     if request.args.get(col):
-            #         # prevent type-mismatch by casting both fields as strings
-            #         df = df.loc[df[col].astype("string") == str(request.args.get(col))] 
