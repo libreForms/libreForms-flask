@@ -99,6 +99,20 @@
 
   {% block addons %}{% endblock %}
 
+    <div class="offcanvas offcanvas-bottom" tabindex="-1" id="templateHelp" aria-labelledby="templateHelpLabel">
+      <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="templateHelpLabel">Using CSV Templates</h5>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+      <div class="offcanvas-body">
+        <div>
+          <p>By clicking this link, your browser should download a CSV file with columns names corresponding to the fields in this form.</p>
+          <p>You can populate multiple rows of this CSV, each row corresponding to a different, unique submission of this form.</p>
+        </div>
+      </div>
+    </div>
+
+
     <script>
       var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
       var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
