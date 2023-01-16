@@ -7,7 +7,7 @@ User=libreforms
 Group=libreforms
 WorkingDirectory=/opt/libreForms/
 Environment="PATH=/opt/libreForms/venv/bin"
-ExecStart=/opt/libreForms/venv/bin/celery -A celery worker --loglevel=info --logfile=/opt/libreForms/log/celery.log
+ExecStart=/opt/libreForms/venv/bin/celery -A celeryd worker --loglevel=info --logfile=/opt/libreForms/log/celery.log
 Restart=always
 
 [Install]
