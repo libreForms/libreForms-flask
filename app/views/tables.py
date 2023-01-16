@@ -108,3 +108,23 @@ def tables(form_name):
         config=config,
         user=current_user,
     )
+
+
+# this is the download link for files in the temp directory
+@bp.route('/download/<path:filename>')
+@login_required
+def download_file(filename):
+
+    # this is our first stab at building templates, without accounting for nesting or repetition
+    df = pd.DataFrame (columns=[x for x in propagate_form_fields(filename.replace('.csv', ''), group=current_user.group).keys()])
+
+    # here we employ a context-bound temp directory to stage this file for download, see
+    # discussion in app.tmpfiles and https://github.com/signebedi/libreForms/issues/169.
+    from app.tmpfiles import temporary_directory
+    with temporary_directory() as tempfile_path:
+
+        fp = os.path.join(tempfile_path, filename)
+        df.to_csv(fp, index=False)
+
+        return send_from_directory(tempfile_path,
+                                filename, as_attachment=True)

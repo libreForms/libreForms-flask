@@ -194,15 +194,17 @@ if config['allow_anonymous_form_submissions']:
     ####
     # leaving this, just in case the different base-route breaks the CSV download feature.
     ####
-    @bp.route('/download/<path:filename>/<signature>')
+    @bp.route('/download/<signature>/<path:filename>')
     def download_file(filename, signature):
 
         if not config['allow_anonymous_form_submissions']:
             flash('This feature has not been enabled by your system administrator.')
             return redirect(url_for('home'))
 
-        if not signing.verify_signatures(signature, redirect_to='auth.forgot_password', 
-                                            scope="forgot_password"):
+        if not signing.verify_signatures(signature, redirect_to='home', 
+                                             # the following is a little hacky, but allows us to avoid needing to reiterate the 
+                                             # form_name in the URL...
+                                            scope=f'external_{(filename.split(".")[0]).lower()}'):
 
 
             # this is our first stab at building templates, without accounting for nesting or repetition
