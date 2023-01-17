@@ -43,7 +43,7 @@ __email__ = "signe@atreeus.com"
 from app import celery, create_app, log, mailer, mongodb
 from app.reporting import reportManager
 
-app = create_app()
+app = create_app(celery_app=True)
 app.app_context().push()
 
 # create a reportManager object for sending reports that have come due

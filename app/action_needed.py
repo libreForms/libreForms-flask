@@ -22,6 +22,7 @@ __email__ = "signe@atreeus.com"
 
 import numpy as np
 from app import config, current_user
+from app.views.submissions import aggregate_approval_count
 
 
 # a high level function that we can pass a large number
@@ -41,7 +42,7 @@ def aggregate_notification_count(*args:int) -> int:
 # details in a single callable function. In theory, as the number 
 # of features that create notifications for this application 
 # increase, we can include them in the list below.
-# def standardard_total_notifications() -> int:
-#     return aggregate_notification_count(
-#             len(aggregate_approval_count(select_on=getattr(current_user,config['visible_signature_field'])).index),
-#         )
+def standardard_total_notifications() -> int:
+    return aggregate_notification_count(
+            len(aggregate_approval_count(select_on=getattr(current_user,config['visible_signature_field'])).index),
+        )
