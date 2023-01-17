@@ -32,7 +32,7 @@ from app.certification import encrypt_with_symmetric_key, verify_symmetric_key
 from app.views.forms import form_menu, checkGroup, checkFormGroup, \
     checkKey, propagate_form_configs, propagate_form_fields, define_webarg_form_data_types, \
     collect_list_of_users, compile_depends_on_data, rationalize_routing_list
-from celeryd.tasks import send_mail_async
+from celeryd import send_mail_async
 
 
 # and finally, import other packages
@@ -92,7 +92,7 @@ def gen_hyperlink(row, form_name):
 
 
 # in this method we aggregate all the relevant information
-def aggregate_form_data(*args, user=None, mongodb=mongodb):
+def aggregate_form_data(*args, user=None):
 
     columns=['form', 'Timestamp', 'id', 'hyperlink', 'Reporter', 'Owner']+[x for x in args]
     # print (columns)
@@ -314,7 +314,7 @@ def set_digital_signature(      username,
 # select_on is the field upon which we will select the approval value.
 # this is written such that `len(aggregate_approval_count(select_on=getattr(current_user,config['visible_signature_field'])).index)`
 # will return the number of unsigned approvals
-def aggregate_approval_count(select_on=None, mongodb=mongodb): 
+def aggregate_approval_count(select_on=None): 
 
         try:
             record = aggregate_form_data('Approver', 'Approval', user=None)
