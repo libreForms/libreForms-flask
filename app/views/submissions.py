@@ -32,7 +32,7 @@ from app.certification import encrypt_with_symmetric_key, verify_symmetric_key
 from app.views.forms import form_menu, checkGroup, checkFormGroup, \
     checkKey, propagate_form_configs, propagate_form_fields, define_webarg_form_data_types, \
     collect_list_of_users, compile_depends_on_data, rationalize_routing_list
-from celeryd import send_mail_async
+from celeryd.tasks import send_mail_async
 
 
 # and finally, import other packages
