@@ -97,7 +97,10 @@ class Mailer():
                     # server.send_message(msg.as_string())
 
                     if logfile: logfile.info(f'successfully sent an email to {to_address}')
+                    
+                    return True
 
             except Exception as e:
                 if logfile: logfile.error(f'could not send an email to {to_address} - {e}')
-
+                
+                return False
