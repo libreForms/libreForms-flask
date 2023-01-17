@@ -22,7 +22,6 @@ __email__ = "signe@atreeus.com"
 
 import numpy as np
 from app import config, current_user
-from app.views.submissions import aggregate_approval_count
 
 
 # a high level function that we can pass a large number
