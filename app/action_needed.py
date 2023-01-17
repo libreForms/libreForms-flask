@@ -44,5 +44,5 @@ def aggregate_notification_count(*args:int) -> int:
 # increase, we can include them in the list below.
 def standardard_total_notifications() -> int:
     return aggregate_notification_count(
-            len(aggregate_approval_count(select_on=getattr(current_user,config['visible_signature_field'])).index),
+            len(aggregate_approval_count(select_on=getattr(current_user,config['visible_signature_field'])).index), mongodb=mongodb,
         )

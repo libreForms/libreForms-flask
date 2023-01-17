@@ -92,7 +92,7 @@ def gen_hyperlink(row, form_name):
 
 
 # in this method we aggregate all the relevant information
-def aggregate_form_data(*args, user=None):
+def aggregate_form_data(*args, user=None, mongodb=mongodb):
 
     columns=['form', 'Timestamp', 'id', 'hyperlink', 'Reporter', 'Owner']+[x for x in args]
     # print (columns)
@@ -314,7 +314,7 @@ def set_digital_signature(      username,
 # select_on is the field upon which we will select the approval value.
 # this is written such that `len(aggregate_approval_count(select_on=getattr(current_user,config['visible_signature_field'])).index)`
 # will return the number of unsigned approvals
-def aggregate_approval_count(select_on=None): 
+def aggregate_approval_count(select_on=None, mongodb=mongodb): 
 
         try:
             record = aggregate_form_data('Approver', 'Approval', user=None)
