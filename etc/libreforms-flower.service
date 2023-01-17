@@ -1,0 +1,14 @@
+[Unit]
+Description=libreForms celery flower daemon
+After=network.target
+
+[Service]
+User=libreforms
+Group=libreforms
+WorkingDirectory=/opt/libreForms/
+Environment="PATH=/opt/libreForms/venv/bin"
+ExecStart=/opt/libreForms/venv/bin/celery -A celeryd.celery flower --port=5555 --loglevel=info --logfile=/opt/libreForms/log/flower.log
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
