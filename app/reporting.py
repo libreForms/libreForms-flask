@@ -91,8 +91,9 @@ class reportManager():
         # create a reports object and enroll the 
         # reports defined in the app config
         self.reports = {}
-        for key,value in send_reports.items():
-            self.reports[key] = value
+        
+        # for key,value in send_reports.items():
+        #     self.reports[key] = value
 
         #### ELSE FIND SOME WAY TO HANDLE THIS, system level report
         # 'some_name_for_report': {
