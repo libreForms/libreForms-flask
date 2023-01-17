@@ -104,14 +104,14 @@ class reportManager():
         # },
 
     def create(self, frequency, time, forms, conditions, db):
-        pass # create a new report
+        return None # create a new report
 
 
     def modify():
-        pass # modify an existing report
+        return None # modify an existing report
 
     def trigger(self, db, conditions:dict):
-        pass
+        return None
 
     def handler(self, db):
-        pass
+        return None

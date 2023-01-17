@@ -311,14 +311,14 @@ def create_app(test_config=None):
     # here we define a tasks to send emails asynchonously - it's just a 
     # celery wrapper for the function library defined in app.smtp.
     @celery.task()
-    def send_mail_asynch(subject, content, to_address, cc_address_list=[], logfile=log):
+    def send_mail_async(subject, content, to_address, cc_address_list=[], logfile=log):
         mailer.send_mail(   subject=subject, content=content, to_address=to_address, 
                             cc_address_list=cc_address_list, logfile=log)
     
-    # maybe a little hackish, but if we set `send_mail_asynchronously`, which defaults to True,
+    # maybe a little hackish, but if we set `send_mail_asyncronously`, which defaults to True,
     # then we configure the application to send mail asynchronously using the current_app;
     # otherwise, we fall back to synchronous mail
-    app.config['MAILER'] = send_mail_asynch if config['send_mail_asynchronously'] else mailer.send_mail
+    app.config['MAILER'] = send_mail_async if config['send_mail_asyncronously'] else mailer.send_mail
 
     # here we define an asynchronous wrapper function for the app.mongo.write_documents_to_collection 
     # method, which we'll implement when the `write_documents_asynchronously` config is set, see

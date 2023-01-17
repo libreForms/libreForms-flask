@@ -46,6 +46,9 @@ from app.reporting import reportManager
 app = create_app()
 app.app_context().push()
 
+# create a reportManager object for sending reports that have come due
+reports = reportManager()
+
 @celery.task()
 def send_reports(reports, *args):
     # select all reports whose conditions are met under reportManager.trigger, 
@@ -63,7 +66,7 @@ def celery_beat_logger():
 def setup_periodic_tasks(sender, **kwargs):
 
     # periodically calls send_reports 
-    sender.add_periodic_task(3600.0, send_reports.s(reports), name='send reports periodically')
+    sender.add_periodic_task(3600.0, send_reports.s(reports.trigger()), name='send reports periodically')
 
     # periodically conduct a heartbeat check
     sender.add_periodic_task(3600.0, celery_beat_logger.s(), name='log that celery beat is working')
