@@ -40,16 +40,11 @@ __maintainer__ = "Sig Janoska-Bedi"
 __email__ = "signe@atreeus.com"
 
 
-from app import celery, create_app
-from app.log_functions import set_logger
+from app import celery, create_app, log
 from app.reporting import reportManager
 
 app = create_app()
 app.app_context().push()
-
-# we instantiate a log object that we'll use across the app
-log = set_logger('log/libreforms-celery.log',__name__)
-
 
 @celery.task()
 def send_reports(reports, *args):
@@ -61,11 +56,14 @@ def send_reports(reports, *args):
 @celery.task()
 def celery_beat_logger():
     log.info('LIBREFORMS - celery just had another hearbeat.')
+    return 'LIBREFORMS - celery just had another hearbeat.'
 
 
 @celery.on_after_configure.connect
 def setup_periodic_tasks(sender, **kwargs):
 
     # periodically calls send_reports 
-    # sender.add_periodic_task(3600.0, send_reports.s(reports), name='send reports periodically')
+    sender.add_periodic_task(3600.0, send_reports.s(reports), name='send reports periodically')
+
+    # periodically conduct a heartbeat check
     sender.add_periodic_task(3600.0, celery_beat_logger.s(), name='log that celery beat is working')
