@@ -169,17 +169,27 @@ pd.options.mode.chained_assignment = None
 
 # here we create the Flask app using the Factory pattern,
 # see https://flask.palletsprojects.com/en/2.2.x/patterns/appfactories/
-def create_app(test_config=None, celery_instance=False):
+def create_app(test_config=None):
  
     # create the app object
     app = Flask(__name__, instance_relative_config=True)
 
     # import any context-bound libraries
-
-    if not celery_instance:
-        from app.action_needed import standardard_total_notifications
-
+    from app.action_needed import aggregate_notification_count
+    from app.views.submissions import aggregate_approval_count
     from app.reporting import reportManager
+
+
+    # this is just a quick abstraction that allows us to keep 
+    # actions_needed.aggregate_notification_count() generalized but 
+    # also account for current_app requirements and implementation 
+    # details in a single callable function. In theory, as the number 
+    # of features that create notifications for this application 
+    # increase, we can include them in the list below.
+    def standardard_total_notifications() -> int:
+        return aggregate_notification_count(
+                len(aggregate_approval_count(select_on=getattr(current_user,config['visible_signature_field'])).index),
+            )
 
     # add some app configurations
     app.config.from_mapping(
@@ -206,7 +216,7 @@ def create_app(test_config=None, celery_instance=False):
         # config so we can easily figure out how many notifications a given
         # user has at any given moment. I welcome feedback if there is a 
         # better way to call a context-bound function from the current_app. 
-        NOTIFICATIONS=standardard_total_notifications if not celery_instance else None, 
+        NOTIFICATIONS=standardard_total_notifications, 
     )
 
     # here we configure the application to inherit the origin IP address of clients 
