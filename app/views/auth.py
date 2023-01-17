@@ -27,7 +27,7 @@ from app.models import User, Signing, db
 from flask_login import login_required, current_user, login_user
 from app.log_functions import aggregate_log_data
 from app.certification import generate_symmetric_key
-from celeryd import send_mail_async
+from celeryd.tasks import send_mail_async
 
 
 if config['enable_hcaptcha']:

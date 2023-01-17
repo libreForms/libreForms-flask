@@ -29,7 +29,7 @@ from app.views.forms import define_webarg_form_data_types, checkGroup, reconcile
     propagate_form_fields, propagate_form_configs, compile_depends_on_data, rationalize_routing_list
 import app.signing as signing
 from app.models import Signing, db
-from celeryd import send_mail_async
+from celeryd.tasks import send_mail_async
 
 
 # and finally, import other packages

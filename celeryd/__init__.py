@@ -46,36 +46,6 @@ from app.reporting import reportManager
 app = create_app()
 app.app_context().push()
 
-
-# here we define a tasks to send emails asynchonously - it's just a 
-# celery wrapper for the function library defined in app.smtp.
-@celery.task()
-def send_mail_async(subject, content, to_address, cc_address_list=[], logfile=log):
-    mailer.send_mail(   subject=subject, content=content, to_address=to_address, 
-                        cc_address_list=cc_address_list, logfile=log)
-
-
-# here we define an asynchronous wrapper function for the app.mongo.write_documents_to_collection 
-# method, which we'll implement when the `write_documents_asynchronously` config is set, see
-# https://github.com/libreForms/libreForms-flask/issues/180.
-@celery.task(bind=True)
-def write_document_to_collection_async(self, data, collection_name, reporter=None, modification=False, 
-                                        digital_signature=None, approver=None, approval=None, approver_comment=None, ip_address=None):
-
-    # self.delay()
-
-    self.update_state(state='PENDING')
-    # print('PENDING')
-
-    document_id = mongodb.write_document_to_collection(data, collection_name, reporter=reporter, modification=modification, 
-                                        digital_signature=digital_signature, approver=approver, approval=approval, 
-                                        approver_comment=approver_comment, ip_address=ip_address)
-
-    self.update_state(state='COMPLETE')
-    # print('COMPLETE')
-
-    return document_id
-
 # create a reportManager object for sending reports that have come due
 reports = reportManager()
 
