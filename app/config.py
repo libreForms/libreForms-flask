@@ -118,7 +118,7 @@ config['ldap_enabled'] = False
 # to make modifications to the default broker and backend; both of which default 
 # to rabbit-mq but can easily be changed to use redis by switching both values 
 # to `redis://`, see https://flask.palletsprojects.com/en/2.0.x/patterns/celery/.
-config['celery_broker'] = 'pyamqp://'
+config['celery_broker'] = 'pyamqp://guest@localhost//'
 config['celery_backend'] = 'rpc://'
 
 # this config enables support for sending emails asynchronously using Celery.
