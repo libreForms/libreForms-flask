@@ -1,5 +1,5 @@
 """ 
-wsgi.py: simple wsgi script to run the flask application using gunicorn
+wsgi/__init__.py: simple wsgi script to run the flask application using gunicorn
 
 """
 
