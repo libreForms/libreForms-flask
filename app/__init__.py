@@ -303,55 +303,6 @@ def create_app(test_config=None):
         return User.query.get(int(id))  
 
 
-
-    ##########################
-    # Celery Tasks - define and implement context-bound celery tasks
-    ##########################
-
-    # here we define a tasks to send emails asynchonously - it's just a 
-    # celery wrapper for the function library defined in app.smtp.
-    @celery.task()
-    def send_mail_async(subject, content, to_address, cc_address_list=[], logfile=log):
-        mailer.send_mail(   subject=subject, content=content, to_address=to_address, 
-                            cc_address_list=cc_address_list, logfile=log)
-    
-    # maybe a little hackish, but if we set `send_mail_asynchronously`, which defaults to True,
-    # then we configure the application to send mail asynchronously using the current_app;
-    # otherwise, we fall back to synchronous mail
-    app.config['MAILER'] = send_mail_async if config['send_mail_asynchronously'] else mailer.send_mail
-
-    # here we define an asynchronous wrapper function for the app.mongo.write_documents_to_collection 
-    # method, which we'll implement when the `write_documents_asynchronously` config is set, see
-    # https://github.com/libreForms/libreForms-flask/issues/180.
-    @celery.task(bind=True)
-    def write_document_to_collection_async(self, data, collection_name, reporter=None, modification=False, 
-                                            digital_signature=None, approver=None, approval=None, approver_comment=None, ip_address=None):
-
-        # self.delay()
-
-        self.update_state(state='PENDING')
-        # print('PENDING')
-
-        document_id = mongodb.write_document_to_collection(data, collection_name, reporter=reporter, modification=modification, 
-                                            digital_signature=digital_signature, approver=approver, approval=approval, 
-                                            approver_comment=approver_comment, ip_address=ip_address)
-
-        self.update_state(state='COMPLETE')
-        # print('COMPLETE')
-
-        return document_id
-
-    # maybe a little hackish, but if we set `write_documents_asynchronously`, which defaults to True,
-    # then we configure the application to write document to MongoDB asynchronously using the current_app;
-    # otherwise, we fall back to synchronous submission method
-    # app.config['MONGODB_WRITER'] = write_document_to_collection_async if config['write_documents_asynchronously'] else mongodb.write_document_to_collection
-    # app.config['MONGODB_WRITER'] = write_document_to_collection_async 
-
-
-    # create a report manager object to send scheduled email reports, see 
-    # app.reporting and https://github.com/signebedi/libreForms/issues/73
-    reports = reportManager(send_reports=config['send_reports'])
-
     # create a task status endpoint
     @app.route('/status/<task_id>', methods=['GET'])
     def taskstatus(task_id=None):
