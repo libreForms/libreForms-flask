@@ -217,7 +217,7 @@ def create_app(test_config=None):
     # and https://blog.miguelgrinberg.com/post/celery-and-the-flask-application-factory-pattern
     # for more explanation on this approach, which was driven by our use of the Flask factory 
     # pattern, which uses create_app) with the configs passed in the app config under `CELERY_CONFIG`. 
-    celery.conf.update(app.config)
+    celery.conf.update(app.config['CELERY_CONFIG'])
 
     # if test_config is None:
     #     # load the instance config, if it exists, when not testing
