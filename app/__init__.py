@@ -84,7 +84,7 @@ else:
     log_functions.cleanup_stray_log_handlers(os.getpid())
 
 # we instantiate a log object that we'll use across the app
-log = log_functions.set_logger('log/libreforms.log',__name__)
+from app.log_functions import log
 log.info('LIBREFORMS - started libreforms web application.')
 
 
