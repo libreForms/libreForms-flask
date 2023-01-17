@@ -21,7 +21,7 @@ __email__ = "signe@atreeus.com"
 
 
 import numpy as np
-from app import config, current_user
+from app import config, current_user, mongodb
 from app.views.submissions import aggregate_approval_count
 
 

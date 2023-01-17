@@ -1,5 +1,15 @@
 """ 
 tasks.py: tasks for the libreForms celery app
+
+Whereas celeryd/__init__.py is where we reinstantiate the app 
+context and push it to the celery object so that the daemons
+we are running in the background (libreforms-celery, libreforms-
+celerybeat, and libreforms-flower) can access the celery app;
+this script is includes all the tasks we plan to run within 
+view functions, and as such have no need of the app context
+and would cause circular import errors if we did push the
+app context here.
+
 """
 
 __name__ = "celery.tasks"
