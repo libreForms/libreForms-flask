@@ -122,7 +122,7 @@ config['celery_broker'] = 'pyamqp://guest@localhost//'
 config['celery_backend'] = 'rpc://'
 
 # this config enables support for sending emails asynchronously using Celery.
-config['send_mail_asyncronously'] = True
+config['send_mail_asynchronously'] = True
 
 
 # this config enables support for writing forms to MongoDB asynchronously using

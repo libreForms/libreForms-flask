@@ -28,7 +28,7 @@ This is the primary method of the Mailer class; it's used to send outgoing mail
 using smtplib. It creates a connection with the mail server each time mail is sent.
 
 It is implemented synchronously; however, there is a celery wrapper that is disabled 
-by default to send mail asynchronously, see config.send_mail_asyncronously for the 
+by default to send mail asynchronously, see config.send_mail_asynchronously for the 
 configuration. The asynchronous method is named `send_mail_async` and defined in 
 app/__init__.py.
 
