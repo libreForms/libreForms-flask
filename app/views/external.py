@@ -96,7 +96,7 @@ if config['allow_anonymous_form_submissions']:
                 try: 
                     key = signing.write_key_to_database(scope=f'external_{form_name.lower()}', expiration=48, active=1, email=email)
                     content = f"You may now submit form {form_name} at the following address: {config['domain']}/external/{form_name}/{key}. Please note this link will expire after 48 hours."
-                    m = send_mail_async.apply_async(subject=f'{config["site_name"]} {form_name} Submission Link', content=content, to_address=email, logfile=log) if config['send_mail_asynchronously'] else mailer.send_mail(subject=f'{config["site_name"]} {form_name} Submission Link', content=content, to_address=email, logfile=log)
+                    m = send_mail_async.delay(subject=f'{config["site_name"]} {form_name} Submission Link', content=content, to_address=email, logfile=log) if config['send_mail_asynchronously'] else mailer.send_mail(subject=f'{config["site_name"]} {form_name} Submission Link', content=content, to_address=email, logfile=log)
                     flash("Form submission link successfully sent.")
                 except Exception as e:
                     flash(e)
@@ -165,7 +165,7 @@ if config['allow_anonymous_form_submissions']:
                     content = f"This email serves to verify that an anonymous user {signature} (linked to {email}) has just submitted the {form_name} form. {'; '.join(key + ': ' + str(value) for key, value in parsed_args.items() if key != 'Journal') if options['_send_form_with_email_notification'] else ''}"
                     
                     # and then we send our message
-                    m = send_mail_async.apply_async(subject=subject, content=content, to_address=email, cc_address_list=rationalize_routing_list(form_name), logfile=log) if config['send_mail_asynchronously'] else mailer.send_mail(subject=subject, content=content, to_address=email, cc_address_list=rationalize_routing_list(form_name), logfile=log)
+                    m = send_mail_async.delay(subject=subject, content=content, to_address=email, cc_address_list=rationalize_routing_list(form_name), logfile=log) if config['send_mail_asynchronously'] else mailer.send_mail(subject=subject, content=content, to_address=email, cc_address_list=rationalize_routing_list(form_name), logfile=log)
 
 
                     return redirect(url_for('home'))
