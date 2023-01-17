@@ -1,5 +1,5 @@
 """ 
-celery/__init__.py: the init script for the libreForms celery app
+celeryd/__init__.py: the init script for the libreForms celery app
 
 This application has toyed with implementing celery at a number of
 different points, to manage long-running background tasks & set up
@@ -41,6 +41,31 @@ __email__ = "signe@atreeus.com"
 
 
 from app import celery, create_app
+from app.log_functions import set_logger
+from app.reporting import reportManager
 
 app = create_app()
 app.app_context().push()
+
+# we instantiate a log object that we'll use across the app
+log = set_logger('log/libreforms-celery.log',__name__)
+
+
+@celery.task()
+def send_reports(reports, *args):
+    # select all reports whose conditions are met under reportManager.trigger, 
+    # and pass these to the execution reportManager.handler
+    pass
+
+
+@celery.task()
+def celery_beat_logger():
+    log.info('LIBREFORMS - celery just had another hearbeat.')
+
+
+@celery.on_after_configure.connect
+def setup_periodic_tasks(sender, **kwargs):
+
+    # periodically calls send_reports 
+    # sender.add_periodic_task(3600.0, send_reports.s(reports), name='send reports periodically')
+    sender.add_periodic_task(3600.0, celery_beat_logger.s(), name='log that celery beat is working')

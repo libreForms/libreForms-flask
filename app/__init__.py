@@ -352,25 +352,6 @@ def create_app(test_config=None):
     # app.reporting and https://github.com/signebedi/libreForms/issues/73
     reports = reportManager(send_reports=config['send_reports'])
 
-    @celery.task()
-    def send_reports(reports, *args):
-        # select all reports whose conditions are met under reportManager.trigger, 
-        # and pass these to the execution reportManager.handler
-        pass
-
-    @celery.task()
-    def celery_beat_logger():
-        log.info('LIBREFORMS - celery just had another hearbeat.')
-
-
-    @celery.on_after_configure.connect
-    def setup_periodic_tasks(sender, **kwargs):
-
-        # periodically calls send_reports 
-        # sender.add_periodic_task(3600.0, send_reports.s(reports), name='send reports periodically')
-        sender.add_periodic_task(1.0, celery_beat_logger.s(), name='log that celery beat is working')
-
-
     # create a task status endpoint
     @app.route('/status/<task_id>', methods=['GET'])
     def taskstatus(task_id=None):
