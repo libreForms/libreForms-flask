@@ -42,6 +42,7 @@ __email__ = "signe@atreeus.com"
 
 from app import celery, create_app, log, mailer, mongodb
 from app.reporting import reportManager
+from celeryd.tasks import send_mail_async, write_document_to_collection_async
 
 app = create_app(celery_app=True)
 app.app_context().push()
