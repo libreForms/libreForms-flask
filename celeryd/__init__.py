@@ -31,7 +31,7 @@ this script in the application working directory.
 
 """
 
-__name__ = "celery"
+__name__ = "celeryd"
 __author__ = "Sig Janoska-Bedi"
 __credits__ = ["Sig Janoska-Bedi"]
 __version__ = "1.2.0"

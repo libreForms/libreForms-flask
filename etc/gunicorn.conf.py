@@ -23,7 +23,7 @@ from app.log_functions import cleanup_stray_log_handlers
 from app.certification import generate_symmetric_key
 
 # here we add pre-fork tasks that need to be handled prior to setting up concurrent sessions
-def pre_fork(server, worker):            
+def pre_fork(server, worker):
 
     # this approach from https://github.com/signebedi/libreForms/issues/148 allows us
     # to generate secret_key files pre-fork
