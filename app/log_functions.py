@@ -195,4 +195,3 @@ def aggregate_log_data(keyword:str=None, file_path:str='log/libreforms.log',
             return [" -".join(x.split(' -')[:-1]) for x in logfile.readlines()] if exclude_pid else [x for x in logfile.readlines()]
 
 
-log = set_logger('log/libreforms.log',__name__)
