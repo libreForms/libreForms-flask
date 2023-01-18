@@ -127,6 +127,7 @@ import contextlib
 import pandas as pd
 import datetime
 from bson.objectid import ObjectId
+from app.config import config
 
 
 
@@ -366,3 +367,9 @@ class MongoDB:
         except:
             return False
 
+
+# create the mongodb instance that the rest of the application will connect from
+mongodb = MongoDB(user=config['mongodb_user'], 
+                        host=config['mongodb_host'], 
+                        port=config['mongodb_port'], 
+                        dbpw=config['mongodb_pw'])

@@ -29,6 +29,7 @@ from app import celery, log, mailer, mongodb
 def send_mail_async(subject, content, to_address, cc_address_list=[], logfile=log):
     mailer.send_mail(   subject=subject, content=content, to_address=to_address, 
                         cc_address_list=cc_address_list, logfile=log)
+    log.info(f'successfully sent an email to {to_address}')
 
 
 # here we define an asynchronous wrapper function for the app.mongo.write_documents_to_collection 

@@ -49,7 +49,6 @@ import datetime as dt
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from flask import current_app
-from app.log_functions import log
 
 class Mailer():
     def __init__(self, mail_server=None, port=None, 
@@ -70,7 +69,7 @@ class Mailer():
 
     # borrowed shamelessly from 
     # https://www.aabidsofi.com/posts/sending-emails-with-aws-ses-and-python/
-    def send_mail(self, subject=None, content=None, to_address=None, cc_address_list=[], logfile=log):
+    def send_mail(self, subject=None, content=None, to_address=None, cc_address_list=[], logfile=None):
 
         # only if we have enabled SMTP
         if self.enabled:

@@ -93,10 +93,7 @@ celery = Celery(__name__, backend=config['celery_backend'], broker=config['celer
 log.info(f'LIBREFORMS - initialized celery object.')
 
 # initialize mongodb database
-mongodb = mongo.MongoDB(user=config['mongodb_user'], 
-                        host=config['mongodb_host'], 
-                        port=config['mongodb_port'], 
-                        dbpw=config['mongodb_pw'])
+mongodb = mongo.mongodb
 log.info(f'LIBREFORMS - connected to MongoDB.')
 
 # create hCaptcha object if enabled
