@@ -53,7 +53,7 @@ def get_list_of_emails_by_group(group, **kwargs):
             # return conn.execute(query).fetchall()
 
     except Exception as e: 
-log.warning(f"LIBREFORMS - {e}")
+        log.warning(f"LIBREFORMS - {e}")
         return []
 
 # this function is added to generate a list of email addresses for a given form to 
@@ -317,7 +317,7 @@ def propagate_form_fields(form=False, group=None):
         
         return VALUES
     except Exception as e: 
-log.warning(f"LIBREFORMS - {e}")
+        log.warning(f"LIBREFORMS - {e}")
         return {}
 
 
@@ -383,7 +383,7 @@ def propagate_form_configs(form=False):
         return OPTIONS
 
     except Exception as e: 
-log.warning(f"LIBREFORMS - {e}")
+        log.warning(f"LIBREFORMS - {e}")
         return {}
 
 
@@ -521,7 +521,7 @@ def forms(form_name):
                 #             parsed_args[item] = str(request.form[item]) if libreforms.forms[form_name][item]['output_data']['type'] == 'str' else float(request.form[item])
 
                 #     except Exception as e: 
-log.warning(f"LIBREFORMS - {e}")
+                #         log.warning(f"LIBREFORMS - {e}")
                 #         pass
 
                 #     print(parsed_args[item])
@@ -604,7 +604,7 @@ log.warning(f"LIBREFORMS - {e}")
                 )
 
         except Exception as e: 
-log.warning(f"LIBREFORMS - {e}")
+            log.warning(f"LIBREFORMS - {e}")
             flash(f'This form does not exist. {e}')
             return redirect(url_for('forms.forms_home'))
 
