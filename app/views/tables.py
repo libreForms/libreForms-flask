@@ -24,13 +24,16 @@ import libreforms as libreforms
 from app.views.auth import login_required
 from app.views.forms import propagate_form_configs, checkGroup, checkTableGroup, form_menu
 from app.views.submissions import set_digital_signature
-from app import config, log, mongodb
+from app.models import User
+from app import config, log, mongodb, db
 
 
 
 # and finally, import other packages
 import os
 import pandas as pd
+
+pd.set_option('display.max_colwidth', 20)
 
 bp = Blueprint('tables', __name__, url_prefix='/tables')
 
@@ -69,9 +72,23 @@ def tables(form_name):
         # Added signature verification, see https://github.com/signebedi/libreForms/issues/8
         if 'Signature' in df.columns:
             if propagate_form_configs(form_name)['_digitally_sign']:
-                df['Signature'] = df.apply(lambda row: set_digital_signature(username=row['Owner'],encrypted_string=row['Signature'],return_markup=False), axis=1)
+                df['Signature'] = df.apply(lambda row: set_digital_signature(username=row['Owner'],encrypted_string=row['Signature'],
+                    base_string=config['signature_key'],
+                    return_markup=False), axis=1)
             else:
                 df.drop(columns=['Signature'], inplace=True)
+        if 'Approval' in df.columns:
+            if propagate_form_configs(form_name)['_digitally_sign']:
+
+
+                df['Approval'] = df.apply(lambda row: set_digital_signature(
+                    username= db.session.query(User).filter(getattr(User, config['visible_signature_field'])==row['Approver']).first(),
+                    encrypted_string=row['Signature'],
+                    base_string=config['approval_key'],
+                    fallback_string=config['disapproval_key'],
+                    return_markup=False), axis=1)
+            else:
+                df.drop(columns=['Approval', 'Approver'], inplace=True)
 
 
         if len(df.index) < 1:
@@ -79,7 +96,8 @@ def tables(form_name):
             return redirect(url_for('tables.tables_home'))
 
 
-        df.drop(columns=["_id"], inplace=True)
+        # drop `meta` fields from user vis
+        [ df.drop(columns=[x], inplace=True) for x in ['Journal', 'Metadata', '_id'] if x in df.columns]
         
         # here we allow the user to select fields they want to use, 
         # overriding the default view-all.
@@ -91,6 +109,7 @@ def tables(form_name):
                 df = df.loc[df[col].astype("string") == str(request.args.get(col))] 
 
         df.columns = [x.replace("_", " ") for x in df.columns]
+
     except Exception as e: 
         log.warning(f"LIBREFORMS - {e}")
         flash(f'This form does not exist. {e}')
@@ -135,10 +154,25 @@ def download_file(filename):
         # Added signature verification, see https://github.com/signebedi/libreForms/issues/8
         if 'Signature' in df.columns:
             if propagate_form_configs(form_name)['_digitally_sign']:
-                df['Signature'] = df.apply(lambda row: set_digital_signature(username=row['Owner'],encrypted_string=row['Signature'],return_markup=False), axis=1)
+                df['Signature'] = df.apply(lambda row: set_digital_signature(username=row['Owner'],encrypted_string=row['Signature'],
+                base_string=config['signature_key'],
+                return_markup=False), axis=1)
+
             else:
                 df.drop(columns=['Signature'], inplace=True)
 
+        if 'Approval' in df.columns:
+            if propagate_form_configs(form_name)['_digitally_sign']:
+
+
+                df['Approval'] = df.apply(lambda row: set_digital_signature(
+                    username= db.session.query(User).filter(getattr(User, config['visible_signature_field'])==row['Approver']).first(),
+                    encrypted_string=row['Signature'],
+                    base_string=config['approval_key'],
+                    fallback_string=config['disapproval_key'],
+                    return_markup=False), axis=1)
+            else:
+                df.drop(columns=['Approval', 'Approver'], inplace=True)
 
         if len(df.index) < 1:
             flash('This form has not received any submissions.')
