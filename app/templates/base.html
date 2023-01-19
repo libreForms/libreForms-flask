@@ -45,27 +45,27 @@
   <body class="{{ 'p-3 mb-2 bg-dark text-white' if dark_mode else 'p-3 mb-2 bg-transparent text-dark' }}">        
       <nav class="navbar navbar-expand-lg fixed-top {{'navbar-dark bg-dark' if dark_mode else 'navbar-light bg-light text-dark'}} border-bottom" style="padding-left: 30px;z-index:999999 !important;">
           <a href="{% if type == 'external' %}#{% else %}{{ url_for('home') }}{% endif %}" class="navbar-brand">{{ config['site_name'] }} <small class="{{'text-muted' if dark_mode else 'text-secondary'}}">v.{{ config['version'] }}</small></a>    
-            <ul class="nav navbar-nav">
-              {% if user %}
-                <li class="nav-item"><a class="nav-link" href="{{ url_for( 'forms.forms_home' ) }}">Forms</a></li>
-                <li class="nav-item dropdown{{' bg-light text-dark' if not dark_mode else ''}}">
-                  <a class="nav-link dropdown-toggle{{' bg-light text-dark' if not dark_mode else ''}}" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Visualizations</a>
-                  <div class="dropdown-menu">
-                    <a class="dropdown-item{{' bg-light text-dark' if not dark_mode else ''}}" href="{{ url_for( 'tables.tables_home' ) }}">Tables</a>
-                    <a class="dropdown-item{{' bg-light text-dark' if not dark_mode else ''}}" href="{{ url_for( 'dashboards.dashboards_home' ) }}">Dashboards</a>
-                  </div>
-                </li>
-                <li class="nav-item"><a class="nav-link" href="{{ url_for( 'submissions.submissions_home' ) }}">Submissions</a></li>
-                <li class="nav-item"><a class="nav-link" href="{{ url_for( 'auth.profile' ) }}">Profile{%if notifications%} <sup class="badge rounded-pill bg-primary">{{notifications}}</sup>{%endif%}</a></li>
-                <li class="nav-item"><a class="nav-link" href="{{ url_for( 'auth.logout' ) }}">Logout</a></li>
-              {% elif suppress_navbar %}   
-              {% else %}
-                <li class="nav-item"><a class="nav-link" href="{{ url_for( 'auth.login' ) }}">Login</a></li>
-                {% if config.allow_anonymous_registration %}
-                <li class="nav-item"><a class="nav-link" href="{{ url_for( 'auth.register' ) }}">Register</a></li>
-                {% endif %}
+          <ul class="nav navbar-nav">
+            {% if user %}
+              <li class="nav-item"><a class="nav-link" href="{{ url_for( 'forms.forms_home' ) }}">Forms</a></li>
+              <li class="nav-item dropdown{{' bg-light text-dark' if not dark_mode else ''}}">
+                <a class="nav-link dropdown-toggle{{' bg-light text-dark' if not dark_mode else ''}}" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Visualizations</a>
+                <div class="dropdown-menu{{' bg-light text-dark' if not dark_mode else ''}}">
+                  <a class="dropdown-item{{' bg-light text-dark' if not dark_mode else ''}}" href="{{ url_for( 'tables.tables_home' ) }}">Tables</a>
+                  <a class="dropdown-item{{' bg-light text-dark' if not dark_mode else ''}}" href="{{ url_for( 'dashboards.dashboards_home' ) }}">Dashboards</a>
+                </div>
+              </li>
+              <li class="nav-item"><a class="nav-link" href="{{ url_for( 'submissions.submissions_home' ) }}">Submissions</a></li>
+              <li class="nav-item"><a class="nav-link" href="{{ url_for( 'auth.profile' ) }}">Profile{%if notifications%} <sup class="badge rounded-pill bg-primary">{{notifications}}</sup>{%endif%}</a></li>
+              <li class="nav-item"><a class="nav-link" href="{{ url_for( 'auth.logout' ) }}">Logout</a></li>
+            {% elif suppress_navbar %}   
+            {% else %}
+              <li class="nav-item"><a class="nav-link" href="{{ url_for( 'auth.login' ) }}">Login</a></li>
+              {% if config.allow_anonymous_registration %}
+              <li class="nav-item"><a class="nav-link" href="{{ url_for( 'auth.register' ) }}">Register</a></li>
               {% endif %}
-              </ul>
+            {% endif %}
+            </ul>
 
               <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                 {% if user %}
