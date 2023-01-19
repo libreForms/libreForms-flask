@@ -48,7 +48,7 @@
             <ul class="nav navbar-nav">
               {% if user %}
                 <li class="nav-item"><a class="nav-link" href="{{ url_for( 'forms.forms_home' ) }}">Forms</a></li>
-                <li class="nav-item dropdown">
+                <li class="nav-item dropdown{{' bg-light text-dark' if not dark_mode else ''}}">
                   <a class="nav-link dropdown-toggle{{' bg-light text-dark' if not dark_mode else ''}}" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Visualizations</a>
                   <div class="dropdown-menu">
                     <a class="dropdown-item{{' bg-light text-dark' if not dark_mode else ''}}" href="{{ url_for( 'tables.tables_home' ) }}">Tables</a>
