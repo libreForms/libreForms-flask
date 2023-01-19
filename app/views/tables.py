@@ -90,7 +90,10 @@ def tables(form_name):
                     fallback_string=config['disapproval_key'],
                     return_markup=False), axis=1)
             else:
-                df.drop(columns=['Approval', 'Approver'], inplace=True)
+                df.drop(columns=['Approval','Approver', 'Approver_Comment'], inplace=True)
+        else:
+            [ df.drop(columns=[x], inplace=True) for x in ['Approval','Approver', 'Approver_Comment'] if x in df.columns]
+
 
 
         if len(df.index) < 1:
@@ -174,7 +177,9 @@ def download_file(filename):
                     fallback_string=config['disapproval_key'],
                     return_markup=False), axis=1)
             else:
-                df.drop(columns=['Approval', 'Approver'], inplace=True)
+                df.drop(columns=['Approval', 'Approver','Approver_Comment'], inplace=True)
+        else:
+            [ df.drop(columns=[x], inplace=True) for x in ['Approval','Approver', 'Approver_Comment'] if x in df.columns]
 
         if len(df.index) < 1:
             flash('This form has not received any submissions.')
