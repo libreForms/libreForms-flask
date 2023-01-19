@@ -68,8 +68,8 @@ def get_record_of_submissions(form_name=None, user=None, remove_underscores=True
             if user:
                 try:
                     df = df.loc[df['Owner'] == user]
-                except Exception as e:
-                    log.info(f"{user.upper()} - tried to query {form_name} database for user but no entries were found.")
+                except Exception as e: 
+                    log.info(f"{user.upper()} - tried to query {form_name} database for user but no entries were found. {e}")
                     return None
 
             if remove_underscores:
@@ -79,7 +79,8 @@ def get_record_of_submissions(form_name=None, user=None, remove_underscores=True
                 return None
 
             return df
-        except Exception as e:
+        except Exception as e: 
+            log.warning(f"LIBREFORMS - {e}")
             return None
 
 
@@ -208,8 +209,8 @@ def generate_full_document_history(form, document_id, user=None):
 
         return FULL_HISTORY
 
-    except Exception as e:
-        print(e)
+    except Exception as e: 
+        log.warning(f"LIBREFORMS - {e}")
         return None
 
 
@@ -237,8 +238,8 @@ def check_args_for_changes(parsed_args, overrides):
             try:
                 TEMP[item] = parsed_args[item]
                 # print(item, ': ', parsed_args[item], overrides[item], '*')
-            except Exception as e:
-                print(e)
+            except Exception as e: 
+                log.warning(f"LIBREFORMS - {e}")
 
     return TEMP
 
@@ -308,7 +309,8 @@ def set_digital_signature(      username,
 
         return Markup(f'{visible_signature_field} <span class="badge bg-warning" data-bs-toggle="tooltip" data-bs-placement="right" title="This form does not have a verifiable signature from {reporter.username}">Unverified</span>')
 
-    except Exception as e:
+    except Exception as e: 
+        log.warning(f"LIBREFORMS - {e}")
         return None
 # this function is used to generate a list of approvals for the current user
 # select_on is the field upon which we will select the approval value.
@@ -325,6 +327,7 @@ def aggregate_approval_count(select_on=None):
             # then we return those whose approver is set to the select_on parameter
             return record.loc[(record['Approver'] == select_on) & (record['Approval'].isna())]
         except Exception as e: 
+            log.warning(f"LIBREFORMS - {e}") 
             return pd.DataFrame()
             
 
@@ -412,7 +415,7 @@ def submissions(form_name):
 
         try:
             verify_group = propagate_form_configs(form=form_name)['_submission']
-        except Exception as e:
+        except Exception as e: 
             flash('This form does not exist.')
             log.warning(f'{current_user.username.upper()} - {e}')
             return redirect(url_for('submissions.submissions_home'))
@@ -490,7 +493,8 @@ def render_user_submissions(user):
         try:
             record = aggregate_form_data(user=user)
 
-        except Exception as e:
+        except Exception as e: 
+            log.warning(f"LIBREFORMS - {e}")
             return abort(404)
 
         if not isinstance(record, pd.DataFrame):
@@ -548,7 +552,7 @@ def render_document(form_name, document_id):
         try:
             options = propagate_form_configs(form=form_name)
             verify_group = options['_submission']
-        except Exception as e:
+        except Exception as e: 
             flash('This form does not exist.')
             log.warning(f'{current_user.username.upper()} - {e}')
             return redirect(url_for('submissions.submissions_home'))
@@ -613,7 +617,8 @@ def render_document(form_name, document_id):
                             ip=dict(list(dict(record['Metadata']).values())[0])['approval_ip'] if 'approval_ip' in dict(list(dict(record['Metadata']).values())[0])else None,
                             timestamp=dict(list(dict(record['Metadata']).values())[0])['approval_timestamp'] if 'approval_timestamp' in dict(list(dict(record['Metadata']).values())[0])else None,)
 
-                except Exception as e:
+                except Exception as e: 
+                    log.warning(f"LIBREFORMS - {e}")
                     record['Approval'].iloc[0] = None
 
             # we set nan values to None
@@ -664,7 +669,7 @@ def render_document_history(form_name, document_id):
         try:
             options = propagate_form_configs(form=form_name)
             verify_group = options['_submission']
-        except Exception as e:
+        except Exception as e: 
             flash('This form does not exist.')
             log.warning(f'{current_user.username.upper()} - {e}')
             return redirect(url_for('submissions.submissions_home'))
@@ -810,7 +815,7 @@ def render_document_edit(form_name, document_id):
 
             try:
                 verify_group = propagate_form_configs(form=form_name)['_submission']
-            except Exception as e:
+            except Exception as e: 
                 flash('This form does not exist.')
                 log.warning(f'{current_user.username.upper()} - {e}')
                 return redirect(url_for('submissions.submissions_home'))
@@ -935,7 +940,8 @@ def render_document_edit(form_name, document_id):
                     require_password=True if config['require_password_for_electronic_signatures'] and options['_digitally_sign'] else False,
                     )
 
-    except Exception as e:
+    except Exception as e: 
+        log.warning(f"LIBREFORMS - {e}")
         flash(f'This form does not exist. {e}')
         return redirect(url_for('submissions.submissions_home'))
 
@@ -954,7 +960,7 @@ def review_document(form_name, document_id):
             return abort(404)
             # return redirect(url_for('submissions.render_document', form_name=form_name,document_id=document_id))
 
-    except Exception as e:
+    except Exception as e: 
         flash('This form does not exist.')
         log.warning(f'{current_user.username.upper()} - {e}')
         return redirect(url_for('submissions.submissions_home'))
@@ -1084,7 +1090,8 @@ def review_document(form_name, document_id):
                                                                     fallback_string=config['disapproval_key'],
                                                                     ip=dict(list(dict(record['Metadata']).values())[0])['approval_ip'] if 'approval_ip' in dict(list(dict(record['Metadata']).values())[0])else None,
                                                                     timestamp=dict(list(dict(record['Metadata']).values())[0])['approval_timestamp'] if 'approval_timestamp' in dict(list(dict(record['Metadata']).values())[0])else None,)
-            except Exception as e:
+            except Exception as e: 
+                log.warning(f"LIBREFORMS - {e}")
                 record['Approval'].iloc[0] = None
 
         # we set nan values to None
@@ -1126,7 +1133,7 @@ def generate_pdf(form_name, document_id):
     try:
         test_the_form_options = propagate_form_configs(form=form_name)
 
-    except Exception as e:
+    except Exception as e: 
         flash('This form does not exist.')
         log.warning(f'{current_user.username.upper()} - {e}')
         return redirect(url_for('submissions.render_document', form_name=form_name,document_id=document_id))
@@ -1194,7 +1201,8 @@ def generate_pdf(form_name, document_id):
                                 ip=dict(list(dict(record['Metadata']).values())[0])['approval_ip'] if 'approval_ip' in dict(list(dict(record['Metadata']).values())[0])else None,
                                 timestamp=dict(list(dict(record['Metadata']).values())[0])['approval_timestamp'] if 'approval_timestamp' in dict(list(dict(record['Metadata']).values())[0])else None,)
 
-                except Exception as e:
+                except Exception as e: 
+                    log.warning(f"LIBREFORMS - {e}")
                     record['Approval'].iloc[0] = None
 
             # we set nan values to None

@@ -140,7 +140,9 @@ def dashboards(form_name):
             config=config,
             user=current_user,
         )
-    except Exception as e:
+    except Exception as e: 
+        
+        log.warning(f"LIBREFORMS - {e}")
         
         flash('This dashboard does not exist.')
         return redirect(url_for('dashboards.dashboards_home'))

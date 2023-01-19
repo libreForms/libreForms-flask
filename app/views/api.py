@@ -84,6 +84,7 @@ if config['enable_rest_api']:
             # log.info(f'{email} {signature} - REST API query for form \'{form_name}.\'') # removed this, which potentially leaks a signing key intended for reuse
             return json.loads(json_util.dumps(df.to_dict())) # borrowed from https://stackoverflow.com/a/18405626
 
-        except Exception as e:
+        except Exception as e: 
+            log.warning(f"LIBREFORMS - {e}")
             return abort(404)
 

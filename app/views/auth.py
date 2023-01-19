@@ -84,7 +84,8 @@ def reset_password(signature):
                     flash("Successfully changed password. ")
                     log.info(f'{user.username.upper()} - successfully changed password.')
                     return redirect(url_for('auth.login'))
-                except Exception as e:
+                except Exception as e: 
+                    log.warning(f"LIBREFORMS - {e}")
                     flash (f"There was an error in processing your request. {e}")
                 
             else:
@@ -125,7 +126,8 @@ def forgot_password():
                 content = f"A password reset request has been submitted for your account. Please follow this link to complete the reset. {config['domain']}/auth/forgot_password/{key}. Please note this link will expire after one hour."
                 m = send_mail_async.delay(subject=f'{config["site_name"]} Password Reset', content=content, to_address=email) if config['send_mail_asynchronously'] else mailer.send_mail(subject=f'{config["site_name"]} Password Reset', content=content, to_address=email, logfile=log)
                 flash("Password reset link successfully sent.")
-            except Exception as e:
+            except Exception as e: 
+                log.warning(f"LIBREFORMS - {e}")
                 flash(e)
             
         else:
@@ -236,9 +238,9 @@ def register():
                     m = send_mail_async.delay(subject=f'{config["site_name"]} User Registered', content=f"This email serves to notify you that the user {username} has just been registered for this email address at {config['domain']}.", to_address=email) if config['send_mail_asynchronously'] else mailer.send_mail(subject=f'{config["site_name"]} User Registered', content=f"This email serves to notify you that the user {username} has just been registered for this email address at {config['domain']}.", to_address=email, logfile=log)
                     flash(f'Successfully created user \'{username.lower()}\'.')
                 log.info(f'{username.upper()} - successfully registered with email {email}.')
-            except Exception as e:
+            except Exception as e: 
                 error = f"User is already registered with username \'{username.lower()}\' or email \'{email}\'." if email else f"User is already registered with username \'{username}\'."
-                log.error(f'GUEST - failed to register new user {username.lower()} with email {email}.')
+                log.error(f'LIBREFORMS - failed to register new user {username.lower()} with email {email}.')
             else:
                 # m = send_mail_async.delay(subject=f"Successfully Registered {username}", content=f"This is a notification that {username} has been successfully registered for libreforms.", to_address=email) if config['send_mail_asynchronously'] else mailer.send_mail(subject=f"Successfully Registered {username}", content=f"This is a notification that {username} has been successfully registered for libreforms.", to_address=email, logfile=log)
                 return redirect(url_for("auth.login"))
@@ -280,7 +282,8 @@ def verify_email(signature):
             log.info(f'{user.username.upper()} - successfully activated user.')
             return redirect(url_for('auth.login'))
 
-        except Exception as e:
+        except Exception as e: 
+            log.warning(f"LIBREFORMS - {e}")
             flash (f"There was an error in processing your request. {e}")
         
     
@@ -383,7 +386,8 @@ def bulk_register():
                                 assert x in bulk_user_df.columns
 
 
-                except Exception as e:
+                except Exception as e: 
+                    log.warning(f"LIBREFORMS - {e}")
                     error = e
 
             if error is None:
@@ -445,7 +449,7 @@ def bulk_register():
                                 flash(f'Successfully created user \'{row.username.lower()}\'.')
 
                             log.info(f'{row.username.upper()} - successfully registered with email {row.email}.')
-                        except Exception as e:
+                        except Exception as e: 
                             # error = f"User is already registered with username \'{row.username.lower()}\' or email \'{row.email}\'." if row.email else f"User is already registered with username \'{row.username}\'. "
                             flash(f"Issue registering {row.username.lower()}. {e}")
                             log.error(f'{current_user.username.upper()} - failed to register new user {row.username.lower()} with email {row.email}.')
@@ -584,7 +588,8 @@ def edit_profile():
                 flash("Successfully updated profile. ")
                 log.info(f'{user.username.upper()} - successfully updated their profile.')
                 return redirect(url_for('auth.profile'))
-            except Exception as e:
+            except Exception as e: 
+                log.warning(f"LIBREFORMS - {e}")
                 error = f"There was an error in processing your request. {e}"
             
         flash(error)
@@ -624,7 +629,8 @@ def profile():
                 flash("Successfully changed password. ")
                 log.info(f'{user.username.upper()} - successfully changed password.')
                 return redirect(url_for('auth.profile'))
-            except Exception as e:
+            except Exception as e: 
+                log.warning(f"LIBREFORMS - {e}")
                 error = f"There was an error in processing your request."
             
         flash(error)

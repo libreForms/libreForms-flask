@@ -72,8 +72,8 @@ if config['allow_anonymous_form_submissions']:
         # first make sure this form existss
         try:
             forms = propagate_form_configs(form_name)
-        except Exception as e:
-            log.error(f'LIBREFORMS - {e}')
+        except Exception as e: 
+            log.warning(f"LIBREFORMS - {e}")
             return abort(404)
 
         if not checkGroup(group='anonymous', struct=propagate_form_configs(form_name)):
@@ -98,7 +98,8 @@ if config['allow_anonymous_form_submissions']:
                     content = f"You may now submit form {form_name} at the following address: {config['domain']}/external/{form_name}/{key}. Please note this link will expire after 48 hours."
                     m = send_mail_async.delay(subject=f'{config["site_name"]} {form_name} Submission Link', content=content, to_address=email) if config['send_mail_asynchronously'] else mailer.send_mail(subject=f'{config["site_name"]} {form_name} Submission Link', content=content, to_address=email, logfile=log)
                     flash("Form submission link successfully sent.")
-                except Exception as e:
+                except Exception as e: 
+                    log.warning(f"LIBREFORMS - {e}")
                     flash(e)
             else:
                 flash(error)
@@ -182,8 +183,8 @@ if config['allow_anonymous_form_submissions']:
                     filename = f'{form_name.lower().replace(" ","")}.csv' if options['_allow_csv_templates'] else False,
                     )
 
-            except Exception as e:
-                print(e)
+            except Exception as e: 
+                log.warning(f"LIBREFORMS - {e}")
                 return abort(404)
                 return None
 

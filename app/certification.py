@@ -65,7 +65,7 @@ def decrypt_with_symmetric_key(key, encrypted_string):
     fernet = Fernet(key)
     try:
         return fernet.decrypt(encrypted_string).decode()
-    except Exception as e:
+    except Exception as e: 
         return None
 
 def verify_symmetric_key(key, encrypted_string, base_string):

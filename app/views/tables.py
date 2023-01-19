@@ -91,7 +91,8 @@ def tables(form_name):
                 df = df.loc[df[col].astype("string") == str(request.args.get(col))] 
 
         df.columns = [x.replace("_", " ") for x in df.columns]
-    except Exception as e:
+    except Exception as e: 
+        log.warning(f"LIBREFORMS - {e}")
         flash(f'This form does not exist. {e}')
         return redirect(url_for('tables.tables_home'))
 
@@ -156,7 +157,8 @@ def download_file(filename):
                 df = df.loc[df[col].astype("string") == str(request.args.get(col))] 
 
         df.columns = [x.replace("_", " ") for x in df.columns]
-    except Exception as e:
+    except Exception as e: 
+        log.warning(f"LIBREFORMS - {e}")
         flash(f'This form does not exist. {e}')
         return redirect(url_for('tables.tables_home'))
 

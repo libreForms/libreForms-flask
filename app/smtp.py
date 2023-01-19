@@ -100,7 +100,7 @@ class Mailer():
                     
                     return True
 
-            except Exception as e:
+            except Exception as e: 
                 if logfile: logfile.error(f'could not send an email to {to_address} - {e}')
                 
                 return False

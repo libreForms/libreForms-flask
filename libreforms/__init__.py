@@ -108,7 +108,7 @@ try:
     forms_appended = dict(forms)            # this creates a copy of the original dictionary, to
     forms_appended.update(form_config.forms)    # which we will append the form data
     forms = form_config.forms # this is the default behavior, which overwrites the default behavior   
-except Exception as e: # if anything above fails, we skip 
+except Exception as e:  # if anything above fails, we skip 
     print (e)
 
 # this function can be run to debug the forms located in this 

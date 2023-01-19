@@ -32,7 +32,8 @@ def validate_condition(condition, success=config['success_code'], error=config['
     try:
         assert (condition)
         return success
-    except Exception as e:
+    except Exception as e: 
+log.warning(f"LIBREFORMS - {e}")
         return error
 
 
