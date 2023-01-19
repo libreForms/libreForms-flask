@@ -77,7 +77,9 @@ def tables(form_name):
                     return_markup=False), axis=1)
             else:
                 df.drop(columns=['Signature'], inplace=True)
-        if 'Approval' in df.columns:
+                
+
+        if all(x in df.columns for x in ['Approval','Approver', 'Approver_Comment']):
             if propagate_form_configs(form_name)['_digitally_sign']:
 
 
@@ -97,7 +99,7 @@ def tables(form_name):
 
 
         # drop `meta` fields from user vis
-        [ df.drop(columns=[x], inplace=True) for x in ['Journal', 'Metadata', '_id'] if x in df.columns]
+        # [ df.drop(columns=[x], inplace=True) for x in ['Journal', 'Metadata', '_id'] if x in df.columns]
         
         # here we allow the user to select fields they want to use, 
         # overriding the default view-all.
@@ -161,7 +163,7 @@ def download_file(filename):
             else:
                 df.drop(columns=['Signature'], inplace=True)
 
-        if 'Approval' in df.columns:
+        if all(x in df.columns for x in ['Approval','Approver', 'Approver_Comment']):
             if propagate_form_configs(form_name)['_digitally_sign']:
 
 
@@ -179,7 +181,7 @@ def download_file(filename):
             return redirect(url_for('tables.tables_home'))
 
 
-        df.drop(columns=["_id"], inplace=True)
+        [ df.drop(columns=[x], inplace=True) for x in ['Journal', 'Metadata', '_id'] if x in df.columns]
         
         # here we allow the user to select fields they want to use, 
         # overriding the default view-all.
