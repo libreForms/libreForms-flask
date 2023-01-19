@@ -236,7 +236,7 @@ def register():
                     m = send_mail_async.delay(subject=f'{config["site_name"]} User Registered', content=f"This email serves to notify you that the user {username} has just been registered for this email address at {config['domain']}.", to_address=email) if config['send_mail_asynchronously'] else mailer.send_mail(subject=f'{config["site_name"]} User Registered', content=f"This email serves to notify you that the user {username} has just been registered for this email address at {config['domain']}.", to_address=email, logfile=log)
                     flash(f'Successfully created user \'{username.lower()}\'.')
                 log.info(f'{username.upper()} - successfully registered with email {email}.')
-            except:
+            except Exception as e:
                 error = f"User is already registered with username \'{username.lower()}\' or email \'{email}\'." if email else f"User is already registered with username \'{username}\'."
                 log.error(f'GUEST - failed to register new user {username.lower()} with email {email}.')
             else:
@@ -624,7 +624,7 @@ def profile():
                 flash("Successfully changed password. ")
                 log.info(f'{user.username.upper()} - successfully changed password.')
                 return redirect(url_for('auth.profile'))
-            except:
+            except Exception as e:
                 error = f"There was an error in processing your request."
             
         flash(error)

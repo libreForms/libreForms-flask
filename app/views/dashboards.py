@@ -140,7 +140,7 @@ def dashboards(form_name):
             config=config,
             user=current_user,
         )
-    except:
+    except Exception as e:
         
         flash('This dashboard does not exist.')
         return redirect(url_for('dashboards.dashboards_home'))

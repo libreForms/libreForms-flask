@@ -68,7 +68,7 @@ def get_record_of_submissions(form_name=None, user=None, remove_underscores=True
             if user:
                 try:
                     df = df.loc[df['Owner'] == user]
-                except:
+                except Exception as e:
                     log.info(f"{user.upper()} - tried to query {form_name} database for user but no entries were found.")
                     return None
 
@@ -79,7 +79,7 @@ def get_record_of_submissions(form_name=None, user=None, remove_underscores=True
                 return None
 
             return df
-        except:
+        except Exception as e:
             return None
 
 
@@ -308,7 +308,7 @@ def set_digital_signature(      username,
 
         return Markup(f'{visible_signature_field} <span class="badge bg-warning" data-bs-toggle="tooltip" data-bs-placement="right" title="This form does not have a verifiable signature from {reporter.username}">Unverified</span>')
 
-    except:
+    except Exception as e:
         return None
 # this function is used to generate a list of approvals for the current user
 # select_on is the field upon which we will select the approval value.
@@ -324,7 +324,7 @@ def aggregate_approval_count(select_on=None):
 
             # then we return those whose approver is set to the select_on parameter
             return record.loc[(record['Approver'] == select_on) & (record['Approval'].isna())]
-        except: 
+        except Exception as e: 
             return pd.DataFrame()
             
 
@@ -613,7 +613,7 @@ def render_document(form_name, document_id):
                             ip=dict(list(dict(record['Metadata']).values())[0])['approval_ip'] if 'approval_ip' in dict(list(dict(record['Metadata']).values())[0])else None,
                             timestamp=dict(list(dict(record['Metadata']).values())[0])['approval_timestamp'] if 'approval_timestamp' in dict(list(dict(record['Metadata']).values())[0])else None,)
 
-                except:
+                except Exception as e:
                     record['Approval'].iloc[0] = None
 
             # we set nan values to None
@@ -1084,7 +1084,7 @@ def review_document(form_name, document_id):
                                                                     fallback_string=config['disapproval_key'],
                                                                     ip=dict(list(dict(record['Metadata']).values())[0])['approval_ip'] if 'approval_ip' in dict(list(dict(record['Metadata']).values())[0])else None,
                                                                     timestamp=dict(list(dict(record['Metadata']).values())[0])['approval_timestamp'] if 'approval_timestamp' in dict(list(dict(record['Metadata']).values())[0])else None,)
-            except:
+            except Exception as e:
                 record['Approval'].iloc[0] = None
 
         # we set nan values to None
@@ -1194,7 +1194,7 @@ def generate_pdf(form_name, document_id):
                                 ip=dict(list(dict(record['Metadata']).values())[0])['approval_ip'] if 'approval_ip' in dict(list(dict(record['Metadata']).values())[0])else None,
                                 timestamp=dict(list(dict(record['Metadata']).values())[0])['approval_timestamp'] if 'approval_timestamp' in dict(list(dict(record['Metadata']).values())[0])else None,)
 
-                except:
+                except Exception as e:
                     record['Approval'].iloc[0] = None
 
             # we set nan values to None

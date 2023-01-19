@@ -52,7 +52,7 @@ def get_list_of_emails_by_group(group, **kwargs):
             return [x.email for x in email_list]
             # return conn.execute(query).fetchall()
 
-    except:
+    except Exception as e:
         return []
 
 # this function is added to generate a list of email addresses for a given form to 
@@ -315,7 +315,7 @@ def propagate_form_fields(form=False, group=None):
                 VALUES[field] = list_fields[field]
         
         return VALUES
-    except:
+    except Exception as e:
         return {}
 
 
@@ -380,7 +380,7 @@ def propagate_form_configs(form=False):
         
         return OPTIONS
 
-    except:
+    except Exception as e:
         return {}
 
 
@@ -517,7 +517,7 @@ def forms(form_name):
                 #         else:
                 #             parsed_args[item] = str(request.form[item]) if libreforms.forms[form_name][item]['output_data']['type'] == 'str' else float(request.form[item])
 
-                #     except:
+                #     except Exception as e:
                 #         pass
 
                 #     print(parsed_args[item])

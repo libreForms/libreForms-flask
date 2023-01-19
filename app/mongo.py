@@ -349,7 +349,7 @@ class MongoDB:
             # if an invalid ObjectID is passed, return false
             try:
                 assert(ObjectId(document_id))
-            except:
+            except Exception as e:
                 return False
 
             collection = db[collection_name]
@@ -364,7 +364,7 @@ class MongoDB:
         try:
             with MongoClient(host=self.host, port=self.port) if not self.dbpw else MongoClient(f'mongodb://{self.user}:{self.dbpw}@{self.host}:{str(self.port)}/?authSource=admin&retryWrites=true&w=majority') as client:
                 return True
-        except:
+        except Exception as e:
             return False
 
 
