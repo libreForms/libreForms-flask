@@ -63,7 +63,7 @@
             </li>
 
             <li class="nav-item dropdown{{' bg-light text-dark' if not dark_mode else ''}}">
-              <a class="nav-link dropdown-toggle{{' bg-light text-dark' if not dark_mode else ''}}" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">User{%if notifications%}<sup class="badge rounded-pill bg-primary">{{notifications}}</sup>{%endif%} </a>
+              <a class="nav-link dropdown-toggle{{' bg-light text-dark' if not dark_mode else ''}}" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">User{%if notifications%} <sup class="badge rounded-pill bg-primary">{{notifications}}</sup>{%endif%}</a>
               <div class="dropdown-menu{{' bg-light text-dark' if not dark_mode else ''}}">
                 <a class="dropdown-item{{' bg-light text-dark' if not dark_mode else ''}}" href="{{ url_for( 'auth.profile' ) }}">Profile{%if notifications%} <span class="badge bg-primary float-end">{{notifications}}</span>{%endif%}</a>
                 <a class="dropdown-item{{' bg-light text-dark' if not dark_mode else ''}}" href="{{ url_for( 'auth.logout' ) }}">Logout</a>
