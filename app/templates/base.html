@@ -76,7 +76,7 @@
               </ul>
           </nav>      
 
-        <div class="d-grid gap-2 fixed-top {{'navbar-dark bg-dark' if dark_mode else 'navbar-secondary bg-secondary text-dark'}}" style="max-width:18%; padding-top: 100px; padding-left: 30px; height: 100%;z-index:999998 !important;">  
+        <div class="d-grid gap-2 fixed-top {{'navbar-dark bg-dark' if dark_mode else 'navbar-transparent bg-transparent text-dark'}}" style="max-width:18%; padding-top: 100px; padding-left: 30px; height: 100%;z-index:999998 !important;">  
             <ul class="nav nav-pills nav-stacked flex-column">
               <h3 class="nav-link border-bottom {{' text-dark' if not dark_mode else ''}}{{' text-dark' if not dark_mode else ''}}">{{ name }} <small class="{{'text-muted' if dark_mode else 'text-secondary'}}">{% if context %}form{% elif is_table %}table{% elif graphJSON %}dashboard{% elif homepage %}home{% endif %}</small></h3>        
                 {% if menu %}
