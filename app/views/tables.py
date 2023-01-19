@@ -99,7 +99,7 @@ def tables(form_name):
 
 
         # drop `meta` fields from user vis
-        # [ df.drop(columns=[x], inplace=True) for x in ['Journal', 'Metadata', '_id'] if x in df.columns]
+        [ df.drop(columns=[x], inplace=True) for x in ['Journal', 'Metadata', '_id'] if x in df.columns]
         
         # here we allow the user to select fields they want to use, 
         # overriding the default view-all.
