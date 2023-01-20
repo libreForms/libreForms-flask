@@ -25,7 +25,7 @@ __email__ = "signe@atreeus.com"
 import datetime
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter, inch
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, PageBreak
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet
 
@@ -77,6 +77,15 @@ def generate_pdf(
                 else:
                     data.append([key.replace('_'," "), str(value)])
         
+
+        # This approach adds add'l rows of data with descriptions
+        data.append(["Descriptions"])
+        for key, value in skel.items():
+            # print(skel[key])
+            # print(skel[key].keys())
+            if 'description' in skel[key]['output_data'].keys():
+                data.append([key.replace('_'," "), str(skel[key]['output_data']['description'])])
+
 
 
 
