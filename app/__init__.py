@@ -318,7 +318,7 @@ def create_app(test_config=None, celery_app=False):
                 'state': task.state,
             }
             return jsonify(response)
-        except:
+        except :
             return abort(404)
 
     ##########################

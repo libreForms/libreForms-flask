@@ -1,6 +1,15 @@
 """ 
 pdf.py: generate PDFs from various data sources
 
+# Skel
+
+The `skel` is the skeleton of the form that may contain fields
+that are not included in the form object `data_structure`; likewise,
+the form object `data_structure` may contain metadata fields not 
+included in the `skel`. So by passing a skel, you may get a form with 
+some of its fields left unfilled. This is the starting place for 
+more consistent PDF forms structures. For more information, see
+https://github.com/libreForms/libreForms-flask/issues/133.
 
 
 """
@@ -19,6 +28,7 @@ from reportlab.lib.pagesizes import letter, inch
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet
+
 
 def generate_pdf(   
                     form_name:str, 
@@ -40,6 +50,36 @@ def generate_pdf(
 
     data = []
 
+    # Here we implement `skel` support, see discussion at
+    # https://github.com/libreForms/libreForms-flask/issues/133.
+    if skel:
+        for key, value in skel.items():
+
+            # In the future, we may need to add add'l checks here, like
+            # verifying depends_on or deny_access data. But for now, we 
+            # only add a skeleton 
+
+            if key in data_structure.keys(): 
+                if isinstance(value, list):
+                    data.append([key.replace('_'," "), str(data_structure[key])])
+                elif isinstance(value, dict):
+                    data.append([key.replace('_'," "), str(data_structure[key])])
+                else:
+                    data.append([key.replace('_'," "), str(data_structure[key])])
+
+
+        for key, value in data_structure.items():
+            if key not in skel.keys():
+                if isinstance(value, list):
+                    data.append([key.replace('_'," "), str(value)])
+                elif isinstance(value, dict):
+                    data.append([key.replace('_'," "), str(value)])
+                else:
+                    data.append([key.replace('_'," "), str(value)])
+        
+
+
+
     # This script generates a basic PDF and puts values into a 
     # table after converting them to a list {key:value, key2:value2} > 
     # [[key,value][key,value]] but it doesn't create a header (like, 
@@ -49,24 +89,24 @@ def generate_pdf(
     # or 
         # {key:{child_key1:child_value1, child_key2:child_value2}} > ?
     # See https://github.com/signebedi/libreForms/issues/53.
-    for key, value in data_structure.items():
-        if key != 'Journal':
+    else:
+        for key, value in data_structure.items():
 
 
-            # this is placeholder logic to eventually handle different
-            # data structures, eg. by creatine multiple columns (for 
-            # lists) or creating add'l rows (for each dict item). The
-            # only thought I have is that there may be some customization
-            # that admins may want to be able to define slightly different
-            # behavior; my contention is that this would occur generally in
-            # the scope of the output data type specified by the form config.
-            if isinstance(value, list):
-                data.append([key.replace('_'," "), str(value)])
-            elif isinstance(value, dict):
-                data.append([key.replace('_'," "), str(value)])
-            else:
-                data.append([key.replace('_'," "), str(value)])
-    
+                # this is placeholder logic to eventually handle different
+                # data structures, eg. by creatine multiple columns (for 
+                # lists) or creating add'l rows (for each dict item). The
+                # only thought I have is that there may be some customization
+                # that admins may want to be able to define slightly different
+                # behavior; my contention is that this would occur generally in
+                # the scope of the output data type specified by the form config.
+                if isinstance(value, list):
+                    data.append([key.replace('_'," "), str(value)])
+                elif isinstance(value, dict):
+                    data.append([key.replace('_'," "), str(value)])
+                else:
+                    data.append([key.replace('_'," "), str(value)])
+        
     # print(data)
 
 

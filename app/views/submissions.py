@@ -1227,11 +1227,11 @@ def generate_pdf(form_name, document_id):
                 fp = os.path.join(tempfile_path, filename)
                 # document_name= f'{datetime.datetime.utcnow().strftime("%Y-%m-%d")}_{current_user.username}_{form_name}.pdf'
 
-                generate_pdf(   form_name=form_name, 
-                                data_structure=dict(record.iloc[0]), 
-                                username=current_user.username,
-                                document_name=fp,
-                                skel=libreforms.forms[form_name]    )
+                generate_pdf( form_name=form_name, 
+                              data_structure=dict(record.iloc[0]), 
+                              username=current_user.username,
+                              document_name=fp,
+                              skel=propagate_form_fields(form=form_name) )
 
                 return send_from_directory(tempfile_path,
                                         filename, as_attachment=True)
