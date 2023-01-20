@@ -79,6 +79,9 @@ def generate_pdf(
         
 
         # This approach adds add'l rows of data with descriptions
+        # We really should add a page break here (https://stackoverflow.com/a/23423035/13301284) 
+        # ... or else integrate this element as a third column directly beside the corresponding
+        # value above...
         data.append(["Descriptions"])
         for key, value in skel.items():
             # print(skel[key])
