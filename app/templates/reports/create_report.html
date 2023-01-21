@@ -4,12 +4,12 @@
 <form method="post">
   <fieldset>
     <div class="form-group">
-      <label class="form-label mt-4 required" for="name" data-bs-toggle="tooltip" data-bs-placement="right" title="Enter a name for the new report (100 chars max)">Name:</label>
+      <label class="form-label mt-4 required" for="name" data-bs-toggle="tooltip" data-bs-placement="right" title="Enter a name for the new report (100 chars max)">Name</label>
       <input class="form-control" type="text" id="name" name="name" value="{{ report.name if report else ''}}" maxlength="100" required/>
     </div>
     
     <!-- <div class="form-group">
-      <label class="form-label mt-4 required" for="form_name" data-bs-toggle="tooltip" data-bs-placement="right" title="Select the form for which you'd like to generate a report">Frequency:</label>
+      <label class="form-label mt-4 required" for="form_name" data-bs-toggle="tooltip" data-bs-placement="right" title="Select the form for which you'd like to generate a report">Frequency</label>
       <select id="form_name" name="form_name">
         {% for form in forms %}
         <option value="{{ form }}">{ form }}</option>
@@ -18,12 +18,12 @@
     </div> -->
 
     <div class="form-group">
-      <label class="form-label mt-4 required" for="filters" data-bs-toggle="tooltip" data-bs-placement="right" title="Enter any filters you want to apply (300 chars max)">Filters:</label>
+      <label class="form-label mt-4 required" for="filters" data-bs-toggle="tooltip" data-bs-placement="right" title="Enter any filters you want to apply (300 chars max)">Filters</label><span data-bs-toggle="tooltip" data-bs-placement="right" title="Click me for help"><button class="btn btn-link btn-sm" type="button" data-bs-toggle="offcanvas" data-bs-target="#filterHelp" aria-controls="filterHelp">(?)</button></span>
       <textarea class="form-control" rows="3" id="filters" name="filters" maxlength="300" required>{{ report.filters if report else ''}}</textarea>
     </div>
 
     <div class="form-group">
-      <label class="form-label mt-4 required" for="frequency" data-bs-toggle="tooltip" data-bs-placement="right" title="Select the frequency you'd like to receive the report at">Frequency:</label>
+      <label class="form-label mt-4 required" for="frequency" data-bs-toggle="tooltip" data-bs-placement="right" title="Select the frequency you'd like to receive the report at">Frequency</label>
       <select class="form-control" id="frequency" name="frequency" required>
         <option value="hourly"{%if report and report.frequency == 'hourly'%} selected="selected"{%endif%}>Hourly</option>
         <option value="daily"{%if report and report.frequency == 'daily'%} selected="selected"{%endif%}>Daily</option>
@@ -34,12 +34,12 @@
     </div>
     
     <div class="form-group">
-      <label class="form-label mt-4" for="start_at" data-bs-toggle="tooltip" data-bs-placement="right" title="Select the starting date (defaults to today)">Start Date:</label>
+      <label class="form-label mt-4" for="start_at" data-bs-toggle="tooltip" data-bs-placement="right" title="Select the starting date (defaults to today)">Start Date</label>
       <input class="form-control" type="date" id="start_at" name="start_at" value="{{ report.start_at_human_readable if report else ''}}"/>
     </div>
 
     <div class="form-group">
-      <label class="form-label mt-4" for="end_at" data-bs-toggle="tooltip" data-bs-placement="right" title="Select the ending date (defaults to never)">End Date:</label>
+      <label class="form-label mt-4" for="end_at" data-bs-toggle="tooltip" data-bs-placement="right" title="Select the ending date (defaults to never)">End Date</label>
       <input class="form-control" type="date" id="end_at" name="end_at" value="{{ report.end_at_human_readable if report else ''}}"/> 
     </div>
 
