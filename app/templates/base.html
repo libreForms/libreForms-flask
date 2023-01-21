@@ -55,10 +55,11 @@
               </div>
             </li>
             <li class="nav-item dropdown{{' bg-light text-dark' if not dark_mode else ''}}">
-              <a class="nav-link dropdown-toggle{{' bg-light text-dark' if not dark_mode else ''}}" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Visualizations</a>
+              <a class="nav-link dropdown-toggle{{' bg-light text-dark' if not dark_mode else ''}}" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Analytics</a>
               <div class="dropdown-menu{{' bg-light text-dark' if not dark_mode else ''}}">
                 <a class="dropdown-item{{' bg-light text-dark' if not dark_mode else ''}}" href="{{ url_for( 'tables.tables_home' ) }}">Tables</a>
                 <a class="dropdown-item{{' bg-light text-dark' if not dark_mode else ''}}" href="{{ url_for( 'dashboards.dashboards_home' ) }}">Dashboards</a>
+                <a class="dropdown-item{{' bg-light text-dark' if not dark_mode else ''}}" href="{{ url_for( 'reports.reports_home' ) }}">Reports</a>
               </div>
             </li>
 
