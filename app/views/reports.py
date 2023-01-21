@@ -70,7 +70,7 @@ def reports_home():
     # generate a list of reports, and render a list of links to these here. 
     # dim those that are inactive
 
-    return render_template('app/reports.html', 
+    return render_template('reports/reports_home.html', 
             notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
             name="Reports",
             type="reports",
