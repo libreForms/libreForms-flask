@@ -32,13 +32,15 @@ from datetime import datetime
 import pandas as pd
 
 
-def get_list_of_users_reports(id=None, db=db):
+def get_list_of_users_reports(id=None, db=db, **kwargs):
     with db.engine.connect() as conn:
-        return db.session.query(Report).filter(user_id=id).all()
+        return db.session.query(Report).filter_by(user_id=id,**kwargs).all()
 
 
 # this method is based heavily on our approach in app.signing.write_key_to_db.
-def write_report_to_db(name=None, form_name=None, filters=None, frequency=None, active=1, start_at=None, end_at=None, id=None, db=db, current_user=None):
+def write_report_to_db(name=None, form_name=None, filters=None, frequency=None, active=1, 
+                        start_at_human_readable=None, end_at_human_readable=None,
+                        start_at=None, end_at=None, id=None, db=db, current_user=None):
     
     #  here we are generating a random string to use as the key of the
     # new report... but first we need to verify it doesn't already exist. 
@@ -57,7 +59,9 @@ def write_report_to_db(name=None, form_name=None, filters=None, frequency=None, 
                         active = active,
                         timestamp = datetime.timestamp(datetime.now()),
                         start_at = start_at,
-                        end_at = end_at,)
+                        end_at = end_at,
+                        start_at_human_readable=start_at_human_readable,
+                        end_at_human_readable=end_at_human_readable,)
  
         db.session.add(new_report)
         db.session.commit()
@@ -69,6 +73,7 @@ def write_report_to_db(name=None, form_name=None, filters=None, frequency=None, 
         return report_id 
 
     except Exception as e:
+        flash(f'Could not create report. {e} ')
         log.warning(f'{current_user.username.upper()} - failed to generate report: {e}.')
         return False
 
@@ -108,13 +113,17 @@ def create_reports(form_name):
         name = request.form['name']
         filters = request.form['filters'] 
         frequency = request.form['frequency'] 
-        start_at = datetime.strptime(request.form['start_at'], "%Y-%m-%d").timestamp() if request.form['start_at'] != '' else 0
+        start_at_human_readable = request.form['start_at'] if request.form['start_at'] else datetime.now().strftime("%Y-%m-%d")
+        end_at_human_readable = request.form['end_at'] if request.form['end_at'] else ''
+        start_at = datetime.strptime(request.form['start_at'], "%Y-%m-%d").timestamp() if request.form['start_at'] != '' else datetime.timestamp(datetime.now())
         end_at = datetime.strptime(request.form['end_at'], "%Y-%m-%d").timestamp() if request.form['end_at'] != '' else 0
         
 
         report_id = write_report_to_db( name=name, 
                                         form_name=form_name, 
-                                        filters=filters, frequency=frequency, 
+                                        filters=filters, frequency=frequency,
+                                        start_at_human_readable=start_at_human_readable,
+                                        end_at_human_readable=end_at_human_readable, 
                                         active=1, start_at=start_at, end_at=end_at, 
                                         id=user_id, current_user=current_user)
         
@@ -132,8 +141,72 @@ def create_reports(form_name):
         ) 
 
 
+@bp.route(f'/modify/<report_id>', methods=['GET', 'POST'])
+@login_required
+def modify_report(report_id):
 
-@bp.route(f'/<report_id>', methods=['GET', 'POST'])
+    # here we collect the user's reports but introduce the kwarg report_id to 
+    # ensure we are only querying for the current report_id
+    reports = get_list_of_users_reports(id=current_user.id, report_id=report_id)
+    # print(reports)
+
+    # then, we assert that the length of of the list this generates is greater than 
+    # one, or else return a 404 - as there is no record for this report.
+    if len(reports) < 1:
+        return abort(404)
+
+    report = reports[0]
+    
+    if request.method == 'POST':
+        # print(request.form)
+        user_id = current_user.get_id()
+        name = request.form['name']
+        filters = request.form['filters'] 
+        frequency = request.form['frequency'] 
+        start_at_human_readable = request.form['start_at'] if request.form['start_at'] else datetime.now().strftime("%Y-%m-%d")
+        end_at_human_readable = request.form['end_at'] if request.form['end_at'] else ''
+        start_at = datetime.strptime(request.form['start_at'], "%Y-%m-%d").timestamp() if request.form['start_at'] != '' else datetime.timestamp(datetime.now())
+        end_at = datetime.strptime(request.form['end_at'], "%Y-%m-%d").timestamp() if request.form['end_at'] != '' else 0
+
+    
+        try:
+
+            # we update the values before committing them
+            report.name = name 
+            report.filters = filters 
+            report.frequency = frequency 
+            report.start_at = start_at 
+            report.end_at = end_at 
+            report.start_at_human_readable = start_at_human_readable 
+            report.end_at_human_readable = end_at_human_readable 
+
+            db.session.commit()
+
+            log.info(f'{current_user.username.upper()} - successfully modified report {report.report_id}: {name}.')
+
+        except Exception as e:
+            flash(f'Could not modify report. {e} ')
+            log.warning(f'{current_user.username.upper()} - failed to update report {report.report_id}: {e}.')
+
+        return redirect(url_for('reports.view_report', report_id=str(report_id)))
+
+
+    # now we render the create_report template, but pass the report object,
+    # which will be used to populate the fields with their previous values
+    return render_template('reports/create_report.html', 
+            notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
+            name=f"Modify report",
+            type="reports",
+            config=config,
+            user=current_user,
+            report=report,
+            menu=form_menu(checkFormGroup),
+        ) 
+
+
+
+
+@bp.route(f'/view/<report_id>', methods=['GET', 'POST'])
 @login_required
 def view_report(report_id):
     return report_id

@@ -127,3 +127,5 @@ class Report(db.Model):
     timestamp = db.Column(db.Float)
     start_at = db.Column(db.Float) # this is an optional timestamp for when we'd like this report to go into effect
     end_at = db.Column(db.Float) # this is an optional timestamp for when we'd like this report to stop sending / expire (set `active` > False)
+    start_at_human_readable = db.Column(db.String(100)) 
+    end_at_human_readable = db.Column(db.String(100)) 
