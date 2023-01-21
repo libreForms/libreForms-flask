@@ -19,7 +19,7 @@ from markupsafe import Markup
 
 # import custom packages from the current repository
 import libreforms
-from app.views.forms import form_menu
+from app.views.forms import form_menu, checkFormGroup
 from app.views.auth import login_required
 from app.models import Report
 from app import config, log, mongodb, mailer, config, db
@@ -31,17 +31,18 @@ from datetime import datetime
 import pandas as pd
 
 
-def get_list_of_users_reports(id=current_user.id, db=db):
+def get_list_of_users_reports(id=None, db=db):
     with db.engine.connect() as conn:
         return db.session.query(Report).filter(user_id=id).all()
 
 
 # this method is based heavily on our approach in app.signing.write_key_to_db.
-def write_report_to_db(name=None, filters=None, frequency=None, active=1, start_at=None, end_at=None, id=current_user.id, db=db, current_user=current_user):
+def write_report_to_db(name=None, form_name=None, filters=None, frequency=None, active=1, start_at=None, end_at=None, id=None, db=db, current_user=None):
     try:
         new_report =  Report(
             user_id = id,
             name = name,
+            form_name = form_name,
             filters = filters,
             frequency = frequency,
             active = active,
@@ -65,7 +66,7 @@ bp = Blueprint('reports', __name__, url_prefix='/reports')
 # show list of current reports, and interface to create new ones
 @bp.route(f'/', methods=['GET', 'POST'])
 @login_required
-def reports_home():
+def reports():
 
     # generate a list of reports, and render a list of links to these here. 
     # dim those that are inactive
@@ -76,14 +77,28 @@ def reports_home():
             type="reports",
             config=config,
             user=current_user,
+            menu=form_menu(checkFormGroup),
         ) 
 
 
 
-@bp.route(f'/create', methods=['GET', 'POST'])
+@bp.route(f'/<form_name>/create', methods=['GET', 'POST'])
 @login_required
-def create_reports():
-    pass # create a new report
+def create_reports(form_name):
+
+    # assert name in libreforms
+
+    # 
+    return render_template('reports/create_report.html', 
+            notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
+            name=f"Create {form_name} report",
+            type="reports",
+            config=config,
+            user=current_user,
+            menu=form_menu(checkFormGroup),
+        ) 
+
+
 
 @bp.route(f'/<report_id>', methods=['GET', 'POST'])
 @login_required
