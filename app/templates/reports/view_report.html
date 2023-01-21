@@ -15,7 +15,12 @@
       <th scope="row">Report Name</th>
       <td>{{report.name}}</td>
     </tr>
-    
+
+    <tr class="table{% if emphasize and item in emphasize %}{{'-secondary' if dark_mode else '-primary'}}{% else %}{{'-dark' if dark_mode else '-transparent'}}{% endif %}">
+      <th scope="row">Form Name</th>
+      <td>{{report.form_name}}</td>
+    </tr> 
+
     <tr class="table{% if emphasize and item in emphasize %}{{'-secondary' if dark_mode else '-primary'}}{% else %}{{'-dark' if dark_mode else '-transparent'}}{% endif %}">
       <th scope="row">Filters</th>
       <td>{{report.filters}}</td>
@@ -48,15 +53,6 @@
 
   </tbody>
 </table>
-
-
-
-
-
-
-
-
-
 
 
 

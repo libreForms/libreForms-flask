@@ -208,6 +208,9 @@ def modify_report(report_id):
         ) 
 
 
+def gen_hyperlink(row, form_name):
+    # return Markup(f"<p><a href=\"{config['domain']}/submissions/{form_name}/{row.id}\">{form_name}</a></p>")
+    return Markup(f"<a href=\"{config['domain']}/submissions/{form_name}/{row.id}\">{config['domain']}/submissions/{form_name}/{row.id}</a>")
 
 
 @bp.route(f'/view/<report_id>', methods=['GET', 'POST'])
@@ -228,6 +231,16 @@ def view_report(report_id):
 
     # print(Report.__table__.columns)
 
+
+    msg = Markup(f"<a href = \"{url_for('reports.modify_report', report_id=report_id)}\">Edit report</a>")
+    if report.active:
+        msg = msg + Markup(f"<a href = \"{url_for('reports.deactivate_report', report_id=report_id)}\">Deactivate report</a>")
+    else:
+        msg = msg + Markup(f"<a href = \"{url_for('reports.activate_report', report_id=report_id)}\">Activate report</a>")
+
+    msg = msg + Markup(f"<a href = \"{url_for('reports.send_report', report_id=report_id)}\">Send report now</a>")
+
+
     # now we render the view_report template, but pass the report object,
     # which will be used to populate the fields with their proper values
     return render_template('reports/view_report.html', 
@@ -237,6 +250,7 @@ def view_report(report_id):
             config=config,
             user=current_user,
             report=report,
+            msg=msg,
             menu=form_menu(checkFormGroup),
         ) 
 
