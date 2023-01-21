@@ -23,6 +23,7 @@ from app.views.forms import form_menu, checkFormGroup
 from app.views.auth import login_required
 from app.signing import generate_key
 from app.models import Report
+from celeryd.tasks import send_report_async
 from app import config, log, mongodb, mailer, config, db
 
 
@@ -323,7 +324,7 @@ def send_report(report_id):
 
     report = reports[0]
 
-    # placeholder for app.reporting send_async
+    send_report_async.delay(report=report_id)
 
     flash (f'Report successfully sent. ')
     return redirect(url_for('reports.view_report', report_id=str(report_id)))

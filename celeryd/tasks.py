@@ -52,3 +52,10 @@ def write_document_to_collection_async(self, data, collection_name, reporter=Non
     # print('COMPLETE')
 
     return document_id
+
+
+@celery.task()
+def send_report_async(report=None, *args):
+    # select all reports whose conditions are met under reportManager.trigger, 
+    # and pass these to the execution reportManager.handler
+    return True

@@ -42,7 +42,7 @@ __email__ = "signe@atreeus.com"
 
 from app import celery, create_app, log, mailer, mongodb
 from app.reporting import reportManager
-from celeryd.tasks import send_mail_async, write_document_to_collection_async
+from celeryd.tasks import send_mail_async, write_document_to_collection_async, send_report_async
 
 app = create_app(celery_app=True)
 app.app_context().push()
@@ -50,11 +50,7 @@ app.app_context().push()
 # create a reportManager object for sending reports that have come due
 reports = reportManager()
 
-@celery.task()
-def send_reports(reports, *args):
-    # select all reports whose conditions are met under reportManager.trigger, 
-    # and pass these to the execution reportManager.handler
-    pass
+
 
 @celery.task()
 def celery_beat_logger():
@@ -66,7 +62,7 @@ def celery_beat_logger():
 def setup_periodic_tasks(sender, **kwargs):
 
     # periodically calls send_reports 
-    # sender.add_periodic_task(3600.0, send_reports.s(reports.trigger()), name='send reports periodically')
+    # sender.add_periodic_task(3600.0, send_report_async.s(reports.trigger()), name='send reports periodically')
 
     # periodically conduct a heartbeat check
     sender.add_periodic_task(3600.0, celery_beat_logger.s(), name='log that celery beat is working')
