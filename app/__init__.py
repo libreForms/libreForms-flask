@@ -296,6 +296,10 @@ def create_app(test_config=None, celery_app=False):
             db.session.commit()
             log.info('LIBREFORMS - created the libreforms user.' )
 
+        # from app.models import Report
+        # signing_df = pd.read_sql_table(Report.__tablename__, con=db.engine.connect())
+        # print(signing_df)
+
 
 
     # here we employ some Flask-Login boilerplate to make 

@@ -93,21 +93,22 @@ def create_reports(form_name):
 
 
     if request.method == 'POST':
-        print(request.form.keys())
+        # print(request.form)
         user_id = current_user.get_id()
         name = request.form['name']
         filters = request.form['filters'] 
         frequency = request.form['frequency'] 
-        start_at = request.form['start_at'] if request.form['start_at'] != '' else 0
-        end_at = request.form['end_at'] if request.form['end_at'] != '' else 0
+        start_at = datetime.strptime(request.form['start_at'], "%Y-%m-%d").timestamp() if request.form['start_at'] != '' else 0
+        end_at = datetime.strptime(request.form['end_at'], "%Y-%m-%d").timestamp() if request.form['end_at'] != '' else 0
         
+
         report_id = write_report_to_db( name=name, 
                                         form_name=form_name, 
                                         filters=filters, frequency=frequency, 
                                         active=1, start_at=start_at, end_at=end_at, 
                                         id=user_id, current_user=current_user)
         
-        print(report_id)
+        # print(report_id)
 
         return redirect(url_for('reports.view_report', report_id=str(report_id)))
 
