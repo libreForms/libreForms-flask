@@ -13,7 +13,7 @@ __maintainer__ = "Sig Janoska-Bedi"
 __email__ = "signe@atreeus.com"
 
 # import flask-related packages
-from flask import current_app, Blueprint, render_template, request, flash, redirect, url_for, abort
+from flask import current_app, Blueprint, render_template, request, flash, redirect, url_for, abort, Response
 from flask_login import current_user
 from markupsafe import Markup
 
@@ -25,12 +25,13 @@ from app.signing import generate_key
 from app.models import Report
 from celeryd.tasks import send_report_async
 from app import config, log, mongodb, mailer, config, db
-
+from app.filters import lint_filters
 
 # and finally, import other packages
 import os
 from datetime import datetime
 import pandas as pd
+import json
 
 
 def get_list_of_users_reports(id=None, db=db, **kwargs):
@@ -330,3 +331,19 @@ def send_report(report_id):
 
     flash (f'Report successfully sent. ')
     return redirect(url_for('reports.view_report', report_id=str(report_id)))
+
+
+@bp.route(f'/lint', methods=['GET', 'POST'])
+@login_required
+def lint_filters():
+
+    if request.method == 'POST':
+
+        string = request.form['string']
+
+        if lint_filters(string):
+            return Response(json.dumps({'status':'success'}), status=config['success_code'], mimetype='application/json')
+
+        return Response(json.dumps({'status':'failure'}), status=config['error_code'], mimetype='application/json')
+
+    return abort(404)
