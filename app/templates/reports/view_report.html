@@ -4,6 +4,59 @@
   
 
 
+<table class="table {{'text-dark' if not dark_mode else 'table-hover'}}">
+  <tbody>
+    <tr class="table{% if emphasize and item in emphasize %}{{'-secondary' if dark_mode else '-primary'}}{% else %}{{'-dark' if dark_mode else '-transparent'}}{% endif %}">
+      <th scope="row">Report ID</th>
+      <td>{{report.report_id}}</td>
+    </tr>
+
+    <tr class="table{% if emphasize and item in emphasize %}{{'-secondary' if dark_mode else '-primary'}}{% else %}{{'-dark' if dark_mode else '-transparent'}}{% endif %}">
+      <th scope="row">Report Name</th>
+      <td>{{report.name}}</td>
+    </tr>
+    
+    <tr class="table{% if emphasize and item in emphasize %}{{'-secondary' if dark_mode else '-primary'}}{% else %}{{'-dark' if dark_mode else '-transparent'}}{% endif %}">
+      <th scope="row">Filters</th>
+      <td>{{report.filters}}</td>
+    </tr>
+    
+    <tr class="table{% if emphasize and item in emphasize %}{{'-secondary' if dark_mode else '-primary'}}{% else %}{{'-dark' if dark_mode else '-transparent'}}{% endif %}">
+      <th scope="row">Frequency</th>
+      <td>{{ report.frequency }}</td>
+    </tr>
+    
+    <tr class="table{% if emphasize and item in emphasize %}{{'-secondary' if dark_mode else '-primary'}}{% else %}{{'-dark' if dark_mode else '-transparent'}}{% endif %}">
+      <th scope="row">Active</th>
+      <td>{{ report.active }}</td>
+    </tr>
+    
+    <tr class="table{% if emphasize and item in emphasize %}{{'-secondary' if dark_mode else '-primary'}}{% else %}{{'-dark' if dark_mode else '-transparent'}}{% endif %}">
+      <th scope="row">Last Modified</th>
+      <td>{{ report.timestamp_human_readable }}</td>
+    </tr>
+    
+    <tr class="table{% if emphasize and item in emphasize %}{{'-secondary' if dark_mode else '-primary'}}{% else %}{{'-dark' if dark_mode else '-transparent'}}{% endif %}">
+      <th scope="row">Start Date</th>
+      <td>{{ report.start_at_human_readable }}</td>
+    </tr>
+    
+    <tr class="table{% if emphasize and item in emphasize %}{{'-secondary' if dark_mode else '-primary'}}{% else %}{{'-dark' if dark_mode else '-transparent'}}{% endif %}">
+      <th scope="row">End Date</th>
+      <td>{{ report.end_at_human_readable }}</td>
+    </tr>
+
+  </tbody>
+</table>
+
+
+
+
+
+
+
+
+
 
 
 

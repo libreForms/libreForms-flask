@@ -121,10 +121,11 @@ class Report(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id')) # we link the report to the user_id of the user who created to report
     name = db.Column(db.String(100))
     form_name = db.Column(db.String(100))
-    filters = db.Column(db.String(100))
+    filters = db.Column(db.String(1000))
     frequency = db.Column(db.Enum('hourly', 'daily', 'weekly', 'monthly', 'yearly'))
     active = db.Column(db.Boolean)
     timestamp = db.Column(db.Float)
+    timestamp_human_readable = db.Column(db.String(100))
     start_at = db.Column(db.Float) # this is an optional timestamp for when we'd like this report to go into effect
     end_at = db.Column(db.Float) # this is an optional timestamp for when we'd like this report to stop sending / expire (set `active` > False)
     start_at_human_readable = db.Column(db.String(100)) 

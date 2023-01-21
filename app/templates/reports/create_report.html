@@ -4,8 +4,8 @@
 <form method="post">
   <fieldset>
     <div class="form-group">
-      <label class="form-label mt-4 required" for="name" data-bs-toggle="tooltip" data-bs-placement="right" title="Enter a name for the new report">Name:</label>
-      <input class="form-control" type="text" id="name" name="name" value="{{ report.name if report else ''}}" />
+      <label class="form-label mt-4 required" for="name" data-bs-toggle="tooltip" data-bs-placement="right" title="Enter a name for the new report (100 chars max)">Name:</label>
+      <input class="form-control" type="text" id="name" name="name" value="{{ report.name if report else ''}}" maxlength="100"/>
     </div>
     
     <!-- <div class="form-group">
@@ -18,8 +18,8 @@
     </div> -->
 
     <div class="form-group">
-      <label class="form-label mt-4 required" for="filters" data-bs-toggle="tooltip" data-bs-placement="right" title="Enter any filters you want to apply">Filters:</label>
-      <textarea class="form-control" rows="3" id="filters" name="filters">{{ report.filters if report else ''}}</textarea>
+      <label class="form-label mt-4 required" for="filters" data-bs-toggle="tooltip" data-bs-placement="right" title="Enter any filters you want to apply (300 chars max)">Filters:</label>
+      <textarea class="form-control" rows="3" id="filters" name="filters" maxlength="300">{{ report.filters if report else ''}}</textarea>
     </div>
 
     <div class="form-group">

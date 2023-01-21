@@ -39,7 +39,7 @@ def get_list_of_users_reports(id=None, db=db, **kwargs):
 
 # this method is based heavily on our approach in app.signing.write_key_to_db.
 def write_report_to_db(name=None, form_name=None, filters=None, frequency=None, active=1, 
-                        start_at_human_readable=None, end_at_human_readable=None,
+                        start_at_human_readable=None, end_at_human_readable=None, 
                         start_at=None, end_at=None, id=None, db=db, current_user=None):
     
     #  here we are generating a random string to use as the key of the
@@ -58,6 +58,7 @@ def write_report_to_db(name=None, form_name=None, filters=None, frequency=None, 
                         frequency = frequency,
                         active = active,
                         timestamp = datetime.timestamp(datetime.now()),
+                        timestamp_human_readable = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"),
                         start_at = start_at,
                         end_at = end_at,
                         start_at_human_readable=start_at_human_readable,
@@ -179,6 +180,9 @@ def modify_report(report_id):
             report.end_at = end_at 
             report.start_at_human_readable = start_at_human_readable 
             report.end_at_human_readable = end_at_human_readable 
+            report.timestamp_human_readable = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S") 
+            report.timestamp = datetime.timestamp(datetime.now()) 
+
 
             db.session.commit()
 
@@ -209,22 +213,100 @@ def modify_report(report_id):
 @bp.route(f'/view/<report_id>', methods=['GET', 'POST'])
 @login_required
 def view_report(report_id):
-    return report_id
 
+    # here we collect the user's reports but introduce the kwarg report_id to 
+    # ensure we are only querying for the current report_id
+    reports = get_list_of_users_reports(id=current_user.id, report_id=report_id)
+    # print(reports)
 
-@bp.route(f'/<report_id>/activate', methods=['GET', 'POST'])
+    # then, we assert that the length of of the list this generates is greater than 
+    # one, or else return a 404 - as there is no record for this report.
+    if len(reports) < 1:
+        return abort(404)
+
+    report = reports[0]
+
+    # print(Report.__table__.columns)
+
+    # now we render the view_report template, but pass the report object,
+    # which will be used to populate the fields with their proper values
+    return render_template('reports/view_report.html', 
+            notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
+            name=f"View Report",
+            type="reports",
+            config=config,
+            user=current_user,
+            report=report,
+            menu=form_menu(checkFormGroup),
+        ) 
+
+@bp.route(f'/activate/<report_id>', methods=['GET', 'POST'])
 @login_required
 def activate_report(report_id):
-    pass # activate existing report
+    # here we collect the user's reports but introduce the kwarg report_id to 
+    # ensure we are only querying for the current report_id
+    reports = get_list_of_users_reports(id=current_user.id, report_id=report_id)
+    # print(reports)
+
+    # then, we assert that the length of of the list this generates is greater than 
+    # one, or else return a 404 - as there is no record for this report.
+    if len(reports) < 1:
+        return abort(404)
+
+    report = reports[0]
+    
+    if report.active == True:
+        flash (f'Report is already active. ')
+        return redirect(url_for('reports.view_report', report_id=str(report_id)))
+
+    report.active = 1 
+    db.session.commit()
+
+    flash (f'Report successfully activated. ')
+    return redirect(url_for('reports.view_report', report_id=str(report_id)))
 
 
-@bp.route(f'/<report_id>/deactivate', methods=['GET', 'POST'])
+@bp.route(f'/deactivate/<report_id>', methods=['GET', 'POST'])
 @login_required
 def deactivate_report(report_id):
-    pass # deactivate existing report
+    # here we collect the user's reports but introduce the kwarg report_id to 
+    # ensure we are only querying for the current report_id
+    reports = get_list_of_users_reports(id=current_user.id, report_id=report_id)
+    # print(reports)
+
+    # then, we assert that the length of of the list this generates is greater than 
+    # one, or else return a 404 - as there is no record for this report.
+    if len(reports) < 1:
+        return abort(404)
+
+    report = reports[0]
+    
+    if report.active == False:
+        flash (f'Report is already inactive. ')
+        return redirect(url_for('reports.view_report', report_id=str(report_id)))
+
+    report.active = 0 
+    db.session.commit()
+
+    flash (f'Report successfully deactivated. ')
+    return redirect(url_for('reports.view_report', report_id=str(report_id)))
 
 @bp.route(f'/<report_id>/send', methods=['GET', 'POST'])
 @login_required
 def send_report(report_id):
-    pass # send existing report now
+    # here we collect the user's reports but introduce the kwarg report_id to 
+    # ensure we are only querying for the current report_id
+    reports = get_list_of_users_reports(id=current_user.id, report_id=report_id)
+    # print(reports)
 
+    # then, we assert that the length of of the list this generates is greater than 
+    # one, or else return a 404 - as there is no record for this report.
+    if len(reports) < 1:
+        return abort(404)
+
+    report = reports[0]
+
+    # placeholder for app.reporting send_async
+
+    flash (f'Report successfully sent. ')
+    return redirect(url_for('reports.view_report', report_id=str(report_id)))
