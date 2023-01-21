@@ -31,7 +31,7 @@ from datetime import datetime
 import pandas as pd
 
 
-def get_list_of_reports(id=current_user.id, db=db):
+def get_list_of_users_reports(id=current_user.id, db=db):
     with db.engine.connect() as conn:
         return db.session.query(Report).filter(user_id=id).all()
 
@@ -48,7 +48,7 @@ def write_report_to_db(name=None, filters=None, frequency=None, active=1, start_
             timestamp = datetime.datetime.timestamp(datetime.datetime.now()),
             start_at = start_at,
             end_at = end_at,)
-
+ 
         db.session.add(new_report)
         db.session.commit()
         log.info(f'{current_user.username.upper()} - successfully generated report: {name}.')

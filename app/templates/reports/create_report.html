@@ -1,10 +1,51 @@
 {% extends 'base.html' %}
 {% block content %}
-
+ 
+<form>
+  <div class="form-group">
+    <label class="form-label mt-4 required" for="name" data-bs-toggle="tooltip" data-bs-placement="right" title="Enter a name for the new report">Name:</label>
+    <input type="text" id="name" name="name"/>
+  </div>
   
+  <div class="form-group">
+    <label class="form-label mt-4 required" for="form_name" data-bs-toggle="tooltip" data-bs-placement="right" title="Select the form for which you'd like to generate a report">Frequency:</label>
+    <select id="form_name" name="form_name">
+      {% for form in forms %}
+      <option value="{{ form }}">{ form }}</option>
+      {% endfor %}
+    </select>
+  </div>
 
+  <div class="form-group">
+    <label class="form-label mt-4 required" for="filters" data-bs-toggle="tooltip" data-bs-placement="right" title="Enter any filters you want to apply">Filters:</label>
+    <textarea rows="3" id="filters" name="filters"></textarea>
+  </div>
 
+  <div class="form-group">
+    <label class="form-label mt-4 required" for="frequency" data-bs-toggle="tooltip" data-bs-placement="right" title="Select the frequency you'd like to receive the report at">Frequency:</label>
+    <select id="frequency" name="frequency">
+      <option value="hourly">Hourly</option>
+      <option value="daily">Daily</option>
+      <option value="weekly">Weekly</option>
+      <option value="monthly">Monthly</option>
+      <option value="annually">Annually</option>
+    </select>
+  </div>
 
+  <div class="form-group">
+    <label class="form-label mt-4" for="start_at" data-bs-toggle="tooltip" data-bs-placement="right" title="Select the starting date (defaults to today)">Start Date:</label>
+    <input type="date" id="start_at" name="start_at" />
+  </div>
+
+  <div class="form-group">
+    <label class="form-label mt-4" for="end_at" data-bs-toggle="tooltip" data-bs-placement="right" title="Select the ending date (defaults to never)">End Date:</label>
+    <input type="date" id="end_at" name="end_at" /> 
+  </div>
+
+  <div class="form-group mt-4">
+    <input type="submit" value="Submit" class="btn btn-primary" />    
+  </div>
+</form> 
 
 
 {% if msg %}
