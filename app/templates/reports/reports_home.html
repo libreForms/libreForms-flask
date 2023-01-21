@@ -2,6 +2,19 @@
 {% block content %}
 
   
+<table class="table {{'text-dark' if not dark_mode else 'table-hover'}}">
+  <tbody>
+  {% for report in reports %} 
+    <tr class="table{% if emphasize and item in emphasize %}-secondary{% else %}{{'-dark' if dark_mode else '-transparent'}}{% endif %}">
+      <th scope="row">{{report.timestamp_human_readable}}</th>
+      <td><a href="{{url_for('reports.view_report', report_id=report.report_id)}}">{{report.name}}</a></td>
+      <td>{{report.form_name}}</td>
+      <td>{{"Active" if report.active else "Inactive"}}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+
 
 
 

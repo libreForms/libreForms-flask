@@ -95,6 +95,7 @@ def reports():
             type="reports",
             config=config,
             user=current_user,
+            reports=get_list_of_users_reports(id=current_user.id),
             menu=form_menu(checkFormGroup),
         ) 
 
@@ -208,11 +209,6 @@ def modify_report(report_id):
         ) 
 
 
-def gen_hyperlink(row, form_name):
-    # return Markup(f"<p><a href=\"{config['domain']}/submissions/{form_name}/{row.id}\">{form_name}</a></p>")
-    return Markup(f"<a href=\"{config['domain']}/submissions/{form_name}/{row.id}\">{config['domain']}/submissions/{form_name}/{row.id}</a>")
-
-
 @bp.route(f'/view/<report_id>', methods=['GET', 'POST'])
 @login_required
 def view_report(report_id):
@@ -232,13 +228,20 @@ def view_report(report_id):
     # print(Report.__table__.columns)
 
 
+    # this is the link to edit report
     msg = Markup(f"<a href = \"{url_for('reports.modify_report', report_id=report_id)}\">Edit report</a>")
+    
+    # this is the link to activate / deactivate report
     if report.active:
         msg = msg + Markup(f"<a href = \"{url_for('reports.deactivate_report', report_id=report_id)}\">Deactivate report</a>")
     else:
         msg = msg + Markup(f"<a href = \"{url_for('reports.activate_report', report_id=report_id)}\">Activate report</a>")
-
+    
+    # this is the link to send the report now
     msg = msg + Markup(f"<a href = \"{url_for('reports.send_report', report_id=report_id)}\">Send report now</a>")
+   
+    # this is the link back to the report home
+    msg = msg + Markup(f"<a href = \"{url_for('reports.reports')}\">Go back to report home</a>")
 
 
     # now we render the view_report template, but pass the report object,
