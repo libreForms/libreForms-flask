@@ -61,6 +61,14 @@ __maintainer__ = "Sig Janoska-Bedi"
 __email__ = "signe@atreeus.com"
 
 
+def get_operators():
+    return {
+        '==': lambda a, b: a == b,
+        '!=': lambda a, b: a != b,
+        '>=': lambda a, b: a >= b,
+    }
+
+
 # frequency of emails
     # daily
     # hourly

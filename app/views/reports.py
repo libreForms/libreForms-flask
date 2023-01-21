@@ -63,8 +63,10 @@ def write_report_to_db(name=None, form_name=None, filters=None, frequency=None, 
                         start_at = start_at,
                         end_at = end_at,
                         start_at_human_readable=start_at_human_readable,
-                        end_at_human_readable=end_at_human_readable,)
- 
+                        end_at_human_readable=end_at_human_readable,
+                        last_run_at=start_at,
+                        last_run_at_human_readable=start_at_human_readable,)
+
         db.session.add(new_report)
         db.session.commit()
         log.info(f'{current_user.username.upper()} - successfully generated report {new_report.report_id}: {name}.')
