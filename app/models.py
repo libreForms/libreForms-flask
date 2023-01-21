@@ -116,7 +116,7 @@ class Signing(db.Model):
 
 class Report(db.Model):
     __tablename__ = 'report'
-    report_id = db.Column(db.Integer, primary_key=True) 
+    report_id = db.Column(db.String, primary_key=True) 
     # user_id = db.Column(db.Integer) 
     user_id = db.Column(db.Integer, db.ForeignKey('user.id')) # we link the report to the user_id of the user who created to report
     name = db.Column(db.String(100))

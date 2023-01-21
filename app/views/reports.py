@@ -21,6 +21,7 @@ from markupsafe import Markup
 import libreforms
 from app.views.forms import form_menu, checkFormGroup
 from app.views.auth import login_required
+from app.signing import generate_key
 from app.models import Report
 from app import config, log, mongodb, mailer, config, db
 
@@ -38,8 +39,16 @@ def get_list_of_users_reports(id=None, db=db):
 
 # this method is based heavily on our approach in app.signing.write_key_to_db.
 def write_report_to_db(name=None, form_name=None, filters=None, frequency=None, active=1, start_at=None, end_at=None, id=None, db=db, current_user=None):
+    
+    #  here we are generating a random string to use as the key of the
+    # new report... but first we need to verify it doesn't already exist. 
+    while True:
+        report_id = generate_key(length=config['signing_key_length'])
+        if not Report.query.filter_by(report_id=report_id).first(): break
+   
     try:
         new_report =  Report(
+                        report_id = report_id,
                         user_id = id,
                         name = name,
                         form_name = form_name,
@@ -56,7 +65,8 @@ def write_report_to_db(name=None, form_name=None, filters=None, frequency=None, 
 
         # we return the report_id after the commit is done. For more on how commits 
         # work and return committed_id, see https://stackoverflow.com/a/4202016/13301284.
-        return new_report.report_id 
+        # return new_report.report_id
+        return report_id 
 
     except Exception as e:
         log.warning(f'{current_user.username.upper()} - failed to generate report: {e}.')
