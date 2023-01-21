@@ -115,42 +115,13 @@
         </div>
 
   {% block addons %}{% endblock %}
-
-    <div class="offcanvas offcanvas-bottom"  style="z-index:999998 !important;" tabindex="-1" id="templateHelp" aria-labelledby="templateHelpLabel">
-      <div class="offcanvas-header">
-        <h5 class="offcanvas-title" id="templateHelpLabel">Using CSV Templates</h5>
-        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-      </div>
-      <div class="offcanvas-body">
-        <div>
-          <p>By clicking this link, your browser should download a CSV file with columns names corresponding to the fields in this form.</p>
-          <p>You can populate multiple rows of this CSV, each row corresponding to a different, unique submission of this form.</p>
-        </div>
-      </div>
-    </div>
-    <div class="offcanvas offcanvas-bottom"  style="z-index:999998 !important;" tabindex="-1" id="filterHelp" aria-labelledby="filterHelpLabel">
-      <div class="offcanvas-header">
-        <h5 class="offcanvas-title" id="filterHelpLabel">Using Report Filters</h5>
-        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-      </div>
-      <div class="offcanvas-body">
-        <div>
-          <p>Report filters are used to fliter results that will be captured by each report, using comma-separated conditions. These conditions should employ standard Python operators, see https://www.w3schools.com/python/python_operators.asp.</p>
-          <h6>Examples</h6>
-          <ul>
-            <li><code>Team_Name in ['Budget', 'Marketing'],</code></li>
-            <li><code>Proposed_Cost > 1000000,</code></li>
-            <li><code>Owner = 'john.smith',</code></li>
-          </ul>
-        </div>
-      </div>
-    </div>
     
     <script>
       var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
       var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
         return new bootstrap.Tooltip(tooltipTriggerEl)
       })
+      {% block js %}{% endblock %}
     </script>
   </body>
 </html>
