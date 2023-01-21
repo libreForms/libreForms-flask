@@ -51,6 +51,11 @@
       <td>{{ report.end_at_human_readable }}</td>
     </tr>
 
+    <tr class="table{% if emphasize and item in emphasize %}{{'-secondary' if dark_mode else '-primary'}}{% else %}{{'-dark' if dark_mode else '-transparent'}}{% endif %}">
+      <th scope="row">Last Run</th>
+      <td>{{ report.last_run_at_human_readable }}</td>
+    </tr>
+
   </tbody>
 </table>
 
