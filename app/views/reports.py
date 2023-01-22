@@ -116,6 +116,9 @@ def create_reports(form_name):
     if form_name not in libreforms.forms.keys():
         return abort(404)
 
+    # here we limit access to those who have access to forms; we may also need to add
+    # checks against `_submissions` in forms.propagate_form_configs... See discussion at
+    # https://github.com/libreForms/libreForms-flask/issues/215.
     if not checkGroup(group=current_user.group, struct=propagate_form_configs(form_name)):
         flash(f'You do not have access to make requests for this form. ')
         return redirect(url_for('reports.reports'))
