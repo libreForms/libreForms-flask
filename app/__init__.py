@@ -129,11 +129,16 @@ if config['custom_sql_db'] == True:
 # called smtp_crds in the config folder but, if we can't find it, we
 # check for defaults
 if config['smtp_enabled']: # we should do something with this later on
+
+    # The method of using an SMTP credentials file is tentatively marked for 
+    # deprecation in a future version of this application, see discussion at
+    # https://github.com/libreForms/libreForms-flask/issues/217. 
     if os.path.exists (os.path.join(config['config_folder'], 'smtp_creds')):
-        log.info(f"LIBREFORMS - found an SMTP credentials file at config/smtp_creds.")
+        log.info(f"LIBREFORMS - found an SMTP credentials file at {os.path.join(config['config_folder'], 'smtp_creds')}.")
         smtp_creds = pd.read_csv(os.path.join(config['config_folder'], 'smtp_creds'), dtype=str) # expecting the CSV format: smtp_server,port,username,password,from_address
 
-        #  We assign the newly found values to the corresponding config ...
+        # We assign the newly found values to the corresponding config, see discussion at
+        # https://github.com/libreForms/libreForms-flask/issues/216.
         config['smtp_mail_server'] = smtp_creds.mail_server[0]
         config['smtp_port'] = smtp_creds.port[0]
         config['smtp_username'] = smtp_creds.username[0]
