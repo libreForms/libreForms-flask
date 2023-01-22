@@ -143,6 +143,7 @@ def create_reports(form_name):
             type="reports",
             config=config,
             user=current_user,
+            lint_filters=lint_filters,
             menu=form_menu(checkFormGroup),
         ) 
 
@@ -335,11 +336,13 @@ def send_report(report_id):
 
 @bp.route(f'/lint', methods=['GET', 'POST'])
 @login_required
-def lint_filters():
+def view_lint_filters():
 
     if request.method == 'POST':
+        # print(request)
 
-        string = request.form['string']
+        string = request.json['string']
+        # print(string)
 
         if lint_filters(string):
             return Response(json.dumps({'status':'success'}), status=config['success_code'], mimetype='application/json')

@@ -19,7 +19,9 @@
 
     <div class="form-group">
       <label class="form-label mt-4 required" for="filters" data-bs-toggle="tooltip" data-bs-placement="right" title="Enter any filters you want to apply (300 chars max)">Filters</label><span data-bs-toggle="tooltip" data-bs-placement="right" title="Click me for help"><button class="btn btn-link btn-sm" type="button" data-bs-toggle="offcanvas" data-bs-target="#filterHelp" aria-controls="filterHelp">(?)</button></span>
-      <textarea class="form-control" rows="3" id="filters" name="filters" maxlength="300" onchange = "validateFilter(this.form.filters.value);" onkeypress = "this.onchange();" onpaste = "this.onchange();" oninput = "this.onchange();" required>{{ report.filters if report else ''}}</textarea>
+      <textarea class="form-control" rows="3" id="filters" name="filters" maxlength="300" onchange = "validateFilter(this.form.filters.value);" required>{{ report.filters if report else ''}}</textarea>
+      <div class="valid-feedback">These filters are valid!</div>
+      <div class="invalid-feedback">These filters are invalid! Click the (?) above for more information.</div>    
     </div>
 
     <div class="form-group">
@@ -49,7 +51,6 @@
   </fieldset>
 </form> 
 
-
 {% if msg %}
 
   {{ msg }}
@@ -78,5 +79,38 @@
     </div>
   </div>
 </div>
+
+
+{% endblock %}
+
+{% block js %}
+
+
+async function validateFilter(s) {
+
+  const foo = document.getElementById("filters")
+
+  let payload = {
+    string: s
+  };
+
+  let response = await fetch('{{ url_for ('reports.view_lint_filters') }}', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json;charset=utf-8'
+    },
+    body: JSON.stringify(payload)
+  });
+  
+  let result = await response.json();
+
+  if (result['status'] == 'success') {
+    foo.classList.remove("is-invalid")
+    foo.classList.add("is-valid")
+  } else {
+    foo.classList.add("is-invalid")
+    foo.classList.remove("is-valid")
+  }
+}
 
 {% endblock %}

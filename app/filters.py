@@ -39,5 +39,5 @@ def validate_filters():
     return True
 
 
-def lint_filters(string):
+def lint_filters(*args, **kwargs):
     return True
