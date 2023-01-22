@@ -125,22 +125,45 @@ if config['custom_sql_db'] == True:
 
 
 # here we start up the SMTP `mailer` object that we'll propagate like the 
-# log object above and use to send mail
+# log object above and use to send mail. We prioritize looking for a file
+# called smtp_crds in the config folder but, if we can't find it, we
+# check for defaults
 if config['smtp_enabled']: # we should do something with this later on
     if os.path.exists (os.path.join(config['config_folder'], 'smtp_creds')):
+        log.info(f"LIBREFORMS - found an SMTP credentials file at config/smtp_creds.")
         smtp_creds = pd.read_csv(os.path.join(config['config_folder'], 'smtp_creds'), dtype=str) # expecting the CSV format: smtp_server,port,username,password,from_address
-        log.info(f'LIBREFORMS - found an SMTP credentials file using {smtp_creds.mail_server[0]}.')
 
-        mailer = Mailer(mail_server=smtp_creds.mail_server[0],
-                            port = smtp_creds.port[0],
-                            username = smtp_creds.username[0],
-                            password = smtp_creds.password[0],
-                            from_address = smtp_creds.from_address[0])
+        #  We assign the newly found values to the corresponding config ...
+        config['smtp_mail_server'] = smtp_creds.mail_server[0]
+        config['smtp_port'] = smtp_creds.port[0]
+        config['smtp_username'] = smtp_creds.username[0]
+        config['smtp_password'] = smtp_creds.password[0]
+        config['smtp_from_address'] = smtp_creds.from_address[0]
+
+    try:
+
+        log.info(f"LIBREFORMS - trying to connect to the following SMTP server {config['smtp_mail_server']}.")
+
+        # now we assert that these values are not None, which is their default value.
+        assert config['smtp_mail_server'] is not None
+        assert config['smtp_port'] is not None
+        assert config['smtp_username'] is not None
+        assert config['smtp_password'] is not None
+        assert config['smtp_from_address'] is not None
+
+        # and then we establish the connection and send an email synchronously
+        mailer = Mailer(mail_server=config['smtp_mail_server'],
+                            port = config['smtp_port'],
+                            username = config['smtp_username'],
+                            password = config['smtp_password'],
+                            from_address = config['smtp_from_address'])
+
         mailer.send_mail(subject=f"{config['site_name']} online", content=f"{config['site_name']} is now online at {config['domain']}.", to_address=config['libreforms_user_email'], logfile=log)
-    else: 
-        log.error('LIBREFORMS - no SMTP credentials file found, outgoing mail will not be enabled.')
+    
+    except Exception as e:
+        log.error(f'LIBREFORMS - unable to connect to SMTP server, outgoing mail will not be enabled. {e}')
         # I think we need to stop the system here if we are trying to enable SMTP but no creds have been provided
-        raise Exception("SMTP is enabled but no SMTP credentials have been provided. Please see the documentation at https://github.com/signebedi/libreForms#mail for more details.")
+        raise Exception(f"SMTP is enabled but could not connect. This may be because no SMTP credentials have been provided. Please see the documentation at https://libreforms.readthedocs.io/en/latest/#mail for more details. {e}")
 else:
     # we want the mailer object to exist still but by passing `enabled` to False we 
     # prevent mail from being sent
