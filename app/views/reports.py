@@ -19,7 +19,7 @@ from markupsafe import Markup
 
 # import custom packages from the current repository
 import libreforms
-from app.views.forms import form_menu, checkFormGroup
+from app.views.forms import form_menu, checkFormGroup, propagate_form_configs, checkGroup
 from app.views.auth import login_required
 from app.signing import generate_key
 from app.models import Report
@@ -34,6 +34,10 @@ import pandas as pd
 import json
 
 
+
+# by limiting this to User ID, we limit the records that a user
+# will see only to forms they've created. You can add add'l 
+# filters using **kwargs 
 def get_list_of_users_reports(id=None, db=db, **kwargs):
     with db.engine.connect() as conn:
         return db.session.query(Report).filter_by(user_id=id,**kwargs).all()
@@ -111,6 +115,10 @@ def create_reports(form_name):
 
     if form_name not in libreforms.forms.keys():
         return abort(404)
+
+    if not checkGroup(group=current_user.group, struct=propagate_form_configs(form_name)):
+        flash(f'You do not have access to make requests for this form. ')
+        return redirect(url_for('reports.reports'))
 
 
     if request.method == 'POST':
