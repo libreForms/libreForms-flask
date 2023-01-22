@@ -9,21 +9,9 @@ users to configure and manage. It implements this on top of its own
 database table and allows administrators to define complex behavior.
 
 
-# Reports database
+# Reports table
 
-
-class Report(db.Model):
-    __tablename__ = 'report'
-    report_id = db.Column(db.Integer, primary_key=True) 
-    user_id = db.Column(db.Integer) # we link the report to the user_id of the user who created to report
-    name = db.Column(db.String(100))
-    filters = db.Column(db.String(100))
-    frequency = db.Column(db.String(100))
-    active = db.Column(db.Boolean)
-    timestamp = db.Column(db.Float)
-    start_at = db.Column(db.Float) # this is an optional timestamp for when we'd like this report to go into effect
-    end_at = db.Column(db.Float) # this is an optional timestamp for when we'd like this report to stop sending / expire (set `active` > False)
-
+The reports table is defined in app.models.
 
 This largely responds to the anticipated user experience. We want 
 users to be able to define some complex reort behavior in the UI,
@@ -34,7 +22,25 @@ presuming admins have enabled the correct display variables:
     `user_defined_reports` > True or False
 
 
-# Scheduling
+# Scheduling / Send Intervals
+
+There are a couple ways to deal with the issue of send intervals, which we discuss
+further at https://github.com/libreForms/libreForms-flask/issues/218.
+frequency of emails
+    daily
+    hourly
+    weekly
+    monthly
+    annually 
+time range applied to, relative to the time of the report
+    start time
+    end time
+    ### OR ###
+    last week
+    last month
+    last year
+    last hour
+    all time
 
 
 # Methods
@@ -60,23 +66,14 @@ __license__ = "AGPL-3.0"
 __maintainer__ = "Sig Janoska-Bedi"
 __email__ = "signe@atreeus.com"
 
-
-# frequency of emails
-    # daily
-    # hourly
-    # weekly
-    # monthly
-    # annually 
-# time range applied to, relative to the time of the report
-    # start time
-    # end time
-    ### OR ###
-    # last week
-    # last month
-    # last year
-    # last hour
-    # all time
     
+time_map = {
+    'hourly': 3600,
+    'daily': 86400,
+    'weekly': 604800,
+    'monthly': 2592000, # this we map to 30 days, though this may have problems...
+    'annually': 31536000,
+}
 # form applied to
     # select option from current forms you have view access for
 

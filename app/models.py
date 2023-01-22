@@ -69,6 +69,8 @@ and assessed by application logic. The `timestamp` stores the time the report
 is created, while `start_at` and `end_at` are two optional fields that, if 
 specified, will tailor when the reports start and stop sending. The `active`
 field will determine whether the report is actively sending or disabled.
+The `last_run_at` field captures the date that the report was last run. There
+are human readable copies of the timestamps to avoid needing add'l app logic.
 
 """
 
