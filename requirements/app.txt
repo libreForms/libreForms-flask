@@ -9,4 +9,3 @@ plotly==5.11.0
 pymongo==4.3.3
 reportlab==3.6.12
 webargs==8.2.0
-Werkzeug==2.2.2
