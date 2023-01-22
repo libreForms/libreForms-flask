@@ -114,6 +114,20 @@ config['debug'] = False
 config['smtp_enabled'] = True
 config['ldap_enabled'] = False
 
+
+# these configurations are used to capture the SMTP credentials for the 
+# application's outgoing mail server. There are two ways that these creds
+# can be provided. First, by creating a file at config/smtp_creds, which
+# expects a CSV format: smtp_server,port,username,password,from_address
+# followed by a single row of comma-separated values. Second, you can 
+# override these values in the config_overrides file.
+config['smtp_mail_server'] = None 
+config['smtp_port'] = None 
+config['smtp_username'] = None 
+config['smtp_password'] = None 
+config['smtp_from_address'] = None 
+
+
 # setting some celery configurations here to give a single place for admins 
 # to make modifications to the default broker and backend; both of which default 
 # to rabbit-mq but can easily be changed to use redis by switching both values 
