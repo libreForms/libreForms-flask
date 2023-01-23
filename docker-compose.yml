@@ -56,7 +56,7 @@ services:
 
   rabbitmq:
     image: rabbitmq:3-management
-    container_name: mongo
+    container_name: rabbitmq
     restart: always
     ports:
         - "5672:5672"
