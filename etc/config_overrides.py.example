@@ -2,7 +2,7 @@ import os
 
 config = {
     'domain': os.environ['LIBREFORMS_DOMAIN'], # this needs to be configured to work correctly
-    'libreforms_user_email': 'libreforms@example.com',
+    'libreforms_user_email': os.environ['LIBREFORMS_USER_EMAIL'],
     'smtp_enabled': True if os.environ['SMTP_ENABLED'] == 'True' else False,
     'smtp_mail_server':os.environ['SMTP_MAIL_SERVER'],
     'smtp_port':os.environ['SMTP_PORT'],
@@ -15,5 +15,6 @@ config = {
     'mongodb_user':os.environ['MONGODB_USERNAME'],
     'mongodb_host':os.environ['MONGODB_HOSTNAME'],
     'mongodb_pw':os.environ['MONGODB_PASSWORD'],
-
+    'celery_broker':os.environ['CELERY_BROKER'],
+    'celery_backend':os.environ['CELERY_BACKEND'],
 }

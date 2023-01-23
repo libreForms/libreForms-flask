@@ -20,19 +20,45 @@ services:
       - docker:/libreForms
     depends_on:
       -  mongo
-    environment:
-      LIBREFORMS_DOMAIN: http://0.0.0.0:8000
-      LIBREFORMS_USER_EMAIL:
-      SMTP_ENABLED:
-      SMTP_MAIL_SERVER:
-      SMTP_PORT:
-      SMTP_USERNAME:
-      SMTP_PASSWORD:
-      SMTP_FROM_ADDRESS:      
-      MONGODB_USERNAME: 
-      MONGODB_PASSWORD: 
-      MONGODB_HOSTNAME: mongo
     command: gunicorn 'app:create_app()' --config etc/gunicorn.conf.py
+    networks: 
+    - services
+
+  celery:
+    container_name: libreforms
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    volumes:
+      - docker:/libreForms
+    depends_on:
+      -  rabbitmq
+    command: celery -A celeryd.celery worker --loglevel=info
+    networks: 
+    - services
+
+  celerybeat:
+    container_name: libreforms
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    volumes:
+      - docker:/libreForms
+    depends_on:
+      -  rabbitmq
+    command: celery -A celeryd.celery beat --loglevel=info
+    networks: 
+    - services
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: mongo
+    restart: always
+    ports:
+        - "5672:5672"
+        - "15672:15672"
     networks: 
     - services
 
