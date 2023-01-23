@@ -1,0 +1,36 @@
+version: '3'
+
+# need to add celery and celerybeat services
+services:
+
+  libreforms:
+    env_file: libreforms-docker.env
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - '8000:8000'
+    healthcheck:
+      test: ["CMD-SHELL", "curl --silent --fail localhost:8000/health/alive || exit 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 3
+    volumes:
+      - docker:/libreForms
+    depends_on:
+      -  mongo
+    environment:
+      LIBREFORMS_DOMAIN: ${LIBREFORMS_DOMAIN}
+    command: gunicorn 'app:create_app() --config etc/gunicorn.conf.py'
+
+  mongo:
+    image: mongo:6.0.3
+    ports:
+      - 27017:27017
+    volumes:
+      - 'mongo:/data/db'
+
+volumes:
+  mongo:
+  docker:
