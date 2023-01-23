@@ -22,8 +22,8 @@ services:
       -  mongo
     environment:
       LIBREFORMS_DOMAIN: http://0.0.0.0:8000
-      MONGODB_USERNAME: libre
-      MONGODB_PASSWORD: password
+      MONGODB_USERNAME: 
+      MONGODB_PASSWORD: 
       MONGODB_HOSTNAME: mongodb
     command: gunicorn 'app:create_app()' --config etc/gunicorn.conf.py
     networks: 
@@ -34,9 +34,9 @@ services:
     container_name: mongodb
     restart: always
     environment:
-      MONGO_INITDB_ROOT_USERNAME: libre
-      MONGO_INITDB_ROOT_PASSWORD: password
-      MONGO_INITDB_DATABASE: libreforms
+      # MONGO_INITDB_ROOT_USERNAME: libre
+      # MONGO_INITDB_ROOT_PASSWORD: password
+      # MONGO_INITDB_DATABASE: admin
       MONGODB_DATA_DIR: /data/db
       MONDODB_LOG_DIR: /dev/null
     ports:
