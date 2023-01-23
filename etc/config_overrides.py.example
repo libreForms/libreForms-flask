@@ -1,0 +1,11 @@
+import os
+
+config = {
+    'domain': os.environ['LIBREFORMS_DOMAIN'], # this needs to be configured to work correctly
+    'libreforms_user_email': 'libreforms@example.com',
+    'smtp_enabled': False,
+    'enable_email_verification': False,
+    'send_reports': False,
+    'allow_password_resets': False,
+    'allow_anonymous_form_submissions': False,
+}
