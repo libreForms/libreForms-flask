@@ -162,7 +162,7 @@ class MongoDB:
     def collections(self):
         with MongoClient(host=self.host, port=self.port) if not self.dbpw else MongoClient(self.connection_string) as client:
             db = client['libreforms']
-            
+
             collections = db.list_collection_names()
 
             return collections
