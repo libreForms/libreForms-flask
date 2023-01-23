@@ -4,7 +4,7 @@ version: '3'
 services:
 
   libreforms:
-    env_file: libreforms-docker.env
+    container_name: libreforms
     build:
       context: .
       dockerfile: Dockerfile
@@ -21,16 +21,36 @@ services:
     depends_on:
       -  mongo
     environment:
-      LIBREFORMS_DOMAIN: ${LIBREFORMS_DOMAIN}
+      LIBREFORMS_DOMAIN: http://0.0.0.0:8000
+      MONGODB_USERNAME: libre
+      MONGODB_PASSWORD: password
+      MONGODB_HOSTNAME: mongodb
     command: gunicorn 'app:create_app() --config etc/gunicorn.conf.py'
+    networks: 
+    - services
 
   mongo:
     image: mongo:6.0.3
+    container_name: mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: libre
+      MONGO_INITDB_ROOT_PASSWORD: password
+      MONGO_INITDB_DATABASE: libreforms
+      MONGODB_DATA_DIR: /data/db
+      MONDODB_LOG_DIR: /dev/null
     ports:
       - 27017:27017
     volumes:
       - 'mongo:/data/db'
+    networks: 
+    - services
+
+networks:
+  services:
+    driver: bridge
 
 volumes:
   mongo:
+    driver: local
   docker:
+    driver: local

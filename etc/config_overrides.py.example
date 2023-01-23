@@ -8,4 +8,7 @@ config = {
     'send_reports': False,
     'allow_password_resets': False,
     'allow_anonymous_form_submissions': False,
+    'mongodb_user':os.environ['MONGODB_USERNAME'],
+    'mongodb_host':os.environ['MONGODB_HOSTNAME'],
+    'mongodb_pw':os.environ['MONGODB_PASSWORD'],
 }
