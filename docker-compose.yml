@@ -1,10 +1,10 @@
 version: '3'
 
-# need to add celery and celerybeat services
 services:
 
   libreforms:
     container_name: libreforms
+    env_file: docker.env
     build:
       context: .
       dockerfile: Dockerfile
@@ -25,7 +25,8 @@ services:
     - services
 
   celery:
-    container_name: libreforms
+    container_name: celery
+    env_file: docker.env
     build:
       context: .
       dockerfile: Dockerfile
@@ -39,7 +40,8 @@ services:
     - services
 
   celerybeat:
-    container_name: libreforms
+    container_name: celerybeat
+    env_file: docker.env
     build:
       context: .
       dockerfile: Dockerfile
