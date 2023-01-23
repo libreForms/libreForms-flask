@@ -104,7 +104,7 @@ connections to the database.
     @contextlib.contextmanager
     def make_connection(self, *args, **kwargs):
         try:
-            client = MongoClient(host=self.host, port=self.port) if not self.dbpw else MongoClient(f'mongodb://{self.user}:{self.dbpw}@{self.host}:{str(self.port)}/?authSource=admin&retryWrites=true&w=majority')
+            client = MongoClient(host=self.host, port=self.port) if not self.dbpw else MongoClient(self.connection_string)
             yield client
         finally:
             client.close()
@@ -156,10 +156,11 @@ class MongoDB:
         else:
             self.dbpw=dbpw
 
+        self.connection_string = f'mongodb://{self.user}:{self.dbpw}@{self.host}:{str(self.port)}/?authSource=admin&retryWrites=true&w=majority'
         # print(self.dbpw)
 
     def collections(self):
-        with MongoClient(host=self.host, port=self.port) if not self.dbpw else MongoClient(f'mongodb://{self.user}:{self.dbpw}@{self.host}:{str(self.port)}/?authSource=admin&retryWrites=true&w=majority') as client:
+        with MongoClient(host=self.host, port=self.port) if not self.dbpw else MongoClient(self.connection_string) as client:
             db = client['libreforms']
             
             collections = db.list_collection_names()
@@ -190,7 +191,7 @@ class MongoDB:
         # to solve `connection paused` errors when in a forked
         # evironment, we connect and close after each write,
         # see https://github.com/signebedi/libreForms/issues/128        
-        with MongoClient(host=self.host, port=self.port) if not self.dbpw else MongoClient(f'mongodb://{self.user}:{self.dbpw}@{self.host}:{str(self.port)}/?authSource=admin&retryWrites=true&w=majority') as client:
+        with MongoClient(host=self.host, port=self.port) if not self.dbpw else MongoClient(self.connection_string) as client:
             db = client['libreforms']
 
             collection = db[collection_name]
@@ -344,7 +345,7 @@ class MongoDB:
 
 
     def read_documents_from_collection(self, collection_name):
-        with MongoClient(host=self.host, port=self.port) if not self.dbpw else MongoClient(f'mongodb://{self.user}:{self.dbpw}@{self.host}:{str(self.port)}/?authSource=admin&retryWrites=true&w=majority') as client:
+        with MongoClient(host=self.host, port=self.port) if not self.dbpw else MongoClient(self.connection_string) as client:
             db = client['libreforms']
 
             collection = db[collection_name]
@@ -352,7 +353,7 @@ class MongoDB:
 
 
     def is_document_in_collection(self, collection_name, document_id):
-        with MongoClient(host=self.host, port=self.port) if not self.dbpw else MongoClient(f'mongodb://{self.user}:{self.dbpw}@{self.host}:{str(self.port)}/?authSource=admin&retryWrites=true&w=majority') as client:
+        with MongoClient(host=self.host, port=self.port) if not self.dbpw else MongoClient(self.connection_string) as client:
             db = client['libreforms']
 
             # if the collection doesn't exist, return false
@@ -375,7 +376,7 @@ class MongoDB:
 
     def check_connection(self):
         try:
-            with MongoClient(host=self.host, port=self.port) if not self.dbpw else MongoClient(f'mongodb://{self.user}:{self.dbpw}@{self.host}:{str(self.port)}/?authSource=admin&retryWrites=true&w=majority') as client:
+            with MongoClient(host=self.host, port=self.port) if not self.dbpw else MongoClient(self.connection_string) as client:
                 return True
         except Exception as e: 
             return False
