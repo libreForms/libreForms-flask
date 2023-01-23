@@ -22,6 +22,7 @@ services:
       -  mongo
     environment:
       LIBREFORMS_DOMAIN: http://0.0.0.0:8000
+      LIBREFORMS_USER_EMAIL:
       SMTP_ENABLED:
       SMTP_MAIL_SERVER:
       SMTP_PORT:
