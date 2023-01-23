@@ -156,7 +156,7 @@ class MongoDB:
         else:
             self.dbpw=dbpw
 
-        self.connection_string = f'mongodb://{self.user}:{self.dbpw}@{self.host}:{str(self.port)}/?authSource=admin&retryWrites=true&w=majority'
+        self.connection_string = f'mongodb://{self.user}{":"+self.dbpw if self.dbpw else ""}{"@"+self.host if self.user else self.host}:{str(self.port)}/?authSource=admin&retryWrites=true&w=majority'
         # print(self.dbpw)
 
     def collections(self):
