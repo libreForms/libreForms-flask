@@ -122,6 +122,7 @@ with something more like:
 
 # with MongoClient(host=self.host, port=self.port) if not self.dbpw else MongoClient(f'mongodb://{self.user}:{self.dbpw}@{self.host}:{str(self.port)}{"/?authSource=admin&retryWrites=true&w=majority" if self.dbpw not in [None, ""] else ""}') as client:
 
+Then again, it might just be a problem with this: https://stackoverflow.com/a/34711892/13301284.
 
 """
 

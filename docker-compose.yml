@@ -31,14 +31,14 @@ services:
       SMTP_FROM_ADDRESS:      
       MONGODB_USERNAME: 
       MONGODB_PASSWORD: 
-      MONGODB_HOSTNAME: mongodb
+      MONGODB_HOSTNAME: mongo
     command: gunicorn 'app:create_app()' --config etc/gunicorn.conf.py
     networks: 
     - services
 
   mongo:
     image: mongo:6.0.3
-    container_name: mongodb
+    container_name: mongo
     restart: always
     environment:
       # MONGO_INITDB_ROOT_USERNAME: libre
