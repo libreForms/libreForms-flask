@@ -111,6 +111,18 @@ connections to the database.
 
 
 
+# Errors
+
+We've been noticing some `connection refused` errors in different environments. This might be 
+due to the authentication string we're using. We should consider switching out:
+
+# with MongoClient(host=self.host, port=self.port) if not self.dbpw else MongoClient(f'mongodb://{self.user}:{self.dbpw}@{self.host}:{str(self.port)}/?authSource=admin&retryWrites=true&w=majority') as client:
+
+with something more like:
+
+# with MongoClient(host=self.host, port=self.port) if not self.dbpw else MongoClient(f'mongodb://{self.user}:{self.dbpw}@{self.host}:{str(self.port)}{"/?authSource=admin&retryWrites=true&w=majority" if self.dbpw not in [None, ""] else ""}') as client:
+
+
 """
 
 __name__ = "app.mongo"
