@@ -628,7 +628,6 @@ def render_document(form_name, document_id):
             # is generally not intended to be visible
             record.drop(columns=['Metadata'], inplace=True)
 
-
             msg = Markup(f"<a href = '{config['domain']}/submissions/{form_name}/{document_id}/history'>view document history</a>")
 
             # print (current_user.username)

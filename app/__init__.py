@@ -30,11 +30,11 @@ __email__ = "signe@atreeus.com"
 ##########################
 
 # basic dependencies
-import os, re
+import os, re, json
 import pandas as pd
 
 # Flask-specific dependencies
-from flask import Flask, render_template, current_app, jsonify, request, abort
+from flask import Flask, render_template, current_app, jsonify, request, abort, Response
 from flask_login import LoginManager, current_user
 from werkzeug.middleware.proxy_fix import ProxyFix
 from celery import Celery
@@ -350,6 +350,32 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
         # add Elasticsearch client to app object
         app.elasticsearch = connections.get_connection()
 
+    @app.route('/search/index/', methods=['POST'])
+    def index_search_engine():
+        if request.method == 'POST':
+            # print(request)
+
+            try:
+                # expects data to be formulated as follows:
+                # data = {
+                #     'url': url_for('submissions.render_document', form_name=form_name, document_id=document_id), 
+                #     'title': document_id,
+                #     'content': render_template('app/index_friendly_submissions.html' ...) 
+                #     'page_id': document_id
+                # }
+
+                page_id = request.json['page_id']
+                data = request.json['data']
+
+                app.elasticsearch.index(index="pages", id=page_id, body=data)
+                return Response(json.dumps({'status':'success'}), status=config['success_code'], mimetype='application/json')
+
+            except:
+                return Response(json.dumps({'status':'failure'}), status=config['error_code'], mimetype='application/json')
+
+    return abort(404)
+
+
 
 
     # here we employ some Flask-Login boilerplate to make 
@@ -363,21 +389,22 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
         return User.query.get(int(id))  
 
 
-    # create a task status endpoint
-    @app.route('/status/<task_id>', methods=['GET'])
-    def taskstatus(task_id=None):
-        try:
-            task = celery.AsyncResult(task_id)
-            response = {
-                'state': task.state,
-            }
-            return jsonify(response)
-        except :
-            return abort(404)
-
     ##########################
     # Routes and Blueprints - define default URL routes and import others from blueprints
     ##########################
+
+    # # create a task status endpoint
+    # @app.route('/status/<task_id>', methods=['GET'])
+    # def taskstatus(task_id=None):
+    #     try:
+    #         task = celery.AsyncResult(task_id)
+    #         response = {
+    #             'state': task.state,
+    #         }
+    #         return jsonify(response)
+    #     except :
+    #         return abort(404)
+
 
     # define a home route
     @app.route('/')
