@@ -597,8 +597,8 @@ def render_document(form_name, document_id):
                     record['Signature'].iloc[0] = set_digital_signature(username=record['Owner'].iloc[0],
                                                                         encrypted_string=record['Signature'].iloc[0], 
                                                                         base_string=config['signature_key'],
-                                                                        ip=dict(list(dict(record['Metadata']).values())[0])['signature_ip'] if 'signature_ip' in dict(list(dict(record['Metadata']).values())[0])else None,
-                                                                        timestamp=dict(list(dict(record['Metadata']).values())[0])['signature_timestamp'] if 'signature_timestamp' in dict(list(dict(record['Metadata']).values())[0])else None,)
+                                                                        ip=dict(list(dict(record['Metadata']).values())[0])['signature_ip'] if 'Metadata' in record.columns and 'signature_ip' in dict(list(dict(record['Metadata']).values())[0])else None,
+                                                                        timestamp=dict(list(dict(record['Metadata']).values())[0])['signature_timestamp'] if 'Metadata' in record.columns and 'signature_timestamp' in dict(list(dict(record['Metadata']).values())[0])else None,)
                 else:
                     record.drop(columns=['Signature'], inplace=True)
 
@@ -732,8 +732,8 @@ def render_document_history(form_name, document_id):
                     display_data['Signature'].iloc[0] = set_digital_signature(username=display_data['Owner'].iloc[0],
                                                                                 encrypted_string=display_data['Signature'].iloc[0], 
                                                                                 base_string=config['signature_key'],
-                                                                                ip=dict(list(dict(record['Metadata']).values())[0])['signature_ip'] if 'signature_ip' in dict(list(dict(record['Metadata']).values())[0])else None,
-                                                                                timestamp=dict(list(dict(record['Metadata']).values())[0])['signature_timestamp'] if 'signature_timestamp' in dict(list(dict(record['Metadata']).values())[0])else None,)
+                                                                                ip=dict(list(dict(record['Metadata']).values())[0])['signature_ip'] if 'Metadata' in record.columns and 'signature_ip' in dict(list(dict(record['Metadata']).values())[0])else None,
+                                                                                timestamp=dict(list(dict(record['Metadata']).values())[0])['signature_timestamp'] if 'Metadata' in record.columns and 'signature_timestamp' in dict(list(dict(record['Metadata']).values())[0])else None,)
 
             # Added signature verification, see https://github.com/signebedi/libreForms/issues/144    
             if 'Approval' in display_data.columns:
@@ -1069,8 +1069,8 @@ def review_document(form_name, document_id):
                 record['Signature'].iloc[0] = set_digital_signature(username=record['Owner'].iloc[0],
                                                                     encrypted_string=record['Signature'].iloc[0], 
                                                                     base_string=config['signature_key'],
-                                                                    ip=dict(list(dict(record['Metadata']).values())[0])['signature_ip'] if 'signature_ip' in dict(list(dict(record['Metadata']).values())[0])else None,
-                                                                    timestamp=dict(list(dict(record['Metadata']).values())[0])['signature_timestamp'] if 'signature_timestamp' in dict(list(dict(record['Metadata']).values())[0])else None,)
+                                                                    ip=dict(list(dict(record['Metadata']).values())[0])['signature_ip'] if 'Metadata' in record.columns and 'signature_ip' in dict(list(dict(record['Metadata']).values())[0])else None,
+                                                                    timestamp=dict(list(dict(record['Metadata']).values())[0])['signature_timestamp'] if 'Metadata' in record.columns and 'signature_timestamp' in dict(list(dict(record['Metadata']).values())[0])else None,)
         else:
                 record.drop(columns=['Signature'], inplace=True)
         # Added signature verification, see https://github.com/signebedi/libreForms/issues/144    
@@ -1180,8 +1180,8 @@ def generate_pdf(form_name, document_id):
                                                                         encrypted_string=record['Signature'].iloc[0], 
                                                                         base_string=config['signature_key'], 
                                                                         return_markup=False,
-                                                                        ip=dict(list(dict(record['Metadata']).values())[0])['signature_ip'] if 'signature_ip' in dict(list(dict(record['Metadata']).values())[0])else None,
-                                                                        timestamp=dict(list(dict(record['Metadata']).values())[0])['signature_timestamp'] if 'signature_timestamp' in dict(list(dict(record['Metadata']).values())[0])else None,)
+                                                                        ip=dict(list(dict(record['Metadata']).values())[0])['signature_ip'] if 'Metadata' in record.columns and 'signature_ip' in dict(list(dict(record['Metadata']).values())[0])else None,
+                                                                        timestamp=dict(list(dict(record['Metadata']).values())[0])['signature_timestamp'] if 'Metadata' in record.columns and 'signature_timestamp' in dict(list(dict(record['Metadata']).values())[0])else None,)
                 else:
                     record.drop(columns=['Signature'], inplace=True)
             
