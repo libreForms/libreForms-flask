@@ -71,7 +71,10 @@ specified, will tailor when the reports start and stop sending. The `active`
 field will determine whether the report is actively sending or disabled.
 The `last_run_at` field captures the date that the report was last run. There
 are human readable copies of the timestamps to avoid needing add'l app logic.
-
+The `type` field captures the types of forms we'd like to capture by the report; 
+those created/modified since the last run, those created since the beginning of 
+time, and those created in some static timeframe relative to the time the 
+report is generated.
 """
 
 __name__ = "app.models"
@@ -126,7 +129,7 @@ class Report(db.Model):
     filters = db.Column(db.String(1000))
     frequency = db.Column(db.Enum('hourly', 'daily', 'weekly', 'monthly', 'annually', 'manual'))
     type = db.Column(db.Enum('created_since_last_run', 'modified_since_last_run', 'created_all_time',
-                                'static_last_hour', 'static_last_day', 'static_last_month', 'static_last_hour', ))
+                                'static_last_hour', 'static_last_day', 'static_last_month', 'static_last_year'))
     active = db.Column(db.Boolean)
     timestamp = db.Column(db.Float)
     timestamp_human_readable = db.Column(db.String(100))
