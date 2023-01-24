@@ -124,7 +124,7 @@ class Report(db.Model):
     name = db.Column(db.String(100))
     form_name = db.Column(db.String(100))
     filters = db.Column(db.String(1000))
-    frequency = db.Column(db.Enum('hourly', 'daily', 'weekly', 'monthly', 'annually'))
+    frequency = db.Column(db.Enum('hourly', 'daily', 'weekly', 'monthly', 'annually', 'manual'))
     active = db.Column(db.Boolean)
     timestamp = db.Column(db.Float)
     timestamp_human_readable = db.Column(db.String(100))

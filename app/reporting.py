@@ -32,6 +32,7 @@ frequency of emails
     weekly
     monthly
     annually 
+    manual
 time range applied to, relative to the time of the report
     start time
     end time
