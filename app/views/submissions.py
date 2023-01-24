@@ -372,7 +372,7 @@ def render_all_submissions():
     
         else:
 
-            return render_template('app/submissions.html',
+            return render_template('submissions/submissions.html',
                 type="submissions",
                 name="all",
                 submission=record,
@@ -389,7 +389,7 @@ def render_all_submissions():
 @bp.route('/')
 @login_required
 def submissions_home():
-    return render_template('app/submissions.html', 
+    return render_template('submissions/submissions.html', 
             msg="Select a form from the left-hand menu to view past submissions.",
             notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
             name="Submissions",
@@ -446,7 +446,7 @@ def submissions(form_name):
 
             record['hyperlink'] = record.apply(lambda x: gen_hyperlink(x, form_name), axis=1)
 
-            return render_template('app/submissions.html',
+            return render_template('submissions/submissions.html',
                 type="submissions",
                 name=form_name,
                 submission=record,
@@ -474,7 +474,7 @@ def render_user_review(user):
         #         record = record.drop(record[record['form'] == form].index)
     
 
-        return render_template('app/submissions.html',
+        return render_template('submissions/submissions.html',
             type="submissions",
             notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
             name="review",
@@ -528,7 +528,7 @@ def render_user_submissions(user):
     
         else:
 
-            return render_template('app/submissions.html',
+            return render_template('submissions/submissions.html',
                 type="submissions",
                 notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
                 name="all",
@@ -642,7 +642,7 @@ def render_document(form_name, document_id):
             if propagate_form_configs(form_name)['_allow_pdf_download']:
                 msg = msg + Markup(f"<a href = '{config['domain']}/submissions/{form_name}/{document_id}/download'>download PDF</a>")
             
-            return render_template('app/submissions.html',
+            return render_template('submissions/submissions.html',
                 type="submissions",
                 name=form_name,
                 notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
@@ -787,7 +787,7 @@ def render_document_history(form_name, document_id):
             if propagate_form_configs(form_name)['_allow_pdf_download']:
                 msg = msg + Markup(f"<a href = '{config['domain']}/submissions/{form_name}/{document_id}/download'>download PDF</a>")
 
-            return render_template('app/submissions.html',
+            return render_template('submissions/submissions.html',
                 type="submissions",
                 name=form_name,
                 submission=display_data,
@@ -1107,7 +1107,7 @@ def review_document(form_name, document_id):
         # print (record['Reporter'].iloc[0])
 
 
-        return render_template('app/submissions.html',
+        return render_template('submissions/submissions.html',
             type="submissions",
             name=form_name,
             submission=record,

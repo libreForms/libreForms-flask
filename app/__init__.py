@@ -373,7 +373,7 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
             except:
                 return Response(json.dumps({'status':'failure'}), status=config['error_code'], mimetype='application/json')
 
-    return abort(404)
+        return abort(404)
 
 
 
