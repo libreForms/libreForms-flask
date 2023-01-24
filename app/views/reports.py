@@ -217,10 +217,10 @@ def modify_report(report_id):
     # which will be used to populate the fields with their previous values
     return render_template('reports/create_report.html', 
             notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
-            name=f"Modify report",
+            name=f"Modify {report.form_name} report",
             type="reports",
             config=config,
-            form_name=form_name,
+            form_name=report.form_name,
             user=current_user,
             report=report,
             menu=form_menu(checkFormGroup),
