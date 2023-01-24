@@ -193,11 +193,10 @@ pd.options.mode.chained_assignment = None
 
 # here we create the Flask app using the Factory pattern,
 # see https://flask.palletsprojects.com/en/2.2.x/patterns/appfactories/
-def create_app(test_config=None, celery_app=False):
+def create_app(test_config=None, celery_app=False, db_init_only=False):
  
     # create the app object
     app = Flask(__name__, instance_relative_config=True)
-
 
     # add some app configurations
     app.config.from_mapping(
@@ -228,39 +227,7 @@ def create_app(test_config=None, celery_app=False):
     # This should enable us to access the client IP address using request.remote_addr.
     app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1)
 
-    # here we update the celery object (which we originally 
-    # created outside the app context, see https://github.com/signebedi/libreForms/issues/73
-    # and https://blog.miguelgrinberg.com/post/celery-and-the-flask-application-factory-pattern
-    # for more explanation on this approach, which was driven by our use of the Flask factory 
-    # pattern, which uses create_app) with the configs passed in the app config under `CELERY_CONFIG`. 
-    celery.conf.update(app.config['CELERY_CONFIG'])
-
-    # to avoid circular import errors, we return the app here for the celery app context
-    if celery_app:
-        return app
-
-    # if test_config is None:
-    #     # load the instance config, if it exists, when not testing
-    #     app.config.from_pyfile('config.py', silent=True)
-    # else:
-    #     # load the test config if passed in
-    #     app.config.from_mapping(test_config)
-
-    # create instance, config, and uploads folder to store instance-specific, 
-    # configuration, and uploaded files.
-
-
-    # import any context-bound libraries
-    from app.action_needed import standardard_total_notifications
-    from app.reporting import reportManager
-
-
-    # this might be a little hackish, but we define a callable in app 
-    # config so we can easily figure out how many notifications a given
-    # user has at any given moment. I welcome feedback if there is a 
-    # better way to call a context-bound function from the current_app. 
-    app.config['NOTIFICATIONS'] = standardard_total_notifications
-
+    #  create any directories that haven't been created.
     try:
         os.makedirs(app.instance_path)
     except OSError:
@@ -274,10 +241,28 @@ def create_app(test_config=None, celery_app=False):
     except OSError:
         pass
 
-    # initialize hCaptcha object defined outside the app context, 
-    # but only if hCaptcha is enabled in the app config
-    if config['enable_hcaptcha']:
-        hcaptcha.init_app(app)
+    ##########################
+    # Configure Celery -- update the app to include the celery configurations
+    ##########################
+
+    # here we update the celery object (which we originally 
+    # created outside the app context, see https://github.com/signebedi/libreForms/issues/73
+    # and https://blog.miguelgrinberg.com/post/celery-and-the-flask-application-factory-pattern
+    # for more explanation on this approach, which was driven by our use of the Flask factory 
+    # pattern, which uses create_app) with the configs passed in the app config under `CELERY_CONFIG`. 
+    celery.conf.update(app.config['CELERY_CONFIG'])
+
+    # to avoid circular import errors, we return the app here for the celery app context
+    if celery_app:
+        return app
+
+
+    ##########################
+    # DB initialization -- initialize a context-bound db instance
+    ##########################
+
+    # initialize the database object defined outside the app context above
+    db.init_app(app=app)
 
 
     # This application allows adminstrators to define fields beyond the default fields set in app.models.
@@ -286,18 +271,16 @@ def create_app(test_config=None, celery_app=False):
     # here we append any additional fields described in the `user_registration_fields` app config
     for key, value in config['user_registration_fields'].items():
 
+        # print(key, value)
+
         # might eventually be worth adding support for unique fields...
-        if value['type'] == str:
+        if value['type'] == str and not hasattr(User, key):
             setattr(User, key, db.Column(db.String(1000)))
             # print(key,value)
 
-        elif value['type'] == int:
+        elif value['type'] == int and not hasattr(User, key):
             setattr(User, key, db.Column(db.Integer))
             # print(key,value)
-
-
-    # initialize the database object defined outside the app context above
-    db.init_app(app=app)
 
 
     # create the database if it doesn't exist; this, like many other
@@ -323,9 +306,35 @@ def create_app(test_config=None, celery_app=False):
             db.session.commit()
             log.info('LIBREFORMS - created the libreforms user.' )
 
-        # from app.models import Report
-        # signing_df = pd.read_sql_table(Report.__tablename__, con=db.engine.connect())
-        # print(signing_df)
+            # from app.models import Report
+            # signing_df = pd.read_sql_table(Report.__tablename__, con=db.engine.connect())
+            # print(signing_df)
+
+    if db_init_only:
+        return app
+
+
+    ##########################
+    # Other imports -- other modules that we want to include within the app context
+    ##########################
+
+
+    # import any context-bound libraries
+    from app.action_needed import standardard_total_notifications
+    from app.reporting import reportManager
+
+
+    # this might be a little hackish, but we define a callable in app 
+    # config so we can easily figure out how many notifications a given
+    # user has at any given moment. I welcome feedback if there is a 
+    # better way to call a context-bound function from the current_app. 
+    app.config['NOTIFICATIONS'] = standardard_total_notifications
+
+
+    # initialize hCaptcha object defined outside the app context, 
+    # but only if hCaptcha is enabled in the app config
+    if config['enable_hcaptcha']:
+        hcaptcha.init_app(app)
 
 
 
