@@ -40,13 +40,13 @@
     <div class="form-group">
       <label class="form-label mt-4 required" for="type" data-bs-toggle="tooltip" data-bs-placement="right" title="Select the timeframe for the reports you'd like captured by this report">Forms Included</label>
       <select class="form-control" id="type" name="type" required>
-        <option value="created_since_last_run"{%if report and report.type == 'created_since_last_run'%} selected="selected"{%endif%}>Forms created since last run</option>
-        <option value="modified_since_last_run"{%if report and report.type == 'modified_since_last_run'%} selected="selected"{%endif%}>Forms modified since last run</option>
-        <option value="created_all_time"{%if report and report.type == 'created_all_time'%} selected="selected"{%endif%}>Forms created all time</option>
-        <option value="static_last_hour"{%if report and report.type == 'static_last_hour'%} selected="selected"{%endif%}>Forms created in the last hour</option>
-        <option value="static_last_day"{%if report and report.type == 'static_last_day'%} selected="selected"{%endif%}>Forms created in the last day</option>
-        <option value="static_last_month"{%if report and report.type == 'static_last_month'%} selected="selected"{%endif%}>Forms created in the last month</option>
-        <option value="static_last_year"{%if report and report.type == 'static_last_year'%} selected="selected"{%endif%}>Forms created in the last year</option>
+        <option value="created_since_last_run"{%if report and report.type == 'created_since_last_run'%} selected="selected"{%endif%}>{{form_name}} forms created since last run</option>
+        <option value="modified_since_last_run"{%if report and report.type == 'modified_since_last_run'%} selected="selected"{%endif%}>{{form_name}} forms modified since last run</option>
+        <option value="created_all_time"{%if report and report.type == 'created_all_time'%} selected="selected"{%endif%}>{{form_name}} forms created all time</option>
+        <option value="static_last_hour"{%if report and report.type == 'static_last_hour'%} selected="selected"{%endif%}>{{form_name}} forms created in the last hour</option>
+        <option value="static_last_day"{%if report and report.type == 'static_last_day'%} selected="selected"{%endif%}>{{form_name}} forms created in the last day</option>
+        <option value="static_last_month"{%if report and report.type == 'static_last_month'%} selected="selected"{%endif%}>{{form_name}} forms created in the last month</option>
+        <option value="static_last_year"{%if report and report.type == 'static_last_year'%} selected="selected"{%endif%}>{{form_name}} forms created in the last year</option>
       </select>
     </div>
     
