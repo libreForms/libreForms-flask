@@ -242,22 +242,6 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
         pass
 
     ##########################
-    # Configure Celery -- update the app to include the celery configurations
-    ##########################
-
-    # here we update the celery object (which we originally 
-    # created outside the app context, see https://github.com/signebedi/libreForms/issues/73
-    # and https://blog.miguelgrinberg.com/post/celery-and-the-flask-application-factory-pattern
-    # for more explanation on this approach, which was driven by our use of the Flask factory 
-    # pattern, which uses create_app) with the configs passed in the app config under `CELERY_CONFIG`. 
-    celery.conf.update(app.config['CELERY_CONFIG'])
-
-    # to avoid circular import errors, we return the app here for the celery app context
-    if celery_app:
-        return app
-
-
-    ##########################
     # DB initialization -- initialize a context-bound db instance
     ##########################
 
@@ -310,7 +294,25 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
             # signing_df = pd.read_sql_table(Report.__tablename__, con=db.engine.connect())
             # print(signing_df)
 
+    # if we only want to return the db instance, then we return here. To do this, you must
+    # set the `db_init_only` kwarg to True in create_app(). For further discussion, see
+    # https://github.com/libreForms/libreForms-flask/issues/238. 
     if db_init_only:
+        return app
+
+    ##########################
+    # Configure Celery -- update the app to include the celery configurations
+    ##########################
+
+    # here we update the celery object (which we originally 
+    # created outside the app context, see https://github.com/signebedi/libreForms/issues/73
+    # and https://blog.miguelgrinberg.com/post/celery-and-the-flask-application-factory-pattern
+    # for more explanation on this approach, which was driven by our use of the Flask factory 
+    # pattern, which uses create_app) with the configs passed in the app config under `CELERY_CONFIG`. 
+    celery.conf.update(app.config['CELERY_CONFIG'])
+
+    # to avoid circular import errors, we return the app here for the celery app context
+    if celery_app:
         return app
 
 
