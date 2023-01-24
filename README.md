@@ -1,6 +1,6 @@
 ![header img](app/static/header_img_large.png)
 
-# libreForms
+# libreForms-flask
 
 [![Documentation Status](https://readthedocs.org/projects/libreforms/badge/?version=latest)](https://libreforms.readthedocs.io/en/latest/?badge=latest)
 
