@@ -71,7 +71,7 @@ def rationalize_routing_list(form_name):
     # non-Nonetype value for _routing_list['type'], we then we log a warning but 
     # gracefully return an empty list
     if routing_list['type'] and not config['smtp_enabled']:
-        log.warning('LIBREFORMS - administrators have set a routing list {routing_list} for form {form_name} but SMTP has not been enabled.')
+        log.warning(f'LIBREFORMS - administrators have set a routing list for {routing_list.target} for form {form_name} but SMTP has not been enabled.')
         return []
 
     if not routing_list['type']:
