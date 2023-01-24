@@ -537,10 +537,14 @@ def edit_profile():
 
     if request.method == 'POST':
 
+
         # print([x for x in list(request.form)])
-        organization = request.form['organization']
-        phone = request.form['phone']
-        theme = request.form['theme']
+        # for x in list(request.form):
+        #     print(x)
+
+        organization = request.form['organization'] or None
+        phone = request.form['phone'] or None
+        theme = request.form['theme'] or None
         
         TEMP = {}
         for item in config['user_registration_fields'].keys():
@@ -551,7 +555,8 @@ def edit_profile():
                     TEMP[item] = str(request.form.getlist(item))
 
                 else:
-                    TEMP[item] = str(request.form[item]) if config['user_registration_fields'][item]['type'] == str else float(request.form[item])
+
+                    TEMP[item] = str(request.form[item]) if config['user_registration_fields'][item]['type'] == str else None
 
         if phone == "" or None or "None":
             phone = None
