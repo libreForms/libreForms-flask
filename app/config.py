@@ -211,8 +211,9 @@ except OSError:
 # option to a value that assesses to True. This will add a search bar to the
 # application frontend. The `exclude_forms_from_search` option defaults to 
 # False, but can take a list of form names to exclude. For further discussion,
-# see https://github.com/libreForms/libreForms-flask/issues/236
+# see https://github.com/libreForms/libreForms-flask/issues/236.
 config['enable_search'] = False
+config['elasticsearch_host'] = 'localhost'
 config['exclude_forms_from_search'] = False
 
 
