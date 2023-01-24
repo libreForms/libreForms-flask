@@ -350,7 +350,7 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
         # add Elasticsearch client to app object
         app.elasticsearch = connections.get_connection()
 
-    @app.route('/search/index/', methods=['POST'])
+    @app.route('/search/index/<signature>', methods=['POST'])
     def index_search_engine():
         if request.method == 'POST':
             # print(request)
