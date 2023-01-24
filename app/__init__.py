@@ -339,6 +339,18 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
         hcaptcha.init_app(app)
 
 
+    # here we create our elastic search object; for further discussion, see
+    # https://github.com/libreForms/libreForms-flask/issues/236.
+    if config['enable_search']:
+        from elasticsearch_dsl import connections
+
+        # configure Elasticsearch client
+        connections.create_connection(hosts=[config['elasticsearch_host']])
+        
+        # add Elasticsearch client to app object
+        app.elasticsearch = connections.get_connection()
+
+
 
     # here we employ some Flask-Login boilerplate to make 
     # user auth and session management a little easier. 
