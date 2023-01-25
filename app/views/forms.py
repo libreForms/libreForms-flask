@@ -604,7 +604,7 @@ def forms(form_name):
 
                     print(elasticsearch_data)
 
-                    index_elasticsearch = elasticsearch_index_document().delay(elasticsearch_data, document_id, app)
+                    index_elasticsearch = elasticsearch_index_document.delay(elasticsearch_data, document_id)
                     log.info(f'{current_user.username.upper()} - updated updating search index for document no. {document_id}.')
 
 

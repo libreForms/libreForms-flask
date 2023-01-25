@@ -31,7 +31,7 @@ from app.certification import encrypt_with_symmetric_key, verify_symmetric_key
 from app.views.forms import form_menu, checkGroup, checkFormGroup, \
     checkKey, propagate_form_configs, propagate_form_fields, define_webarg_form_data_types, \
     collect_list_of_users, compile_depends_on_data, rationalize_routing_list
-from celeryd.tasks import send_mail_async
+from celeryd.tasks import send_mail_async, elasticsearch_index_document
 
 
 # and finally, import other packages
@@ -906,7 +906,6 @@ def render_document_edit(form_name, document_id):
                         flash(str(parsed_args))
 
                     if config['enable_search']:
-                        from celeryd.tasks import elasticsearch_index_document
                         elastic_search_args = mongodb.get_document(form_name, document_id)
                         if 'Journal' in elastic_search_args:
                             del elastic_search_args['Journal']
@@ -934,10 +933,10 @@ def render_document_edit(form_name, document_id):
                             # 'content': render_template('submissions/index_friendly_submissions.html', form_name='b1', submission=mongodb.get_document('b1', '63d0782cb54e4da4713f7dc9')),
                             'content': elasticsearch_content,
                         })
-                        
+
                         print(elasticsearch_data)
 
-                        index_elasticsearch = elasticsearch_index_document().delay(elasticsearch_data, document_id)
+                        index_elasticsearch = elasticsearch_index_document.delay(elasticsearch_data, document_id)
                         log.info(f'{current_user.username.upper()} - updated updating search index for document no. {document_id}.')
 
 
