@@ -338,6 +338,8 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
 
             return True
 
+    # We create a config (yuck!) to reference the method elsewhere
+    app.config['UPDATE_ELASTIC_SEARCH'] = elasticsearch_index_document
 
 
     # to avoid circular import errors, we return the app here for the celery app context

@@ -605,7 +605,7 @@ def forms(form_name):
                     # print(elasticsearch_data)
 
                     with current_app.app_context():
-                        index_elasticsearch = current_app.elasticsearch_index_document.apply_async(kwargs={'body':elasticsearch_data, 'id':document_id})
+                        index_elasticsearch = current_app.config["UPDATE_ELASTIC_SEARCH"].apply_async(kwargs={'body':elasticsearch_data, 'id':document_id})
                     log.info(f'{current_user.username.upper()} - updated updating search index for document no. {document_id}.')
 
 
