@@ -594,13 +594,13 @@ def forms(form_name):
 
                     elasticsearch_content = ', '.join([f'{x} - {str(elastic_search_args[x])}' for x in elastic_search_args])
 
-                    elasticsearch_data = json.dumps({
+                    elasticsearch_data = {
                         'form_name': form_name,
                         'title': document_id,
                         'url': url_for('submissions.render_document', form_name=form_name, document_id=document_id), 
                         # 'content': render_template('submissions/index_friendly_submissions.html', form_name=form_name, submission=elastic_search_args),
                         'content': elasticsearch_content,
-                    })
+                    }
 
                     print(elasticsearch_data)
 

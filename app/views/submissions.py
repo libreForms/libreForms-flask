@@ -926,13 +926,13 @@ def render_document_edit(form_name, document_id):
 
                         elasticsearch_content = ', '.join([f'{x} - {str(elastic_search_args[x])}' for x in elastic_search_args])
 
-                        elasticsearch_data = json.dumps({
+                        elasticsearch_data = {
                             'form_name': form_name,
                             'title': document_id,
                             'url': url_for('submissions.render_document', form_name=form_name, document_id=document_id), 
                             # 'content': render_template('submissions/index_friendly_submissions.html', form_name='b1', submission=mongodb.get_document('b1', '63d0782cb54e4da4713f7dc9')),
                             'content': elasticsearch_content,
-                        })
+                        }
 
                         print(elasticsearch_data)
 
