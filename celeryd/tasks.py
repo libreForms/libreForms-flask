@@ -21,8 +21,6 @@ __maintainer__ = "Sig Janoska-Bedi"
 __email__ = "signe@atreeus.com"
 
 from app import celery, log, mailer, mongodb
-from flask import current_app
-
 
 # here we define a tasks to send emails asynchonously - it's just a 
 # celery wrapper for the function library defined in app.smtp.
@@ -55,8 +53,8 @@ def write_document_to_collection_async(self, data, collection_name, reporter=Non
     return document_id
 
 @celery.task()
-def elasticsearch_index_document(body, id, index="submissions"):
-        current_app.elasticsearch.index(id, body, index=index)
+def elasticsearch_index_document(body, id, client, index="submissions"):
+        client.index(id, body, index=index)
         return True
     # expects data to be formulated as follows:
     # data = json.dumps({
