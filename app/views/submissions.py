@@ -924,7 +924,7 @@ def render_document_edit(form_name, document_id):
                         if '_id' in elastic_search_args:
                             del elastic_search_args['_id']
 
-                        elasticsearch_content = str([f'{x} - {elastic_search_args[x]}' for x in elastic_search_args].join(' '))
+                        elasticsearch_content = ', '.join([f'{x} - {str(elastic_search_args[x])}' for x in elastic_search_args])
 
                         elasticsearch_data = json.dumps({
                             'form_name': form_name,
