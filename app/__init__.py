@@ -325,7 +325,7 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
         app.elasticsearch = connections.get_connection()
 
         # log our success connecting to elasticsearch
-        log.info('LIBREFORMS - connected to elasticsearch server. ' )
+        log.info('LIBREFORMS - connected to elasticsearch server.' )
 
 
     # to avoid circular import errors, we return the app here for the celery app context

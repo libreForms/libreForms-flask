@@ -601,8 +601,8 @@ def forms(form_name):
                         'content': elasticsearch_content,
                     })
 
-                    index_elasticsearch = elasticsearch_index_document(elasticsearch_data, document_id)
-
+                    index_elasticsearch = elasticsearch_index_document(elasticsearch_data, document_id).delay()
+                    log.info(f'{current_user.username.upper()} - updated updating search index for document no. {document_id}.')
 
 
                 log.info(f'{current_user.username.upper()} - submitted \'{form_name}\' form, document no. {document_id}.')
