@@ -935,7 +935,7 @@ def render_document_edit(form_name, document_id):
                             'content': elasticsearch_content,
                         })
 
-                        index_elasticsearch = elasticsearch_index_document(elasticsearch_data, document_id).delay()
+                        index_elasticsearch = elasticsearch_index_document().delay(elasticsearch_data, document_id)
                         log.info(f'{current_user.username.upper()} - updated updating search index for document no. {document_id}.')
 
 
