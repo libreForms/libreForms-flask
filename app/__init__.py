@@ -327,6 +327,18 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
         # log our success connecting to elasticsearch
         log.info('LIBREFORMS - connected to elasticsearch server.' )
 
+    # we define the elasticsearch indexing task here
+    @celery.task()
+    def elasticsearch_index_document(body, id, index="submissions"):
+            # app = create_app(celery_app=True)
+
+            # with app.app_context():
+            #     app.elasticsearch.index(id, body, index=index)
+            app.elasticsearch.index(id, body, index=index)
+
+            return True
+
+
 
     # to avoid circular import errors, we return the app here for the celery app context
     if celery_app:

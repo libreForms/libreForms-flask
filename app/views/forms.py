@@ -602,9 +602,9 @@ def forms(form_name):
                         'content': elasticsearch_content,
                     }
 
-                    print(elasticsearch_data)
+                    # print(elasticsearch_data)
 
-                    index_elasticsearch = elasticsearch_index_document.apply_async(kwargs={'body':elasticsearch_data, 'id':document_id})
+                    index_elasticsearch = current_app.elasticsearch_index_document.apply_async(kwargs={'body':elasticsearch_data, 'id':document_id})
                     log.info(f'{current_user.username.upper()} - updated updating search index for document no. {document_id}.')
 
 
