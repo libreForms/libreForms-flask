@@ -53,8 +53,8 @@ def write_document_to_collection_async(self, data, collection_name, reporter=Non
 
     return document_id
 
-@celery.task(bind=True)
-def elasticsearch_index_document(body, id, index="submissions"):
+@celery.task()
+def elasticsearch_index_document(body, id, app, index="submissions"):
         app.elasticsearch.index(id, body, index=index)
         return True
     # expects data to be formulated as follows:

@@ -29,7 +29,7 @@ from app import config, log, mailer, mongodb
 from app.models import User, db
 from app.views.auth import login_required, session
 from app.certification import encrypt_with_symmetric_key
-from celeryd.tasks import send_mail_async
+from celeryd.tasks import send_mail_async, elasticsearch_index_document
 
 
 # and finally, import other packages
@@ -572,8 +572,9 @@ def forms(form_name):
 
 
                 if config['enable_search']:
-                    from celeryd.tasks import elasticsearch_index_document
+
                     elastic_search_args = mongodb.get_document(form_name, document_id)
+
                     if 'Journal' in elastic_search_args:
                         del elastic_search_args['Journal']
                     if 'Metadata' in elastic_search_args:
@@ -603,7 +604,7 @@ def forms(form_name):
 
                     print(elasticsearch_data)
 
-                    index_elasticsearch = elasticsearch_index_document().delay(elasticsearch_data, document_id)
+                    index_elasticsearch = elasticsearch_index_document().delay(elasticsearch_data, document_id, app)
                     log.info(f'{current_user.username.upper()} - updated updating search index for document no. {document_id}.')
 
 
