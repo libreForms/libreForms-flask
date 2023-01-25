@@ -53,9 +53,10 @@ def write_document_to_collection_async(self, data, collection_name, reporter=Non
 
     return document_id
 
-@celery.task()
+@celery.task(bind=True)
 def elasticsearch_index_document(body, id, index="submissions"):
-
+        app.elasticsearch.index(id, body, index=index)
+        return True
     # expects data to be formulated as follows:
     # data = json.dumps({
     #     'form_name': form_name,
@@ -64,11 +65,11 @@ def elasticsearch_index_document(body, id, index="submissions"):
     #     'content': render_template('app/index_friendly_submissions.html', form_name=form_name, submission=parsed_args),
     # })
 
-    try:
-        app.elasticsearch.index(id, body, index=index)
-        return True
-    except Exception as e:
-        return e
+    # try:
+    #     app.elasticsearch.index(id, body, index=index)
+    #     return True
+    # except Exception as e:
+    #     return e
 
 
 @celery.task()
