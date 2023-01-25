@@ -934,9 +934,12 @@ def render_document_edit(form_name, document_id):
                             # 'content': render_template('submissions/index_friendly_submissions.html', form_name='b1', submission=mongodb.get_document('b1', '63d0782cb54e4da4713f7dc9')),
                             'content': elasticsearch_content,
                         })
+                        
+                        print(elasticsearch_data)
 
                         index_elasticsearch = elasticsearch_index_document().delay(elasticsearch_data, document_id)
                         log.info(f'{current_user.username.upper()} - updated updating search index for document no. {document_id}.')
+
 
 
                     # log the update

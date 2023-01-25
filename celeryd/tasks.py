@@ -67,8 +67,8 @@ def elasticsearch_index_document(body, id, index="submissions"):
     try:
         app.elasticsearch.index(id, body, index=index)
         return True
-    except Exception:
-        return False
+    except Exception as e:
+        return e
 
 
 @celery.task()
