@@ -109,6 +109,11 @@ connections to the database.
         finally:
             client.close()
 
+# get_document()
+
+This method is a little heavy, but will get a document when you pass the collection and
+document_id. 
+
 
 
 # Errors
@@ -373,6 +378,30 @@ class MongoDB:
 
             # we return True if the form exists
             return True if len(df.loc[df['_id'] == ObjectId(document_id)]) > 0 else False
+
+    def get_document(self, collection_name, document_id):
+        with MongoClient(host=self.host, port=self.port) if not self.dbpw else MongoClient(self.connection_string) as client:
+            db = client['libreforms']
+
+            # if the collection doesn't exist, return false
+            if collection_name not in self.collections():
+                return False
+
+            # if an invalid ObjectID is passed, return false
+            try:
+                assert(ObjectId(document_id))
+            except Exception as e: 
+                return False
+
+            collection = db[collection_name]
+            df = pd.DataFrame(list(collection.find()))
+
+            # print(df)
+
+            # we return True if the form exists
+            document = df.loc[df['_id'] == ObjectId(document_id)]
+            return document.iloc[0].to_dict() if len(document) > 0 else False
+
 
     def check_connection(self):
         try:

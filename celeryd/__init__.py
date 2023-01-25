@@ -53,24 +53,6 @@ app.app_context().push()
 reports = reportManager()
 
 
-@celery.task()
-def elasticsearch_index_document(body, id, index="submissions"):
-
-    # expects data to be formulated as follows:
-    # data = json.dumps({
-    #     'form_name': form_name,
-    #     'title': document_id,
-    #     'url': url_for('submissions.render_document', form_name=form_name, document_id=document_id), 
-    #     'content': render_template('app/index_friendly_submissions.html', form_name=form_name, submission=parsed_args),
-    # })
-
-    try:
-        app.elasticsearch.index(id, body, index=index)
-        return True
-    except:
-        return False
-
-
 # this should run periodically to refresh the elasticsearch index 
 @celery.task()
 def elasticsearch_refresh_index():

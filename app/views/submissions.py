@@ -21,7 +21,6 @@ from werkzeug.security import check_password_hash
 from flask_login import current_user
 from markupsafe import Markup
 from bson import ObjectId
-import numpy as np
 
 # import custom packages from the current repository
 import libreforms
@@ -38,6 +37,8 @@ from celeryd.tasks import send_mail_async
 # and finally, import other packages
 import os
 import pandas as pd
+import numpy as np
+import json
 
 
 def get_record_of_submissions(form_name=None, user=None, remove_underscores=True):
@@ -903,6 +904,39 @@ def render_document_edit(form_name, document_id):
                     flash(f'{form_name} form successfully submitted, document ID {document_id}. ')
                     if config['debug']:
                         flash(str(parsed_args))
+
+                    if config['enable_search']:
+                        from celeryd.tasks import elasticsearch_index_document
+                        elastic_search_args = mongodb.get_document(form_name, document_id)
+                        if 'Journal' in elastic_search_args:
+                            del elastic_search_args['Journal']
+                        if 'Metadata' in elastic_search_args:
+                            del elastic_search_args['Metadata']
+                        if 'IP_Address' in elastic_search_args:
+                            del elastic_search_args['IP_Address']
+                        if 'Approver' in elastic_search_args:
+                            del elastic_search_args['Approver']
+                        if 'Approval' in elastic_search_args:
+                            del elastic_search_args['Approval']
+                        if 'Approver_Comment' in elastic_search_args:
+                            del elastic_search_args['Approver_Comment']
+                        if 'Signature' in elastic_search_args:
+                            del elastic_search_args['Signature']
+                        if '_id' in elastic_search_args:
+                            del elastic_search_args['_id']
+
+                        elasticsearch_content = str(elastic_search_args)
+
+                        elasticsearch_data = json.dumps({
+                            'form_name': form_name,
+                            'title': document_id,
+                            'url': url_for('submissions.render_document', form_name=form_name, document_id=document_id), 
+                            # 'content': render_template('submissions/index_friendly_submissions.html', form_name='b1', submission=mongodb.get_document('b1', '63d0782cb54e4da4713f7dc9')),
+                            'content': elasticsearch_content,
+                        })
+
+                        index_elasticsearch = elasticsearch_index_document(elasticsearch_data, document_id)
+
 
                     # log the update
                     log.info(f'{current_user.username.upper()} - updated \'{form_name}\' form, document no. {document_id}.')
