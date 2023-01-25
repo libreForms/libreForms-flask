@@ -29,7 +29,7 @@ from app import config, log, mailer, mongodb
 from app.models import User, db
 from app.views.auth import login_required, session
 from app.certification import encrypt_with_symmetric_key
-from celeryd.tasks import send_mail_async, elasticsearch_index_document
+from celeryd.tasks import send_mail_async#, elasticsearch_index_document
 
 
 # and finally, import other packages
