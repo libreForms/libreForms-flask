@@ -327,19 +327,19 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
         # log our success connecting to elasticsearch
         log.info('LIBREFORMS - connected to elasticsearch server.' )
 
-    # we define the elasticsearch indexing task here
-    @celery.task()
-    def elasticsearch_index_document(body, id, index="submissions"):
-            # app = create_app(celery_app=True)
+    # # we define the elasticsearch indexing task here
+    # @celery.task()
+    # def elasticsearch_index_document(body, id, index="submissions"):
+    #         # app = create_app(celery_app=True)
 
-            # with app.app_context():
-            #     app.elasticsearch.index(id, body, index=index)
-            app.elasticsearch.index(id, body, index=index)
+    #         # with app.app_context():
+    #         #     app.elasticsearch.index(id, body, index=index)
+    #         app.elasticsearch.index(id, body, index=index)
 
-            return True
+    #         return True
 
     # We create a config (yuck!) to reference the method elsewhere
-    app.config['UPDATE_ELASTIC_SEARCH'] = elasticsearch_index_document
+    # app.config['UPDATE_ELASTIC_SEARCH'] = elasticsearch_index_document
 
 
     # to avoid circular import errors, we return the app here for the celery app context

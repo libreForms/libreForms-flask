@@ -31,7 +31,7 @@ from app.certification import encrypt_with_symmetric_key, verify_symmetric_key
 from app.views.forms import form_menu, checkGroup, checkFormGroup, \
     checkKey, propagate_form_configs, propagate_form_fields, define_webarg_form_data_types, \
     collect_list_of_users, compile_depends_on_data, rationalize_routing_list
-from celeryd.tasks import send_mail_async#, elasticsearch_index_document
+from celeryd.tasks import send_mail_async, elasticsearch_index_document
 
 
 # and finally, import other packages
@@ -935,7 +935,7 @@ def render_document_edit(form_name, document_id):
                         }
 
                         # print(elasticsearch_data)
-                        index_elasticsearch = current_app.config["UPDATE_ELASTIC_SEARCH"].apply_async(kwargs={'body':elasticsearch_data, 'id':document_id})
+                        index_elasticsearch = elasticsearch_index_document.apply_async(kwargs={'body':elasticsearch_data, 'id':document_id,'client':current_app.elasticsearch})
                         log.info(f'{current_user.username.upper()} - updated updating search index for document no. {document_id}.')
 
 
