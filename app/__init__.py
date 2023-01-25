@@ -324,6 +324,9 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
         # add Elasticsearch client to app object
         app.elasticsearch = connections.get_connection()
 
+        # log our success connecting to elasticsearch
+        log.info('LIBREFORMS - connected to elasticsearch server. ' )
+
 
     # to avoid circular import errors, we return the app here for the celery app context
     if celery_app:
@@ -394,7 +397,7 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
     #             return Response(json.dumps({'status':'failure'}), status=config['error_code'], mimetype='application/json')
 
     #     return abort(404)
-    
+
 
     # # create a task status endpoint
     # @app.route('/status/<task_id>', methods=['GET'])
