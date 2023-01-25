@@ -40,6 +40,8 @@ __maintainer__ = "Sig Janoska-Bedi"
 __email__ = "signe@atreeus.com"
 
 
+import json
+from flask import Response
 from app import celery, create_app, log, mailer, mongodb
 from app.reporting import reportManager
 from celeryd.tasks import send_mail_async, write_document_to_collection_async, send_report_async
@@ -50,6 +52,29 @@ app.app_context().push()
 # create a reportManager object for sending reports that have come due
 reports = reportManager()
 
+
+@celery.task()
+def elasticsearch_index_document(body, id, index="submissions"):
+
+    # expects data to be formulated as follows:
+    # data = json.dumps({
+    #     'form_name': form_name,
+    #     'title': document_id,
+    #     'url': url_for('submissions.render_document', form_name=form_name, document_id=document_id), 
+    #     'content': render_template('app/index_friendly_submissions.html', form_name=form_name, submission=parsed_args),
+    # })
+
+    try:
+        app.elasticsearch.index(id, body, index=index)
+        return True
+    except:
+        return False
+
+
+# this should run periodically to refresh the elasticsearch index 
+@celery.task()
+def elasticsearch_refresh_index():
+    pass
 
 
 @celery.task()

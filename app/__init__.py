@@ -311,6 +311,20 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
     # pattern, which uses create_app) with the configs passed in the app config under `CELERY_CONFIG`. 
     celery.conf.update(app.config['CELERY_CONFIG'])
 
+
+    # here we create our elastic search object; for further discussion, see
+    # https://github.com/libreForms/libreForms-flask/issues/236. We want to
+    # pass this to celery, so we include before returning the celery app object.
+    if config['enable_search']:
+        from elasticsearch_dsl import connections
+
+        # configure Elasticsearch client
+        connections.create_connection(hosts=[config['elasticsearch_host']])
+        
+        # add Elasticsearch client to app object
+        app.elasticsearch = connections.get_connection()
+
+
     # to avoid circular import errors, we return the app here for the celery app context
     if celery_app:
         return app
@@ -339,44 +353,6 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
         hcaptcha.init_app(app)
 
 
-    # here we create our elastic search object; for further discussion, see
-    # https://github.com/libreForms/libreForms-flask/issues/236.
-    if config['enable_search']:
-        from elasticsearch_dsl import connections
-
-        # configure Elasticsearch client
-        connections.create_connection(hosts=[config['elasticsearch_host']])
-        
-        # add Elasticsearch client to app object
-        app.elasticsearch = connections.get_connection()
-
-    @app.route('/search/index/<signature>', methods=['POST'])
-    def index_search_engine():
-        if request.method == 'POST':
-            # print(request)
-
-            try:
-                # expects data to be formulated as follows:
-                # data = {
-                #     'url': url_for('submissions.render_document', form_name=form_name, document_id=document_id), 
-                #     'title': document_id,
-                #     'content': render_template('app/index_friendly_submissions.html' ...) 
-                #     'page_id': document_id
-                # }
-
-                page_id = request.json['page_id']
-                data = request.json['data']
-
-                app.elasticsearch.index(index="pages", id=page_id, body=data)
-                return Response(json.dumps({'status':'success'}), status=config['success_code'], mimetype='application/json')
-
-            except:
-                return Response(json.dumps({'status':'failure'}), status=config['error_code'], mimetype='application/json')
-
-        return abort(404)
-
-
-
 
     # here we employ some Flask-Login boilerplate to make 
     # user auth and session management a little easier. 
@@ -392,6 +368,33 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
     ##########################
     # Routes and Blueprints - define default URL routes and import others from blueprints
     ##########################
+
+    # app search index route
+    # @app.route('/search/index/', methods=['POST']) ### If you keep the view, consider adding a signed URL to safeguard it
+    # def index_search_engine():
+    #     if request.method == 'POST':
+    #         # print(request)
+
+    #         try:
+    #             # expects data to be formulated as follows:
+    #             # data = json.dumps({
+    #             #     'url': url_for('submissions.render_document', form_name=form_name, document_id=document_id), 
+    #             #     'title': document_id,
+    #             #     'content': render_template('app/index_friendly_submissions.html', form_name=form_name, submission=parsed_args),
+    #             #     'page_id': document_id,
+    #             # })
+
+    #             page_id = request.json['page_id']
+    #             data = request.json['data']
+
+    #             app.elasticsearch.index(index="pages", id=page_id, body=data)
+    #             return Response(json.dumps({'status':'success'}), status=config['success_code'], mimetype='application/json')
+
+    #         except:
+    #             return Response(json.dumps({'status':'failure'}), status=config['error_code'], mimetype='application/json')
+
+    #     return abort(404)
+    
 
     # # create a task status endpoint
     # @app.route('/status/<task_id>', methods=['GET'])
