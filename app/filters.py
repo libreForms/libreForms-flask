@@ -144,7 +144,7 @@ def lint_filters(s, *args, **kwargs):
 #                 print(string, "Unknown comparison")
 
 
-def new_preprocess_text_filters(s = "(a == '7'),(c == 'pig'),"):
+def new_preprocess_text_filters(s = "$(a == '7'),$(c == 'pig'),"):
 
     # start by stripping trailing / leading whitespace
     s = s.strip()
@@ -168,11 +168,11 @@ def new_preprocess_text_filters(s = "(a == '7'),(c == 'pig'),"):
     # However, we realized that if we split on the trailing parentheticals:
         # ['(' in x for x in s[:-1].split(')')]
     # that we could make the assertion statement work, see below
-    assert (all(['(' in x for x in s[:-1].split(')')] or s.count(')') < 2))
+    assert (all(['$(' in x for x in s[:-1].split(')')] or s.count(')') < 2))
 
     # we use regular expressions to group each parenthetical statement, see
     # https://stackoverflow.com/a/29438510/13301284.
-    STRINGS = [''.join(tup.strip()) for tup in re.findall(r'\((.+?)\)', s)]
+    STRINGS = [''.join(tup.strip()) for tup in re.findall(r'\$\((.+?)\)', s)]
 
     # now we need to handle types, which we support strings and numbers.
 
