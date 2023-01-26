@@ -513,9 +513,11 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
         from .views import health_check
         app.register_blueprint(health_check.bp)
 
-    # import the `reports` blueprint 
-    from .views import reports
-    app.register_blueprint(reports.bp)
+    # if administrators have enabed user_defined_reports, then we import the `reports` 
+    # blueprint, see https://github.com/signebedi/libreForms/issues/191.
+    if config['user_defined_reports']:
+        from .views import reports
+        app.register_blueprint(reports.bp)
 
     # return the app object with the above configurations
     return app
