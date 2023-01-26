@@ -355,7 +355,6 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
 
     # import any context-bound libraries
     from app.action_needed import standardard_total_notifications
-    from app.reporting import reportManager
 
 
     # this might be a little hackish, but we define a callable in app 

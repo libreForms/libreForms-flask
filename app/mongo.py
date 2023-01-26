@@ -358,17 +358,19 @@ class MongoDB:
             collection = db[collection_name]
             return list(collection.find())
 
+    #  this new version returns a pandas dataframe instead of a list
     def new_read_documents_from_collection(self, collection_name):
         with MongoClient(host=self.host, port=self.port) if not self.dbpw else MongoClient(self.connection_string) as client:
 
+            if collection_name in self.collections():
+
+                db = client['libreforms']
+
+                collection = db[collection_name]
+                return pd.DataFrame(list(collection.find()))
+
             # if the collection doesn't exist, return false
-            if collection_name not in self.collections():
-                return False
-
-            db = client['libreforms']
-
-            collection = db[collection_name]
-            return pd.DataFrame(list(collection.find()))
+            return False
 
 
     def is_document_in_collection(self, collection_name, document_id):

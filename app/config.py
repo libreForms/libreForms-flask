@@ -214,6 +214,7 @@ except OSError:
 # see https://github.com/libreForms/libreForms-flask/issues/236.
 config['enable_search'] = False
 config['elasticsearch_host'] = 'localhost'
+config['elasticsearch_index_refresh_rate'] = 'localhost'
 config['exclude_forms_from_search'] = None
 
 

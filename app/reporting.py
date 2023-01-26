@@ -81,36 +81,36 @@ time_map = {
 # conditions of forms to be met
     # form field value conditionality, as a dict, used in a `pd.DataFrame.loc` statement
 
-class reportManager():
-    def __init__(self, send_reports=True):
-        if not send_reports:
-            return None
+# class reportManager():
+#     def __init__(self, send_reports=True):
+#         if not send_reports:
+#             return None
 
-        # create a reports object and enroll the 
-        # reports defined in the app config
-        self.reports = {}
+#         # create a reports object and enroll the 
+#         # reports defined in the app config
+#         self.reports = {}
         
-        # for key,value in send_reports.items():
-        #     self.reports[key] = value
+#         # for key,value in send_reports.items():
+#         #     self.reports[key] = value
 
-        #### ELSE FIND SOME WAY TO HANDLE THIS, system level report
-        # 'some_name_for_report': {
-        #     'type': 'timed',
-        #     'trigger': "* * * * *",
-        #     'start_date': datetime.datetime.now(),
-        #     'method': 'email',
-        #     'query': None,
-        # },
+#         #### ELSE FIND SOME WAY TO HANDLE THIS, system level report
+#         # 'some_name_for_report': {
+#         #     'type': 'timed',
+#         #     'trigger': "* * * * *",
+#         #     'start_date': datetime.datetime.now(),
+#         #     'method': 'email',
+#         #     'query': None,
+#         # },
 
-    def create(self, frequency, time, forms, conditions, db):
-        return None # create a new report
+#     def create(self, frequency, time, forms, conditions, db):
+#         return None # create a new report
 
 
-    def modify():
-        return None # modify an existing report
+#     def modify():
+#         return None # modify an existing report
 
-    def trigger(self, db, conditions:dict):
-        return None
+#     def trigger(self, db, conditions:dict):
+#         return None
 
-    def handler(self, db):
-        return None
+#     def handler(self, db):
+#         return None
