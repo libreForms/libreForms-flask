@@ -84,8 +84,8 @@ def get_operators():
 
 # this function takes a string, and processes it into 
 # filters / conditions
-def preprocess_text_filters(string):
-    return [x.strip() for x in string.split(',')]
+# def preprocess_text_filters(string):
+#     return [x.strip() for x in string.split(',')]
 
 
 # here we actually assess the truthfulness of a set of 
@@ -237,8 +237,17 @@ def select_user_reports_by_time():
     # read in report data
     df = pd.read_sql_table(Report.__tablename__, con=db.engine.connect())
 
+    # drop where inactive is set to False
+    df = df[df['active']!=1]
+
     # drop where frequency is set to 'manual'
     df = df[df['frequency']!='manual']
+
+    # drop where there is an end_at specified, and it has passed
+    df = df[(df['end_at']!=0) | (df['end_at']>=datetime.timestamp(datetime.now()))]
+
+    # drop where there is an start_at specified, and it has not yet arrived
+    df = df[(df['start_at']!=0) | (df['start_at']<=datetime.timestamp(datetime.now()))]
 
     # here we do some (rather inefficient, admittedly; we should find a way
     # to optimize this if performance becomes an issue). First, we map the timestamps
@@ -272,6 +281,9 @@ def send_eligible_reports():
     form_df = get_map_of_form_data('Journal', 'Metadata', 'IP_Address', 'Approver', 
                                         'Approval', 'Approver_Comment', 'Signature', '_id', add_hyperlink=True)
 
+
+
+
     for index, row in report_df.iterrows():
         pass
 
@@ -297,7 +309,7 @@ def send_eligible_reports():
 #         # 'some_name_for_report': {
 #         #     'type': 'timed',
 #         #     'trigger': "* * * * *",
-#         #     'start_date': datetime.datetime.now(),
+#         #     'start_at': datetime.datetime.now(),
 #         #     'method': 'email',
 #         #     'query': None,
 #         # },
