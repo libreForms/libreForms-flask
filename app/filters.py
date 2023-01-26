@@ -53,8 +53,13 @@ __license__ = "AGPL-3.0"
 __maintainer__ = "Sig Janoska-Bedi"
 __email__ = "signe@atreeus.com"
 
+
+from flask import url_for
+
 import libreforms
 from app.mongo import mongodb
+from app.config import config
+
 import pandas as pd
 from datetime import datetime
 
@@ -142,7 +147,7 @@ def dummy_test(STRINGS = ['my_city_name == my_city_name','6001 >= 6005', 'my_cit
 # this function will get a list of all current forms, and then create a dictionary 
 # where each key corresponds to these form names, and each value is a dataframe 
 # of all the submissions for that form.
-def get_map_of_form_data(*args):
+def get_map_of_form_data(*args, add_hyperlink=False):
     
     # we start by initializing an empty dictionary
     TEMP = {}
@@ -150,11 +155,17 @@ def get_map_of_form_data(*args):
     for form in libreforms.forms:
         TEMP[form] = mongodb.new_read_documents_from_collection(form)
 
+
         # use *args to drop fields with value if the dataframe is not empty;
         # for example, if you run get_map_of_form_data('Metadata','Journal'),
         # you will receive back a dictionary of dataframes, each of which will
         # have their 'Metadata' and 'Journal' fields dropped if they exist.
         if isinstance(TEMP[form], pd.DataFrame):
+
+            # we add a hyperlink field if it's been requested
+            if add_hyperlink:
+                TEMP[form]['Hyperlink'] = TEMP[form].apply(lambda row: config['domain']+url_for('submissions.render_document', form_name=form, document_id=row['_id']), axis=1)
+
             TEMP[form].drop(columns=[x for x in args if x in TEMP[form].columns], inplace=True)
 
     return TEMP
@@ -207,7 +218,17 @@ def select_user_reports_by_time():
 # this is the synchronous function that will be used to send reports. It will be wrapped
 # by a corresponding asynchronous celery function in celeryd.
 def send_eligible_reports():
-    pass
+
+    # first, we select all the reports that are due to be sent
+    report_df = select_user_reports_by_time()
+
+    # next, we select the form data that should be sent, dropping 
+    # the fields we don't want included.
+    form_df = get_map_of_form_data('Journal', 'Metadata', 'IP_Address', 'Approver', 
+                                        'Approval', 'Approver_Comment', 'Signature', '_id', add_hyperlink=True)
+
+    for index, row in report_df.iterrows():
+        pass
 
 # form applied to
     # select option from current forms you have view access for
