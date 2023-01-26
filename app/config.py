@@ -165,9 +165,16 @@ config['limit_rest_api_keys_per_user'] = False
 # their user profiles, see https://github.com/signebedi/libreForms/issues/35.
 config['enable_user_profile_log_aggregation'] = False
 
-# this config determines whether periodic reports will be sent, see
-# https://github.com/signebedi/libreForms/issues/73. 
-config['send_reports'] = False
+# these config determines whether periodic reports will be sent, see
+# https://github.com/signebedi/libreForms/issues/73. The `enable_reports`
+# config will enable forms to be sent if it assesses to True. In addition,
+# the `system_reports` config defaults to None, but can be configured to 
+# send system reports (eg. complex reports with a routing list, instead of
+# single-user reports). The `user_defined_reports` will allow users to create
+# reports when it assesses to True.
+config['enable_reports'] = True
+config['system_reports'] = None
+config['user_defined_reports'] = True
 
 # UNTESTED: these configs specify the login credentials for the MongoDB 
 # database, especially useful for externalized databases.
