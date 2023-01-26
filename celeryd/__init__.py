@@ -70,9 +70,9 @@ def celery_beat_logger():
 
 
 def convert_timestamp(row, now):
-    print(now)
+    # print(now)
     t = datetime.timestamp(parser.parse(row['Timestamp']))
-    print(t)
+    # print(t)
     return now - t
     
 
@@ -100,7 +100,7 @@ def index_new_documents(time_since=86400, elasticsearch_index="submissions"):
             # here if any given form is not of type `DataFrame`
             if isinstance(df, pd.DataFrame):
 
-                print(df)
+                # print(df)
 
                 # here we ask how long ago the document was created
                 df['time_since'] = df.apply(lambda row: convert_timestamp(row,datetime.timestamp(datetime.now()) ), axis=1)
@@ -129,10 +129,6 @@ def index_new_documents(time_since=86400, elasticsearch_index="submissions"):
                     # log.info(f'LIBREFORMS - updated search index for document no. {document_id}.')
 
         # log.info(f'LIBREFORMS - finished elasticsearch index process.')
-
-
-
-
 
 
 
