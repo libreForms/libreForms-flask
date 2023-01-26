@@ -56,6 +56,7 @@ __email__ = "signe@atreeus.com"
 import libreforms
 from app.mongo import mongodb
 import pandas as pd
+from datetime import datetime
 
 ##########################
 # Filters - conditions used to assess forms for inclusion in reports
@@ -141,7 +142,7 @@ def dummy_test(STRINGS = ['my_city_name == my_city_name','6001 >= 6005', 'my_cit
 # this function will get a list of all current forms, and then create a dictionary 
 # where each key corresponds to these form names, and each value is a dataframe 
 # of all the submissions for that form.
-def get_map_of_form_data(*args,**kwargs):
+def get_map_of_form_data(*args):
     
     # we start by initializing an empty dictionary
     TEMP = {}
@@ -158,7 +159,13 @@ def get_map_of_form_data(*args,**kwargs):
 
     return TEMP
 
-def select_reports_by_time():
+# selects user-generated reports that have 'come due', that is, have reached the the time
+# based trigger to be sent out.
+def select_user_reports_by_time():
+
+    # import the database instance
+    from app import db
+    from app.models import Report
 
     # we map each human-readable `frequency` option to its corresponding interval
     # in seconds. Should we remove this from the application code, and simply add
@@ -171,6 +178,31 @@ def select_reports_by_time():
         'annually': 31536000,
     }
 
+    # read in report data
+    df = pd.read_sql_table(Report.__tablename__, con=db.engine.connect())
+
+    # drop where frequency is set to 'manual'
+    df = df[df['frequency']!='manual']
+
+    # here we do some (rather inefficient, admittedly; we should find a way
+    # to optimize this if performance becomes an issue). First, we map the timestamps
+    # to the human readable `frequency` field.
+    df['int_frequency'] = df.apply(lambda row: time_map[row['frequency']], axis=1)
+
+    # then, we calculate how long it has been since the report was last run
+    df['time_since_last_run'] = df['last_run_at'] - datetime.timestamp(datetime.now())
+
+    # we select rows that are 'due'; that is, the time elapsed since they were
+    # last run is equal to or greater than the frequency at which they are sent.
+    df = df[df['time_since_last_run']>=df['int_frequency']]
+    
+    # finally, we reindex the dataframe; this might not actually be necessary but 
+    # is a good failsafe to ensure we can assume the structure of each dataframes 
+    # index in future operations.
+    df.reset_index(drop=True, inplace=True)
+
+    # finally, we return the dataframe
+    return df
 
 # this is the synchronous function that will be used to send reports. It will be wrapped
 # by a corresponding asynchronous celery function in celeryd.
