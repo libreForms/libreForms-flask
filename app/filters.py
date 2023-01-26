@@ -53,6 +53,9 @@ __license__ = "AGPL-3.0"
 __maintainer__ = "Sig Janoska-Bedi"
 __email__ = "signe@atreeus.com"
 
+import libreforms
+from app.mongo import mongodb
+import pandas as pd
 
 ##########################
 # Filters - conditions used to assess forms for inclusion in reports
@@ -135,7 +138,25 @@ def dummy_test(STRINGS = ['my_city_name == my_city_name','6001 >= 6005', 'my_cit
 ##########################
 
 
+# this function will get a list of all current forms, and then create a dictionary 
+# where each key corresponds to these form names, and each value is a dataframe 
+# of all the submissions for that form.
+def get_map_of_form_data(*args,**kwargs):
+    
+    # we start by initializing an empty dictionary
+    TEMP = {}
 
+    for form in libreforms.forms:
+        TEMP[form] = mongodb.new_read_documents_from_collection(form)
+
+        # use *args to drop fields with value if the dataframe is not empty;
+        # for example, if you run get_map_of_form_data('Metadata','Journal'),
+        # you will receive back a dictionary of dataframes, each of which will
+        # have their 'Metadata' and 'Journal' fields dropped if they exist.
+        if isinstance(TEMP[form], pd.DataFrame):
+            TEMP[form].drop(columns=[x for x in args if x in TEMP[form].columns], inplace=True)
+
+    return TEMP
 
 def select_reports_by_time():
 
