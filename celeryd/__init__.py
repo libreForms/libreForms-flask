@@ -143,7 +143,7 @@ def index_new_documents(time_since=86400, elasticsearch_index="submissions"):
 def setup_periodic_tasks(sender, **kwargs):
 
     # periodically calls send_reports 
-    sender.add_periodic_task(3600.0, send_eligible_reports_async.s(), name='send reports periodically')
+    sender.add_periodic_task(app.config["REPORT_SEND_RATE"], send_eligible_reports_async.s(), name='send reports periodically')
 
     # periodically conduct a heartbeat check
     sender.add_periodic_task(3600.0, celery_beat_logger.s(), name='log that celery beat is working')

@@ -171,10 +171,12 @@ config['enable_user_profile_log_aggregation'] = False
 # the `system_reports` config defaults to None, but can be configured to 
 # send system reports (eg. complex reports with a routing list, instead of
 # single-user reports). The `user_defined_reports` will allow users to create
-# reports when it assesses to True.
+# reports when it assesses to True. The `report_send_rate` config is a float 
+# defining the interval (in seconds) we want to set between sending reports.
 config['enable_reports'] = True
 config['system_reports'] = None
 config['user_defined_reports'] = True
+config['report_send_rate'] = 3600.0
 
 # UNTESTED: these configs specify the login credentials for the MongoDB 
 # database, especially useful for externalized databases.
