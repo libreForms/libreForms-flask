@@ -56,12 +56,13 @@ __email__ = "signe@atreeus.com"
 
 from flask import url_for
 
-import libreforms
 from app.mongo import mongodb
 from app.config import config
+import libreforms
 
-import pandas as pd
 from datetime import datetime
+import pandas as pd
+import re
 
 ##########################
 # Filters - conditions used to assess forms for inclusion in reports
@@ -91,30 +92,33 @@ def preprocess_text_filters(string):
 # filters; this is the method that we should call when
 # validating a string stored as a report's filters.
 # Worried this is a little bit computationally expensive..
-def validate_filters(s):
+# def validate_filters(s):
 
-    STRINGS = preprocess_text_filters(s)
+#     STRINGS = preprocess_text_filters(s)
 
-    for string in STRINGS:
-        operand1, comparison, operand2 = string.split()
-        COMPARISONS = get_operators()
+#     for string in STRINGS:
+#         operand1, comparison, operand2 = string.split()
+#         COMPARISONS = get_operators()
 
-        # if the attempted comparison isn't supported, then
-        # we fail
-        if comparison not in COMPARISONS:
-            return False
+#         # if the attempted comparison isn't supported, then
+#         # we fail
+#         if comparison not in COMPARISONS:
+#             return False
 
-        # if any of the conditions assess false, then return False
-        if not COMPARISONS[comparison](operand1, operand2):
-            return False
+#         # if any of the conditions assess false, then return False
+#         if not COMPARISONS[comparison](operand1, operand2):
+#             return False
         
-    # if the above passes, then return True
-    return True
+#     # if the above passes, then return True
+#     return True
 
 
 def lint_filters(s, *args, **kwargs):
 
-    STRINGS = preprocess_text_filters(s)
+    try:
+        STRINGS = new_preprocess_text_filters(s)
+    except:
+        return False
 
     for string in STRINGS:
         try:
@@ -129,20 +133,61 @@ def lint_filters(s, *args, **kwargs):
     return True
 
 
-def dummy_test(STRINGS = ['my_city_name == my_city_name','6001 >= 6005', 'my_city_name == your_city_name', '13 != 14', '1 < 4', 'vary in [varynice,telluride]']):
+# def dummy_test(STRINGS = ['my_city_name == my_city_name','6001 >= 6005', 'my_city_name == your_city_name', '13 != 14', '1 < 4', 'vary in [varynice,telluride]']):
 
-    for string in STRINGS:
-        operand1, comparison, operand2 = string.split()
-        COMPARISONS = get_operators()
-        if comparison in COMPARISONS:
-                print(string, COMPARISONS[comparison](operand1, operand2))
-        else:
-                print(string, "Unknown comparison")
+#     for string in STRINGS:
+#         operand1, comparison, operand2 = string.split()
+#         COMPARISONS = get_operators()
+#         if comparison in COMPARISONS:
+#                 print(string, COMPARISONS[comparison](operand1, operand2))
+#         else:
+#                 print(string, "Unknown comparison")
+
+
+def new_preprocess_text_filters(s = "(a == '7'),(c == 'pig'),"):
+
+    # start by stripping trailing / leading whitespace
+    s = s.strip()
+
+    # drop any trailing commas
+    s = s[:-1] if s[-1] == ',' else s
+
+    # assert that the string ends with a parenthesis
+    assert (s[-1] == ')' and not s[-2:-1] in ['))', ',)'])
+
+    # this one might take some explaining. In essence, we are assuming 
+    # the previous check passed (and that therefore the string ends with 
+    # a parenthetical). Then, we take a substring of all characters except
+    # the very last character. We then assert that there are no other trailing
+    # parentheses found later than the last leading parenthesis. Obviously,
+    # if there are fewer than two trailing parentheses, then this logic won't
+    # work ... so we create an exception for those cases. Previously, we used
+    # the following assertion, but this did not work when there are multiple
+    # parenthetical statements:
+        # assert (s[:-1].find('(') > s[:-1].find(')') or s.count(')') < 2)
+    # However, we realized that if we split on the trailing parentheticals:
+        # ['(' in x for x in s[:-1].split(')')]
+    # that we could make the assertion statement work, see below
+    assert (all(['(' in x for x in s[:-1].split(')')] or s.count(')') < 2))
+
+    # we use regular expressions to group each parenthetical statement, see
+    # https://stackoverflow.com/a/29438510/13301284.
+    STRINGS = [''.join(tup.strip()) for tup in re.findall(r'\((.+?)\)', s)]
+
+    # now we need to handle types, which we support strings and numbers.
+
+
+    return STRINGS
+
+
+def generate_pandas_query_string(STRINGS):
+    return " & ".join(STRINGS)
+
+
 
 ##########################
 # Reports - triggers and logic for initiating and sending reports
 ##########################
-
 
 # this function will get a list of all current forms, and then create a dictionary 
 # where each key corresponds to these form names, and each value is a dataframe 
