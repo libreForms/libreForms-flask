@@ -212,6 +212,7 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
         HCAPTCHA_SECRET_KEY = config['hcaptcha_secret_key'] if config['hcaptcha_secret_key'] else None,
         ENABLE_SEARCH = config['enable_search'],
         EXCLUDE_FORMS_FROM_SEARCH=config['exclude_forms_from_search'],
+        ELASTICSEARCH_INDEX_REFRESH_RATE=config['elasticsearch_index_refresh_rate'],
         CELERY_CONFIG={
             'broker_url':config['celery_broker'],
             'result_backend':config['celery_backend'],

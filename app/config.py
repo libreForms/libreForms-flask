@@ -210,11 +210,15 @@ except OSError:
 # this config enables the use of elasticsearch by setting the `enable_search` 
 # option to a value that assesses to True. This will add a search bar to the
 # application frontend. The `exclude_forms_from_search` option defaults to 
-# False, but can take a list of form names to exclude. For further discussion,
+# False, but can take a list of form names to exclude. The `elasticsearch_index_refresh_rate`
+# field is a float defining the interval (in seconds) we want to set between each time the 
+# elasticsearch index is updated. Nb. we add 50 seconds to this when selecting forms to index,
+# in case there are delays in the celery task being run, as this only has the potential,
+# low risk effect of reindexing forms that have already been indexed. For further discussion,
 # see https://github.com/libreForms/libreForms-flask/issues/236.
 config['enable_search'] = False
 config['elasticsearch_host'] = 'localhost'
-config['elasticsearch_index_refresh_rate'] = 'localhost'
+config['elasticsearch_index_refresh_rate'] = 600.0
 config['exclude_forms_from_search'] = None
 
 

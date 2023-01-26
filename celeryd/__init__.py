@@ -148,5 +148,8 @@ def setup_periodic_tasks(sender, **kwargs):
     sender.add_periodic_task(3600.0, celery_beat_logger.s(), name='log that celery beat is working')
 
     # periodically update the elasticsearch index, giving a slightly longer `time_since`
-    # to avoid delay problems. We might be able to design this better ... see 
-    sender.add_periodic_task(600.0, index_new_documents.s(time_since=650), name='update elasticsearch index')
+    # to avoid delay problems. We might be able to design this better ... This value ultimately
+    # derives from the `elasticsearch_index_refresh_rate` app config.
+    sender.add_periodic_task(app.config["ELASTICSEARCH_INDEX_REFRESH_RATE"], index_new_documents.s(
+                                                                                    time_since=app.config["ELASTICSEARCH_INDEX_REFRESH_RATE"]+50), 
+                                                                                    name='update elasticsearch index')
