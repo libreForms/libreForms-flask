@@ -41,7 +41,7 @@ __email__ = "signe@atreeus.com"
 
 
 import json
-from flask import Response
+from flask import Response, url_for
 from app import celery, create_app, log, mailer, mongodb
 from app.reporting import reportManager
 from celeryd.tasks import send_mail_async, write_document_to_collection_async, send_report_async
@@ -78,52 +78,57 @@ def convert_timestamp(row, now):
 
 
 @celery.task()
-def index_new_documents():
+def index_new_documents(time_since=86400, elasticsearch_index="submissions"):
 
     if app.config["ENABLE_SEARCH"]:
 
+        # log.info(f'LIBREFORMS - started elasticsearch index process.')
+
+        # here we exclude forms explicitly exlucded from search indexing.
         form_list = [x for x in forms if x not in app.config["EXCLUDE_FORMS_FROM_SEARCH"]]
         
+        # for each of these form names
         for f in form_list:
+            
+            # log.info(f'LIBREFORMS - stated elasticsearch index for form {f}.')   
+
+            # get all the documents in the collection
             df = mongodb.new_read_documents_from_collection(f)
 
-            df['time_since'] = df.apply(lambda row: convert_timestamp(row,datetime.timestamp(datetime.now()) ), axis=1)
-            df = df.loc [df.time_since < 3600 ]
+            # mongodb.new_read_documents_from_collection() returns False if no collection
+            # exists with that name, so we can save ourselves an otherwise wasted iteration
+            # here if any given form is not of type `DataFrame`
+            if isinstance(df, pd.DataFrame):
 
-            
+                print(df)
 
-                    # if 'Journal' in elastic_search_args:
-                    #     del elastic_search_args['Journal']
-                    # if 'Metadata' in elastic_search_args:
-                    #     del elastic_search_args['Metadata']
-                    # if 'IP_Address' in elastic_search_args:
-                    #     del elastic_search_args['IP_Address']
-                    # if 'Approver' in elastic_search_args:
-                    #     del elastic_search_args['Approver']
-                    # if 'Approval' in elastic_search_args:
-                    #     del elastic_search_args['Approval']
-                    # if 'Approver_Comment' in elastic_search_args:
-                    #     del elastic_search_args['Approver_Comment']
-                    # if 'Signature' in elastic_search_args:
-                    #     del elastic_search_args['Signature']
-                    # if '_id' in elastic_search_args:
-                    #     del elastic_search_args['_id']
+                # here we ask how long ago the document was created
+                df['time_since'] = df.apply(lambda row: convert_timestamp(row,datetime.timestamp(datetime.now()) ), axis=1)
+                df = df.loc [df.time_since < time_since ]
 
-                    # elasticsearch_content = ', '.join([f'{x} - {str(elastic_search_args[x])}' for x in elastic_search_args])
+                # we iterate through rows
+                for index, row in df.iterrows():
 
-                    # elasticsearch_data = {
-                    #     'form_name': form_name,
-                    #     'title': document_id,
-                    #     'url': url_for('submissions.render_document', form_name=form_name, document_id=document_id), 
-                    #     # 'content': render_template('submissions/index_friendly_submissions.html', form_name=form_name, submission=elastic_search_args),
-                    #     'content': elasticsearch_content,
-                    # }
+                    # we write a little string to approximate the page content of the corresponding page; nb. we 
+                    # exclude certain fields that are not 'content' fields...
+                    elasticsearch_content = ', '.join([f'{x} - {str(row[x])}' for x in df.columns if x not in 
+                        ['Journal', 'Metadata', 'IP_Address', 'Approver', 'Approval', 'Approver_Comment', 'Signature', '_id']])
 
-                    # # print(elasticsearch_data)
+                    # we construct the body payload for elasticsearch
+                    elasticsearch_data = {
+                        'form_name': f,
+                        'title': str(row._id),
+                        'url': f"/submissions/{f}/{str(row._id)}", 
+                        # 'url': url_for('submissions.render_document', form_name=f, document_id=str(row._id)), 
+                        'content': elasticsearch_content,
+                    }
+                    
+                    # write the item to the elasticsearch index 
+                    app.elasticsearch.index(id=str(row._id), body=elasticsearch_data, index=elasticsearch_index)
 
-                    # with current_app.app_context():
-                    #     index_elasticsearch = elasticsearch_index_document.apply_async(kwargs={'body':elasticsearch_data, 'id':document_id, 'client':current_app.elasticsearch})
-                    # log.info(f'{current_user.username.upper()} - updated updating search index for document no. {document_id}.')
+                    # log.info(f'LIBREFORMS - updated search index for document no. {document_id}.')
+
+        # log.info(f'LIBREFORMS - finished elasticsearch index process.')
 
 
 
@@ -139,3 +144,6 @@ def setup_periodic_tasks(sender, **kwargs):
 
     # periodically conduct a heartbeat check
     sender.add_periodic_task(3600.0, celery_beat_logger.s(), name='log that celery beat is working')
+
+    # periodically update the elasticsearch index
+    sender.add_periodic_task(15.0, index_new_documents.s(time_since=15), name='update elasticsearch index')
