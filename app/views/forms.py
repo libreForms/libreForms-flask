@@ -29,7 +29,7 @@ from app import config, log, mailer, mongodb
 from app.models import User, db
 from app.views.auth import login_required, session
 from app.certification import encrypt_with_symmetric_key
-from celeryd.tasks import send_mail_async, elasticsearch_index_document
+from celeryd.tasks import send_mail_async
 
 
 # and finally, import other packages
@@ -569,44 +569,6 @@ def forms(form_name):
                 flash(f'{form_name} form successfully submitted, document ID {document_id}. ')
                 if config['debug']:
                     flash(str(parsed_args))
-
-
-                if config['enable_search']:
-
-                    elastic_search_args = mongodb.get_document(form_name, document_id)
-
-                    if 'Journal' in elastic_search_args:
-                        del elastic_search_args['Journal']
-                    if 'Metadata' in elastic_search_args:
-                        del elastic_search_args['Metadata']
-                    if 'IP_Address' in elastic_search_args:
-                        del elastic_search_args['IP_Address']
-                    if 'Approver' in elastic_search_args:
-                        del elastic_search_args['Approver']
-                    if 'Approval' in elastic_search_args:
-                        del elastic_search_args['Approval']
-                    if 'Approver_Comment' in elastic_search_args:
-                        del elastic_search_args['Approver_Comment']
-                    if 'Signature' in elastic_search_args:
-                        del elastic_search_args['Signature']
-                    if '_id' in elastic_search_args:
-                        del elastic_search_args['_id']
-
-                    elasticsearch_content = ', '.join([f'{x} - {str(elastic_search_args[x])}' for x in elastic_search_args])
-
-                    elasticsearch_data = {
-                        'form_name': form_name,
-                        'title': document_id,
-                        'url': url_for('submissions.render_document', form_name=form_name, document_id=document_id), 
-                        # 'content': render_template('submissions/index_friendly_submissions.html', form_name=form_name, submission=elastic_search_args),
-                        'content': elasticsearch_content,
-                    }
-
-                    # print(elasticsearch_data)
-
-                    with current_app.app_context():
-                        index_elasticsearch = elasticsearch_index_document.apply_async(kwargs={'body':elasticsearch_data, 'id':document_id, 'client':current_app.elasticsearch})
-                    log.info(f'{current_user.username.upper()} - updated updating search index for document no. {document_id}.')
 
 
                 log.info(f'{current_user.username.upper()} - submitted \'{form_name}\' form, document no. {document_id}.')

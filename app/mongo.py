@@ -201,7 +201,9 @@ class MongoDB:
 
             collection = db[collection_name]
 
-            timestamp = str(datetime.datetime.utcnow())
+            timestamp_human_readable = str(datetime.datetime.utcnow())
+
+            
 
             data['Reporter'] = str(reporter) if reporter else None
 
@@ -250,7 +252,7 @@ class MongoDB:
 
             # setting the timestamp sooner so it's included in the Journal data, perhaps removing the
             # need for a data copy.
-            data['Timestamp'] = timestamp
+            data['Timestamp'] = timestamp_human_readable
 
             # but we create a copy anyways to keep things segmented and avoid potential
             # recursion problems.
@@ -264,7 +266,7 @@ class MongoDB:
                 data['Owner'] = data['Reporter']
                 data_copy['Owner'] = data_copy['Reporter']
                 
-                data['Journal'] = { timestamp: data_copy }
+                data['Journal'] = { timestamp_human_readable: data_copy }
 
                 # In the past, we added an `initial_submission` tag the first time a form was submitted
                 # but this is probably very redundant, so deprecating it here. 
@@ -279,12 +281,12 @@ class MongoDB:
                 # if the form is submitted with new digital signature or approval data,
                 # then we attach related metadata
                 if digital_signature:
-                    data['Metadata']['signature_timestamp'] = timestamp
+                    data['Metadata']['signature_timestamp'] = timestamp_human_readable
                     if ip_address:
                         data['Metadata']['signature_ip'] = ip_address
 
                 if approval:
-                    data['Metadata']['signature_timestamp'] = timestamp
+                    data['Metadata']['signature_timestamp'] = timestamp_human_readable
                     if ip_address:
                         data['Metadata']['signature_ip'] = ip_address
 
@@ -333,12 +335,12 @@ class MongoDB:
                 # if the form is submitted with new digital signature or approval data,
                 # then we attach related metadata
                 if digital_signature:
-                    data['Metadata']['signature_timestamp'] = timestamp
+                    data['Metadata']['signature_timestamp'] = timestamp_human_readable
                     if ip_address:
                         data['Metadata']['signature_ip'] = ip_address
 
                 if approval:
-                    data['Metadata']['approval_timestamp'] = timestamp
+                    data['Metadata']['approval_timestamp'] = timestamp_human_readable
                     if ip_address:
                         data['Metadata']['approval_ip'] = ip_address
 
@@ -355,6 +357,18 @@ class MongoDB:
 
             collection = db[collection_name]
             return list(collection.find())
+
+    def new_read_documents_from_collection(self, collection_name):
+        with MongoClient(host=self.host, port=self.port) if not self.dbpw else MongoClient(self.connection_string) as client:
+
+            # if the collection doesn't exist, return false
+            if collection_name not in self.collections():
+                return False
+
+            db = client['libreforms']
+
+            collection = db[collection_name]
+            return pd.DataFrame(list(collection.find()))
 
 
     def is_document_in_collection(self, collection_name, document_id):
@@ -401,6 +415,7 @@ class MongoDB:
             # we return True if the form exists
             document = df.loc[df['_id'] == ObjectId(document_id)]
             return document.iloc[0].to_dict() if len(document) > 0 else False
+
 
 
     def check_connection(self):

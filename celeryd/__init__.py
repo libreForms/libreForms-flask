@@ -45,6 +45,10 @@ from flask import Response
 from app import celery, create_app, log, mailer, mongodb
 from app.reporting import reportManager
 from celeryd.tasks import send_mail_async, write_document_to_collection_async, send_report_async
+from libreforms import forms
+import pandas as pd
+from dateutil import parser
+from datetime import datetime
 
 app = create_app(celery_app=True)
 app.app_context().push()
@@ -63,6 +67,68 @@ def elasticsearch_refresh_index():
 def celery_beat_logger():
     log.info('LIBREFORMS - celery just had another hearbeat.')
     return 'LIBREFORMS - celery just had another hearbeat.'
+
+
+def convert_timestamp(row, now):
+    print(now)
+    t = datetime.timestamp(parser.parse(row['Timestamp']))
+    print(t)
+    return now - t
+    
+
+
+@celery.task()
+def index_new_documents():
+
+    if app.config["ENABLE_SEARCH"]:
+
+        form_list = [x for x in forms if x not in app.config["EXCLUDE_FORMS_FROM_SEARCH"]]
+        
+        for f in form_list:
+            df = mongodb.new_read_documents_from_collection(f)
+
+            df['time_since'] = df.apply(lambda row: convert_timestamp(row,datetime.timestamp(datetime.now()) ), axis=1)
+            df = df.loc [df.time_since < 3600 ]
+
+            
+
+                    # if 'Journal' in elastic_search_args:
+                    #     del elastic_search_args['Journal']
+                    # if 'Metadata' in elastic_search_args:
+                    #     del elastic_search_args['Metadata']
+                    # if 'IP_Address' in elastic_search_args:
+                    #     del elastic_search_args['IP_Address']
+                    # if 'Approver' in elastic_search_args:
+                    #     del elastic_search_args['Approver']
+                    # if 'Approval' in elastic_search_args:
+                    #     del elastic_search_args['Approval']
+                    # if 'Approver_Comment' in elastic_search_args:
+                    #     del elastic_search_args['Approver_Comment']
+                    # if 'Signature' in elastic_search_args:
+                    #     del elastic_search_args['Signature']
+                    # if '_id' in elastic_search_args:
+                    #     del elastic_search_args['_id']
+
+                    # elasticsearch_content = ', '.join([f'{x} - {str(elastic_search_args[x])}' for x in elastic_search_args])
+
+                    # elasticsearch_data = {
+                    #     'form_name': form_name,
+                    #     'title': document_id,
+                    #     'url': url_for('submissions.render_document', form_name=form_name, document_id=document_id), 
+                    #     # 'content': render_template('submissions/index_friendly_submissions.html', form_name=form_name, submission=elastic_search_args),
+                    #     'content': elasticsearch_content,
+                    # }
+
+                    # # print(elasticsearch_data)
+
+                    # with current_app.app_context():
+                    #     index_elasticsearch = elasticsearch_index_document.apply_async(kwargs={'body':elasticsearch_data, 'id':document_id, 'client':current_app.elasticsearch})
+                    # log.info(f'{current_user.username.upper()} - updated updating search index for document no. {document_id}.')
+
+
+
+
+
 
 
 @celery.on_after_configure.connect
