@@ -100,6 +100,14 @@ def tables(form_name):
             flash('This form has not received any submissions.')
             return redirect(url_for('tables.tables_home'))
 
+        # prior to dropping the metadata fields, we generate hyperlinks to each individual
+        # form, see https://github.com/libreForms/libreForms-flask/issues/243. Luckily, we
+        # don't need to deal with submissions.gen_hyperlink because pandas dataframes allow
+        # you to render links when you generate the table as html using render_link, see
+        # https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.to_html.html. 
+        # df['Hyperlink'] = df.apply(lambda row: f"{config['domain']}/submissions/{form_name}/{row._id}", axis=1)
+        df['Hyperlink'] = df.apply(lambda row: config['domain']+url_for('submissions.render_document', form_name=form_name, document_id=row['_id']), axis=1)
+
 
         # drop `meta` fields from user vis
         [ df.drop(columns=[x], inplace=True) for x in ['Journal', 'Metadata', '_id'] if x in df.columns]
@@ -120,9 +128,8 @@ def tables(form_name):
         flash(f'This form does not exist. {e}')
         return redirect(url_for('tables.tables_home'))
 
-
     return render_template('app/tables.html',
-        table=Markup(df.to_html(index=False, classes=f"table {'text-dark' if not (config['dark_mode'] or current_user.theme == 'dark') else ''}")),
+        table=Markup(df.to_html(index=False, render_links=True, classes=f"table {'text-dark' if not (config['dark_mode'] or current_user.theme == 'dark') else ''}")),
         # table=df,
         type="tables",
         name=form_name,
