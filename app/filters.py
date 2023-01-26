@@ -24,21 +24,12 @@ presuming admins have enabled the correct display variables:
 There are a couple ways to deal with the issue of send intervals, which we discuss
 further at https://github.com/libreForms/libreForms-flask/issues/218.
 frequency of emails
-    daily
-    hourly
-    weekly
-    monthly
-    annually 
-    manual
-time range applied to, relative to the time of the report
-    start time
-    end time
-    ### OR ###
-    last week
-    last month
-    last year
-    last hour
-    all time
+    daily: 3600
+    hourly: 86400
+    weekly: 604800
+    monthly: 2592000
+    annually: 31536000 
+    manual: NO TIME ASSIGNED
 
 At this time, email reports are the only supported method, but 
 feasibly other methods of report conveyance can be devised, see 
@@ -144,13 +135,26 @@ def dummy_test(STRINGS = ['my_city_name == my_city_name','6001 >= 6005', 'my_cit
 ##########################
 
 
-time_map = {
-    'hourly': 3600,
-    'daily': 86400,
-    'weekly': 604800,
-    'monthly': 2592000, # this we map to 30 days, though this may have problems...
-    'annually': 31536000,
-}
+
+
+def select_reports_by_time():
+
+    # we map each human-readable `frequency` option to its corresponding interval
+    # in seconds. Should we remove this from the application code, and simply add
+    # as a field in the Report data model? That might save some complexity here...
+    time_map = {
+        'hourly': 3600,
+        'daily': 86400,
+        'weekly': 604800,
+        'monthly': 2592000, # this we map to 30 days, though this may have problems...
+        'annually': 31536000,
+    }
+
+
+# this is the synchronous function that will be used to send reports. It will be wrapped
+# by a corresponding asynchronous celery function in celeryd.
+def send_eligible_reports():
+    pass
 
 # form applied to
     # select option from current forms you have view access for

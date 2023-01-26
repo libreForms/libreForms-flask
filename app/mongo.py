@@ -129,6 +129,10 @@ with something more like:
 
 Then again, it might just be a problem with this: https://stackoverflow.com/a/34711892/13301284.
 
+Issue references:
+1. https://github.com/libreForms/libreForms-flask/issues/136
+2. https://github.com/libreForms/libreForms-flask/issues/219
+
 """
 
 __name__ = "app.mongo"
@@ -141,7 +145,6 @@ __email__ = "signe@atreeus.com"
 
 from pymongo import MongoClient
 import os
-import contextlib
 import pandas as pd
 import datetime
 from bson.objectid import ObjectId

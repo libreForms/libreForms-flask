@@ -43,7 +43,7 @@ __email__ = "signe@atreeus.com"
 import json
 from flask import Response, url_for
 from app import celery, create_app, log, mailer, mongodb
-# from app.reporting import reportManager
+from app.filters import send_eligible_reports
 from celeryd.tasks import send_mail_async, write_document_to_collection_async, send_report_async
 from libreforms import forms
 import pandas as pd
@@ -53,9 +53,10 @@ from datetime import datetime
 app = create_app(celery_app=True)
 app.app_context().push()
 
-# create a reportManager object for sending reports that have come due
-# reports = reportManager()
-reports = None
+
+def send_eligible_reports_async(*arg, **kwargs):
+    return send_eligible_reports(*arg, **kwargs)
+
 
 # this should run periodically to refresh the elasticsearch index 
 @celery.task()
@@ -142,7 +143,7 @@ def index_new_documents(time_since=86400, elasticsearch_index="submissions"):
 def setup_periodic_tasks(sender, **kwargs):
 
     # periodically calls send_reports 
-    # sender.add_periodic_task(3600.0, send_report_async.s(reports.trigger()), name='send reports periodically')
+    sender.add_periodic_task(3600.0, send_eligible_reports_async.s(), name='send reports periodically')
 
     # periodically conduct a heartbeat check
     sender.add_periodic_task(3600.0, celery_beat_logger.s(), name='log that celery beat is working')
