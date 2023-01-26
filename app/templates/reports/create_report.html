@@ -84,15 +84,17 @@
   </div>
   <div class="offcanvas-body">
     <div>
-      <p>Report filters are used to filter results that will be captured by each report, using comma-separated conditions. All conditions described here must be met in order for the report to be sent. 
-        Please include a space between conditions and operators. The left field should contain the name of a form field, while the right field should contain some value that the system can match. These 
-        conditions should employ standard Python operators, see <a href="https://www.w3schools.com/python/python_operators.asp">https://www.w3schools.com/python/python_operators.asp</a>.</p>
+      <p>Report filters are used to filter results that will be captured by each report, using comma-separated conditions encapsulated by parentheses. 
+        All conditions described here must be met in order for the report to be sent. You may include a space between conditions and operators. The 
+        left field should always contain the name of a form field you are querying, while the right field should contain some value that the system 
+        can match. String values must be encapsulated by single or double quotes. These conditions should employ standard Python operators, 
+        see <a href="https://www.w3schools.com/python/python_operators.asp">https://www.w3schools.com/python/python_operators.asp</a>.</p>
       <h6>Examples</h6>
       <ul>
-        <li><code>Team_Name == Budget,</code></li>
-        <li><code>Team_Name != Marketing,</code></li>
-        <li><code>Proposed_Cost > 1000000,</code></li>
-        <li><code>Owner == john.smith,</code></li>
+        <li><code>(Team_Name == "Budget"),</code></li>
+        <li><code>(Team_Name != 'Marketing'),</code></li>
+        <li><code>(Proposed_Cost > 1000000),</code></li>
+        <li><code>(Owner == 'john.smith'),</code></li>
       </ul>
     </div>
   </div>
