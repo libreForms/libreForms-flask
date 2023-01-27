@@ -107,8 +107,8 @@ def index_new_documents(time_since=86400, elasticsearch_index="submissions"):
             # print(df)
             print(f, ' - found data - type: ', type(df))
 
-            # here we ask how long ago the document was created
-            df['elasticsearch_time_since'] = df.apply(lambda row: convert_timestamp(row,datetime.timestamp(datetime.now()) ), axis=1)
+            # here we ask how long ago the document was created by taking the difference betwee the current time and created time
+            df['elasticsearch_time_since'] = df.apply(lambda row: datetime.timestamp(datetime.now()) - datetime.timestamp(parser.parse(row['Timestamp'])), axis=1)
             df = df.loc [df.elasticsearch_time_since < time_since ]
 
             # we iterate through rows

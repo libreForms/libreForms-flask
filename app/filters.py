@@ -287,14 +287,32 @@ def send_eligible_reports():
 
     # next, we iterate through each report and select the corresponding dataframe
     for index, row in report_df.iterrows():
-        TEMP = form_df[row['form_name']]
+        TEMP = form_df[row['form_name']].copy()
 
 
+        # we create a unix timestamp field for the form data
         TEMP['unixTimestamp'] = TEMP.apply(lambda row: datetime.timestamp(parser.parse(row['Timestamp'])), axis=1)
 
 
         # collect forms based on timetamp `type` condition
-        # run queries against data
+        if row['type'] == 'created_since_last_run':
+            pass
+        if row['type'] == 'modified_since_last_run':
+            pass
+        if row['type'] == 'created_all_time':
+            pass
+        if row['type'] == 'static_last_hour':
+            pass
+        if row['type'] == 'static_last_day':
+            pass
+        if row['type'] == 'static_last_month':
+            pass
+        if row['type'] == 'static_last_year':
+            pass
+
+        # run queries against data if filters have been passed
+        if row['filters'] and row['filters'] != '':
+            TEMP.query(generate_pandas_query_string(new_preprocess_text_filters(row['filters'])), inplace=True)
         # send email async
         # update last_run_at
 

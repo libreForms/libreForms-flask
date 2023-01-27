@@ -50,9 +50,15 @@
   
   </head>
 
-  <body class="{{ 'p-3 mb-2 bg-dark text-white' if dark_mode else 'p-3 mb-2 bg-transparent text-dark' }}">        
+  <body class="{{ 'p-3 mb-2 bg-dark text-white' if dark_mode else 'p-3 mb-2 bg-transparent text-dark' }}">    
+    
+    
     <div class="container-fluid">
+      
+      
       <div class="row">
+
+
         <nav class="navbar navbar-expand-lg {{'navbar-dark bg-dark' if dark_mode else 'navbar-light bg-light text-dark'}} border-bottom" style="padding-left: 30px;z-index:999999 !important;">
           <a href="{% if type == 'external' %}#{% else %}{{ url_for('home') }}{% endif %}" class="navbar-brand">{{ config['site_name'] }} <small class="{{'text-muted' if dark_mode else 'text-secondary'}}">v.{{ config['version'] }}</small></a>    
           <ul class="nav navbar-nav">
@@ -89,46 +95,59 @@
             {% endif %}
             </ul>
 
-              <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                {% if user %}
-                <li class="nav-link active me-auto" style="padding-right: 30px;">Currently logged in as <small class="{{'text-muted' if dark_mode else 'text-secondary'}}muted">{{ user.username }}</small>.</li>
-                {% elif signed_url %}
-                <li class="nav-link active me-auto" style="padding-right: 30px;">You are completing this form as <small class="{{'text-muted' if dark_mode else 'text-secondary'}}">{{ signed_url }}</small>.</li>
-                {% endif %} 
-              </ul>
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+              {% if user %}
+              <li class="nav-link active me-auto" style="padding-right: 30px;">Currently logged in as <small class="{{'text-muted' if dark_mode else 'text-secondary'}}muted">{{ user.username }}</small>.</li>
+              {% elif signed_url %}
+              <li class="nav-link active me-auto" style="padding-right: 30px;">You are completing this form as <small class="{{'text-muted' if dark_mode else 'text-secondary'}}">{{ signed_url }}</small>.</li>
+              {% endif %} 
+            </ul>
           </nav>
-        </div>
+      </div>
 
-          <div class="row">
-            <div class="col-12 col-md-3 d-none d-md-block  {{'bg-dark' if dark_mode else 'bg-transparent text-dark'}}" style="padding-top: 20px; padding-left: 30px; height: 100%;z-index:999998 !important;">  
-                <ul class="nav nav-pills nav-stacked flex-column">
-                  <h3 class="nav-link border-bottom {{' text-dark' if not dark_mode else ''}}{{' text-dark' if not dark_mode else ''}}">{{ name }} <small class="{{'text-muted' if dark_mode else 'text-secondary'}}">{% if context %}form{% elif is_table %}table{% elif graphJSON %}dashboard{% elif homepage %}home{% endif %}</small></h3>        
-                    {% if menu %}
-                    {% for item in menu %} 
-                    <li class="nav-item"><a class="nav-link{{' text-dark' if not dark_mode else ''}}" href="{{ url_for( 'reports.create_reports', form_name=item ) if type == 'reports' else url_for( type+'.'+type, form_name=item ) }}">{{ item }}</a></li>
-                    {% endfor %}
-                    {% endif %}                           
-                </ul>
-            </div>
-            <div class="col-12 col-md-9" style="width:60%; padding-top: 40px; padding-bottom: 20px;">
+      <div class="row">
+
+          <div class="col-12 col-md-3 d-none d-md-block  {{'bg-dark' if dark_mode else 'bg-transparent text-dark'}}" style="padding-top: 20px; padding-left: 30px; height: 100%;z-index:999998 !important;">  
+                
+            <ul class="nav nav-pills nav-stacked flex-column">
+              <h3 class="nav-link border-bottom {{' text-dark' if not dark_mode else ''}}{{' text-dark' if not dark_mode else ''}}">{{ name }} <small class="{{'text-muted' if dark_mode else 'text-secondary'}}">{% if context %}form{% elif is_table %}table{% elif graphJSON %}dashboard{% elif homepage %}home{% endif %}</small></h3>        
+                {% if menu %}
+                {% for item in menu %} 
+                <li class="nav-item"><a class="nav-link{{' text-dark' if not dark_mode else ''}}" href="{{ url_for( 'reports.create_reports', form_name=item ) if type == 'reports' else url_for( type+'.'+type, form_name=item ) }}">{{ item }}</a></li>
+                {% endfor %}
+                {% endif %}                           
+            </ul>
+          </div>
+
+
+
+          <div class="col-12 col-md-9" style="width:60%; padding-top: 40px; padding-bottom: 20px;">
+            <div class="row" >
               {% if get_flashed_messages() %}
               <div class="alert alert-dismissible alert-primary">
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 <strong>{% for message in get_flashed_messages() %}{{ message }}{% endfor %}</strong>
               </div>
               {% endif %}
-
               {% block content %}{% endblock %}
-              <div class="row" style="padding-top: 20px;">
-                <hr>
-                {% if config.warning_banner %}
-                {{ config.warning_banner }}
-                {% endif %}            
-              </div>
             </div>
+            <div class="row" style="padding-top: 20px;">
+              <hr>
+              {% if config.warning_banner %}
+              {{ config.warning_banner }}
+              {% endif %}            
+            </div>
+  
+          </div>
+
+          <div class="col-12 col-md-3 d-none d-md-block {{'bg-dark' if dark_mode else 'bg-transparent text-dark'}}" style="padding-top: 20px; height: 100%;z-index:999998 !important;">  
+            {% block right_bar %}{% endblock %}
           </div>
         </div>
-        {% block addons %}{% endblock %}
+
+      </div>
+
+    {% block addons %}{% endblock %}
     
     <script>
       var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
