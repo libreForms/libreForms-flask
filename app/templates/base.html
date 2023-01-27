@@ -107,7 +107,7 @@
 
       <div class="row">
 
-          <div class="col-12 col-md-3 d-none d-md-block  {{'bg-dark' if dark_mode else 'bg-transparent text-dark'}}" style="padding-top: 20px; padding-left: 30px; height: 100%;z-index:999998 !important;">  
+          <div class="col-12 col-md-3 d-none d-md-block  {{'bg-dark' if dark_mode else 'bg-transparent text-dark'}}" style="width:20%; padding-top: 20px; padding-left: 30px; height: 100%;z-index:999998 !important;">  
                 
             <ul class="nav nav-pills nav-stacked flex-column">
               <h3 class="nav-link border-bottom {{' text-dark' if not dark_mode else ''}}{{' text-dark' if not dark_mode else ''}}">{{ name }} <small class="{{'text-muted' if dark_mode else 'text-secondary'}}">{% if context %}form{% elif is_table %}table{% elif graphJSON %}dashboard{% elif homepage %}home{% endif %}</small></h3>        
@@ -140,7 +140,7 @@
   
           </div>
 
-          <div class="col-12 col-md-3 d-none d-md-block {{'bg-dark' if dark_mode else 'bg-transparent text-dark'}}" style="padding-top: 20px; height: 100%;z-index:999998 !important;">  
+          <div class="col-12 col-md-3 float-right" style="padding-top: 20px; height: 100%;z-index:999998 !important; width:20%;">  
             {% block right_bar %}{% endblock %}
           </div>
         </div>
