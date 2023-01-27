@@ -42,7 +42,7 @@ __email__ = "signe@atreeus.com"
 
 import json
 from flask import Response, url_for
-from app import celery, create_app, log, mailer, mongodb
+from app import create_app, celery, log, mailer, mongodb
 from app.filters import send_eligible_reports
 from celeryd.tasks import send_mail_async, write_document_to_collection_async, send_report_async
 from libreforms import forms

@@ -61,6 +61,7 @@ from app.config import config
 import libreforms
 
 from datetime import datetime
+from dateutil import parser
 import pandas as pd
 import re
 
@@ -238,7 +239,7 @@ def select_user_reports_by_time():
     df = pd.read_sql_table(Report.__tablename__, con=db.engine.connect())
 
     # drop where inactive is set to False
-    df = df[df['active']!=1]
+    df = df[df['active']==1]
 
     # drop where frequency is set to 'manual'
     df = df[df['frequency']!='manual']
@@ -252,10 +253,12 @@ def select_user_reports_by_time():
     # here we do some (rather inefficient, admittedly; we should find a way
     # to optimize this if performance becomes an issue). First, we map the timestamps
     # to the human readable `frequency` field.
-    df['int_frequency'] = df.apply(lambda row: time_map[row['frequency']], axis=1)
+    if len(df) > 0:
+        df['int_frequency'] = df.apply(lambda row: time_map[row['frequency']], axis=1)
+    else: return df # if the length is already 0 here, then we just return the empty dataframe
 
     # then, we calculate how long it has been since the report was last run
-    df['time_since_last_run'] = df['last_run_at'] - datetime.timestamp(datetime.now())
+    df['time_since_last_run'] = datetime.timestamp(datetime.now()) - df['last_run_at']
 
     # we select rows that are 'due'; that is, the time elapsed since they were
     # last run is equal to or greater than the frequency at which they are sent.
@@ -282,10 +285,18 @@ def send_eligible_reports():
                                         'Approval', 'Approver_Comment', 'Signature', '_id', add_hyperlink=True)
 
 
-
-
+    # next, we iterate through each report and select the corresponding dataframe
     for index, row in report_df.iterrows():
-        pass
+        TEMP = form_df[row['form_name']]
+
+
+        TEMP['unixTimestamp'] = TEMP.apply(lambda row: datetime.timestamp(parser.parse(row['Timestamp'])), axis=1)
+
+
+        # collect forms based on timetamp `type` condition
+        # run queries against data
+        # send email async
+        # update last_run_at
 
 # form applied to
     # select option from current forms you have view access for

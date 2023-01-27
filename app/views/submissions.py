@@ -635,13 +635,13 @@ def render_document(form_name, document_id):
             # print (record['Reporter'].iloc[0])
 
             if ((not checkKey(verify_group, '_deny_write') or not current_user.group in verify_group['_deny_write'])) or current_user.username == record['Owner'].iloc[0]:
-                msg = msg + Markup(f"<a href = '{config['domain']}/submissions/{form_name}/{document_id}/edit'>edit this document</a>")
+                msg = msg + Markup(f" • <a href = '{config['domain']}/submissions/{form_name}/{document_id}/edit'>edit this document</a>")
 
             if propagate_form_configs(form_name)['_form_approval'] and 'Approver' in record.columns and record['Approver'].iloc[0] == getattr(current_user,config['visible_signature_field']):
-                msg = msg + Markup(f"<a href = '{config['domain']}/submissions/{form_name}/{document_id}/review'>go to form approval</a>")
+                msg = msg + Markup(f" • <a href = '{config['domain']}/submissions/{form_name}/{document_id}/review'>go to form approval</a>")
 
             if propagate_form_configs(form_name)['_allow_pdf_download']:
-                msg = msg + Markup(f"<a href = '{config['domain']}/submissions/{form_name}/{document_id}/download'>download PDF</a>")
+                msg = msg + Markup(f" • <a href = '{config['domain']}/submissions/{form_name}/{document_id}/download'>download PDF</a>")
             
             return render_template('submissions/submissions.html',
                 type="submissions",
@@ -776,17 +776,17 @@ def render_document_history(form_name, document_id):
             # print (record['Reporter'].iloc[0])
 
             if ((not checkKey(verify_group, '_deny_write') or not current_user.group in verify_group['_deny_write'])) or current_user.username == record['Owner'].iloc[0]:
-                msg = msg + Markup(f"<a href = '{config['domain']}/submissions/{form_name}/{document_id}/edit'>edit this document</a>")
+                msg = msg + Markup(f" • <a href = '{config['domain']}/submissions/{form_name}/{document_id}/edit'>edit this document</a>")
             
 
             if propagate_form_configs(form_name)['_form_approval'] and 'Approver' in display_data.columns and display_data['Approver'].iloc[0] == getattr(current_user,config['visible_signature_field']):
-                msg = msg + Markup(f"<a href = '{config['domain']}/submissions/{form_name}/{document_id}/review'>go to form approval</a>")
+                msg = msg + Markup(f" • <a href = '{config['domain']}/submissions/{form_name}/{document_id}/review'>go to form approval</a>")
 
             # eventually, we may wish to add support for downloading past versions 
             # of the PDF, too; not just the current form of the PDF; the logic does 
             # seem to support this, eg. sending the `display_data`
             if propagate_form_configs(form_name)['_allow_pdf_download']:
-                msg = msg + Markup(f"<a href = '{config['domain']}/submissions/{form_name}/{document_id}/download'>download PDF</a>")
+                msg = msg + Markup(f" • <a href = '{config['domain']}/submissions/{form_name}/{document_id}/download'>download PDF</a>")
 
             return render_template('submissions/submissions.html',
                 type="submissions",
@@ -1103,7 +1103,7 @@ def review_document(form_name, document_id):
 
 
         msg = Markup(f"<a href = '{config['domain']}/submissions/{form_name}/{document_id}'>go back to document</a>")
-        msg = msg + Markup(f"<a href = '{config['domain']}/submissions/{form_name}/{document_id}/history'>view document history</a>")
+        msg = msg + Markup(f" • <a href = '{config['domain']}/submissions/{form_name}/{document_id}/history'>view document history</a>")
 
         # print (current_user.username)
         # print (record['Reporter'].iloc[0])

@@ -251,15 +251,15 @@ def view_report(report_id):
     
     # this is the link to activate / deactivate report
     if report.active:
-        msg = msg + Markup(f"<a href = \"{url_for('reports.deactivate_report', report_id=report_id)}\">Deactivate report</a>")
+        msg = msg + Markup(f" • <a href = \"{url_for('reports.deactivate_report', report_id=report_id)}\">Deactivate report</a>")
     else:
-        msg = msg + Markup(f"<a href = \"{url_for('reports.activate_report', report_id=report_id)}\">Activate report</a>")
+        msg = msg + Markup(f" • <a href = \"{url_for('reports.activate_report', report_id=report_id)}\">Activate report</a>")
     
     # this is the link to send the report now
-    msg = msg + Markup(f"<a href = \"{url_for('reports.send_report', report_id=report_id)}\">Send report now</a>")
+    msg = msg + Markup(f" • <a href = \"{url_for('reports.send_report', report_id=report_id)}\">Send report now</a>")
    
     # this is the link back to the report home
-    msg = msg + Markup(f"<a href = \"{url_for('reports.reports')}\">Go back to report home</a>")
+    msg = msg + Markup(f" • <a href = \"{url_for('reports.reports')}\">Go back to report home</a>")
 
 
     # now we render the view_report template, but pass the report object,
