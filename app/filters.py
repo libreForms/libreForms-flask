@@ -314,22 +314,22 @@ def send_eligible_reports():
         elif row['time_condition'] == 'modified_since_last_run':
             # select where unixTimestamp - row['time_since_last_run']
             TEMP = TEMP.loc[TEMP['unixTimestamp'] < row['time_since_last_run']].reset_index(drop=True)
-        if row['time_condition'] == 'created_all_time':
+        elif row['time_condition'] == 'created_all_time':
             # we just leave the dataframe as-is
             pass
-        if row['time_condition'] == 'created_last_hour':
+        elif row['time_condition'] == 'created_last_hour':
             # select where unixTimestamp - time_map['hourly']
             TEMP = TEMP.loc[TEMP['unixTimestamp'] < timestamp_time_map['hourly']].reset_index(drop=True)
-        if row['time_condition'] == 'created_last_day':
+        elif row['time_condition'] == 'created_last_day':
             # select where unixTimestamp - time_map['daily']
             TEMP = TEMP.loc[TEMP['unixTimestamp'] < timestamp_time_map['daily']].reset_index(drop=True)
-        if row['time_condition'] == 'created_last_week':
+        elif row['time_condition'] == 'created_last_week':
             # select where unixTimestamp - time_map['weekly']
             TEMP = TEMP.loc[TEMP['unixTimestamp'] < timestamp_time_map['weekly']].reset_index(drop=True)
-        if row['time_condition'] == 'created_last_month':
+        elif row['time_condition'] == 'created_last_month':
             # select where unixTimestamp - time_map['monthly']
             TEMP = TEMP.loc[TEMP['unixTimestamp'] < timestamp_time_map['monthly']].reset_index(drop=True)
-        if row['time_condition'] == 'created_last_year':
+        elif row['time_condition'] == 'created_last_year':
             # select where unixTimestamp - time_map['annually']
             TEMP = TEMP.loc[TEMP['unixTimestamp'] < timestamp_time_map['annually']].reset_index(drop=True)
 
