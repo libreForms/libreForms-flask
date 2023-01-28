@@ -128,8 +128,8 @@ class Report(db.Model):
     form_name = db.Column(db.String(100))
     filters = db.Column(db.String(1000))
     frequency = db.Column(db.Enum('hourly', 'daily', 'weekly', 'monthly', 'annually', 'manual'))
-    type = db.Column(db.Enum('created_since_last_run', 'modified_since_last_run', 'created_all_time',
-                                'static_last_hour', 'static_last_day', 'static_last_month', 'static_last_year'))
+    time_condition = db.Column(db.Enum('created_since_last_run', 'modified_since_last_run', 'created_all_time',
+                                'created_last_hour', 'created_last_day', 'created_last_month', 'created_last_year'))
     active = db.Column(db.Boolean)
     timestamp = db.Column(db.Float)
     timestamp_human_readable = db.Column(db.String(100))

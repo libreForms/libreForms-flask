@@ -30,7 +30,12 @@
       <th scope="row">Frequency</th>
       <td>{{ report.frequency }}</td>
     </tr>
-    
+
+    <tr class="table{% if emphasize and item in emphasize %}{{'-secondary' if dark_mode else '-primary'}}{% else %}{{'-dark' if dark_mode else '-transparent'}}{% endif %}">
+      <th scope="row">Form Timeframe</th>
+      <td>{{report.time_condition}}</td>
+    </tr>
+
     <tr class="table{% if emphasize and item in emphasize %}{{'-secondary' if dark_mode else '-primary'}}{% else %}{{'-dark' if dark_mode else '-transparent'}}{% endif %}">
       <th scope="row">Active</th>
       <td>{{ report.active }}</td>

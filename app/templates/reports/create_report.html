@@ -38,15 +38,15 @@
 
 
     <div class="form-group">
-      <label class="form-label mt-4 required" for="type" data-bs-toggle="tooltip" data-bs-placement="right" title="Select the timeframe for the reports you'd like captured by this report">Forms Included</label>
-      <select class="form-control" id="type" name="type" required>
-        <option value="created_since_last_run"{%if report and report.type == 'created_since_last_run'%} selected="selected"{%endif%}>{{form_name}} forms created since last run</option>
-        <option value="modified_since_last_run"{%if report and report.type == 'modified_since_last_run'%} selected="selected"{%endif%}>{{form_name}} forms modified since last run</option>
-        <option value="created_all_time"{%if report and report.type == 'created_all_time'%} selected="selected"{%endif%}>{{form_name}} forms created all time</option>
-        <option value="static_last_hour"{%if report and report.type == 'static_last_hour'%} selected="selected"{%endif%}>{{form_name}} forms created in the last hour</option>
-        <option value="static_last_day"{%if report and report.type == 'static_last_day'%} selected="selected"{%endif%}>{{form_name}} forms created in the last day</option>
-        <option value="static_last_month"{%if report and report.type == 'static_last_month'%} selected="selected"{%endif%}>{{form_name}} forms created in the last month</option>
-        <option value="static_last_year"{%if report and report.type == 'static_last_year'%} selected="selected"{%endif%}>{{form_name}} forms created in the last year</option>
+      <label class="form-label mt-4 required" for="time_condition" data-bs-toggle="tooltip" data-bs-placement="right" title="Select the timeframe for the reports you'd like captured by this report">Forms Included</label>
+      <select class="form-control" id="time_condition" name="time_condition" required>
+        <option value="created_since_last_run"{%if report and report.time_condition == 'created_since_last_run'%} selected="selected"{%endif%}>{{form_name}} forms created since last run</option>
+        <option value="modified_since_last_run"{%if report and report.time_condition == 'modified_since_last_run'%} selected="selected"{%endif%}>{{form_name}} forms modified since last run</option>
+        <option value="created_all_time"{%if report and report.time_condition == 'created_all_time'%} selected="selected"{%endif%}>{{form_name}} forms created all time</option>
+        <option value="created_last_hour"{%if report and report.time_condition == 'created_last_hour'%} selected="selected"{%endif%}>{{form_name}} forms created in the last hour</option>
+        <option value="created_last_day"{%if report and report.time_condition == 'created_last_day'%} selected="selected"{%endif%}>{{form_name}} forms created in the last day</option>
+        <option value="created_last_month"{%if report and report.time_condition == 'created_last_month'%} selected="selected"{%endif%}>{{form_name}} forms created in the last month</option>
+        <option value="created_last_year"{%if report and report.time_condition == 'created_last_year'%} selected="selected"{%endif%}>{{form_name}} forms created in the last year</option>
       </select>
     </div>
     

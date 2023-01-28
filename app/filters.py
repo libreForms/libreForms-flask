@@ -294,26 +294,29 @@ def send_eligible_reports():
         TEMP['unixTimestamp'] = TEMP.apply(lambda row: datetime.timestamp(parser.parse(row['Timestamp'])), axis=1)
 
 
-        # collect forms based on timetamp `type` condition
-        if row['type'] == 'created_since_last_run':
+        # collect forms based on timetamp `time_condition` condition
+        if row['time_condition'] == 'created_since_last_run':
             pass
-        if row['type'] == 'modified_since_last_run':
+        if row['time_condition'] == 'modified_since_last_run':
             pass
-        if row['type'] == 'created_all_time':
+        if row['time_condition'] == 'created_all_time':
             pass
-        if row['type'] == 'static_last_hour':
+        if row['time_condition'] == 'created_last_hour':
             pass
-        if row['type'] == 'static_last_day':
+        if row['time_condition'] == 'created_last_day':
             pass
-        if row['type'] == 'static_last_month':
+        if row['time_condition'] == 'created_last_month':
             pass
-        if row['type'] == 'static_last_year':
+        if row['time_condition'] == 'created_last_year':
+            # select where Timestamp
             pass
 
         # run queries against data if filters have been passed
         if row['filters'] and row['filters'] != '':
             TEMP.query(generate_pandas_query_string(new_preprocess_text_filters(row['filters'])), inplace=True)
+
         # send email async
+
         # update last_run_at
 
 # form applied to
