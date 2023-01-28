@@ -235,6 +235,9 @@ def select_user_reports_by_time():
         'annually': 31536000,
     }
 
+    # we take a current timestamp
+    current_time = datetime.timestamp(datetime.now())
+
     # read in report data
     df = pd.read_sql_table(Report.__tablename__, con=db.engine.connect())
 
@@ -245,10 +248,10 @@ def select_user_reports_by_time():
     df = df[df['frequency']!='manual']
 
     # drop where there is an end_at specified, and it has passed
-    df = df[(df['end_at']!=0) | (df['end_at']>=datetime.timestamp(datetime.now()))]
+    df = df[(df['end_at']!=0) | (df['end_at']>=current_time)]
 
     # drop where there is an start_at specified, and it has not yet arrived
-    df = df[(df['start_at']!=0) | (df['start_at']<=datetime.timestamp(datetime.now()))]
+    df = df[(df['start_at']!=0) | (df['start_at']<=current_time)]
 
     # here we do some (rather inefficient, admittedly; we should find a way
     # to optimize this if performance becomes an issue). First, we map the timestamps
@@ -258,7 +261,7 @@ def select_user_reports_by_time():
     else: return df # if the length is already 0 here, then we just return the empty dataframe
 
     # then, we calculate how long it has been since the report was last run
-    df['time_since_last_run'] = datetime.timestamp(datetime.now()) - df['last_run_at']
+    df['time_since_last_run'] = current_time - df['last_run_at']
 
     # we select rows that are 'due'; that is, the time elapsed since they were
     # last run is equal to or greater than the frequency at which they are sent.
@@ -276,6 +279,18 @@ def select_user_reports_by_time():
 # by a corresponding asynchronous celery function in celeryd.
 def send_eligible_reports():
 
+    # we take a current timestamp
+    current_time = datetime.timestamp(datetime.now())
+
+    # we map each timeframe relative to the current timestamp
+    timestamp_time_map = {
+        'hourly': current_time - 3600,
+        'daily': current_time - 86400,
+        'weekly': current_time - 604800,
+        'monthly': current_time - 2592000, # this we map to 30 days, though this may have problems...
+        'annually': current_time - 31536000,
+    }
+
     # first, we select all the reports that are due to be sent
     report_df = select_user_reports_by_time()
 
@@ -289,34 +304,34 @@ def send_eligible_reports():
     for index, row in report_df.iterrows():
         TEMP = form_df[row['form_name']].copy()
 
-
         # we create a unix timestamp field for the form data
         TEMP['unixTimestamp'] = TEMP.apply(lambda row: datetime.timestamp(parser.parse(row['Timestamp'])), axis=1)
 
-
         # collect forms based on timetamp `time_condition` condition
         if row['time_condition'] == 'created_since_last_run':
-            pass
-        if row['time_condition'] == 'modified_since_last_run':
-            pass
+            # select where unixTimestamp - row['time_since_last_run']
+            TEMP = TEMP.loc[TEMP['unixTimestamp'] < row['time_since_last_run']].reset_index(drop=True)
+        elif row['time_condition'] == 'modified_since_last_run':
+            # select where unixTimestamp - row['time_since_last_run']
+            TEMP = TEMP.loc[TEMP['unixTimestamp'] < row['time_since_last_run']].reset_index(drop=True)
         if row['time_condition'] == 'created_all_time':
+            # we just leave the dataframe as-is
             pass
         if row['time_condition'] == 'created_last_hour':
             # select where unixTimestamp - time_map['hourly']
-            pass
+            TEMP = TEMP.loc[TEMP['unixTimestamp'] < timestamp_time_map['hourly']].reset_index(drop=True)
         if row['time_condition'] == 'created_last_day':
             # select where unixTimestamp - time_map['daily']
-            pass
+            TEMP = TEMP.loc[TEMP['unixTimestamp'] < timestamp_time_map['daily']].reset_index(drop=True)
         if row['time_condition'] == 'created_last_week':
-        # select where unixTimestamp - time_map['weekly']
-            pass
+            # select where unixTimestamp - time_map['weekly']
+            TEMP = TEMP.loc[TEMP['unixTimestamp'] < timestamp_time_map['weekly']].reset_index(drop=True)
         if row['time_condition'] == 'created_last_month':
             # select where unixTimestamp - time_map['monthly']
-            pass
+            TEMP = TEMP.loc[TEMP['unixTimestamp'] < timestamp_time_map['monthly']].reset_index(drop=True)
         if row['time_condition'] == 'created_last_year':
             # select where unixTimestamp - time_map['annually']
-
-            pass
+            TEMP = TEMP.loc[TEMP['unixTimestamp'] < timestamp_time_map['annually']].reset_index(drop=True)
 
         # run queries against data if filters have been passed
         if row['filters'] and row['filters'] != '':
