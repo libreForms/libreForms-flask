@@ -302,13 +302,20 @@ def send_eligible_reports():
         if row['time_condition'] == 'created_all_time':
             pass
         if row['time_condition'] == 'created_last_hour':
+            # select where unixTimestamp - time_map['hourly']
             pass
         if row['time_condition'] == 'created_last_day':
+            # select where unixTimestamp - time_map['daily']
+            pass
+        if row['time_condition'] == 'created_last_week':
+        # select where unixTimestamp - time_map['weekly']
             pass
         if row['time_condition'] == 'created_last_month':
+            # select where unixTimestamp - time_map['monthly']
             pass
         if row['time_condition'] == 'created_last_year':
-            # select where Timestamp
+            # select where unixTimestamp - time_map['annually']
+
             pass
 
         # run queries against data if filters have been passed

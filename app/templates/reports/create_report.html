@@ -45,6 +45,7 @@
         <option value="created_all_time"{%if report and report.time_condition == 'created_all_time'%} selected="selected"{%endif%}>{{form_name}} forms created all time</option>
         <option value="created_last_hour"{%if report and report.time_condition == 'created_last_hour'%} selected="selected"{%endif%}>{{form_name}} forms created in the last hour</option>
         <option value="created_last_day"{%if report and report.time_condition == 'created_last_day'%} selected="selected"{%endif%}>{{form_name}} forms created in the last day</option>
+        <option value="created_last_weekly"{%if report and report.time_condition == 'created_last_weekly'%} selected="selected"{%endif%}>{{form_name}} forms created in the last week</option>
         <option value="created_last_month"{%if report and report.time_condition == 'created_last_month'%} selected="selected"{%endif%}>{{form_name}} forms created in the last month</option>
         <option value="created_last_year"{%if report and report.time_condition == 'created_last_year'%} selected="selected"{%endif%}>{{form_name}} forms created in the last year</option>
       </select>
