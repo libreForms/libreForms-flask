@@ -53,7 +53,7 @@ from datetime import datetime
 app = create_app(celery_app=True)
 app.app_context().push()
 
-
+@celery.task()
 def send_eligible_reports_async(*arg, **kwargs):
     return send_eligible_reports(*arg, **kwargs)
 
