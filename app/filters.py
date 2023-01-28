@@ -337,9 +337,33 @@ def send_eligible_reports():
         if row['filters'] and row['filters'] != '':
             TEMP.query(generate_pandas_query_string(new_preprocess_text_filters(row['filters'])), inplace=True)
 
-        # send email async
+        # import the database instance 
+        from app import db
+        from app.models import Report, User
 
-        # update last_run_at
+        # verify that the user is active and select their email
+        user = User.query.filter_by(id=str(row['user_id'])).first()
+        email = user.email
+
+        if not user.active:
+            continue
+
+        # send email async
+        from celeryd.tasks import send_mail_async
+        content = f"{row['name']}"+" ".join(f'{row.hyperlink}' for index, row in TEMP.iterrows())
+        m = send_mail_async.delay(subject=f'{config["site_name"]} Report {row["name"]}', content=content, to_address=email)
+
+        # update last_run_at data
+        report = Report.query.filter_by(report_id=str(row['report_id'])).first()
+        report.last_run_at = datetime.timestamp(datetime.now()) 
+        report.last_run_at_human_readable = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S") 
+        db.session.commit()
+
+
+# this is the synchronous function that will be used to send an individual report. It will be wrapped
+# by a corresponding asynchronous celery function in celeryd.
+def send_individual_reports(report_id):
+    pass
 
 # form applied to
     # select option from current forms you have view access for

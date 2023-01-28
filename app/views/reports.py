@@ -204,7 +204,8 @@ def modify_report(report_id):
             report.end_at_human_readable = end_at_human_readable 
             report.timestamp_human_readable = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S") 
             report.timestamp = datetime.timestamp(datetime.now()) 
-
+            # report.last_run_at = datetime.timestamp(datetime.now()) 
+            # report.last_run_at_human_readable = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S") 
 
             db.session.commit()
 
