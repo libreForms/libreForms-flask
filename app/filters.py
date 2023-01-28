@@ -335,7 +335,10 @@ def send_eligible_reports():
 
         # run queries against data if filters have been passed
         if row['filters'] and row['filters'] != '':
-            TEMP.query(generate_pandas_query_string(new_preprocess_text_filters(row['filters'])), inplace=True)
+            try:
+                TEMP.query(generate_pandas_query_string(new_preprocess_text_filters(row['filters'])), inplace=True)
+            except:
+                continue # NEEDS REVIEW not sure how / where to validate query strings ...
 
         # import the database instance 
         from app import db
