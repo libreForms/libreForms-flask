@@ -45,7 +45,7 @@ def get_list_of_users_reports(id=None, db=db, **kwargs):
 
 # this method is based heavily on our approach in app.signing.write_key_to_db.
 def write_report_to_db(name=None, form_name=None, filters=None, frequency=None, active=1, 
-                        start_at_human_readable=None, end_at_human_readable=None, 
+                        start_at_human_readable=None, end_at_human_readable=None, time_condition=None, 
                         start_at=None, end_at=None, id=None, db=db, current_user=None):
     
     #  here we are generating a random string to use as the key of the
@@ -61,6 +61,7 @@ def write_report_to_db(name=None, form_name=None, filters=None, frequency=None, 
                         name = name,
                         form_name = form_name,
                         filters = filters,
+                        time_condition = time_condition,
                         frequency = frequency,
                         active = active,
                         timestamp = datetime.timestamp(datetime.now()),
@@ -129,6 +130,7 @@ def create_reports(form_name):
         user_id = current_user.get_id()
         name = request.form['name']
         filters = request.form['filters'] 
+        time_condition = request.form['time_condition'] 
         frequency = request.form['frequency'] 
         start_at_human_readable = request.form['start_at'] if request.form['start_at'] else datetime.now().strftime("%Y-%m-%d")
         end_at_human_readable = request.form['end_at'] if request.form['end_at'] else ''
@@ -137,8 +139,8 @@ def create_reports(form_name):
         
 
         report_id = write_report_to_db( name=name, 
-                                        form_name=form_name, 
-                                        filters=filters, frequency=frequency,
+                                        form_name=form_name, filters=filters, 
+                                        frequency=frequency, time_condition=time_condition,
                                         start_at_human_readable=start_at_human_readable,
                                         end_at_human_readable=end_at_human_readable, 
                                         active=1, start_at=start_at, end_at=end_at, 
@@ -181,6 +183,7 @@ def modify_report(report_id):
         user_id = current_user.get_id()
         name = request.form['name']
         filters = request.form['filters'] 
+        time_condition = request.form['time_condition'] 
         frequency = request.form['frequency'] 
         start_at_human_readable = request.form['start_at'] if request.form['start_at'] else datetime.now().strftime("%Y-%m-%d")
         end_at_human_readable = request.form['end_at'] if request.form['end_at'] else ''
@@ -193,6 +196,7 @@ def modify_report(report_id):
             # we update the values before committing them
             report.name = name 
             report.filters = filters 
+            report.time_condition = time_condition
             report.frequency = frequency 
             report.start_at = start_at 
             report.end_at = end_at 
@@ -251,15 +255,15 @@ def view_report(report_id):
     
     # this is the link to activate / deactivate report
     if report.active:
-        msg = msg + Markup(f" • <a href = \"{url_for('reports.deactivate_report', report_id=report_id)}\">Deactivate report</a>")
+        msg = msg + Markup(f"<a href = \"{url_for('reports.deactivate_report', report_id=report_id)}\">Deactivate report</a>")
     else:
-        msg = msg + Markup(f" • <a href = \"{url_for('reports.activate_report', report_id=report_id)}\">Activate report</a>")
+        msg = msg + Markup(f"<a href = \"{url_for('reports.activate_report', report_id=report_id)}\">Activate report</a>")
     
     # this is the link to send the report now
-    msg = msg + Markup(f" • <a href = \"{url_for('reports.send_report', report_id=report_id)}\">Send report now</a>")
+    msg = msg + Markup(f"<a href = \"{url_for('reports.send_report', report_id=report_id)}\">Send report now</a>")
    
     # this is the link back to the report home
-    msg = msg + Markup(f" • <a href = \"{url_for('reports.reports')}\">Go back to report home</a>")
+    msg = msg + Markup(f"<a href = \"{url_for('reports.reports')}\">Go back to report home</a>")
 
 
     # now we render the view_report template, but pass the report object,
