@@ -210,7 +210,8 @@ def get_map_of_form_data(*args, add_hyperlink=False):
 
             # we add a hyperlink field if it's been requested
             if add_hyperlink:
-                TEMP[form]['Hyperlink'] = TEMP[form].apply(lambda row: config['domain']+url_for('submissions.render_document', form_name=form, document_id=row['_id']), axis=1)
+                # TEMP[form]['Hyperlink'] = TEMP[form].apply(lambda row: config['domain']+url_for('submissions.render_document', form_name=form, document_id=row['_id']), axis=1)
+                TEMP[form]['Hyperlink'] = TEMP[form].apply(lambda row: f"{config['domain']}/{form}/{row['_id']}", axis=1)
 
             TEMP[form].drop(columns=[x for x in args if x in TEMP[form].columns], inplace=True)
 
@@ -281,6 +282,7 @@ def send_eligible_reports():
 
     # we take a current timestamp
     current_time = datetime.timestamp(datetime.now())
+    current_time_human_readable = datetime.now().strftime()
 
     # we map each timeframe relative to the current timestamp
     timestamp_time_map = {
@@ -351,21 +353,29 @@ def send_eligible_reports():
         if not user.active:
             continue
 
-        # send email async
-        from celeryd.tasks import send_mail_async
-        content = f"{row['name']}"+" ".join(f'{row.hyperlink}' for index, row in TEMP.iterrows())
-        m = send_mail_async.delay(subject=f'{config["site_name"]} Report {row["name"]}', content=content, to_address=email)
 
         # update last_run_at data
         report = Report.query.filter_by(report_id=str(row['report_id'])).first()
         report.last_run_at = datetime.timestamp(datetime.now()) 
         report.last_run_at_human_readable = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S") 
         db.session.commit()
+        
+        # skip sending the email if the length
+        if len(TEMP) < 1:
+            continue
+
+        # send email async
+        from celeryd.tasks import send_mail_async
+        subject = f'{config["site_name"]} Report {row["name"]} {current_time_human_readable}'
+        content = f"{row['name']}"+" ".join(f'{row.hyperlink}' for index, row in TEMP.iterrows())
+        m = send_mail_async.delay(subject=subject, content=content, to_address=email)
+
+
 
 
 # this is the synchronous function that will be used to send an individual report. It will be wrapped
 # by a corresponding asynchronous celery function in celeryd.
-def send_individual_reports(report_id):
+def send_individual_report(report_id):
     pass
 
 # form applied to
