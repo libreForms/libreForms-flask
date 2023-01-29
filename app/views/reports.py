@@ -23,9 +23,8 @@ from app.views.forms import form_menu, checkFormGroup, propagate_form_configs, c
 from app.views.auth import login_required
 from app.signing import generate_key
 from app.models import Report
-from celeryd.tasks import send_report_async
 from app import config, log, mongodb, mailer, config, db
-from app.filters import lint_filters
+from app.filters import lint_filters, send_individual_report
 
 # and finally, import other packages
 import os
@@ -346,9 +345,14 @@ def send_report(report_id):
 
     report = reports[0]
 
-    send_report_async.delay(report=report_id)
+    # send_report_async.delay(report=report_id)
+    send_now = send_individual_report(report, current_user)
 
-    flash (f'Report successfully sent. ')
+    if send_now:
+        flash (f'Report successfully sent. ')
+    else:
+        flash (f'Could not send report. ')
+    
     return redirect(url_for('reports.view_report', report_id=str(report_id)))
 
 

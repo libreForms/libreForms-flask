@@ -193,14 +193,20 @@ def generate_pandas_query_string(STRINGS):
 # this function will get a list of all current forms, and then create a dictionary 
 # where each key corresponds to these form names, and each value is a dataframe 
 # of all the submissions for that form.
-def get_map_of_form_data(*args, add_hyperlink=False):
+def get_map_of_form_data(*args, add_hyperlink=False, single_form:str=None):
     
     # we start by initializing an empty dictionary
     TEMP = {}
 
     for form in libreforms.forms:
-        TEMP[form] = mongodb.new_read_documents_from_collection(form)
 
+        # here we add support for single_form mode, where we only pull
+        # data for a single_form in situations where we know the form
+        # we are working with.
+        if single_form and single_form != form:
+            continue
+
+        TEMP[form] = mongodb.new_read_documents_from_collection(form)
 
         # use *args to drop fields with value if the dataframe is not empty;
         # for example, if you run get_map_of_form_data('Metadata','Journal'),
@@ -211,7 +217,7 @@ def get_map_of_form_data(*args, add_hyperlink=False):
             # we add a hyperlink field if it's been requested
             if add_hyperlink:
                 # TEMP[form]['Hyperlink'] = TEMP[form].apply(lambda row: config['domain']+url_for('submissions.render_document', form_name=form, document_id=row['_id']), axis=1)
-                TEMP[form]['Hyperlink'] = TEMP[form].apply(lambda row: f"{config['domain']}/{form}/{row['_id']}", axis=1)
+                TEMP[form]['Hyperlink'] = TEMP[form].apply(lambda row: f"{config['domain']}/submissions/{form}/{row['_id']}", axis=1)
 
             TEMP[form].drop(columns=[x for x in args if x in TEMP[form].columns], inplace=True)
 
@@ -366,16 +372,109 @@ def send_eligible_reports():
         # send email async
         from celeryd.tasks import send_mail_async
         subject = f'{config["site_name"]} Report {row["name"]} {current_time_human_readable}'
-        content = f"{row['name']}"+" ".join(f'{row.hyperlink}' for index, row in TEMP.iterrows())
+        content = f"Report: {row['name']}, Form: {row['form_name']}\n"+"\n".join([f'{row["Hyperlink"]}' for index, row in TEMP.iterrows()])
         m = send_mail_async.delay(subject=subject, content=content, to_address=email)
 
 
 
 
-# this is the synchronous function that will be used to send an individual report. It will be wrapped
-# by a corresponding asynchronous celery function in celeryd.
-def send_individual_report(report_id):
-    pass
+# this is the synchronous function that will be used to send an individual report. It does not test
+# whether a report is active, or when it was last sent. It's meant to be an at-will function called
+# from the UI using the reports.send_report view. We do not implement this asynchronously, but maybe
+# we should ... it expects a report database object of length 1, as well as a user object with an
+# email 
+def send_individual_report(report, user):
+
+    # we take a current timestamp
+    current_time = datetime.timestamp(datetime.now())
+    current_time_human_readable = str(datetime.now())
+
+    # we map each timeframe relative to the current timestamp
+    timestamp_time_map = {
+        'hourly': current_time - 3600,
+        'daily': current_time - 86400,
+        'weekly': current_time - 604800,
+        'monthly': current_time - 2592000, # this we map to 30 days, though this may have problems...
+        'annually': current_time - 31536000,
+    }
+
+    try:
+    
+        TEMP = get_map_of_form_data('Journal', 'Metadata', 'IP_Address', 'Approver', 
+                                    'Approval', 'Approver_Comment', 'Signature', '_id', 
+                                    add_hyperlink=True, single_form=report.form_name)
+        TEMP = TEMP[report.form_name]
+
+        # we create a unix timestamp field for the form data
+        TEMP['unixTimestamp'] = TEMP.apply(lambda row: datetime.timestamp(parser.parse(row['Timestamp'])), axis=1)
+
+        # then, we calculate how long it has been since the report was last run
+        time_since_last_run = current_time - report.last_run_at
+
+
+        # collect forms based on timetamp `time_condition` condition
+        if report.time_condition == 'created_since_last_run':
+            # select where unixTimestamp - row['time_since_last_run']
+            TEMP = TEMP.loc[TEMP['unixTimestamp'] < time_since_last_run].reset_index(drop=True)
+        elif report.time_condition == 'modified_since_last_run':
+            # select where unixTimestamp - row['time_since_last_run']
+            TEMP = TEMP.loc[TEMP['unixTimestamp'] < time_since_last_run].reset_index(drop=True)
+        elif report.time_condition == 'created_all_time':
+            # we just leave the dataframe as-is
+            pass
+        elif report.time_condition == 'created_last_hour':
+            # select where unixTimestamp - time_map['hourly']
+            TEMP = TEMP.loc[TEMP['unixTimestamp'] < timestamp_time_map['hourly']].reset_index(drop=True)
+        elif report.time_condition == 'created_last_day':
+            # select where unixTimestamp - time_map['daily']
+            TEMP = TEMP.loc[TEMP['unixTimestamp'] < timestamp_time_map['daily']].reset_index(drop=True)
+        elif report.time_condition == 'created_last_week':
+            # select where unixTimestamp - time_map['weekly']
+            TEMP = TEMP.loc[TEMP['unixTimestamp'] < timestamp_time_map['weekly']].reset_index(drop=True)
+        elif report.time_condition == 'created_last_month':
+            # select where unixTimestamp - time_map['monthly']
+            TEMP = TEMP.loc[TEMP['unixTimestamp'] < timestamp_time_map['monthly']].reset_index(drop=True)
+        elif report.time_condition == 'created_last_year':
+            # select where unixTimestamp - time_map['annually']
+            TEMP = TEMP.loc[TEMP['unixTimestamp'] < timestamp_time_map['annually']].reset_index(drop=True)
+
+        # run queries against data if filters have been passed
+        if report.filters and report.filters != '':
+            try:
+                TEMP.query(generate_pandas_query_string(new_preprocess_text_filters(report.filters)), inplace=True)
+            except:
+                pass # NEEDS REVIEW not sure how / where to validate query strings ...
+
+        # print(TEMP)
+
+        # import the database instance  
+        # from app.models import Report
+        from app import db
+
+        # update last_run_at data
+        report.last_run_at = datetime.timestamp(datetime.now()) 
+        report.last_run_at_human_readable = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S") 
+        db.session.commit()
+
+        # skip sending the email if the length of 
+        # the form dataframe is less than 1
+        # if len(TEMP) < 1:
+        #     continue
+
+        # send email async
+        from celeryd.tasks import send_mail_async
+        email = user.email
+        subject = f'{config["site_name"]} Report {report.name} {current_time_human_readable}'
+        content = f"Report: {report.name}, Form: {report.form_name}\n"+"\n".join([f'{row["Hyperlink"]}' for index, row in TEMP.iterrows()])
+        m = send_mail_async.delay(subject=subject, content=content, to_address=email)
+
+        return True
+    
+    except Exception as e: 
+        from app import log
+        print(e)
+        log.warning(f'{user.username.upper()} - {e}')
+        return False
 
 # form applied to
     # select option from current forms you have view access for
