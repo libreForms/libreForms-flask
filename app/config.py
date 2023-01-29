@@ -254,6 +254,12 @@ config['default_group'] = 'default'
 config['admin_group'] = 'admin'
 config['groups'] = ['admin', 'default']
 
+# these configs define the admin console behavior. The `enable_admin_console` config
+# creates the route to the admin view, which by default is limited to users in the
+# `admin_group` defined above. For additional discussion of admin console setup and
+# configuration, see https://github.com/libreForms/libreForms-flask/issues/28.
+config['enable_admin_console'] = True
+
 # these fields allow you to determine whether email, phone, and organization are required 
 # fields at registration, see https://github.com/signebedi/libreForms/issues/122.
 config['registration_email_required'] = True
