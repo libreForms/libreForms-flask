@@ -79,7 +79,10 @@ def convert_timestamp(row, now):
 
 
 @celery.task()
-def index_new_documents(time_since=86400, elasticsearch_index="submissions"):
+def index_new_documents(
+                            time_since=86400, 
+                            elasticsearch_index="submissions"
+                        ):
 
     if app.config["ENABLE_SEARCH"]:
 
@@ -108,30 +111,53 @@ def index_new_documents(time_since=86400, elasticsearch_index="submissions"):
             print(f, ' - found data - type: ', type(df))
 
             # here we ask how long ago the document was created by taking the difference betwee the current time and created time
-            df['elasticsearch_time_since'] = df.apply(lambda row: datetime.timestamp(datetime.now()) - datetime.timestamp(parser.parse(row['Timestamp'])), axis=1)
-            df = df.loc [df.elasticsearch_time_since < time_since ]
+            # df['elasticsearch_time_since'] = df.apply(lambda row: datetime.timestamp(datetime.now()) - datetime.timestamp(parser.parse(row['Timestamp'])), axis=1)
+            #  this will limit our index to those created since the last run. No need, I think ... let's just reindex everything.
+            # df = df.loc [df.elasticsearch_time_since < time_since ]
+
+            # stringify the BSON data
+            df['_id'] = df.apply(lambda row: str(row['_id']), axis=1)
+
+            # drop the unnecessary columns
+            df.drop(columns=[x for x in ['Journal', 'Metadata', 'IP_Address', 'Approver', 'Approval', 'Approver_Comment', 
+                                'Signature', 'elasticsearch_time_since'] if x in df.columns], inplace=True)
 
             # we iterate through rows
             for index, row in df.iterrows():
 
-                print(f'{f} - {str(row._id)}')
+                id = row['_id']
+
+                print(f'{f} - {id}')
 
                 # we write a little string to approximate the page content of the corresponding page; nb. we 
                 # exclude certain fields that are not 'content' fields...
-                elasticsearch_content = ', '.join([f'{x} - {str(row[x])}' for x in df.columns if x not in 
-                    ['Journal', 'Metadata', 'IP_Address', 'Approver', 'Approval', 'Approver_Comment', 'Signature', '_id', 'elasticsearch_time_since']])
+                # elasticsearch_content = ', '.join([f'{x} - {str(row[x])}' for x in df.columns if x not in 
+                #     ['Journal', 'Metadata', 'IP_Address', 'Approver', 'Approval', 'Approver_Comment', 'Signature', '_id', 'elasticsearch_time_since']])
+
+                # this is the new form data we want to pass
+                v2_elasticsearch_content = dict(row)
+
+                # remove the _id field from the content
+                del v2_elasticsearch_content['_id']
 
                 # we construct the body payload for elasticsearch
                 elasticsearch_data = {
                     'form_name': f,
-                    'title': str(row._id),
-                    'url': f"/submissions/{f}/{str(row._id)}", 
+                    'title': id,
+                    'url': f"/submissions/{f}/{id}", 
                     # 'url': url_for('submissions.render_document', form_name=f, document_id=str(row._id)), 
-                    'content': elasticsearch_content,
+                    # 'content': elasticsearch_content,
+                    **v2_elasticsearch_content, # pass the row data from above as kwargs
                 }
+
+                # let's stringify each element for now, just for simplicity; otherwise, we are receiving the following error:
+                # elasticsearch.exceptions.RequestError: RequestError(400, 'mapper_parsing_exception', 'failed to parse')
+                # if we want to have better typing, we should probably add a DocType object from elasticsearch-dsl
+                for key in elasticsearch_data:
+                    elasticsearch_data[key] = str(elasticsearch_data[key])
                 
                 # write the item to the elasticsearch index 
-                app.elasticsearch.index(id=str(row._id), body=elasticsearch_data, index=elasticsearch_index)
+                app.elasticsearch.index(id=id, body=elasticsearch_data, index=elasticsearch_index)
 
                 # log.info(f'LIBREFORMS - updated search index for document no. {document_id}.')
 
