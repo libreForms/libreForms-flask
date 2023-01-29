@@ -224,11 +224,14 @@ except OSError:
 # elasticsearch index is updated. Nb. we add 50 seconds to this when selecting forms to index,
 # in case there are delays in the celery task being run, as this only has the potential,
 # low risk effect of reindexing forms that have already been indexed. For further discussion,
-# see https://github.com/libreForms/libreForms-flask/issues/236.
+# see https://github.com/libreForms/libreForms-flask/issues/236. We added the option to 
+# `use_elasticsearch_as_wrapper`, which will turn on celeryd.index_new_documents and start
+# trying to index documents, see https://github.com/libreForms/libreForms-flask/issues/254.
 config['enable_search'] = False
+config['exclude_forms_from_search'] = None
+config['use_elasticsearch_as_wrapper'] = False
 config['elasticsearch_host'] = 'localhost'
 config['elasticsearch_index_refresh_rate'] = 600.0
-config['exclude_forms_from_search'] = None
 
 
 ##########################

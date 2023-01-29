@@ -84,7 +84,7 @@ def index_new_documents(
                             elasticsearch_index="submissions"
                         ):
 
-    if app.config["ENABLE_SEARCH"]:
+    if app.config["USE_ELASTICSEARCH_AS_WRAPPER"]:
 
         # log.info(f'LIBREFORMS - started elasticsearch index process.')
 
@@ -177,6 +177,4 @@ def setup_periodic_tasks(sender, **kwargs):
     # periodically update the elasticsearch index, giving a slightly longer `time_since`
     # to avoid delay problems. We might be able to design this better ... This value ultimately
     # derives from the `elasticsearch_index_refresh_rate` app config.
-    sender.add_periodic_task(app.config["ELASTICSEARCH_INDEX_REFRESH_RATE"], index_new_documents.s(
-                                                                                    # time_since=app.config["ELASTICSEARCH_INDEX_REFRESH_RATE"]+50), 
-                                                                                    name='update elasticsearch index')
+    sender.add_periodic_task(app.config["ELASTICSEARCH_INDEX_REFRESH_RATE"], index_new_documents.s(name='update elasticsearch index'))

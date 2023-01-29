@@ -211,7 +211,7 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
         HCAPTCHA_SITE_KEY = config['hcaptcha_site_key'] if config['hcaptcha_site_key'] else None,
         HCAPTCHA_SECRET_KEY = config['hcaptcha_secret_key'] if config['hcaptcha_secret_key'] else None,
         REPORT_SEND_RATE=config['report_send_rate'],
-        ENABLE_SEARCH = config['enable_search'],
+        USE_ELASTICSEARCH_AS_WRAPPER = config['use_elasticsearch_as_wrapper'],
         EXCLUDE_FORMS_FROM_SEARCH=config['exclude_forms_from_search'],
         ELASTICSEARCH_INDEX_REFRESH_RATE=config['elasticsearch_index_refresh_rate'],
         CELERY_CONFIG={
