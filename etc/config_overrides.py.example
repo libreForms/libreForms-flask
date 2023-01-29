@@ -11,6 +11,7 @@ config = {
     'smtp_from_address':os.environ['SMTP_FROM_ADDRESS'],
     'enable_email_verification': True if os.environ['SMTP_ENABLED'] == 'True' else False,
     'allow_password_resets': True if os.environ['SMTP_ENABLED'] == 'True' else False,
+    'enable_reports': True if os.environ['SMTP_ENABLED'] == 'True' else False,
     'allow_anonymous_form_submissions': True if os.environ['SMTP_ENABLED'] == 'True' else False,
     'mongodb_user':os.environ['MONGODB_USERNAME'] if os.environ['MONGODB_USERNAME'] else None,
     'mongodb_host':os.environ['MONGODB_HOSTNAME'] if os.environ['MONGODB_HOSTNAME'] else None,
