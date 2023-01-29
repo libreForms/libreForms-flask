@@ -80,7 +80,7 @@ def convert_timestamp(row, now):
 
 @celery.task()
 def index_new_documents(
-                            time_since=86400, 
+                            # time_since=86400, 
                             elasticsearch_index="submissions"
                         ):
 
@@ -178,5 +178,5 @@ def setup_periodic_tasks(sender, **kwargs):
     # to avoid delay problems. We might be able to design this better ... This value ultimately
     # derives from the `elasticsearch_index_refresh_rate` app config.
     sender.add_periodic_task(app.config["ELASTICSEARCH_INDEX_REFRESH_RATE"], index_new_documents.s(
-                                                                                    time_since=app.config["ELASTICSEARCH_INDEX_REFRESH_RATE"]+50), 
+                                                                                    # time_since=app.config["ELASTICSEARCH_INDEX_REFRESH_RATE"]+50), 
                                                                                     name='update elasticsearch index')
