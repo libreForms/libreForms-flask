@@ -149,6 +149,8 @@ def create_reports(form_name):
 
         return redirect(url_for('reports.view_report', report_id=str(report_id)))
 
+    msg = Markup(f"<a href = \"{url_for('reports.reports')}\">Go back to report home</a>")
+
     return render_template('reports/create_report.html', 
             notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
             name=f"Create {form_name} report",
@@ -157,6 +159,7 @@ def create_reports(form_name):
             form_name=form_name,
             user=current_user,
             lint_filters=lint_filters,
+            msg=msg,
             menu=form_menu(checkFormGroup),
         ) 
 
