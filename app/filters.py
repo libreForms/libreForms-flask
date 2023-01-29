@@ -176,12 +176,12 @@ def new_preprocess_text_filters(s = "$(a == '7'),$(c == 'pig'),"):
     STRINGS = [''.join(tup.strip()) for tup in re.findall(r'\$\((.+?)\)', s)]
 
     # now we need to handle types, which we support strings and numbers.
-
-
     return STRINGS
 
 
 def generate_pandas_query_string(STRINGS):
+    # if len(STRINGS) < 1:
+    #     return ''
     return " & ".join(STRINGS)
 
 
@@ -282,7 +282,7 @@ def send_eligible_reports():
 
     # we take a current timestamp
     current_time = datetime.timestamp(datetime.now())
-    current_time_human_readable = datetime.now().strftime()
+    current_time_human_readable = str(datetime.now())
 
     # we map each timeframe relative to the current timestamp
     timestamp_time_map = {
@@ -300,7 +300,6 @@ def send_eligible_reports():
     # the fields we don't want included.
     form_df = get_map_of_form_data('Journal', 'Metadata', 'IP_Address', 'Approver', 
                                         'Approval', 'Approver_Comment', 'Signature', '_id', add_hyperlink=True)
-
 
     # next, we iterate through each report and select the corresponding dataframe
     for index, row in report_df.iterrows():
@@ -340,7 +339,7 @@ def send_eligible_reports():
             try:
                 TEMP.query(generate_pandas_query_string(new_preprocess_text_filters(row['filters'])), inplace=True)
             except:
-                continue # NEEDS REVIEW not sure how / where to validate query strings ...
+                pass # NEEDS REVIEW not sure how / where to validate query strings ...
 
         # import the database instance 
         from app import db
@@ -353,14 +352,14 @@ def send_eligible_reports():
         if not user.active:
             continue
 
-
         # update last_run_at data
         report = Report.query.filter_by(report_id=str(row['report_id'])).first()
         report.last_run_at = datetime.timestamp(datetime.now()) 
         report.last_run_at_human_readable = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S") 
         db.session.commit()
-        
-        # skip sending the email if the length
+
+        # skip sending the email if the length of 
+        # the form dataframe is less than 1
         if len(TEMP) < 1:
             continue
 
