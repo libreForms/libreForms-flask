@@ -84,98 +84,99 @@ def index_new_documents(
                             elasticsearch_index="submissions"
                         ):
 
-    if app.config["USE_ELASTICSEARCH_AS_WRAPPER"]:
 
-        # log.info(f'LIBREFORMS - started elasticsearch index process.')
+    # log.info(f'LIBREFORMS - started elasticsearch index process.')
 
-        # here we exclude forms explicitly exlucded from search indexing.
-        form_list = [x for x in forms if x not in app.config["EXCLUDE_FORMS_FROM_SEARCH"]]
+    # here we exclude forms explicitly exlucded from search indexing.
+    form_list = [x for x in forms if x not in app.config["EXCLUDE_FORMS_FROM_SEARCH"]]
+    
+    # for each of these form names
+    for f in form_list:
+
         
-        # for each of these form names
-        for f in form_list:
+        # log.info(f'LIBREFORMS - stated elasticsearch index for form {f}.')   
 
+        # get all the documents in the collection
+        df = mongodb.new_read_documents_from_collection(f)
+
+        # mongodb.new_read_documents_from_collection() returns False if no collection
+        # exists with that name, so we can save ourselves an otherwise wasted iteration
+        # here if any given form is not of type `DataFrame`
+        if not isinstance(df, pd.DataFrame):
+            print(f,' - empty collection - type: ', type(df))
+            continue
+
+        # print(df)
+        print(f, ' - found data - type: ', type(df))
+
+        # here we ask how long ago the document was created by taking the difference betwee the current time and created time
+        # df['elasticsearch_time_since'] = df.apply(lambda row: datetime.timestamp(datetime.now()) - datetime.timestamp(parser.parse(row['Timestamp'])), axis=1)
+        #  this will limit our index to those created since the last run. No need, I think ... let's just reindex everything.
+        # df = df.loc [df.elasticsearch_time_since < time_since ]
+
+        # stringify the BSON data
+        df['_id'] = df.apply(lambda row: str(row['_id']), axis=1)
+
+        # drop the unnecessary columns
+        df.drop(columns=[x for x in ['Journal', 'Metadata', 'IP_Address', 'Approver', 'Approval', 'Approver_Comment', 
+                            'Signature', 'elasticsearch_time_since'] if x in df.columns], inplace=True)
+
+        # we iterate through rows
+        for index, row in df.iterrows():
+
+            id = row['_id']
+
+            print(f'{f} - {id}')
+
+            # we write a little string to approximate the page content of the corresponding page; nb. we 
+            # exclude certain fields that are not 'content' fields...
+            fullString = ', '.join([f'{x} - {str(row[x])}' for x in df.columns if x not in 
+                ['Journal', 'Metadata', 'IP_Address', 'Approver', 'Approval', 'Approver_Comment', 'Signature', '_id', 'elasticsearch_time_since']])
+
+            # this is the new form data we want to pass
+            v2_elasticsearch_content = dict(row)
+
+            # remove the _id field from the content
+            del v2_elasticsearch_content['_id']
+
+            # we construct the body payload for elasticsearch
+            elasticsearch_data = {
+                'formName': f,
+                'title': id,
+                'url': f"/submissions/{f}/{id}", 
+                # 'url': url_for('submissions.render_document', form_name=f, document_id=str(row._id)), 
+                # let's consider adding a different `_all` field, which we can call `fullString`. Here are some references
+                # that this 
+                #   https://www.elastic.co/guide/en/elasticsearch/reference/6.0/mapping-all-field.html#custom-all-fields
+                #   https://stackoverflow.com/a/34147611/13301284
+                'fullString': fullString,
+                **v2_elasticsearch_content, # pass the row data from above as kwargs
+            }
+
+
+
+            # let's stringify each element for now, just for simplicity; otherwise, we are receiving the following error:
+            # elasticsearch.exceptions.RequestError: RequestError(400, 'mapper_parsing_exception', 'failed to parse')
+            # if we want to have better typing, we should probably add a DocType object from elasticsearch-dsl
+            for key in elasticsearch_data:
+                elasticsearch_data[key] = str(elasticsearch_data[key])
             
-            # log.info(f'LIBREFORMS - stated elasticsearch index for form {f}.')   
+            # write the item to the elasticsearch index 
+            app.elasticsearch.index(id=id, body=elasticsearch_data, index=elasticsearch_index)
 
-            # get all the documents in the collection
-            df = mongodb.new_read_documents_from_collection(f)
+            # log.info(f'LIBREFORMS - updated search index for document no. {document_id}.')
 
-            # mongodb.new_read_documents_from_collection() returns False if no collection
-            # exists with that name, so we can save ourselves an otherwise wasted iteration
-            # here if any given form is not of type `DataFrame`
-            if not isinstance(df, pd.DataFrame):
-                print(f,' - empty collection - type: ', type(df))
-                continue
-
-            # print(df)
-            print(f, ' - found data - type: ', type(df))
-
-            # here we ask how long ago the document was created by taking the difference betwee the current time and created time
-            # df['elasticsearch_time_since'] = df.apply(lambda row: datetime.timestamp(datetime.now()) - datetime.timestamp(parser.parse(row['Timestamp'])), axis=1)
-            #  this will limit our index to those created since the last run. No need, I think ... let's just reindex everything.
-            # df = df.loc [df.elasticsearch_time_since < time_since ]
-
-            # stringify the BSON data
-            df['_id'] = df.apply(lambda row: str(row['_id']), axis=1)
-
-            # drop the unnecessary columns
-            df.drop(columns=[x for x in ['Journal', 'Metadata', 'IP_Address', 'Approver', 'Approval', 'Approver_Comment', 
-                                'Signature', 'elasticsearch_time_since'] if x in df.columns], inplace=True)
-
-            # we iterate through rows
-            for index, row in df.iterrows():
-
-                id = row['_id']
-
-                print(f'{f} - {id}')
-
-                # we write a little string to approximate the page content of the corresponding page; nb. we 
-                # exclude certain fields that are not 'content' fields...
-                full_text = ', '.join([f'{x} - {str(row[x])}' for x in df.columns if x not in 
-                    ['Journal', 'Metadata', 'IP_Address', 'Approver', 'Approval', 'Approver_Comment', 'Signature', '_id', 'elasticsearch_time_since']])
-
-                # this is the new form data we want to pass
-                v2_elasticsearch_content = dict(row)
-
-                # remove the _id field from the content
-                del v2_elasticsearch_content['_id']
-
-                # we construct the body payload for elasticsearch
-                elasticsearch_data = {
-                    'form_name': f,
-                    'title': id,
-                    'url': f"/submissions/{f}/{id}", 
-                    # 'url': url_for('submissions.render_document', form_name=f, document_id=str(row._id)), 
-                    # let's consider adding a different `_all` field, which we can call `_full_text`. Here are some references
-                    # that this 
-                    #   https://www.elastic.co/guide/en/elasticsearch/reference/6.0/mapping-all-field.html#custom-all-fields
-                    #   https://stackoverflow.com/a/34147611/13301284
-                    'full_text': full_text,
-                    **v2_elasticsearch_content, # pass the row data from above as kwargs
-                }
-
-
-
-                # let's stringify each element for now, just for simplicity; otherwise, we are receiving the following error:
-                # elasticsearch.exceptions.RequestError: RequestError(400, 'mapper_parsing_exception', 'failed to parse')
-                # if we want to have better typing, we should probably add a DocType object from elasticsearch-dsl
-                for key in elasticsearch_data:
-                    elasticsearch_data[key] = str(elasticsearch_data[key])
-                
-                # write the item to the elasticsearch index 
-                app.elasticsearch.index(id=id, body=elasticsearch_data, index=elasticsearch_index)
-
-                # log.info(f'LIBREFORMS - updated search index for document no. {document_id}.')
-
-        # log.info(f'LIBREFORMS - finished elasticsearch index process.')
+    # log.info(f'LIBREFORMS - finished elasticsearch index process.')
 
 
 
 @celery.on_after_configure.connect
 def setup_periodic_tasks(sender, **kwargs):
 
-    # periodically calls send_reports 
-    sender.add_periodic_task(app.config["REPORT_SEND_RATE"], send_eligible_reports_async.s(), name='send reports periodically')
+    if app.config["USE_ELASTICSEARCH_AS_WRAPPER"]:
+
+        # periodically calls send_reports 
+        sender.add_periodic_task(app.config["REPORT_SEND_RATE"], send_eligible_reports_async.s(), name='send reports periodically')
 
     # periodically conduct a heartbeat check
     sender.add_periodic_task(3600.0, celery_beat_logger.s(), name='log that celery beat is working')

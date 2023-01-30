@@ -5,7 +5,7 @@
   <tbody>
     {% for item in results %}
     <tr class="table{% if emphasize and item in emphasize %}{{'-secondary' if dark_mode else '-primary'}}{% else %}{{'-dark' if dark_mode else '-transparent'}}{% endif %}">
-      <th scope="row"><a href="{{url_for('submissions.render_document', form_name=item['formName'], document_id=item['_id'])}}">{{item['_id']}}</a></th>
+      <th scope="row"><a href="{{url_for('submissions.render_document', form_name=item['formName'], document_id=item['_id']) if not config['use_elasticsearch_as_wrapper'] else item.url}}">{{item['_id'] if not config['use_elasticsearch_as_wrapper'] else item.title}}</a></th>
       <td>{{item['fullString']}}</td>
     </tr>
     {% endfor %}

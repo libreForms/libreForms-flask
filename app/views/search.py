@@ -17,7 +17,7 @@ from flask import current_app, Blueprint, render_template, request, flash, redir
 from app import config
 from app.views.auth import login_required
 from elasticsearch import Elasticsearch 
-from elasticsearch_dsl import Search
+from elasticsearch_dsl import Search, Q
 from flask_login import current_user
 from app.mongo import mongodb
 
@@ -31,7 +31,31 @@ def search():
     query = request.args.get('query').lower()
 
 
-    # if config['use_elasticsearch_as_wrapper']:
+    if config['use_elasticsearch_as_wrapper']:
+
+        client = Elasticsearch()
+
+        if config['search_fuzzy']:
+            s = Search(using=client, index="submissions").query(Q({"fuzzy": {"fullString": {"value": query, "fuzziness": config['search_fuzzy']}}}))
+
+        else:
+            s = Search(using=client, index="submissions").query("match", fullString=query)
+            # .filter("term", category="search") \ # see https://www.elastic.co/guide/en/elasticsearch/reference/current/query-filter-context.html#query-filter-context-ex
+            # .query("match", fullString=query)   \
+
+            # s.aggs.bucket('per_tag', 'terms', field='tags') \
+            #     .metric('max_lines', 'max', field='lines')
+
+        # per https://github.com/elastic/elasticsearch-dsl-py/issues/1510
+        # Q('fuzzy', fullString=query)
+
+        results = s.execute()
+
+        # for hit in results:
+        #     print(hit.url, hit.fullString)
+
+        # for tag in response.aggregations.per_tag.buckets:
+        #     print(tag.key, tag.max_lines.value)
     #     tokens = query.split(" ")
     #     pass
         # client = Elasticsearch()
@@ -64,9 +88,11 @@ def search():
 
     #     # print(results)
 
-    # else:
+    else: 
+        # if we are not using elasticsearch as a search wrapper for mongodb, 
+        # then let's just query mongodb directly
 
-    results = mongodb.search_engine(query)
+        results = mongodb.search_engine(query)
 
     return render_template('app/search.html', 
         site_name=config['site_name'],
