@@ -457,7 +457,6 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
             user=current_user if current_user.is_authenticated else None,
         )
 
-
     # define a route to show the application's privacy policy 
     # @app.route('/loading/<form_name>/<document_id>')
     # def loading(form_name, document_id):
@@ -519,6 +518,10 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
     if config['user_defined_reports']:
         from .views import reports
         app.register_blueprint(reports.bp)
+
+    if config['enable_search']:
+        from .views import search
+        app.register_blueprint(search.bp)
 
     # return the app object with the above configurations
     return app

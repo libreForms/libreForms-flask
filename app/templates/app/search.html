@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<table class="table {{'text-dark' if not dark_mode else 'table-hover'}}">
+  <tbody>
+    {% for item in results %}
+    <tr class="table{% if emphasize and item in emphasize %}{{'-secondary' if dark_mode else '-primary'}}{% else %}{{'-dark' if dark_mode else '-transparent'}}{% endif %}">
+      <th scope="row"><a href="{{url_for('submissions.render_document', form_name=item['formName'], document_id=item['_id'])}}">{{item['_id']}}</a></th>
+      <td>{{item['fullString']}}</td>
+    </tr>
+    {% endfor %}
+
+    </tr>
+  </tbody>
+</table>
+
+{% if msg %}
+
+  {{ msg }}
+
+{% endif %}    
+
+{% endblock %}
