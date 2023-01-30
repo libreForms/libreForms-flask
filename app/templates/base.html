@@ -95,6 +95,15 @@
             {% endif %}
             </ul>
 
+            {%if config['enable_search']%}
+            <div style="padding-left: 10px;">
+              <form class="d-flex">
+                <input class="form-control me-sm-2" type="search" placeholder="Search" required>
+                <button class="btn btn-{{'secondary' if dark_mode else 'primary'}} my-2 my-sm-0" type="submit">Search</button>
+              </form>
+            </div>
+            {%endif%}
+
             <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
               {% if user %}
               <li class="nav-link active me-auto" style="padding-right: 30px;">Currently logged in as <small class="{{'text-muted' if dark_mode else 'text-secondary'}}muted">{{ user.username }}</small>.</li>
