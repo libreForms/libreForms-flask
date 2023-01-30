@@ -143,7 +143,7 @@ __license__ = "AGPL-3.0"
 __maintainer__ = "Sig Janoska-Bedi"
 __email__ = "signe@atreeus.com"
 
-from pymongo import MongoClient
+from pymongo import MongoClient, TEXT
 import os
 import pandas as pd
 import datetime
@@ -353,7 +353,6 @@ class MongoDB:
                 return str(data['_id'])
 
 
-
     def read_documents_from_collection(self, collection_name):
         with MongoClient(host=self.host, port=self.port) if not self.dbpw else MongoClient(self.connection_string) as client:
             db = client['libreforms']
@@ -375,6 +374,67 @@ class MongoDB:
             # if the collection doesn't exist, return false
             return False
 
+    #  this new version returns a list of columns, except those passed as args
+    def get_collection_columns(self, collection_name, *args):
+        with MongoClient(host=self.host, port=self.port) if not self.dbpw else MongoClient(self.connection_string) as client:
+
+            if collection_name in self.collections():
+
+                db = client['libreforms']
+
+                collection = db[collection_name]
+                df = pd.DataFrame(list(collection.find()))
+                return [x for x in df.columns if x not in args]
+
+            # if the collection doesn't exist, return false
+            return False
+    
+    def search_engine(self,search_term,limit=10):
+        with MongoClient(host=self.host, port=self.port) if not self.dbpw else MongoClient(self.connection_string) as client:
+
+            return_list = []
+            return_dict = {}
+
+            db = client['libreforms']
+
+            for collection_name in self.collections():
+
+                # here we add an index, see 
+                #   https://stackoverflow.com/a/48237570/13301284
+                #   https://stackoverflow.com/a/30314946/13301284 
+                #   *** https://stackoverflow.com/a/48371352/13301284
+                db[collection_name].create_index([('$**', 'text')], default_language='english')
+
+                # Probably need to escape the values here, see
+                #   https://stackoverflow.com/a/13224790/13301284
+
+                TEMP = list(db[collection_name].find(
+                    {"$text": {"$search": search_term, "$caseSensitive" : False}},
+                    [x for x in self.get_collection_columns(collection_name, 'Journal', 'Metadata', 'IP_Address', 'Approver', 'Approval', 'Approver_Comment', 'Signature')]
+                    ).limit(limit))
+
+                df = pd.DataFrame(TEMP)
+
+                if len(df) < 1:
+                    continue
+
+                # print(df)
+
+                # case as a string
+                df['_id'] = df['_id'].astype("string")
+                df['formName'] = collection_name
+                # df['Hyperlink'] = df.apply (lambda row: f"submissions/{collection_name}/{row['_id']}", axis=1)
+                df['fullString'] = df.apply (lambda row: " ".join([str(row[x]) for x in row.keys() if x not in ["Hyperlink", "_id"]]), axis=1)
+
+
+                
+
+                # TEMP = list(db[collection_name].find())
+                [return_list.append(x) for x in df.to_dict('records')]
+
+                # return_dict[collection_name] = df
+
+            return return_list
 
     def is_document_in_collection(self, collection_name, document_id):
         with MongoClient(host=self.host, port=self.port) if not self.dbpw else MongoClient(self.connection_string) as client:
