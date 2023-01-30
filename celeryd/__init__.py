@@ -131,8 +131,8 @@ def index_new_documents(
 
                 # we write a little string to approximate the page content of the corresponding page; nb. we 
                 # exclude certain fields that are not 'content' fields...
-                # elasticsearch_content = ', '.join([f'{x} - {str(row[x])}' for x in df.columns if x not in 
-                #     ['Journal', 'Metadata', 'IP_Address', 'Approver', 'Approval', 'Approver_Comment', 'Signature', '_id', 'elasticsearch_time_since']])
+                _all = ', '.join([f'{x} - {str(row[x])}' for x in df.columns if x not in 
+                    ['Journal', 'Metadata', 'IP_Address', 'Approver', 'Approval', 'Approver_Comment', 'Signature', '_id', 'elasticsearch_time_since']])
 
                 # this is the new form data we want to pass
                 v2_elasticsearch_content = dict(row)
@@ -146,7 +146,7 @@ def index_new_documents(
                     'title': id,
                     'url': f"/submissions/{f}/{id}", 
                     # 'url': url_for('submissions.render_document', form_name=f, document_id=str(row._id)), 
-                    # 'content': elasticsearch_content,
+                    '_all': _all,
                     **v2_elasticsearch_content, # pass the row data from above as kwargs
                 }
 
@@ -177,4 +177,4 @@ def setup_periodic_tasks(sender, **kwargs):
     # periodically update the elasticsearch index, giving a slightly longer `time_since`
     # to avoid delay problems. We might be able to design this better ... This value ultimately
     # derives from the `elasticsearch_index_refresh_rate` app config.
-    sender.add_periodic_task(app.config["ELASTICSEARCH_INDEX_REFRESH_RATE"], index_new_documents.s(name='update elasticsearch index'))
+    sender.add_periodic_task(app.config["ELASTICSEARCH_INDEX_REFRESH_RATE"], index_new_documents.s(), name='update elasticsearch index')
