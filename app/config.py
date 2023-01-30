@@ -32,7 +32,7 @@ __license__ = "AGPL-3.0"
 __maintainer__ = "Sig Janoska-Bedi"
 __email__ = "signe@atreeus.com"
 
-import os, secrets
+import os, secrets, dotenv
 from markupsafe import Markup
 
 # Added based on https://github.com/signebedi/libreForms/issues/148 to
@@ -331,3 +331,12 @@ if os.path.exists ("app/config_overrides.py"):
     from app.config_overrides import config as config_override
     for conf in config_override.keys():
         config[conf] = config_override[conf]
+
+
+# here we overwrite the defaults above with any dotenv configurations,
+# which take precendence over both base configs and config overrides.
+if os.path.exists ("libreforms.env"):
+    dotenv_file = dotenv.find_dotenv('libreforms.env')
+    dotenv.load_dotenv(dotenv_file)
+    for conf in config:
+        config[conf] = os.environ[conf.upper()] if conf in os.environ else config[conf]
