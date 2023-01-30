@@ -131,7 +131,7 @@ def index_new_documents(
 
                 # we write a little string to approximate the page content of the corresponding page; nb. we 
                 # exclude certain fields that are not 'content' fields...
-                _all = ', '.join([f'{x} - {str(row[x])}' for x in df.columns if x not in 
+                full_text = ', '.join([f'{x} - {str(row[x])}' for x in df.columns if x not in 
                     ['Journal', 'Metadata', 'IP_Address', 'Approver', 'Approval', 'Approver_Comment', 'Signature', '_id', 'elasticsearch_time_since']])
 
                 # this is the new form data we want to pass
@@ -146,9 +146,15 @@ def index_new_documents(
                     'title': id,
                     'url': f"/submissions/{f}/{id}", 
                     # 'url': url_for('submissions.render_document', form_name=f, document_id=str(row._id)), 
-                    '_all': _all,
+                    # let's consider adding a different `_all` field, which we can call `_full_text`. Here are some references
+                    # that this 
+                    #   https://www.elastic.co/guide/en/elasticsearch/reference/6.0/mapping-all-field.html#custom-all-fields
+                    #   https://stackoverflow.com/a/34147611/13301284
+                    'full_text': full_text,
                     **v2_elasticsearch_content, # pass the row data from above as kwargs
                 }
+
+
 
                 # let's stringify each element for now, just for simplicity; otherwise, we are receiving the following error:
                 # elasticsearch.exceptions.RequestError: RequestError(400, 'mapper_parsing_exception', 'failed to parse')

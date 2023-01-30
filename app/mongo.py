@@ -496,8 +496,8 @@ class MongoDB:
         # this method returns a list of those fields. By default, we do not
         # drop the `_id` field.
         if exclude_id:
-            return ['Journal', 'Metadata', 'IP_Address', 'Approver', 'Approval', 'Approver_Comment', 'Signature', 'elasticsearch_time_since', '_id']
-        return ['Journal', 'Metadata', 'IP_Address', 'Approver', 'Approval', 'Approver_Comment', 'Signature', 'elasticsearch_time_since']
+            return ['Journal', 'Metadata', 'IP_Address', 'Approver', 'Approval', 'Approver_Comment', 'Signature', '_id']
+        return ['Journal', 'Metadata', 'IP_Address', 'Approver', 'Approval', 'Approver_Comment', 'Signature']
 
 
 # create the mongodb instance that the rest of the application will connect from
