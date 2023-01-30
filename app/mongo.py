@@ -490,6 +490,15 @@ class MongoDB:
         except Exception as e: 
             return False
 
+    def metadata_fields(self, exclude_id=False):
+        # we have a number of fields that are added at various points in the 
+        # submission lifecyle, but which we may wish to strip from the data. 
+        # this method returns a list of those fields. By default, we do not
+        # drop the `_id` field.
+        if exclude_id:
+            return ['Journal', 'Metadata', 'IP_Address', 'Approver', 'Approval', 'Approver_Comment', 'Signature', 'elasticsearch_time_since', '_id']
+        return ['Journal', 'Metadata', 'IP_Address', 'Approver', 'Approval', 'Approver_Comment', 'Signature', 'elasticsearch_time_since']
+
 
 # create the mongodb instance that the rest of the application will connect from
 mongodb = MongoDB(user=config['mongodb_user'], 
