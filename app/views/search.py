@@ -35,20 +35,44 @@ def search():
 
         client = Elasticsearch()
 
-        if config['search_fuzzy']:
-            s = Search(using=client, index="submissions").query(Q({"fuzzy": {"fullString": {"value": query, "fuzziness": config['search_fuzzy']}}}))
+        if config['search_fuzzy'] and config['exclude_forms_from_search']:
+            s = Search(using=client, index="submissions") \
+                .query(Q({"fuzzy": {"fullString": {"value": query, "fuzziness": config['search_fuzzy']}}})) \
+                .exclude("terms", formName=config['exclude_forms_from_search'])
+                # Q({"fuzzy": {"fullString": {"value": query, "fuzziness": config['search_fuzzy']}}})
+        
+
+        elif config['search_fuzzy'] and not config['exclude_forms_from_search']:
+            s = Search(using=client, index="submissions") \
+                .query(Q({"fuzzy": {"fullString": {"value": query, "fuzziness": config['search_fuzzy']}}})) \
+
+        elif not config['search_fuzzy'] and config['exclude_forms_from_search']:
+            s = Search(using=client, index="submissions").query("match", fullString=query) \
+                .exclude("terms", formName=config['exclude_forms_from_search'])
 
         else:
             s = Search(using=client, index="submissions").query("match", fullString=query)
+
             # .filter("term", category="search") \ # see https://www.elastic.co/guide/en/elasticsearch/reference/current/query-filter-context.html#query-filter-context-ex
             # .query("match", fullString=query)   \
 
             # s.aggs.bucket('per_tag', 'terms', field='tags') \
             #     .metric('max_lines', 'max', field='lines')
 
+        # we exclude forms from the query string if any form 
+        # exclusions have been passed in the app config
+        # print(config['exclude_forms_from_search'])
+        # if config['exclude_forms_from_search']:
+            # print()
+        # [s.exclude("match", formName=x) for x in config['exclude_forms_from_search'] if config['exclude_forms_from_search']]
+            # s.query(Q({"match": {"formName": {"value": config['exclude_forms_from_search']}}}))
+
+            # s.query('bool', filter=[~Q('terms', formName=config['exclude_forms_from_search'])])
+
         # per https://github.com/elastic/elasticsearch-dsl-py/issues/1510
         # Q('fuzzy', fullString=query)
 
+        print(s.to_dict())
         results = s.execute()
 
         # for hit in results:
