@@ -389,7 +389,12 @@ class MongoDB:
             # if the collection doesn't exist, return false
             return False
     
-    def search_engine(self,search_term,limit=10, exclude_forms=None):
+    def search_engine(  self,
+                        search_term,
+                        limit=10, 
+                        exclude_forms=None,
+                        fuzzy_search=False):
+
         with MongoClient(host=self.host, port=self.port) if not self.dbpw else MongoClient(self.connection_string) as client:
 
             return_list = []
@@ -406,19 +411,32 @@ class MongoDB:
                 # if type(exclude_forms)==list and collection_name in exclude_forms: # if we want to force this to be a list...
                     continue
 
-                # here we add an index, see 
-                #   https://stackoverflow.com/a/48237570/13301284
-                #   https://stackoverflow.com/a/30314946/13301284 
-                #   *** https://stackoverflow.com/a/48371352/13301284
-                db[collection_name].create_index([('$**', 'text')], default_language='english')
 
-                # Probably need to escape the values here, see
-                #   https://stackoverflow.com/a/13224790/13301284
+                if fuzzy_search:
+                    from fuzzywuzzy import fuzz
 
-                TEMP = list(db[collection_name].find(
-                    {"$text": {"$search": search_term, "$caseSensitive" : False}},
-                    [x for x in self.get_collection_columns(collection_name, 'Journal', 'Metadata', 'IP_Address', 'Approver', 'Approval', 'Approver_Comment', 'Signature')]
-                    ).limit(limit))
+                    TEMP = []
+                    for item in db[collection_name].find():
+                        for field in item:
+                            score = fuzz.token_set_ratio(search_term, item[field])
+                            if score >= fuzzy_search:
+                                TEMP.append(item)
+                                continue
+                    
+                else:
+                    # here we add an index, see 
+                    #   https://stackoverflow.com/a/48237570/13301284
+                    #   https://stackoverflow.com/a/30314946/13301284 
+                    #   *** https://stackoverflow.com/a/48371352/13301284
+                    db[collection_name].create_index([('$**', 'text')], default_language='english')
+
+                    # Probably need to escape the values here, see
+                    #   https://stackoverflow.com/a/13224790/13301284
+
+                    TEMP = list(db[collection_name].find(
+                        {"$text": {"$search": search_term, "$caseSensitive" : False}},
+                        [x for x in self.get_collection_columns(collection_name, 'Journal', 'Metadata', 'IP_Address', 'Approver', 'Approval', 'Approver_Comment', 'Signature')]
+                        ).limit(limit))
 
                 df = pd.DataFrame(TEMP)
 

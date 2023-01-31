@@ -235,7 +235,7 @@ config['exclude_forms_from_search'] = None
 config['use_elasticsearch_as_wrapper'] = False
 config['elasticsearch_host'] = 'localhost'
 config['elasticsearch_index_refresh_rate'] = 600.0
-config['search_fuzzy'] = "AUTO"
+config['search_fuzzy'] = False # | "AUTO" | 5 | 80 < examples for elasticsearch, elasticsearch, and fuzzywuzzy
 
 
 ##########################
