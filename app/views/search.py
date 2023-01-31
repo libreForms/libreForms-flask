@@ -50,6 +50,34 @@ def search():
             s = Search(using=client, index="submissions").query("match", fullString=query) \
                 .exclude("terms", formName=config['exclude_forms_from_search'])
 
+        # {'query': {'bool': {'filter': [{'bool': {'must_not': [{'terms': {'formName': ['X', 'Y']}}]}}], 'must': [{'fuzzy': {'fullString': {'value': 'Z', 'fuzziness': 'AUTO'}}}]}}}
+        # {
+        #   "query": {
+        #     "bool": {
+        #       "must_not": [
+        #         {
+        #           "terms": {
+        #             "field_a": [
+        #               "X",
+        #               "Y"
+        #             ]
+        #           }
+        #         }
+        #       ],
+        #       "must": [
+        #         {
+        #           "fuzzy": {
+        #             "fullString": {
+        #               "value": "Z",
+        #               "fuzziness": "AUTO"
+        #             }
+        #           }
+        #         }
+        #       ]
+        #     }
+        #   }
+        # }
+
         else:
             s = Search(using=client, index="submissions").query("match", fullString=query)
 
