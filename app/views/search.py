@@ -41,15 +41,8 @@ def search():
             user=current_user if current_user.is_authenticated else None,
         )
 
-    try:
-        page_no = request.args.get('page_no').lower()
-    except:
-        page_no = 1
-    try:
-        results_per_page = request.args.get('results_per_page').lower() 
-    except:
-        results_per_page = 10
-
+    page_no = request.args.get('page_no', 1, type=int)
+    results_per_page = request.args.get('results_per_page', 10, type=int)
 
 
     # if we've opted to use elasticsearch as a wrapper search engine for MongoDB
