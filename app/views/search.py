@@ -41,10 +41,6 @@ def search():
             user=current_user if current_user.is_authenticated else None,
         )
 
-    page_no = request.args.get('page_no', 1, type=int)
-    results_per_page = request.args.get('results_per_page', 10, type=int)
-
-
     # if we've opted to use elasticsearch as a wrapper search engine for MongoDB
     if config['use_elasticsearch_as_wrapper']:
         from elasticsearch import Elasticsearch 
@@ -73,7 +69,7 @@ def search():
 
         # print(s.to_dict())
         results = s.execute()
-        
+
 
     else: 
         # if we are not using elasticsearch as a search wrapper for mongodb, 
@@ -81,6 +77,23 @@ def search():
         # to exclude, we pass those to the MongoDB method.
 
         results = mongodb.search_engine(query, exclude_forms=config['exclude_forms_from_search'], fuzzy_search=config['fuzzy_search'])
+
+    # # the following logic can be used if we want to add pagination. Nb. elasticsearch only returns 
+    # # 10 records by default, unless modified, see https://stackoverflow.com/a/40009425/13301284
+    # page_no = request.args.get('page_no', 1, type=int)
+    # results_per_page = request.args.get('results_per_page', 10, type=int)
+
+    # if len(results) > results_per_page:
+    #     starting_position = page_no*results_per_page+1
+    #     ending_position = starting_position + results_per_page
+
+    #     print(f"sp: {starting_position}\nep:{ending_position}")
+
+    #     results = results[starting_position:ending_position]
+
+    # here we allow administrators to set the max number of results that will be shown in the search results.
+    if config['limit_search_results_length'] and isinstance(config['limit_search_results_length'], int) and len(results) > config['limit_search_results_length']:
+        results=results[:config['limit_search_results_length']]
 
     return render_template('app/search.html', 
         site_name=config['site_name'],

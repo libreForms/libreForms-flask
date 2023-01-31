@@ -229,14 +229,16 @@ except OSError:
 # trying to index documents, see https://github.com/libreForms/libreForms-flask/issues/254.
 # The `fuzzy_search` option turns fuzzy matching off, if it assesses to false, otherwise
 # should be set to an option parsable by the search engine (monogdb or elasticsearch). For
-# example, in elasticsearch, fuzziness can be set to "AUTO" or any int.
+# example, in elasticsearch, fuzziness can be set to "AUTO" or any int. The `limit_search_results_length`
+# app config can be used to set a max number of search results to show; for further discussion,
+# see https://github.com/libreForms/libreForms-flask/issues/265.
 config['enable_search'] = False
 config['exclude_forms_from_search'] = None
 config['use_elasticsearch_as_wrapper'] = False
 config['elasticsearch_host'] = 'localhost'
 config['elasticsearch_index_refresh_rate'] = 600.0
 config['fuzzy_search'] = False # | "AUTO" | 5 | 80 < examples for elasticsearch, elasticsearch, and fuzzywuzzy
-
+config['limit_search_results_length_length'] = None
 
 ##########################
 # User Registration / Auth
