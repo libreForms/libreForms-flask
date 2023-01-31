@@ -35,6 +35,8 @@ def search():
 
         client = Elasticsearch()
 
+
+        #  this approach is ugly and inefficient. It needs to be cleaned up.
         if config['search_fuzzy'] and config['exclude_forms_from_search']:
             s = Search(using=client, index="submissions") \
                 .query(Q({"fuzzy": {"fullString": {"value": query, "fuzziness": config['search_fuzzy']}}})) \
@@ -50,36 +52,22 @@ def search():
             s = Search(using=client, index="submissions").query("match", fullString=query) \
                 .exclude("terms", formName=config['exclude_forms_from_search'])
 
-        # {'query': {'bool': {'filter': [{'bool': {'must_not': [{'terms': {'formName': ['X', 'Y']}}]}}], 'must': [{'fuzzy': {'fullString': {'value': 'Z', 'fuzziness': 'AUTO'}}}]}}}
-        # {
-        #   "query": {
-        #     "bool": {
-        #       "must_not": [
-        #         {
-        #           "terms": {
-        #             "field_a": [
-        #               "X",
-        #               "Y"
-        #             ]
-        #           }
-        #         }
-        #       ],
-        #       "must": [
-        #         {
-        #           "fuzzy": {
-        #             "fullString": {
-        #               "value": "Z",
-        #               "fuzziness": "AUTO"
-        #             }
-        #           }
-        #         }
-        #       ]
-        #     }
-        #   }
-        # }
-
         else:
             s = Search(using=client, index="submissions").query("match", fullString=query)
+
+
+        # # This is a simpler approach, but does not seem to work...
+        # if config['search_fuzzy']:
+        #     s = Search(using=client, index="submissions") \
+        #         .query(Q({"fuzzy": {"fullString": {"value": query, "fuzziness": config['search_fuzzy']}}})) \
+        
+        # else:
+        #     s = Search(using=client, index="submissions").query("match", fullString=query)
+
+        # if config['exclude_forms_from_search']:
+        #     print(config['exclude_forms_from_search'])
+        #     s.exclude("terms", formName=config['exclude_forms_from_search'])
+
 
             # .filter("term", category="search") \ # see https://www.elastic.co/guide/en/elasticsearch/reference/current/query-filter-context.html#query-filter-context-ex
             # .query("match", fullString=query)   \
@@ -102,7 +90,8 @@ def search():
 
         print(s.to_dict())
         results = s.execute()
-
+        
+      
         # for hit in results:
         #     print(hit.url, hit.fullString)
 
