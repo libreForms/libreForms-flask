@@ -16,8 +16,6 @@ __email__ = "signe@atreeus.com"
 from flask import current_app, Blueprint, render_template, request, flash, redirect, url_for, send_from_directory
 from app import config
 from app.views.auth import login_required
-from elasticsearch import Elasticsearch 
-from elasticsearch_dsl import Search, Q
 from flask_login import current_user
 from app.mongo import mongodb
 
@@ -32,6 +30,8 @@ def search():
 
 
     if config['use_elasticsearch_as_wrapper']:
+        from elasticsearch import Elasticsearch 
+        from elasticsearch_dsl import Search, Q
 
         client = Elasticsearch()
 
