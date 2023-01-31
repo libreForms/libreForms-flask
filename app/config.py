@@ -227,7 +227,7 @@ except OSError:
 # see https://github.com/libreForms/libreForms-flask/issues/236. We added the option to 
 # `use_elasticsearch_as_wrapper`, which will turn on celeryd.index_new_documents and start
 # trying to index documents, see https://github.com/libreForms/libreForms-flask/issues/254.
-# The `search_fuzzy` option turns fuzzy matching off, if it assesses to false, otherwise
+# The `fuzzy_search` option turns fuzzy matching off, if it assesses to false, otherwise
 # should be set to an option parsable by the search engine (monogdb or elasticsearch). For
 # example, in elasticsearch, fuzziness can be set to "AUTO" or any int.
 config['enable_search'] = False
@@ -235,7 +235,7 @@ config['exclude_forms_from_search'] = None
 config['use_elasticsearch_as_wrapper'] = False
 config['elasticsearch_host'] = 'localhost'
 config['elasticsearch_index_refresh_rate'] = 600.0
-config['search_fuzzy'] = False # | "AUTO" | 5 | 80 < examples for elasticsearch, elasticsearch, and fuzzywuzzy
+config['fuzzy_search'] = False # | "AUTO" | 5 | 80 < examples for elasticsearch, elasticsearch, and fuzzywuzzy
 
 
 ##########################

@@ -37,18 +37,18 @@ def search():
 
 
         #  this approach is ugly and inefficient. It needs to be cleaned up.
-        if config['search_fuzzy'] and config['exclude_forms_from_search']:
+        if config['fuzzy_search'] and config['exclude_forms_from_search']:
             s = Search(using=client, index="submissions") \
-                .query(Q({"fuzzy": {"fullString": {"value": query, "fuzziness": config['search_fuzzy']}}})) \
+                .query(Q({"fuzzy": {"fullString": {"value": query, "fuzziness": config['fuzzy_search']}}})) \
                 .exclude("terms", formName=config['exclude_forms_from_search'])
-                # Q({"fuzzy": {"fullString": {"value": query, "fuzziness": config['search_fuzzy']}}})
+                # Q({"fuzzy": {"fullString": {"value": query, "fuzziness": config['fuzzy_search']}}})
         
 
-        elif config['search_fuzzy'] and not config['exclude_forms_from_search']:
+        elif config['fuzzy_search'] and not config['exclude_forms_from_search']:
             s = Search(using=client, index="submissions") \
-                .query(Q({"fuzzy": {"fullString": {"value": query, "fuzziness": config['search_fuzzy']}}})) \
+                .query(Q({"fuzzy": {"fullString": {"value": query, "fuzziness": config['fuzzy_search']}}})) \
 
-        elif not config['search_fuzzy'] and config['exclude_forms_from_search']:
+        elif not config['fuzzy_search'] and config['exclude_forms_from_search']:
             s = Search(using=client, index="submissions").query("match", fullString=query) \
                 .exclude("terms", formName=config['exclude_forms_from_search'])
 
@@ -57,9 +57,9 @@ def search():
 
 
         # # This is a simpler approach, but does not seem to work...
-        # if config['search_fuzzy']:
+        # if config['fuzzy_search']:
         #     s = Search(using=client, index="submissions") \
-        #         .query(Q({"fuzzy": {"fullString": {"value": query, "fuzziness": config['search_fuzzy']}}})) \
+        #         .query(Q({"fuzzy": {"fullString": {"value": query, "fuzziness": config['fuzzy_search']}}})) \
         
         # else:
         #     s = Search(using=client, index="submissions").query("match", fullString=query)
@@ -88,7 +88,7 @@ def search():
         # per https://github.com/elastic/elasticsearch-dsl-py/issues/1510
         # Q('fuzzy', fullString=query)
 
-        print(s.to_dict())
+        # print(s.to_dict())
         results = s.execute()
         
       
@@ -134,7 +134,7 @@ def search():
         # then let's just query mongodb directly; if we've passed any forms
         # to exclude, we pass those to the MongoDB method.
 
-        results = mongodb.search_engine(query, exclude_forms=config['exclude_forms_from_search'])
+        results = mongodb.search_engine(query, exclude_forms=config['exclude_forms_from_search'], fuzzy_search=config['fuzzy_search'])
 
     return render_template('app/search.html', 
         site_name=config['site_name'],

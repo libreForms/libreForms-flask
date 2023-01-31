@@ -417,9 +417,12 @@ class MongoDB:
 
                     TEMP = []
                     for item in db[collection_name].find():
+                        # print(item)
                         for field in item:
+                            # print(f"-- {field}")
                             score = fuzz.token_set_ratio(search_term, item[field])
                             if score >= fuzzy_search:
+                                # print (f"********Found Match")
                                 TEMP.append(item)
                                 continue
                     
