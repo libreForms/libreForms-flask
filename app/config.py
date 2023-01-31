@@ -238,7 +238,7 @@ config['use_elasticsearch_as_wrapper'] = False
 config['elasticsearch_host'] = 'localhost'
 config['elasticsearch_index_refresh_rate'] = 600.0
 config['fuzzy_search'] = False # | "AUTO" | 5 | 80 < examples for elasticsearch, elasticsearch, and fuzzywuzzy
-config['limit_search_results_length_length'] = None
+config['limit_search_results_length'] = None
 
 ##########################
 # User Registration / Auth
