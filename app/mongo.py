@@ -389,7 +389,7 @@ class MongoDB:
             # if the collection doesn't exist, return false
             return False
     
-    def search_engine(self,search_term,limit=10):
+    def search_engine(self,search_term,limit=10, exclude_forms=None):
         with MongoClient(host=self.host, port=self.port) if not self.dbpw else MongoClient(self.connection_string) as client:
 
             return_list = []
@@ -398,6 +398,13 @@ class MongoDB:
             db = client['libreforms']
 
             for collection_name in self.collections():
+
+                # if we've passed exclude_forms, then we assess it here
+                # and ignore the form if administrators want us to skip it,
+                # see https://github.com/libreForms/libreForms-flask/issues/260
+                if exclude_forms and collection_name in exclude_forms:
+                # if type(exclude_forms)==list and collection_name in exclude_forms: # if we want to force this to be a list...
+                    continue
 
                 # here we add an index, see 
                 #   https://stackoverflow.com/a/48237570/13301284

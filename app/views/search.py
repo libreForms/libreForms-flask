@@ -90,9 +90,10 @@ def search():
 
     else: 
         # if we are not using elasticsearch as a search wrapper for mongodb, 
-        # then let's just query mongodb directly
+        # then let's just query mongodb directly; if we've passed any forms
+        # to exclude, we pass those to the MongoDB method.
 
-        results = mongodb.search_engine(query)
+        results = mongodb.search_engine(query, exclude_forms=config['exclude_forms_from_search'])
 
     return render_template('app/search.html', 
         site_name=config['site_name'],
