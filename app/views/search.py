@@ -13,10 +13,13 @@ __license__ = "AGPL-3.0"
 __maintainer__ = "Sig Janoska-Bedi"
 __email__ = "signe@atreeus.com"
 
+# import flask-related dependencies
 from flask import current_app, Blueprint, render_template, request, flash, redirect, url_for, send_from_directory
+from flask_login import current_user
+
+
 from app import config
 from app.views.auth import login_required
-from flask_login import current_user
 from app.mongo import mongodb
 
 
@@ -105,6 +108,9 @@ def search():
     # here we allow administrators to set the max number of results that will be shown in the search results.
     if config['limit_search_results_length'] and isinstance(config['limit_search_results_length'], int) and len(results) > config['limit_search_results_length']:
         results=results[:config['limit_search_results_length']]
+
+    if len(results) < 1:
+        flash(f"No results found for search term {query}")
 
     return render_template('app/search.html', 
         site_name=config['site_name'],
