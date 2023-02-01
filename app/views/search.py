@@ -17,12 +17,16 @@ __email__ = "signe@atreeus.com"
 from flask import current_app, Blueprint, render_template, request, flash, redirect, url_for, send_from_directory
 from flask_login import current_user
 
-
+# import flask app specific dependencies
 from app import config
-from app.views.auth import login_required
 from app.mongo import mongodb
+from app.views.auth import login_required
 
 
+# this mapper function helps map user groups to to their access restrictions, 
+# to ensure that search results (and possible other parts of the application) 
+# show correct results and avoid leakage / improper access; for more details, 
+# see https://github.com/libreForms/libreForms-flask/issues/259. 
 def form_access_by_group(group):
     from app.views.forms import propagate_form_configs
     from libreforms import forms
