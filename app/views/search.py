@@ -19,6 +19,17 @@ from app.views.auth import login_required
 from flask_login import current_user
 from app.mongo import mongodb
 
+
+def form_access_by_group(group):
+    from app.views.forms import propagate_form_configs
+    from libreforms import forms
+
+    # we create a mapping dict that pairs each form with its associated configs, which we'll search within.
+    mapping = {}
+    for form in forms:
+        mapping[form] = propagate_form_configs(form)
+
+
 bp = Blueprint('search', __name__, url_prefix='/search')
 
 

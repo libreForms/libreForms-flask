@@ -39,16 +39,22 @@ __license__ = "AGPL-3.0"
 __maintainer__ = "Sig Janoska-Bedi"
 __email__ = "signe@atreeus.com"
 
+# import any relevant tasks defined in celeryd outside the app context
+from celeryd.tasks import send_mail_async, write_document_to_collection_async
 
-import json
-from flask import Response, url_for
-from app import create_app, celery, log, mailer, mongodb
+# import flask app specific dependencies
+from app import create_app, celery, log, mongodb
 from app.filters import send_eligible_reports
-from celeryd.tasks import send_mail_async, write_document_to_collection_async, send_report_async
+
+# import the libreforms form config
 from libreforms import forms
+
+# import data management tools
 import pandas as pd
-from dateutil import parser
+
+# import date tools
 from datetime import datetime
+from dateutil import parser
 
 app = create_app(celery_app=True)
 app.app_context().push()

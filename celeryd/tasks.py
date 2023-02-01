@@ -52,33 +52,3 @@ def write_document_to_collection_async(self, data, collection_name, reporter=Non
     # print('COMPLETE')
 
     return document_id
-
-@celery.task()
-def elasticsearch_index_document(body, id, client, index="submissions"):
-        # app = create_app(celery_app=True)
-
-        # with app.app_context():
-        #     app.elasticsearch.index(id, body, index=index)
-        client.index(id, body, index=index)
-
-        return True
-    # expects data to be formulated as follows:
-    # data = json.dumps({
-    #     'form_name': form_name,
-    #     'title': document_id,
-    #     'url': url_for('submissions.render_document', form_name=form_name, document_id=document_id), 
-    #     'content': render_template('app/index_friendly_submissions.html', form_name=form_name, submission=parsed_args),
-    # })
-
-    # try:
-    #     app.elasticsearch.index(id, body, index=index)
-    #     return True
-    # except Exception as e:
-    #     return e
-
-
-@celery.task()
-def send_report_async(report=None, *args):
-    # select all reports whose conditions are met under reportManager.trigger, 
-    # and pass these to the execution reportManager.handler
-    return True
