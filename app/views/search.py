@@ -27,7 +27,7 @@ from app.views.auth import login_required
 # to ensure that search results (and possible other parts of the application) 
 # show correct results and avoid leakage / improper access; for more details, 
 # see https://github.com/libreForms/libreForms-flask/issues/259. 
-def form_access_by_group(group):
+def form_access_single_group(group):
     from app.views.forms import propagate_form_configs
     from libreforms import forms
 
@@ -46,6 +46,58 @@ def form_access_by_group(group):
     for form in forms:
         full_options_mapping[form] = propagate_form_configs(form)
 
+            # The following options apply access controls to forms,:
+
+            # "_allow_anonymous_access": False,           # read-form-schema
+            # '_deny_groups': [],                         # write-own-form-data
+            # '_enable_universal_form_access': False,     # read-other-form-data
+            # '_submission': {    
+            #     '_enable_universal_form_access': False, # read-other-form-data
+            #     '_deny_read': [],                       # read-other-form-data
+            #     '_deny_write': [],                      # write-other-form-data (in tandem with _enable_universal_form_access)
+            #     },
+
+            # and can be userful here in developing the following measures 
+            # specific access, with an implied right to view your own submissions
+                # read-form-schema : are members of the group permitted to view the structure of the form
+                # write-own-form-data : are members of the group permitted to edit their own form submissions
+                # read-other-form-data : are members of the group permitted to view others' form submissions
+                # write-other-form-data : are members of the group permitted to edit others' form submissions
+
+        group_access_mapping[form] = {  'read-form-schema':True if group not in full_options_mapping[form]['_deny_groups'] else False,
+                                        'write-own-form-data':True if group not in full_options_mapping[form]['_deny_groups'] else False,
+                                        'read-other-form-data':True if group not in full_options_mapping[form]['_submission']['_deny_read'] and not full_options_mapping[form]['_submission']['_enable_universal_form_access'] else False,
+                                        'write-other-form-data':True if group not in full_options_mapping[form]['_submission']['_deny_write'] and not full_options_mapping[form]['_submission']['_enable_universal_form_access'] else False,  }
+
+    # we return a form-by-form mapping for the specific group
+    return group_access_mapping
+
+
+# This wrapper will return a dict of form names, mapped to True if the 
+# passed `group` has access at `access_level`, and False if not; it also
+# returns primarily a list of forms from which the group is excluded
+def test_access_single_group(   group,
+                                # access_level can be any of 
+                                    # read-form-schema
+                                    # write-own-form-data
+                                    # read-other-form-data
+                                    # write-other-form-data 
+                                access_level):
+    
+    dict_mapping = {}
+    exclude_list_mapping = []
+    group_access_mapping = form_access_single_group(group)
+
+    for form in group_access_mapping:
+        # we really want this logic mapping to fail, 
+        # otherwise we append hte list the `exclude_list`
+        if not group_access_mapping[form][access_level]:
+            dict_mapping[form] = True
+        else:
+            dict_mapping[form] = False
+            exclude_list_mapping.append(form)
+
+    return exclude_list_mapping, dict_mapping
 
 bp = Blueprint('search', __name__, url_prefix='/search')
 
@@ -69,6 +121,10 @@ def search():
             user=current_user if current_user.is_authenticated else None,
         )
 
+    # here we collect the group access data for search result control
+    exclude_forms_for_group, group_mapping = test_access_single_group(group=current_user.group, access_level='read-other-form-data')
+
+
     # if we've opted to use elasticsearch as a wrapper search engine for MongoDB
     if config['use_elasticsearch_as_wrapper']:
         from elasticsearch import Elasticsearch 
@@ -76,24 +132,19 @@ def search():
 
         client = Elasticsearch()
 
-        #  this approach is ugly and inefficient. It needs to be cleaned up.
-        if config['fuzzy_search'] and config['exclude_forms_from_search']:
+
+        #  we concatenate the group forms exlude list with the config defined form exclude list, if it exists
+        total_exclusions = exclude_forms_for_group + config['exclude_forms_from_search'] if config['exclude_forms_from_search'] else exclude_forms_for_group
+
+        #  Add fuzzy matching, we it's been configured
+        if config['fuzzy_search']:
             s = Search(using=client, index="submissions") \
                 .query(Q({"fuzzy": {"fullString": {"value": query, "fuzziness": config['fuzzy_search']}}})) \
-                .exclude("terms", formName=config['exclude_forms_from_search'])
-                # Q({"fuzzy": {"fullString": {"value": query, "fuzziness": config['fuzzy_search']}}})
-        
-
-        elif config['fuzzy_search'] and not config['exclude_forms_from_search']:
-            s = Search(using=client, index="submissions") \
-                .query(Q({"fuzzy": {"fullString": {"value": query, "fuzziness": config['fuzzy_search']}}})) \
-
-        elif not config['fuzzy_search'] and config['exclude_forms_from_search']:
-            s = Search(using=client, index="submissions").query("match", fullString=query) \
-                .exclude("terms", formName=config['exclude_forms_from_search'])
+                .exclude("terms", formName=total_exclusions)    
 
         else:
-            s = Search(using=client, index="submissions").query("match", fullString=query)
+            s = Search(using=client, index="submissions").query("match", fullString=query) \
+                .exclude("terms", formName=total_exclusions)
 
         # print(s.to_dict())
         results = s.execute()
@@ -104,7 +155,7 @@ def search():
         # then let's just query mongodb directly; if we've passed any forms
         # to exclude, we pass those to the MongoDB method.
 
-        results = mongodb.search_engine(query, exclude_forms=config['exclude_forms_from_search'], fuzzy_search=config['fuzzy_search'])
+        results = mongodb.search_engine(query, exclude_forms=total_exclusions, fuzzy_search=config['fuzzy_search'])
 
     # # the following logic can be used if we want to add pagination. Nb. elasticsearch only returns 
     # # 10 records by default, unless modified, see https://stackoverflow.com/a/40009425/13301284
