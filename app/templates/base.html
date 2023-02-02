@@ -95,7 +95,7 @@
             {% endif %}
             </ul>
 
-            {%if config['enable_search']%}
+            {%if config['enable_search'] and current_user.is_authenticated %}
             <div style="padding-left: 10px;">
               <form class="d-flex" method="get" action="{{ url_for('search.search') }}">
                 <input class="form-control me-sm-2" type="search" name="query" placeholder="Search" required>
