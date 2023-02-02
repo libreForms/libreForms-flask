@@ -78,6 +78,13 @@
 					<div class="form-group{% if context[field]['_depends_on'] %} {{ context[field]['_depends_on'][0] }}{% endif %}">
 						<input class="form-control" type="hidden" value="{{ default_value }}" id="{{ field }}" name="{{ field }}"/>
 					</div>
+
+					{% elif input_type == "immutable_user_field" %}
+					<div class="form-group{% if context[field]['_depends_on'] %} {{ context[field]['_depends_on'][0] }}{% endif %}">
+						<label class="form-label mt-4{% if context[field].output_data.required==true %} required{% endif %}" for="{{ field }}" {% if context[field].output_data.description %}data-bs-toggle="tooltip" data-bs-placement="right" title="{{context[field].output_data.description}}"{% endif %}>{{ field | replace('_', ' ')}}</label></td>
+						<input class="form-control" type="text" value="{{ current_user|attr(default_value) if current_user else '' }}" id="{{ field }}" name="{{ field }}" disabled=""/>
+					</div>
+
 					{% else %}
 					<div class="form-group{% if context[field]['_depends_on'] %} {{ context[field]['_depends_on'][0] }}{% endif %}">
 						<label class="form-label mt-4{% if context[field].output_data.required==true %} required{% endif %}" for="{{ field }}" {% if context[field].output_data.description %}data-bs-toggle="tooltip" data-bs-placement="right" title="{{context[field].output_data.description}}"{% endif %}>{{ field | replace('_', ' ')}}</label></td>
