@@ -139,6 +139,12 @@
               </div>
               {% endif %}
               {% block content %}{% endblock %}
+              {% if msg %}
+              <div style="padding-top: 10px;">
+                <hr/>
+                {{ msg }}
+              </div>
+              {% endif %} 
             </div>
             <div class="row" style="padding-top: 20px;">
               <hr>

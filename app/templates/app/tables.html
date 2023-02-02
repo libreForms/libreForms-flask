@@ -1,9 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
 
-        {% if msg %}
-            {{ msg }}
-        {% endif %}
+
         {% if form_not_found %}
             <p>Go <a href="{{ url_for( 'home' ) }}">home</a>.</p>
         {% endif %}
@@ -12,12 +10,10 @@
         {% endif %}	
 
         {% if filename %}
-        <br/>
-        <table>
-            <tr><td>
+            <div style="padding-top: 10px;">
+            <hr/>
             <a href="{{ url_for(type+'.download_file', filename = filename) }}">download this data as a CSV</a>
-            </td></tr>
-        </table>
+            </div>
         {%endif%}
 
 
