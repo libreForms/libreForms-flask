@@ -442,7 +442,7 @@ def submissions(form_name):
     
         else:
 
-            record = record [['Timestamp', 'id', 'Owner']]
+            record = record [['Timestamp', 'id', 'Owner']+propagate_form_configs(form=form_name)['_submission_view_summary_fields']]
             record['form'] = form_name
 
             record['hyperlink'] = record.apply(lambda x: gen_hyperlink(x, form_name), axis=1)

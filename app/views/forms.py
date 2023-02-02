@@ -360,6 +360,7 @@ def propagate_form_configs(form=False):
             "_digitally_sign": False,
             "_form_approval": False,
             "_collect_client_ip":True,
+            "_submission_view_summary_fields":[],
         }
 
         for field in list_fields.keys():
