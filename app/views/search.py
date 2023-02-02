@@ -31,10 +31,20 @@ def form_access_by_group(group):
     from app.views.forms import propagate_form_configs
     from libreforms import forms
 
-    # we create a mapping dict that pairs each form with its associated configs, which we'll search within.
-    mapping = {}
+    # we create a mapping dict that pairs each form with its associated configs, 
+    # which we'll search within. In effect, this will store a child key for each 
+    # form defined in the form config. Then, each of these keys will store `all`
+    # the form configs for that given form.
+    full_options_mapping = {}
+
+    # we create a second mapping dict that will collect the access controls for 
+    # this specified `group`. Then, like the `full_options_mapping`, it will 
+    # contain child keys for each form defined in the form config. Finally,
+    # it will store the the configs that are `relevant` (not `all`) to access. 
+    group_access_mapping = {}
+
     for form in forms:
-        mapping[form] = propagate_form_configs(form)
+        full_options_mapping[form] = propagate_form_configs(form)
 
 
 bp = Blueprint('search', __name__, url_prefix='/search')
