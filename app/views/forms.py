@@ -8,7 +8,7 @@ forms.py: implementation of views and base logic for form submission
 __name__ = "app.views.forms"
 __author__ = "Sig Janoska-Bedi"
 __credits__ = ["Sig Janoska-Bedi"]
-__version__ = "1.4.0"
+__version__ = "1.5.0"
 __license__ = "AGPL-3.0"
 __maintainer__ = "Sig Janoska-Bedi"
 __email__ = "signe@atreeus.com"
@@ -360,7 +360,7 @@ def propagate_form_configs(form=False):
             "_digitally_sign": False,
             "_form_approval": False,
             "_collect_client_ip":True,
-            "_submission_view_summary_fields":[],
+            "_submission_view_summary_fields": [],
         }
 
         for field in list_fields.keys():
