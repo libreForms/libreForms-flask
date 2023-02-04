@@ -165,11 +165,14 @@ class MongoDB:
         else:
             self.dbpw=dbpw
 
+        # prepare the connection string
         self.connection_string = f'mongodb://{self.user}{":"+self.dbpw if self.dbpw else ""}{"@"+self.host if self.user else self.host}:{str(self.port)}/?authSource=admin&retryWrites=true&w=majority'
         # print(self.dbpw)
 
+        # set our metadata field names, see below
+        self.set_metadata_field_names()
+
     # we set and update the class variable that will be used to set metadata field names, see
-    # https://github.com/libreForms/libreForms-flask/issues/179
     # https://github.com/libreForms/libreForms-flask/issues/195
     def set_metadata_field_names(self,**kwargs):
         
@@ -177,6 +180,7 @@ class MongoDB:
         self.metadata_field_names = {}
         
         # we set the default metadata field names
+
         self.metadata_field_names['journal'] = 'Journal'
         self.metadata_field_names['metadata'] = 'Metadata'
         self.metadata_field_names['ip_address'] = 'IP_Address'
@@ -184,10 +188,19 @@ class MongoDB:
         self.metadata_field_names['approval'] = 'Approval'
         self.metadata_field_names['approver_comment'] = 'Approver_Comment'
         self.metadata_field_names['signature'] = 'Signature'
-        self.metadata_field_names['signature'] = 'Access_Roster'
+        self.metadata_field_names['access_roster'] = 'Access_Roster'
+
+        # self.metadata_field_names['journal'] = '_journal' # self.metadata_field_names['journal'] = 'Journal'
+        # self.metadata_field_names['metadata'] = '_metadata' # self.metadata_field_names['metadata'] = 'Metadata'
+        # self.metadata_field_names['ip_address'] = '_ip_address' # self.metadata_field_names['ip_address'] = 'IP_Address'
+        # self.metadata_field_names['approver'] = '_approver' # self.metadata_field_names['approver'] = 'Approver'
+        # self.metadata_field_names['approval'] = '_approval' # self.metadata_field_names['approval'] = 'Approval'
+        # self.metadata_field_names['approver_comment'] = '_approver_comment' # self.metadata_field_names['approver_comment'] = 'Approver_Comment'
+        # self.metadata_field_names['signature'] = '_signature' # self.metadata_field_names['signature'] = 'Signature'
+        # self.metadata_field_names['access_roster'] = '_access_roster' # self.metadata_field_names['access_roster'] = 'Access_Roster'
 
         # we allow them to be overwritten using kwargs
-        self.metadata_field_names.__dict__.update(kwargs) 
+        self.metadata_field_names.update(kwargs) 
 
         return self.metadata_field_names
 
@@ -243,15 +256,13 @@ class MongoDB:
 
             timestamp_human_readable = str(datetime.datetime.utcnow())
 
-            
-
             data['Reporter'] = str(reporter) if reporter else None
 
             # Adding the digital Signature back to Journal now that we have added badges to the user 
             # submission history view - making it more user friendly to view and make sense of, 
             # see https://github.com/signebedi/libreForms/issues/141.
             if digital_signature:
-                data['Signature'] = digital_signature
+                data[self.metadata_field_names['signature']] = digital_signature
 
             # Adding an optional `approval` field, which is similar to the `digital_signature`
             # field above - namely, in form management there is a common process where forms are
@@ -259,7 +270,7 @@ class MongoDB:
             # the authority to review and approve this form does so. We also add an optional 
             # approver comment, see https://github.com/signebedi/libreForms/issues/8.
             if approver:
-                data['Approver'] = approver
+                data[self.metadata_field_names['approver']] = approver
 
                 # generally, we will (and should) only ever pass an `approver` during initial
                 # form submission; in those circumstances where we might pass it again, it's
@@ -270,25 +281,25 @@ class MongoDB:
                 # fields contained therein need to be contained in an earlier field, see the problem
                 # here: https://github.com/signebedi/libreForms/issues/145. It may be that this is 
                 # just a temporary fix until we can figure out the logic the generate_full_document_history().
-                # data['Approval'] = None
-                # data['Approver_Comment'] = None
+                # data[self.metadata_field_names['approval']] = None
+                # data[self.metadata_field_names['approver_comment']] = None
 
             # trying a slightly different approach to allow easy overwriting of previously-set Approval 
             # data, see https://github.com/signebedi/libreForms/issues/149. This logic reads the approval
             # and approver_comment kwargs, but drops them if None... I think this will induce desired behavior.
-            data['Approval'] = approval
-            if not ['Approval']:
-                del data['Approval']
+            data[self.metadata_field_names['approval']] = approval
+            if not [self.metadata_field_names['approval']]:
+                del data[self.metadata_field_names['approval']]
 
-            data['Approver_Comment'] = approver_comment
-            if not ['Approver_Comment']:
-                del data['Approver_Comment']
+            data[self.metadata_field_names['approver_comment']] = approver_comment
+            if not [self.metadata_field_names['approver_comment']]:
+                del data[self.metadata_field_names['approver_comment']]
 
             # here we collect IP addresses if they have been provided, see 
             # https://github.com/signebedi/libreForms/issues/175.
-            data['IP_Address'] = ip_address
-            if not ['IP_Address']:
-                del data['IP_Address']
+            data[self.metadata_field_names['ip_address']] = ip_address
+            if not [self.metadata_field_names['ip_address']]:
+                del data[self.metadata_field_names['ip_address']]
 
             # setting the timestamp sooner so it's included in the Journal data, perhaps removing the
             # need for a data copy.
@@ -306,34 +317,34 @@ class MongoDB:
                 data['Owner'] = data['Reporter']
                 data_copy['Owner'] = data_copy['Reporter']
                 
-                data['Journal'] = { timestamp_human_readable: data_copy }
+                data[self.metadata_field_names['journal']] = { timestamp_human_readable: data_copy }
 
                 # In the past, we added an `initial_submission` tag the first time a form was submitted
                 # but this is probably very redundant, so deprecating it here. 
-                # data['Journal'][timestamp]['initial_submission'] = True 
+                # data[self.metadata_field_names['journal']][timestamp]['initial_submission'] = True 
 
 
                 # here we add a `Metadata` field, which is implemented per discussion in 
                 # https://github.com/signebedi/libreForms/issues/175 to capture form meta
                 # data not well suited to the `Journal`.
-                data['Metadata'] = {}
+                data[self.metadata_field_names['metadata']] = {}
 
                 # if the form is submitted with new digital signature or approval data,
                 # then we attach related metadata
                 if digital_signature:
-                    data['Metadata']['signature_timestamp'] = timestamp_human_readable
+                    data[self.metadata_field_names['metadata']]['signature_timestamp'] = timestamp_human_readable
                     if ip_address:
-                        data['Metadata']['signature_ip'] = ip_address
+                        data[self.metadata_field_names['metadata']]['signature_ip'] = ip_address
 
                 if approval:
-                    data['Metadata']['signature_timestamp'] = timestamp_human_readable
+                    data[self.metadata_field_names['metadata']]['signature_timestamp'] = timestamp_human_readable
                     if ip_address:
-                        data['Metadata']['signature_ip'] = ip_address
+                        data[self.metadata_field_names['metadata']]['signature_ip'] = ip_address
 
             
             # here we define the behavior of the `Journal` metadata field 
             # if not modification:
-                # data['Journal'] = { data['Timestamp']: {
+                # data[self.metadata_field_names['journal']] = { data['Timestamp']: {
                 #                                         'Reporter': data['Reporter'],
                 #                                         'initial_submission': True}
                 #                                         }
@@ -346,43 +357,43 @@ class MongoDB:
                 TEMP = self.read_documents_from_collection(collection_name)
 
                 df = pd.DataFrame(list(TEMP))
-                data['Journal'] = dict(df.loc[ (df['_id'] == data['_id'])]['Journal'].iloc[0])
-                # print("\n\n\n", data['Journal'])
-                # print("\n\n\n", type(data['Journal']))
+                data[self.metadata_field_names['journal']] = dict(df.loc[ (df['_id'] == data['_id'])][self.metadata_field_names['journal']].iloc[0])
+                # print("\n\n\n", data[self.metadata_field_names['journal']])
+                # print("\n\n\n", type(data[self.metadata_field_names['journal']]))
 
                 # we create a slice of the data to pass to the `Journal`
                 journal_data = data.copy()
                 del journal_data['_id']
-                del journal_data['Journal']
+                del journal_data[self.metadata_field_names['journal']]
 
                 # Adding the digital Signature back now that we have added badges to the user 
                 # submission history view, see https://github.com/signebedi/libreForms/issues/141.
 
                 # if 'Signature' in journal_data.keys(): # delete the digital signature from the Journal if it exists 
-                #     del journal_data['Signature']
+                #     del journal_data[self.metadata_field_names['signature']]
 
                 # print("\n\n\n", journal_data)
 
                 # some inefficient slicing and voila! we have our correct `Journal` values, 
                 # which we append to the `Journal` field of the parent dataframe
-                data['Journal'][data['Timestamp']] =  dict(journal_data)
-                # print(final_data['Journal'])
+                data[self.metadata_field_names['journal']][data['Timestamp']] =  dict(journal_data)
+                # print(final_data[self.metadata_field_names['journal']])
 
                 # create Metadata field if it doesn't exist
                 if 'Metadata' not in data:
-                    data['Metadata'] = {}
+                    data[self.metadata_field_names['metadata']] = {}
 
                 # if the form is submitted with new digital signature or approval data,
                 # then we attach related metadata
                 if digital_signature:
-                    data['Metadata']['signature_timestamp'] = timestamp_human_readable
+                    data[self.metadata_field_names['metadata']]['signature_timestamp'] = timestamp_human_readable
                     if ip_address:
-                        data['Metadata']['signature_ip'] = ip_address
+                        data[self.metadata_field_names['metadata']]['signature_ip'] = ip_address
 
                 if approval:
-                    data['Metadata']['approval_timestamp'] = timestamp_human_readable
+                    data[self.metadata_field_names['metadata']]['approval_timestamp'] = timestamp_human_readable
                     if ip_address:
-                        data['Metadata']['approval_ip'] = ip_address
+                        data[self.metadata_field_names['metadata']]['approval_ip'] = ip_address
 
 
                 collection.update_one({'_id': ObjectId(data['_id'])}, { "$set": data}, upsert=False)
@@ -475,7 +486,7 @@ class MongoDB:
 
                     TEMP = list(db[collection_name].find(
                         {"$text": {"$search": search_term, "$caseSensitive" : False}},
-                        [x for x in self.get_collection_columns(collection_name, 'Journal', 'Metadata', 'IP_Address', 'Approver', 'Approval', 'Approver_Comment', 'Signature')]
+                        [x for x in self.get_collection_columns(collection_name, *self.metadata_fields())]
                         ).limit(limit))
 
                 df = pd.DataFrame(TEMP)

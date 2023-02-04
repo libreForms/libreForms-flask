@@ -252,21 +252,20 @@ def view_report(report_id):
 
     # print(Report.__table__.columns)
 
-
     # this is the link to edit report
-    msg = Markup(f"<a href = \"{url_for('reports.modify_report', report_id=report_id)}\">Edit report</a>")
+    msg = Markup(f"<table><tr><td><a href = \"{url_for('reports.modify_report', report_id=report_id)}\">Edit report</a></td></tr>")
     
     # this is the link to activate / deactivate report
     if report.active:
-        msg = msg + Markup(f"<a href = \"{url_for('reports.deactivate_report', report_id=report_id)}\">Deactivate report</a>")
+        msg = msg + Markup(f"<tr><td><a href = \"{url_for('reports.deactivate_report', report_id=report_id)}\">Deactivate report</a></td></tr>")
     else:
-        msg = msg + Markup(f"<a href = \"{url_for('reports.activate_report', report_id=report_id)}\">Activate report</a>")
+        msg = msg + Markup(f"<tr><td><a href = \"{url_for('reports.activate_report', report_id=report_id)}\">Activate report</a></td></tr>")
     
     # this is the link to send the report now
-    msg = msg + Markup(f"<a href = \"{url_for('reports.send_report', report_id=report_id)}\">Send report now</a>")
+    msg = msg + Markup(f"<tr><td><a href = \"{url_for('reports.send_report', report_id=report_id)}\">Send report now</a></td></tr>")
    
     # this is the link back to the report home
-    msg = msg + Markup(f"<a href = \"{url_for('reports.reports')}\">Go back to report home</a>")
+    msg = msg + Markup(f"<tr><td><a href = \"{url_for('reports.reports')}\">Go back to report home</a></td></tr></table>")
 
 
     # now we render the view_report template, but pass the report object,
