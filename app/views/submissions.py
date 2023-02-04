@@ -41,7 +41,7 @@ import numpy as np
 import json
 
 
-def get_record_of_submissions(form_name=None, user=None, remove_underscores=True):
+def get_record_of_submissions(form_name=None, user=None, remove_underscores=False):
     if form_name:
 
         try:
@@ -586,6 +586,7 @@ def render_document(form_name, document_id):
             if len(record.index)<1:
                 return abort(404)
 
+            # print(record)
             record.drop(columns=[mongodb.metadata_field_names['journal']], inplace=True)
 
             # strangely enough, this is the only way we could get the `Metadata` struct to work here,

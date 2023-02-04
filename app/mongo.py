@@ -181,24 +181,17 @@ class MongoDB:
         
         # we set the default metadata field names
 
-        self.metadata_field_names['journal'] = 'Journal'
-        self.metadata_field_names['metadata'] = 'Metadata'
-        self.metadata_field_names['ip_address'] = 'IP_Address'
-        self.metadata_field_names['approver'] = 'Approver'
-        self.metadata_field_names['approval'] = 'Approval'
-        self.metadata_field_names['approver_comment'] = 'Approver_Comment'
-        self.metadata_field_names['signature'] = 'Signature'
-        self.metadata_field_names['access_roster'] = 'Access_Roster'
+        self.metadata_field_names['journal'] = '_journal' # self.metadata_field_names['journal'] = 'Journal'
+        self.metadata_field_names['metadata'] = '_metadata' # self.metadata_field_names['metadata'] = 'Metadata'
+        self.metadata_field_names['ip_address'] = '_ip_address' # self.metadata_field_names['ip_address'] = 'IP_Address'
+        self.metadata_field_names['approver'] = '_approver' # self.metadata_field_names['approver'] = 'Approver'
+        self.metadata_field_names['approval'] = '_approval' # self.metadata_field_names['approval'] = 'Approval'
+        self.metadata_field_names['approver_comment'] = '_approver_comment' # self.metadata_field_names['approver_comment'] = 'Approver_Comment'
+        self.metadata_field_names['signature'] = '_signature' # self.metadata_field_names['signature'] = 'Signature'
+        self.metadata_field_names['access_roster'] = '_access_roster' # self.metadata_field_names['access_roster'] = 'Access_Roster'
 
-        # self.metadata_field_names['journal'] = '_journal' # self.metadata_field_names['journal'] = 'Journal'
-        # self.metadata_field_names['metadata'] = '_metadata' # self.metadata_field_names['metadata'] = 'Metadata'
-        # self.metadata_field_names['ip_address'] = '_ip_address' # self.metadata_field_names['ip_address'] = 'IP_Address'
-        # self.metadata_field_names['approver'] = '_approver' # self.metadata_field_names['approver'] = 'Approver'
-        # self.metadata_field_names['approval'] = '_approval' # self.metadata_field_names['approval'] = 'Approval'
-        # self.metadata_field_names['approver_comment'] = '_approver_comment' # self.metadata_field_names['approver_comment'] = 'Approver_Comment'
-        # self.metadata_field_names['signature'] = '_signature' # self.metadata_field_names['signature'] = 'Signature'
-        # self.metadata_field_names['access_roster'] = '_access_roster' # self.metadata_field_names['access_roster'] = 'Access_Roster'
-
+        'Owner'
+        'Reporter'
 
         # we allow them to be overwritten using kwargs
         self.metadata_field_names.update(kwargs) 
