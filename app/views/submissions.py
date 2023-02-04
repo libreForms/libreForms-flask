@@ -320,13 +320,13 @@ def set_digital_signature(      username,
 def aggregate_approval_count(select_on=None): 
 
         try:
-            record = aggregate_form_data('Approver', 'Approval', user=None)
+            record = aggregate_form_data(mongodb.metadata_field_names['approver'], mongodb.metadata_field_names['approval'], user=None)
 
             # first we drop values that are not tied to the current list of acceptible forms
             record = record.drop(record.loc[~record.form.isin(libreforms.forms.keys())].index)
 
             # then we return those whose approver is set to the select_on parameter
-            return record.loc[(record['Approver'] == select_on) & (record['Approval'].isna())]
+            return record.loc[(record[mongodb.metadata_field_names['approver']] == select_on) & (record[mongodb.metadata_field_names['approval']].isna())]
         except Exception as e: 
             log.warning(f"LIBREFORMS - {e}") 
             return pd.DataFrame()
@@ -593,26 +593,26 @@ def render_document(form_name, document_id):
             # print(dict(list(dict(record[mongodb.metadata_field_names['metadata']]).values())[0]))
 
             # Added signature verification, see https://github.com/signebedi/libreForms/issues/8
-            if 'Signature' in record.columns:
+            if mongodb.metadata_field_names['signature'] in record.columns:
                 if options['_digitally_sign']:
-                    record['Signature'].iloc[0] = set_digital_signature(username=record['Owner'].iloc[0],
-                                                                        encrypted_string=record['Signature'].iloc[0], 
+                    record[mongodb.metadata_field_names['signature']].iloc[0] = set_digital_signature(username=record['Owner'].iloc[0],
+                                                                        encrypted_string=record[mongodb.metadata_field_names['signature']].iloc[0], 
                                                                         base_string=config['signature_key'],
                                                                         ip=dict(list(dict(record[mongodb.metadata_field_names['metadata']]).values())[0])['signature_ip'] if mongodb.metadata_field_names['metadata'] in record.columns and 'signature_ip' in dict(list(dict(record[mongodb.metadata_field_names['metadata']]).values())[0])else None,
                                                                         timestamp=dict(list(dict(record[mongodb.metadata_field_names['metadata']]).values())[0])['signature_timestamp'] if mongodb.metadata_field_names['metadata'] in record.columns and 'signature_timestamp' in dict(list(dict(record[mongodb.metadata_field_names['metadata']]).values())[0])else None,)
                 else:
-                    record.drop(columns=['Signature'], inplace=True)
+                    record.drop(columns=[mongodb.metadata_field_names['signature']], inplace=True)
 
             # Added signature verification, see https://github.com/signebedi/libreForms/issues/144    
-            if 'Approval' in record.columns and record['Approval'].iloc[0]:
+            if mongodb.metadata_field_names['approval'] in record.columns and record[mongodb.metadata_field_names['approval']].iloc[0]:
                 filters = (
                 getattr(User, config['visible_signature_field']) == getattr(current_user, config['visible_signature_field']),
                 )
                 manager = db.session.query(User).filter(*filters).first()
 
                 try:
-                    record['Approval'].iloc[0] = set_digital_signature(username=manager.username,
-                            encrypted_string=record['Approval'].iloc[0],
+                    record[mongodb.metadata_field_names['approval']].iloc[0] = set_digital_signature(username=manager.username,
+                            encrypted_string=record[mongodb.metadata_field_names['approval']].iloc[0],
                             base_string=config['approval_key'],
                             fallback_string=config['disapproval_key'],
                             ip=dict(list(dict(record[mongodb.metadata_field_names['metadata']]).values())[0])['approval_ip'] if 'approval_ip' in dict(list(dict(record[mongodb.metadata_field_names['metadata']]).values())[0])else None,
@@ -620,7 +620,7 @@ def render_document(form_name, document_id):
 
                 except Exception as e: 
                     log.warning(f"LIBREFORMS - {e}")
-                    record['Approval'].iloc[0] = None
+                    record[mongodb.metadata_field_names['approval']].iloc[0] = None
 
             # we set nan values to None
             record.replace({np.nan:None}, inplace=True)
@@ -637,7 +637,7 @@ def render_document(form_name, document_id):
             if ((not checkKey(verify_group, '_deny_write') or not current_user.group in verify_group['_deny_write'])) or current_user.username == record['Owner'].iloc[0]:
                 msg = msg + Markup(f"<tr><td><a href = '{config['domain']}/submissions/{form_name}/{document_id}/edit'>edit this document</a></td></tr>")
 
-            if propagate_form_configs(form_name)['_form_approval'] and 'Approver' in record.columns and record['Approver'].iloc[0] == getattr(current_user,config['visible_signature_field']):
+            if propagate_form_configs(form_name)['_form_approval'] and mongodb.metadata_field_names['approver'] in record.columns and record[mongodb.metadata_field_names['approver']].iloc[0] == getattr(current_user,config['visible_signature_field']):
                 msg = msg + Markup(f"<tr><td><a href = '{config['domain']}/submissions/{form_name}/{document_id}/review'>go to form approval</a></td></tr>")
 
             if propagate_form_configs(form_name)['_allow_pdf_download']:
@@ -727,26 +727,26 @@ def render_document_history(form_name, document_id):
             # print(display_data.iloc[0])
 
             # Added signature verification, see https://github.com/signebedi/libreForms/issues/8
-            if 'Signature' in display_data.columns:
+            if mongodb.metadata_field_names['signature'] in display_data.columns:
                 if options['_digitally_sign']:
-                    display_data['Signature'].iloc[0] = set_digital_signature(username=display_data['Owner'].iloc[0],
-                                                                                encrypted_string=display_data['Signature'].iloc[0], 
+                    display_data[mongodb.metadata_field_names['signature']].iloc[0] = set_digital_signature(username=display_data['Owner'].iloc[0],
+                                                                                encrypted_string=display_data[mongodb.metadata_field_names['signature']].iloc[0], 
                                                                                 base_string=config['signature_key'],
                                                                                 ip=dict(list(dict(record[mongodb.metadata_field_names['metadata']]).values())[0])['signature_ip'] if mongodb.metadata_field_names['metadata'] in record.columns and 'signature_ip' in dict(list(dict(record[mongodb.metadata_field_names['metadata']]).values())[0])else None,
                                                                                 timestamp=dict(list(dict(record[mongodb.metadata_field_names['metadata']]).values())[0])['signature_timestamp'] if mongodb.metadata_field_names['metadata'] in record.columns and 'signature_timestamp' in dict(list(dict(record[mongodb.metadata_field_names['metadata']]).values())[0])else None,)
 
             # Added signature verification, see https://github.com/signebedi/libreForms/issues/144    
-            if 'Approval' in display_data.columns:
-                if pd.notnull(display_data['Approval'].iloc[0]): # verify that this is not nan, see https://stackoverflow.com/a/57044299/13301284
+            if mongodb.metadata_field_names['approval'] in display_data.columns:
+                if pd.notnull(display_data[mongodb.metadata_field_names['approval']].iloc[0]): # verify that this is not nan, see https://stackoverflow.com/a/57044299/13301284
                     
                     filters = (
                     getattr(User, config['visible_signature_field']) == getattr(current_user, config['visible_signature_field']),
                     )
                     manager = db.session.query(User).filter(*filters).first()
                     
-                    # print(display_data['Approval'].iloc[0])
-                    display_data['Approval'].iloc[0] = set_digital_signature(username=manager.username,
-                                    encrypted_string=display_data['Approval'].iloc[0],
+                    # print(display_data[mongodb.metadata_field_names['approval']].iloc[0])
+                    display_data[mongodb.metadata_field_names['approval']].iloc[0] = set_digital_signature(username=manager.username,
+                                    encrypted_string=display_data[mongodb.metadata_field_names['approval']].iloc[0],
                                     base_string=config['approval_key'],
                                     fallback_string=config['disapproval_key'],
                                     ip=dict(list(dict(record[mongodb.metadata_field_names['metadata']]).values())[0])['approval_ip'] if 'approval_ip' in dict(list(dict(record[mongodb.metadata_field_names['metadata']]).values())[0])else None,
@@ -755,8 +755,8 @@ def render_document_history(form_name, document_id):
                 # After https://github.com/signebedi/libreForms/issues/145, adding this to ensure that
                 # `Approval` is never None. 
                 else:
-                    # display_data.drop(columns=['Approval'], inplace=True)
-                    display_data['Approval'].iloc[0] = None
+                    # display_data.drop(columns=[mongodb.metadata_field_names['approval']], inplace=True)
+                    display_data[mongodb.metadata_field_names['approval']].iloc[0] = None
 
 
             display_data.replace({np.nan:None}, inplace=True)
@@ -783,7 +783,7 @@ def render_document_history(form_name, document_id):
                 msg = msg + Markup(f"<tr><td><a href = '{config['domain']}/submissions/{form_name}/{document_id}/edit'>edit this document</a></td></tr>")
             
 
-            if propagate_form_configs(form_name)['_form_approval'] and 'Approver' in display_data.columns and display_data['Approver'].iloc[0] == getattr(current_user,config['visible_signature_field']):
+            if propagate_form_configs(form_name)['_form_approval'] and mongodb.metadata_field_names['approver'] in display_data.columns and display_data[mongodb.metadata_field_names['approver']].iloc[0] == getattr(current_user,config['visible_signature_field']):
                 msg = msg + Markup(f"<tr><td><a href = '{config['domain']}/submissions/{form_name}/{document_id}/review'>go to form approval</a></td></tr>")
 
             # eventually, we may wish to add support for downloading past versions 
@@ -985,7 +985,7 @@ def review_document(form_name, document_id):
             return abort(404)
 
         # if the approver verification doesn't check out
-        if not 'Approver' in record.columns or not record['Approver'].iloc[0] or record['Approver'].iloc[0] != getattr(current_user,config['visible_signature_field']):
+        if not mongodb.metadata_field_names['approver'] in record.columns or not record[mongodb.metadata_field_names['approver']].iloc[0] or record[mongodb.metadata_field_names['approver']].iloc[0] != getattr(current_user,config['visible_signature_field']):
             return abort(404)
 
 
@@ -1042,8 +1042,8 @@ def review_document(form_name, document_id):
             overrides = record.iloc[0].to_dict()
                     
             # here we drop any elements that are not changed from the overrides
-            verify_changes_to_approval = check_args_for_changes({'Approval': digital_signature}, overrides)
-            verify_changes_to_approver_comment = check_args_for_changes({'Approver_Comment': comment}, overrides)
+            verify_changes_to_approval = check_args_for_changes({mongodb.metadata_field_names['approval']: digital_signature}, overrides)
+            verify_changes_to_approver_comment = check_args_for_changes({mongodb.metadata_field_names['approver_comment']: comment}, overrides)
 
            
             # presuming there is a change, write the change
@@ -1053,8 +1053,8 @@ def review_document(form_name, document_id):
                                                     reporter=current_user.username, 
                                                     modification=True,
                                                     # if these pass check_args_for_changes(), then pass values; else None
-                                                    approval=verify_changes_to_approval['Approval'] if 'Approval' in verify_changes_to_approval else None,
-                                                    approver_comment=verify_changes_to_approver_comment['Approver_Comment'] if 'Approver_Comment' in verify_changes_to_approver_comment else None,
+                                                    approval=verify_changes_to_approval[mongodb.metadata_field_names['approval']] if mongodb.metadata_field_names['approval'] in verify_changes_to_approval else None,
+                                                    approver_comment=verify_changes_to_approver_comment[mongodb.metadata_field_names['approver_comment']] if mongodb.metadata_field_names['approver_comment'] in verify_changes_to_approver_comment else None,
                                                     ip_address=request.remote_addr if options['_collect_client_ip'] else None,)
 
             return redirect(url_for('submissions.render_document', form_name=form_name, document_id=document_id))
@@ -1069,17 +1069,17 @@ def review_document(form_name, document_id):
 
 
         # Added signature verification, see https://github.com/signebedi/libreForms/issues/8
-        if 'Signature' in record.columns:
+        if mongodb.metadata_field_names['signature'] in record.columns:
             if options['_digitally_sign']:
-                record['Signature'].iloc[0] = set_digital_signature(username=record['Owner'].iloc[0],
-                                                                    encrypted_string=record['Signature'].iloc[0], 
+                record[mongodb.metadata_field_names['signature']].iloc[0] = set_digital_signature(username=record['Owner'].iloc[0],
+                                                                    encrypted_string=record[mongodb.metadata_field_names['signature']].iloc[0], 
                                                                     base_string=config['signature_key'],
                                                                     ip=dict(list(dict(record[mongodb.metadata_field_names['metadata']]).values())[0])['signature_ip'] if mongodb.metadata_field_names['metadata'] in record.columns and 'signature_ip' in dict(list(dict(record[mongodb.metadata_field_names['metadata']]).values())[0])else None,
                                                                     timestamp=dict(list(dict(record[mongodb.metadata_field_names['metadata']]).values())[0])['signature_timestamp'] if mongodb.metadata_field_names['metadata'] in record.columns and 'signature_timestamp' in dict(list(dict(record[mongodb.metadata_field_names['metadata']]).values())[0])else None,)
         else:
-                record.drop(columns=['Signature'], inplace=True)
+                record.drop(columns=[mongodb.metadata_field_names['signature']], inplace=True)
         # Added signature verification, see https://github.com/signebedi/libreForms/issues/144    
-        if 'Approval' in record.columns and record['Approval'].iloc[0]:
+        if mongodb.metadata_field_names['approval'] in record.columns and record[mongodb.metadata_field_names['approval']].iloc[0]:
             try:
 
                 filters = (
@@ -1089,15 +1089,15 @@ def review_document(form_name, document_id):
 
 
                 # this needs to set the filter using eg. getattr(approver, config['visible_signature_field']) 
-                record['Approval'].iloc[0] = set_digital_signature(username=manager.username,
-                                                                    encrypted_string=record['Approval'].iloc[0],
+                record[mongodb.metadata_field_names['approval']].iloc[0] = set_digital_signature(username=manager.username,
+                                                                    encrypted_string=record[mongodb.metadata_field_names['approval']].iloc[0],
                                                                     base_string=config['approval_key'],
                                                                     fallback_string=config['disapproval_key'],
                                                                     ip=dict(list(dict(record[mongodb.metadata_field_names['metadata']]).values())[0])['approval_ip'] if 'approval_ip' in dict(list(dict(record[mongodb.metadata_field_names['metadata']]).values())[0])else None,
                                                                     timestamp=dict(list(dict(record[mongodb.metadata_field_names['metadata']]).values())[0])['approval_timestamp'] if 'approval_timestamp' in dict(list(dict(record[mongodb.metadata_field_names['metadata']]).values())[0])else None,)
             except Exception as e: 
                 log.warning(f"LIBREFORMS - {e}")
-                record['Approval'].iloc[0] = None
+                record[mongodb.metadata_field_names['approval']].iloc[0] = None
 
         # we set nan values to None
         record.replace({np.nan:None}, inplace=True)
@@ -1179,27 +1179,27 @@ def generate_pdf(form_name, document_id):
             record.drop(columns=[mongodb.metadata_field_names['journal']], inplace=True)
 
             # Added signature verification, see https://github.com/signebedi/libreForms/issues/8
-            if 'Signature' in record.columns:
+            if mongodb.metadata_field_names['signature'] in record.columns:
                 if test_the_form_options['_digitally_sign']:
-                    record['Signature'].iloc[0] = set_digital_signature(username=record['Owner'].iloc[0],
-                                                                        encrypted_string=record['Signature'].iloc[0], 
+                    record[mongodb.metadata_field_names['signature']].iloc[0] = set_digital_signature(username=record['Owner'].iloc[0],
+                                                                        encrypted_string=record[mongodb.metadata_field_names['signature']].iloc[0], 
                                                                         base_string=config['signature_key'], 
                                                                         return_markup=False,
                                                                         ip=dict(list(dict(record[mongodb.metadata_field_names['metadata']]).values())[0])['signature_ip'] if mongodb.metadata_field_names['metadata'] in record.columns and 'signature_ip' in dict(list(dict(record[mongodb.metadata_field_names['metadata']]).values())[0])else None,
                                                                         timestamp=dict(list(dict(record[mongodb.metadata_field_names['metadata']]).values())[0])['signature_timestamp'] if mongodb.metadata_field_names['metadata'] in record.columns and 'signature_timestamp' in dict(list(dict(record[mongodb.metadata_field_names['metadata']]).values())[0])else None,)
                 else:
-                    record.drop(columns=['Signature'], inplace=True)
+                    record.drop(columns=[mongodb.metadata_field_names['signature']], inplace=True)
             
             # Added signature verification, see https://github.com/signebedi/libreForms/issues/144    
-            if 'Approval' in record.columns and record['Approval'].iloc[0]:
+            if mongodb.metadata_field_names['approval'] in record.columns and record[mongodb.metadata_field_names['approval']].iloc[0]:
                 filters = (
                 getattr(User, config['visible_signature_field']) == getattr(current_user, config['visible_signature_field']),
                 )
                 manager = db.session.query(User).filter(*filters).first()
 
                 try:
-                    record['Approval'].iloc[0] = set_digital_signature(username=manager.username,
-                                encrypted_string=record['Approval'].iloc[0], 
+                    record[mongodb.metadata_field_names['approval']].iloc[0] = set_digital_signature(username=manager.username,
+                                encrypted_string=record[mongodb.metadata_field_names['approval']].iloc[0], 
                                 base_string=config['approval_key'],
                                 fallback_string=config['disapproval_key'],
                                 return_markup=False,
@@ -1208,7 +1208,7 @@ def generate_pdf(form_name, document_id):
 
                 except Exception as e: 
                     log.warning(f"LIBREFORMS - {e}")
-                    record['Approval'].iloc[0] = None
+                    record[mongodb.metadata_field_names['approval']].iloc[0] = None
 
             # we set nan values to None
             record.replace({np.nan:None}, inplace=True)

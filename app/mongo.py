@@ -289,17 +289,17 @@ class MongoDB:
             # data, see https://github.com/signebedi/libreForms/issues/149. This logic reads the approval
             # and approver_comment kwargs, but drops them if None... I think this will induce desired behavior.
             data[self.metadata_field_names['approval']] = approval
-            if not [self.metadata_field_names['approval']]:
+            if not data[self.metadata_field_names['approval']]:
                 del data[self.metadata_field_names['approval']]
 
             data[self.metadata_field_names['approver_comment']] = approver_comment
-            if not [self.metadata_field_names['approver_comment']]:
+            if not data[self.metadata_field_names['approver_comment']]:
                 del data[self.metadata_field_names['approver_comment']]
 
             # here we collect IP addresses if they have been provided, see 
             # https://github.com/signebedi/libreForms/issues/175.
             data[self.metadata_field_names['ip_address']] = ip_address
-            if not [self.metadata_field_names['ip_address']]:
+            if not data[self.metadata_field_names['ip_address']]:
                 del data[self.metadata_field_names['ip_address']]
 
             # setting the timestamp sooner so it's included in the Journal data, perhaps removing the
@@ -370,7 +370,7 @@ class MongoDB:
                 # Adding the digital Signature back now that we have added badges to the user 
                 # submission history view, see https://github.com/signebedi/libreForms/issues/141.
 
-                # if 'Signature' in journal_data.keys(): # delete the digital signature from the Journal if it exists 
+                # if mongodb.metadata_field_names['signature'] in journal_data.keys(): # delete the digital signature from the Journal if it exists 
                 #     del journal_data[self.metadata_field_names['signature']]
 
                 # print("\n\n\n", journal_data)

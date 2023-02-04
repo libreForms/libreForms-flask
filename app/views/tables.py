@@ -70,29 +70,29 @@ def tables(form_name):
         df = pd.DataFrame(list(data))
 
         # Added signature verification, see https://github.com/signebedi/libreForms/issues/8
-        if 'Signature' in df.columns:
+        if mongodb.metadata_field_names['signature'] in df.columns:
             if propagate_form_configs(form_name)['_digitally_sign']:
-                df['Signature'] = df.apply(lambda row: set_digital_signature(username=row['Owner'],encrypted_string=row['Signature'],
+                df[mongodb.metadata_field_names['signature']] = df.apply(lambda row: set_digital_signature(username=row['Owner'],encrypted_string=row[mongodb.metadata_field_names['signature']],
                     base_string=config['signature_key'],
                     return_markup=False), axis=1)
             else:
-                df.drop(columns=['Signature'], inplace=True)
+                df.drop(columns=[mongodb.metadata_field_names['signature']], inplace=True)
                 
 
-        if all(x in df.columns for x in ['Approval','Approver', 'Approver_Comment']):
+        if all(x in df.columns for x in [mongodb.metadata_field_names['approval'],mongodb.metadata_field_names['approver'], mongodb.metadata_field_names['approver_comment']]):
             if propagate_form_configs(form_name)['_digitally_sign']:
 
 
-                df['Approval'] = df.apply(lambda row: set_digital_signature(
-                    username= db.session.query(User).filter(getattr(User, config['visible_signature_field'])==row['Approver']).first(),
-                    encrypted_string=row['Signature'],
+                df[mongodb.metadata_field_names['approval']] = df.apply(lambda row: set_digital_signature(
+                    username= db.session.query(User).filter(getattr(User, config['visible_signature_field'])==row[mongodb.metadata_field_names['approver']]).first(),
+                    encrypted_string=row[mongodb.metadata_field_names['signature']],
                     base_string=config['approval_key'],
                     fallback_string=config['disapproval_key'],
                     return_markup=False), axis=1)
             else:
-                df.drop(columns=['Approval','Approver', 'Approver_Comment'], inplace=True)
+                df.drop(columns=[mongodb.metadata_field_names['approval'],mongodb.metadata_field_names['approver'], mongodb.metadata_field_names['approver_comment']], inplace=True)
         else:
-            [ df.drop(columns=[x], inplace=True) for x in ['Approval','Approver', 'Approver_Comment'] if x in df.columns]
+            [ df.drop(columns=[x], inplace=True) for x in [mongodb.metadata_field_names['approval'],mongodb.metadata_field_names['approver'], mongodb.metadata_field_names['approver_comment']] if x in df.columns]
 
 
 
@@ -164,29 +164,29 @@ def download_file(filename):
         df = pd.DataFrame(list(data))
 
         # Added signature verification, see https://github.com/signebedi/libreForms/issues/8
-        if 'Signature' in df.columns:
+        if mongodb.metadata_field_names['signature'] in df.columns:
             if propagate_form_configs(form_name)['_digitally_sign']:
-                df['Signature'] = df.apply(lambda row: set_digital_signature(username=row['Owner'],encrypted_string=row['Signature'],
+                df[mongodb.metadata_field_names['signature']] = df.apply(lambda row: set_digital_signature(username=row['Owner'],encrypted_string=row[mongodb.metadata_field_names['signature']],
                 base_string=config['signature_key'],
                 return_markup=False), axis=1)
 
             else:
-                df.drop(columns=['Signature'], inplace=True)
+                df.drop(columns=[mongodb.metadata_field_names['signature']], inplace=True)
 
-        if all(x in df.columns for x in ['Approval','Approver', 'Approver_Comment']):
+        if all(x in df.columns for x in [mongodb.metadata_field_names['approval'],mongodb.metadata_field_names['approver'], mongodb.metadata_field_names['approver_comment']]):
             if propagate_form_configs(form_name)['_digitally_sign']:
 
 
-                df['Approval'] = df.apply(lambda row: set_digital_signature(
-                    username= db.session.query(User).filter(getattr(User, config['visible_signature_field'])==row['Approver']).first(),
-                    encrypted_string=row['Signature'],
+                df[mongodb.metadata_field_names['approval']] = df.apply(lambda row: set_digital_signature(
+                    username= db.session.query(User).filter(getattr(User, config['visible_signature_field'])==row[mongodb.metadata_field_names['approver']]).first(),
+                    encrypted_string=row[mongodb.metadata_field_names['signature']],
                     base_string=config['approval_key'],
                     fallback_string=config['disapproval_key'],
                     return_markup=False), axis=1)
             else:
-                df.drop(columns=['Approval', 'Approver','Approver_Comment'], inplace=True)
+                df.drop(columns=[mongodb.metadata_field_names['approval'], mongodb.metadata_field_names['approver'], mongodb.metadata_field_names['approver_comment']], inplace=True)
         else:
-            [ df.drop(columns=[x], inplace=True) for x in ['Approval','Approver', 'Approver_Comment'] if x in df.columns]
+            [ df.drop(columns=[x], inplace=True) for x in [mongodb.metadata_field_names['approval'], mongodb.metadata_field_names['approver'], mongodb.metadata_field_names['approver_comment']] if x in df.columns]
 
         if len(df.index) < 1:
             flash('This form has not received any submissions.')
