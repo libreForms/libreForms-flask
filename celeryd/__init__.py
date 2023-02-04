@@ -78,7 +78,7 @@ def celery_beat_logger():
 
 def convert_timestamp(row, now):
     # print(now)
-    t = datetime.timestamp(parser.parse(row['Timestamp']))
+    t = datetime.timestamp(parser.parse(row[mongodb.metadata_field_names['timestamp']]))
     # print(t)
     return now - t
     

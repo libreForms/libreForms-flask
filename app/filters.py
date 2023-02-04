@@ -312,7 +312,7 @@ def send_eligible_reports():
         TEMP = form_df[row['form_name']].copy()
 
         # we create a unix timestamp field for the form data
-        TEMP['unixTimestamp'] = TEMP.apply(lambda row: datetime.timestamp(parser.parse(row['Timestamp'])), axis=1)
+        TEMP['unixTimestamp'] = TEMP.apply(lambda row: datetime.timestamp(parser.parse(row[mongodb.metadata_field_names['timestamp']])), axis=1)
 
         # collect forms based on timetamp `time_condition` condition
         if row['time_condition'] == 'created_since_last_run':
@@ -406,7 +406,7 @@ def send_individual_report(report, user):
         TEMP = TEMP[report.form_name]
 
         # we create a unix timestamp field for the form data
-        TEMP['unixTimestamp'] = TEMP.apply(lambda row: datetime.timestamp(parser.parse(row['Timestamp'])), axis=1)
+        TEMP['unixTimestamp'] = TEMP.apply(lambda row: datetime.timestamp(parser.parse(row[mongodb.metadata_field_names['timestamp']])), axis=1)
 
         # then, we calculate how long it has been since the report was last run
         time_since_last_run = current_time - report.last_run_at

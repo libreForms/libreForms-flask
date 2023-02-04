@@ -17,14 +17,14 @@
   <tbody>
   {% for item in submission.index %} 
     <tr class="table{% if emphasize and item in emphasize %}-secondary{% else %}{{'-dark' if dark_mode else '-transparent'}}{% endif %}">
-      <th scope="row">{{submission['Timestamp'][item]}}</th>
-      {% for col in submission.columns if col != "Timestamp" %}
+      <th scope="row">{{submission['_timestamp'][item]}}</th>
+      {% for col in submission.columns if col != "_timestamp" %}
       <td>{{submission[col][item]}}</td>
       {% endfor %}
 
       <!-- <td>{{submission['hyperlink'][item]}}</td>
       <td>{{submission['form'][item]}}</td>
-      <td>{{submission['Owner'][item]}}</td> -->
+      <td>{{submission[mongodb.metadata_field_names['owner']][item]}}</td> -->
     </tr>
   {% endfor %}
   </tbody>

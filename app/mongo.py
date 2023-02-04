@@ -189,9 +189,9 @@ class MongoDB:
         self.metadata_field_names['approver_comment'] = '_approver_comment' # self.metadata_field_names['approver_comment'] = 'Approver_Comment'
         self.metadata_field_names['signature'] = '_signature' # self.metadata_field_names['signature'] = 'Signature'
         self.metadata_field_names['access_roster'] = '_access_roster' # self.metadata_field_names['access_roster'] = 'Access_Roster'
-
-        'Owner'
-        'Reporter'
+        self.metadata_field_names['owner'] = '_owner' # self.metadata_field_names['access_roster'] = 'Owner'
+        self.metadata_field_names['reporter'] = '_reporter' # self.metadata_field_names['access_roster'] = 'Reporter'
+        self.metadata_field_names['timestamp'] = '_timestamp' # self.metadata_field_names['access_roster'] = 'Timestamp'
 
         # we allow them to be overwritten using kwargs
         self.metadata_field_names.update(kwargs) 
@@ -250,7 +250,7 @@ class MongoDB:
 
             timestamp_human_readable = str(datetime.datetime.utcnow())
 
-            data['Reporter'] = str(reporter) if reporter else None
+            data[self.metadata_field_names['reporter']] = str(reporter) if reporter else None
 
             # Adding the digital Signature back to Journal now that we have added badges to the user 
             # submission history view - making it more user friendly to view and make sense of, 
@@ -297,7 +297,7 @@ class MongoDB:
 
             # setting the timestamp sooner so it's included in the Journal data, perhaps removing the
             # need for a data copy.
-            data['Timestamp'] = timestamp_human_readable
+            data[self.metadata_field_names['timestamp']] = timestamp_human_readable
 
             # but we create a copy anyways to keep things segmented and avoid potential
             # recursion problems.
@@ -308,8 +308,8 @@ class MongoDB:
                 # we create an `Owner` field to be more stable than the `Reporter`
                 # field - that is, something that does not generally change.
                 # See  https://github.com/signebedi/libreForms/issues/143
-                data['Owner'] = data['Reporter']
-                data_copy['Owner'] = data_copy['Reporter']
+                data[self.metadata_field_names['owner']] = data[self.metadata_field_names['reporter']]
+                data_copy[self.metadata_field_names['owner']] = data_copy[self.metadata_field_names['reporter']]
                 
                 data[self.metadata_field_names['journal']] = { timestamp_human_readable: data_copy }
 
@@ -344,7 +344,7 @@ class MongoDB:
             
             # here we define the behavior of the `Journal` metadata field 
             # if not modification:
-                # data[self.metadata_field_names['journal']] = { data['Timestamp']: {
+                # data[self.metadata_field_names['journal']] = { data[self.metadata_field_names['timestamp']]: {
                 #                                         'Reporter': data['Reporter'],
                 #                                         'initial_submission': True}
                 #                                         }

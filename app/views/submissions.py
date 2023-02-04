@@ -68,7 +68,7 @@ def get_record_of_submissions(form_name=None, user=None, remove_underscores=Fals
 
             if user:
                 try:
-                    df = df.loc[df['Owner'] == user]
+                    df = df.loc[df[mongodb.metadata_field_names['owner']] == user]
                 except Exception as e: 
                     log.info(f"{user.upper()} - tried to query {form_name} database for user but no entries were found. {e}")
                     return None
@@ -96,7 +96,7 @@ def gen_hyperlink(row, form_name):
 # in this method we aggregate all the relevant information
 def aggregate_form_data(*args, user=None):
 
-    columns=['form', 'Timestamp', 'id', 'hyperlink', 'Reporter', 'Owner']+[x for x in args]
+    columns=['form', mongodb.metadata_field_names['timestamp'], 'id', 'hyperlink', mongodb.metadata_field_names['reporter'], mongodb.metadata_field_names['owner']]+[x for x in args]
     # print (columns)
 
     df = pd.DataFrame(columns=columns)
@@ -115,9 +115,9 @@ def aggregate_form_data(*args, user=None):
 
                 for index, row in temp_df.iterrows():
 
-                    TEMP = {'Owner':row['Owner'], 
-                            'Reporter':row['Reporter'], 
-                            'Timestamp':row['Timestamp'], 
+                    TEMP = {mongodb.metadata_field_names['owner']:row[mongodb.metadata_field_names['owner']], 
+                            'Reporter':row[mongodb.metadata_field_names['reporter']], 
+                            'Timestamp':row[mongodb.metadata_field_names['timestamp']], 
                             'form':form, 
                             'id':row['id'], 
                             'hyperlink':gen_hyperlink(row, form),
@@ -202,7 +202,7 @@ def generate_full_document_history(form, document_id, user=None):
             # the right call, but it's easy enough to comment this (and the earlier) line
             # and  to just go with the redundancy ... for more, see
             # https://github.com/signebedi/libreForms/issues/140.
-            # BASE_HISTORY['Timestamp'] = item
+            # BASE_HISTORY[mongodb.metadata_field_names['timestamp']] = item
 
             # finally we write this update to FULL_HISTORY dict
             FULL_HISTORY[item] = BASE_HISTORY.copy()
@@ -442,7 +442,7 @@ def submissions(form_name):
     
         else:
 
-            record = record [['Timestamp', 'id', 'Owner']+propagate_form_configs(form=form_name)['_submission_view_summary_fields']]
+            record = record [[mongodb.metadata_field_names['timestamp'], 'id', mongodb.metadata_field_names['owner']]+propagate_form_configs(form=form_name)['_submission_view_summary_fields']]
             record['form'] = form_name
 
             record['hyperlink'] = record.apply(lambda x: gen_hyperlink(x, form_name), axis=1)
@@ -596,7 +596,7 @@ def render_document(form_name, document_id):
             # Added signature verification, see https://github.com/signebedi/libreForms/issues/8
             if mongodb.metadata_field_names['signature'] in record.columns:
                 if options['_digitally_sign']:
-                    record[mongodb.metadata_field_names['signature']].iloc[0] = set_digital_signature(username=record['Owner'].iloc[0],
+                    record[mongodb.metadata_field_names['signature']].iloc[0] = set_digital_signature(username=record[mongodb.metadata_field_names['owner']].iloc[0],
                                                                         encrypted_string=record[mongodb.metadata_field_names['signature']].iloc[0], 
                                                                         base_string=config['signature_key'],
                                                                         ip=dict(list(dict(record[mongodb.metadata_field_names['metadata']]).values())[0])['signature_ip'] if mongodb.metadata_field_names['metadata'] in record.columns and 'signature_ip' in dict(list(dict(record[mongodb.metadata_field_names['metadata']]).values())[0])else None,
@@ -633,9 +633,9 @@ def render_document(form_name, document_id):
             msg = Markup(f"<table><tr><td><a href = '{config['domain']}/submissions/{form_name}/{document_id}/history'>view document history</a></td></tr>")
 
             # print (current_user.username)
-            # print (record['Reporter'].iloc[0])
+            # print (record[mongodb.metadata_field_names['reporter']].iloc[0])
 
-            if ((not checkKey(verify_group, '_deny_write') or not current_user.group in verify_group['_deny_write'])) or current_user.username == record['Owner'].iloc[0]:
+            if ((not checkKey(verify_group, '_deny_write') or not current_user.group in verify_group['_deny_write'])) or current_user.username == record[mongodb.metadata_field_names['owner']].iloc[0]:
                 msg = msg + Markup(f"<tr><td><a href = '{config['domain']}/submissions/{form_name}/{document_id}/edit'>edit this document</a></td></tr>")
 
             if propagate_form_configs(form_name)['_form_approval'] and mongodb.metadata_field_names['approver'] in record.columns and record[mongodb.metadata_field_names['approver']].iloc[0] == getattr(current_user,config['visible_signature_field']):
@@ -699,11 +699,11 @@ def render_document_history(form_name, document_id):
         else:
 
             # if a timestamp has been selected, then we set that to the page focus
-            if request.args.get("Timestamp"):
-                timestamp = request.args.get("Timestamp")
+            if request.args.get(mongodb.metadata_field_names['timestamp']):
+                timestamp = request.args.get(mongodb.metadata_field_names['timestamp'])
             # if a timestamp hasn't been passed in the get vars, then we default to the most recent
             else:
-                # timestamp = record.iloc[-1, record.columns.get_loc('Timestamp')]
+                # timestamp = record.iloc[-1, record.columns.get_loc(mongodb.metadata_field_names['timestamp'])]
                 timestamp = record.columns[-1]
 
             # I'm experimenting with creating the Jinja element in the backend ...
@@ -730,7 +730,7 @@ def render_document_history(form_name, document_id):
             # Added signature verification, see https://github.com/signebedi/libreForms/issues/8
             if mongodb.metadata_field_names['signature'] in display_data.columns:
                 if options['_digitally_sign']:
-                    display_data[mongodb.metadata_field_names['signature']].iloc[0] = set_digital_signature(username=display_data['Owner'].iloc[0],
+                    display_data[mongodb.metadata_field_names['signature']].iloc[0] = set_digital_signature(username=display_data[mongodb.metadata_field_names['owner']].iloc[0],
                                                                                 encrypted_string=display_data[mongodb.metadata_field_names['signature']].iloc[0], 
                                                                                 base_string=config['signature_key'],
                                                                                 ip=dict(list(dict(record[mongodb.metadata_field_names['metadata']]).values())[0])['signature_ip'] if mongodb.metadata_field_names['metadata'] in record.columns and 'signature_ip' in dict(list(dict(record[mongodb.metadata_field_names['metadata']]).values())[0])else None,
@@ -777,10 +777,10 @@ def render_document_history(form_name, document_id):
             msg = Markup(f"<table><tr><td><a href = '{config['domain']}/submissions/{form_name}/{document_id}'>go back to document</a></td></tr>")
 
             # print (current_user.username)
-            # print (record.transpose()['Reporter'].iloc[0])
-            # print (record['Reporter'].iloc[0])
+            # print (record.transpose()[mongodb.metadata_field_names['reporter']].iloc[0])
+            # print (record[mongodb.metadata_field_names['reporter']].iloc[0])
 
-            if ((not checkKey(verify_group, '_deny_write') or not current_user.group in verify_group['_deny_write'])) or current_user.username == record['Owner'].iloc[0]:
+            if ((not checkKey(verify_group, '_deny_write') or not current_user.group in verify_group['_deny_write'])) or current_user.username == record[mongodb.metadata_field_names['owner']].iloc[0]:
                 msg = msg + Markup(f"<tr><td><a href = '{config['domain']}/submissions/{form_name}/{document_id}/edit'>edit this document</a></td></tr>")
             
 
@@ -1072,7 +1072,7 @@ def review_document(form_name, document_id):
         # Added signature verification, see https://github.com/signebedi/libreForms/issues/8
         if mongodb.metadata_field_names['signature'] in record.columns:
             if options['_digitally_sign']:
-                record[mongodb.metadata_field_names['signature']].iloc[0] = set_digital_signature(username=record['Owner'].iloc[0],
+                record[mongodb.metadata_field_names['signature']].iloc[0] = set_digital_signature(username=record[mongodb.metadata_field_names['owner']].iloc[0],
                                                                     encrypted_string=record[mongodb.metadata_field_names['signature']].iloc[0], 
                                                                     base_string=config['signature_key'],
                                                                     ip=dict(list(dict(record[mongodb.metadata_field_names['metadata']]).values())[0])['signature_ip'] if mongodb.metadata_field_names['metadata'] in record.columns and 'signature_ip' in dict(list(dict(record[mongodb.metadata_field_names['metadata']]).values())[0])else None,
@@ -1111,7 +1111,7 @@ def review_document(form_name, document_id):
         msg = msg + Markup(f"<tr><td><a href = '{config['domain']}/submissions/{form_name}/{document_id}/history'>view document history</a>/td></tr></table>")
 
         # print (current_user.username)
-        # print (record['Reporter'].iloc[0])
+        # print (record[mongodb.metadata_field_names['reporter']].iloc[0])
 
 
         return render_template('submissions/submissions.html',
@@ -1182,7 +1182,7 @@ def generate_pdf(form_name, document_id):
             # Added signature verification, see https://github.com/signebedi/libreForms/issues/8
             if mongodb.metadata_field_names['signature'] in record.columns:
                 if test_the_form_options['_digitally_sign']:
-                    record[mongodb.metadata_field_names['signature']].iloc[0] = set_digital_signature(username=record['Owner'].iloc[0],
+                    record[mongodb.metadata_field_names['signature']].iloc[0] = set_digital_signature(username=record[mongodb.metadata_field_names['owner']].iloc[0],
                                                                         encrypted_string=record[mongodb.metadata_field_names['signature']].iloc[0], 
                                                                         base_string=config['signature_key'], 
                                                                         return_markup=False,

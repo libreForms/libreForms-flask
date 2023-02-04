@@ -72,7 +72,7 @@ def tables(form_name):
         # Added signature verification, see https://github.com/signebedi/libreForms/issues/8
         if mongodb.metadata_field_names['signature'] in df.columns:
             if propagate_form_configs(form_name)['_digitally_sign']:
-                df[mongodb.metadata_field_names['signature']] = df.apply(lambda row: set_digital_signature(username=row['Owner'],encrypted_string=row[mongodb.metadata_field_names['signature']],
+                df[mongodb.metadata_field_names['signature']] = df.apply(lambda row: set_digital_signature(username=row[mongodb.metadata_field_names['owner']],encrypted_string=row[mongodb.metadata_field_names['signature']],
                     base_string=config['signature_key'],
                     return_markup=False), axis=1)
             else:
@@ -166,7 +166,7 @@ def download_file(filename):
         # Added signature verification, see https://github.com/signebedi/libreForms/issues/8
         if mongodb.metadata_field_names['signature'] in df.columns:
             if propagate_form_configs(form_name)['_digitally_sign']:
-                df[mongodb.metadata_field_names['signature']] = df.apply(lambda row: set_digital_signature(username=row['Owner'],encrypted_string=row[mongodb.metadata_field_names['signature']],
+                df[mongodb.metadata_field_names['signature']] = df.apply(lambda row: set_digital_signature(username=row[mongodb.metadata_field_names['owner']],encrypted_string=row[mongodb.metadata_field_names['signature']],
                 base_string=config['signature_key'],
                 return_markup=False), axis=1)
 
