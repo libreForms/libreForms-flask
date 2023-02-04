@@ -85,11 +85,7 @@ def convert_timestamp(row, now):
 
 
 @celery.task()
-def index_new_documents(
-                            # time_since=86400, 
-                            elasticsearch_index="submissions"
-                        ):
-
+def index_new_documents(elasticsearch_index="submissions"):
 
     # log.info(f'LIBREFORMS - started elasticsearch index process.')
 
@@ -98,7 +94,6 @@ def index_new_documents(
     
     # for each of these form names
     for f in form_list:
-
         
         # log.info(f'LIBREFORMS - stated elasticsearch index for form {f}.')   
 
@@ -115,17 +110,11 @@ def index_new_documents(
         # print(df)
         print(f, ' - found data - type: ', type(df))
 
-        # here we ask how long ago the document was created by taking the difference betwee the current time and created time
-        # df['elasticsearch_time_since'] = df.apply(lambda row: datetime.timestamp(datetime.now()) - datetime.timestamp(parser.parse(row['Timestamp'])), axis=1)
-        #  this will limit our index to those created since the last run. No need, I think ... let's just reindex everything.
-        # df = df.loc [df.elasticsearch_time_since < time_since ]
-
         # stringify the BSON data
         df['_id'] = df.apply(lambda row: str(row['_id']), axis=1)
 
         # drop the unnecessary columns
-        df.drop(columns=[x for x in ['Journal', 'Metadata', 'IP_Address', 'Approver', 'Approval', 'Approver_Comment', 
-                            'Signature', 'elasticsearch_time_since'] if x in df.columns], inplace=True)
+        df.drop(columns=[x for x in mongodb.metadata_fields() if x in df.columns], inplace=True)
 
         # we iterate through rows
         for index, row in df.iterrows():
@@ -136,8 +125,7 @@ def index_new_documents(
 
             # we write a little string to approximate the page content of the corresponding page; nb. we 
             # exclude certain fields that are not 'content' fields...
-            fullString = ', '.join([f'{x} - {str(row[x])}' for x in df.columns if x not in 
-                ['Journal', 'Metadata', 'IP_Address', 'Approver', 'Approval', 'Approver_Comment', 'Signature', '_id', 'elasticsearch_time_since']])
+            fullString = ', '.join([f'{x} - {str(row[x])}' for x in df.columns if x not in mongodb.metadata_fields(exclude_id=True)])
 
             # this is the new form data we want to pass
             v2_elasticsearch_content = dict(row)
@@ -158,8 +146,6 @@ def index_new_documents(
                 'fullString': fullString,
                 **v2_elasticsearch_content, # pass the row data from above as kwargs
             }
-
-
 
             # let's stringify each element for now, just for simplicity; otherwise, we are receiving the following error:
             # elasticsearch.exceptions.RequestError: RequestError(400, 'mapper_parsing_exception', 'failed to parse')

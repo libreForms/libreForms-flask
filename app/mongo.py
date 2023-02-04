@@ -21,6 +21,7 @@ Beyond form-specific data, the application adds the following metadata:
     - Approver:
     - Approval:
     - Approver_Comment:
+    - Access_Roster:
 
 # class MongoDB()
 
@@ -166,6 +167,42 @@ class MongoDB:
 
         self.connection_string = f'mongodb://{self.user}{":"+self.dbpw if self.dbpw else ""}{"@"+self.host if self.user else self.host}:{str(self.port)}/?authSource=admin&retryWrites=true&w=majority'
         # print(self.dbpw)
+
+    # we set and update the class variable that will be used to set metadata field names, see
+    # https://github.com/libreForms/libreForms-flask/issues/179
+    # https://github.com/libreForms/libreForms-flask/issues/195
+    def set_metadata_field_names(self,**kwargs):
+        
+        # we create a class variable called metadata_field_names
+        self.metadata_field_names = {}
+        
+        # we set the default metadata field names
+        self.metadata_field_names['journal'] = 'Journal'
+        self.metadata_field_names['metadata'] = 'Metadata'
+        self.metadata_field_names['ip_address'] = 'IP_Address'
+        self.metadata_field_names['approver'] = 'Approver'
+        self.metadata_field_names['approval'] = 'Approval'
+        self.metadata_field_names['approver_comment'] = 'Approver_Comment'
+        self.metadata_field_names['signature'] = 'Signature'
+        self.metadata_field_names['signature'] = 'Access_Roster'
+
+        # we allow them to be overwritten using kwargs
+        self.metadata_field_names.__dict__.update(kwargs) 
+
+        return self.metadata_field_names
+
+    def metadata_fields(self, exclude_id=False):
+        # we have a number of fields that are added at various points in the 
+        # submission lifecyle, but which we may wish to strip from the data. 
+        # this method returns a list of those fields. By default, we do not
+        # drop the `_id` field.
+        fields = [ x for x in self.set_metadata_field_names() ]
+        
+        if exclude_id:
+            return fields + ['_id']
+
+        return fields
+
 
     def collections(self):
         with MongoClient(host=self.host, port=self.port) if not self.dbpw else MongoClient(self.connection_string) as client:
@@ -517,16 +554,6 @@ class MongoDB:
                 return True
         except Exception as e: 
             return False
-
-    def metadata_fields(self, exclude_id=False):
-        # we have a number of fields that are added at various points in the 
-        # submission lifecyle, but which we may wish to strip from the data. 
-        # this method returns a list of those fields. By default, we do not
-        # drop the `_id` field.
-        if exclude_id:
-            return ['Journal', 'Metadata', 'IP_Address', 'Approver', 'Approval', 'Approver_Comment', 'Signature', '_id']
-        return ['Journal', 'Metadata', 'IP_Address', 'Approver', 'Approval', 'Approver_Comment', 'Signature']
-
 
 # create the mongodb instance that the rest of the application will connect from
 mongodb = MongoDB(user=config['mongodb_user'], 
