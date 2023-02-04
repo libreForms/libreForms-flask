@@ -330,6 +330,12 @@ class MongoDB:
                 # data not well suited to the `Journal`.
                 data[self.metadata_field_names['metadata']] = {}
 
+                # here we add a metadata subfield called 'createdTimestamp', which will track the time
+                # that the form was initially created ... allowing `Timestamp` to solely track the last
+                # edit timestamp. For more discussion of this feature and how it supports filters, see
+                # https://github.com/libreForms/libreForms-flask/issues/248
+                data[self.metadata_field_names['metadata']]['createdTimestamp'] = timestamp_human_readable 
+
                 # if the form is submitted with new digital signature or approval data,
                 # then we attach related metadata
                 if digital_signature:
