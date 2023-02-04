@@ -691,7 +691,7 @@ def render_document_history(form_name, document_id):
             record = pd.DataFrame(generate_full_document_history(form_name, document_id, user=current_user.username))
 
 
-        if not isinstance(record, pd.DataFrame):
+        if not isinstance(record, pd.DataFrame) or len(record) < 1:
             flash('This document does not exist.')
             return redirect(url_for('submissions.submissions_home'))
     
@@ -763,6 +763,11 @@ def render_document_history(form_name, document_id):
 
             # here we set a list of values to emphasize in the table because they've changed values
             t = get_record_of_submissions(form_name) 
+
+            if not isinstance(t, pd.DataFrame):
+                flash(f'Could not render document history for datetime {timestamp}. ')
+                return redirect(url_for('submissions.render_document_history', form_name=form_name, document_id=document_id))
+
             t2 = t.loc[t.id == document_id] 
             t3 = dict(t2[['Journal']].iloc[0].values[0]) 
             emphasize = [x for x in t3[timestamp].keys()]
