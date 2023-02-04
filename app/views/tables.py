@@ -110,7 +110,7 @@ def tables(form_name):
 
 
         # drop `meta` fields from user vis
-        [ df.drop(columns=[x], inplace=True) for x in ['Journal', 'Metadata', '_id'] if x in df.columns]
+        [ df.drop(columns=[x], inplace=True) for x in [mongodb.metadata_field_names['journal'], mongodb.metadata_field_names['metadata'], '_id'] if x in df.columns]
         
         # here we allow the user to select fields they want to use, 
         # overriding the default view-all.
@@ -193,7 +193,7 @@ def download_file(filename):
             return redirect(url_for('tables.tables_home'))
 
 
-        [ df.drop(columns=[x], inplace=True) for x in ['Journal', 'Metadata', '_id'] if x in df.columns]
+        [ df.drop(columns=[x], inplace=True) for x in [mongodb.metadata_field_names['journal'], mongodb.metadata_field_names['metadata'], '_id'] if x in df.columns]
         
         # here we allow the user to select fields they want to use, 
         # overriding the default view-all.

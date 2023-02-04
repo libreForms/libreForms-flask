@@ -199,6 +199,7 @@ class MongoDB:
         # self.metadata_field_names['signature'] = '_signature' # self.metadata_field_names['signature'] = 'Signature'
         # self.metadata_field_names['access_roster'] = '_access_roster' # self.metadata_field_names['access_roster'] = 'Access_Roster'
 
+
         # we allow them to be overwritten using kwargs
         self.metadata_field_names.update(kwargs) 
 
@@ -380,7 +381,7 @@ class MongoDB:
                 # print(final_data[self.metadata_field_names['journal']])
 
                 # create Metadata field if it doesn't exist
-                if 'Metadata' not in data:
+                if self.metadata_field_names['metadata'] not in data:
                     data[self.metadata_field_names['metadata']] = {}
 
                 # if the form is submitted with new digital signature or approval data,

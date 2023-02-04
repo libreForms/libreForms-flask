@@ -304,7 +304,7 @@ def send_eligible_reports():
 
     # next, we select the form data that should be sent, dropping 
     # the fields we don't want included.
-    form_df = get_map_of_form_data('Journal', 'Metadata', 'IP_Address', 'Approver', 
+    form_df = get_map_of_form_data(mongodb.metadata_field_names['journal'], mongodb.metadata_field_names['metadata'], 'IP_Address', 'Approver', 
                                         'Approval', 'Approver_Comment', 'Signature', '_id', add_hyperlink=True)
 
     # next, we iterate through each report and select the corresponding dataframe
@@ -400,7 +400,7 @@ def send_individual_report(report, user):
 
     try:
     
-        TEMP = get_map_of_form_data('Journal', 'Metadata', 'IP_Address', 'Approver', 
+        TEMP = get_map_of_form_data(mongodb.metadata_field_names['journal'], mongodb.metadata_field_names['metadata'], 'IP_Address', 'Approver', 
                                     'Approval', 'Approver_Comment', 'Signature', '_id', 
                                     add_hyperlink=True, single_form=report.form_name)
         TEMP = TEMP[report.form_name]

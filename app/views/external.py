@@ -163,7 +163,7 @@ if config['allow_anonymous_form_submissions']:
 
                     # here we build our message and subject, customized for anonymous users
                     subject = f'{config["site_name"]} {form_name} Submitted ({document_id})'
-                    content = f"This email serves to verify that an anonymous user {signature} (linked to {email}) has just submitted the {form_name} form. {'; '.join(key + ': ' + str(value) for key, value in parsed_args.items() if key != 'Journal') if options['_send_form_with_email_notification'] else ''}"
+                    content = f"This email serves to verify that an anonymous user {signature} (linked to {email}) has just submitted the {form_name} form. {'; '.join(key + ': ' + str(value) for key, value in parsed_args.items() if key != mongodb.metadata_field_names['journal']) if options['_send_form_with_email_notification'] else ''}"
                     
                     # and then we send our message
                     m = send_mail_async.delay(subject=subject, content=content, to_address=email, cc_address_list=rationalize_routing_list(form_name)) if config['send_mail_asynchronously'] else mailer.send_mail(subject=subject, content=content, to_address=email, cc_address_list=rationalize_routing_list(form_name), logfile=log)

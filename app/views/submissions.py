@@ -156,7 +156,7 @@ def generate_full_document_history(form, document_id, user=None):
 
         record = df.loc[df.id == document_id] # here we search for the document ID
 
-        history = dict(record[['Journal']].iloc[0].values[0]) # here we pull out the document history
+        history = dict(record[[mongodb.metadata_field_names['journal']]].iloc[0].values[0]) # here we pull out the document history
 
         # dates of new submissions are used as the unique keys in each Journal entry for a form,
         # so we create a list 
@@ -222,11 +222,11 @@ def check_args_for_changes(parsed_args, overrides):
 
     # from pprint import pprint
     # pprint (overrides)
-    if 'Journal' in overrides:
-        del overrides['Journal'] # this is unnecessary space to iterate through, so drop if exists
+    if mongodb.metadata_field_names['journal'] in overrides:
+        del overrides[mongodb.metadata_field_names['journal']] # this is unnecessary space to iterate through, so drop if exists
 
-    if 'Metadata' in overrides:
-        del overrides['Metadata'] # this is unnecessary space to iterate through, so drop if exists
+    if mongodb.metadata_field_names['metadata'] in overrides:
+        del overrides[mongodb.metadata_field_names['metadata']] # this is unnecessary space to iterate through, so drop if exists
 
 
     # print(parsed_args, '\n~~~\n', overrides)
@@ -586,11 +586,11 @@ def render_document(form_name, document_id):
             if len(record.index)<1:
                 return abort(404)
 
-            record.drop(columns=['Journal'], inplace=True)
+            record.drop(columns=[mongodb.metadata_field_names['journal']], inplace=True)
 
             # strangely enough, this is the only way we could get the `Metadata` struct to work here,
             # seehttps://github.com/signebedi/libreForms/issues/175.
-            # print(dict(list(dict(record['Metadata']).values())[0]))
+            # print(dict(list(dict(record[mongodb.metadata_field_names['metadata']]).values())[0]))
 
             # Added signature verification, see https://github.com/signebedi/libreForms/issues/8
             if 'Signature' in record.columns:
@@ -598,8 +598,8 @@ def render_document(form_name, document_id):
                     record['Signature'].iloc[0] = set_digital_signature(username=record['Owner'].iloc[0],
                                                                         encrypted_string=record['Signature'].iloc[0], 
                                                                         base_string=config['signature_key'],
-                                                                        ip=dict(list(dict(record['Metadata']).values())[0])['signature_ip'] if 'Metadata' in record.columns and 'signature_ip' in dict(list(dict(record['Metadata']).values())[0])else None,
-                                                                        timestamp=dict(list(dict(record['Metadata']).values())[0])['signature_timestamp'] if 'Metadata' in record.columns and 'signature_timestamp' in dict(list(dict(record['Metadata']).values())[0])else None,)
+                                                                        ip=dict(list(dict(record[mongodb.metadata_field_names['metadata']]).values())[0])['signature_ip'] if mongodb.metadata_field_names['metadata'] in record.columns and 'signature_ip' in dict(list(dict(record[mongodb.metadata_field_names['metadata']]).values())[0])else None,
+                                                                        timestamp=dict(list(dict(record[mongodb.metadata_field_names['metadata']]).values())[0])['signature_timestamp'] if mongodb.metadata_field_names['metadata'] in record.columns and 'signature_timestamp' in dict(list(dict(record[mongodb.metadata_field_names['metadata']]).values())[0])else None,)
                 else:
                     record.drop(columns=['Signature'], inplace=True)
 
@@ -615,8 +615,8 @@ def render_document(form_name, document_id):
                             encrypted_string=record['Approval'].iloc[0],
                             base_string=config['approval_key'],
                             fallback_string=config['disapproval_key'],
-                            ip=dict(list(dict(record['Metadata']).values())[0])['approval_ip'] if 'approval_ip' in dict(list(dict(record['Metadata']).values())[0])else None,
-                            timestamp=dict(list(dict(record['Metadata']).values())[0])['approval_timestamp'] if 'approval_timestamp' in dict(list(dict(record['Metadata']).values())[0])else None,)
+                            ip=dict(list(dict(record[mongodb.metadata_field_names['metadata']]).values())[0])['approval_ip'] if 'approval_ip' in dict(list(dict(record[mongodb.metadata_field_names['metadata']]).values())[0])else None,
+                            timestamp=dict(list(dict(record[mongodb.metadata_field_names['metadata']]).values())[0])['approval_timestamp'] if 'approval_timestamp' in dict(list(dict(record[mongodb.metadata_field_names['metadata']]).values())[0])else None,)
 
                 except Exception as e: 
                     log.warning(f"LIBREFORMS - {e}")
@@ -627,7 +627,7 @@ def render_document(form_name, document_id):
 
             # we drop Metadata from the form that's rendered for the user, since this data
             # is generally not intended to be visible
-            record.drop(columns=['Metadata'], inplace=True)
+            record.drop(columns=[mongodb.metadata_field_names['metadata']], inplace=True)
 
             msg = Markup(f"<table><tr><td><a href = '{config['domain']}/submissions/{form_name}/{document_id}/history'>view document history</a></td></tr>")
 
@@ -732,8 +732,8 @@ def render_document_history(form_name, document_id):
                     display_data['Signature'].iloc[0] = set_digital_signature(username=display_data['Owner'].iloc[0],
                                                                                 encrypted_string=display_data['Signature'].iloc[0], 
                                                                                 base_string=config['signature_key'],
-                                                                                ip=dict(list(dict(record['Metadata']).values())[0])['signature_ip'] if 'Metadata' in record.columns and 'signature_ip' in dict(list(dict(record['Metadata']).values())[0])else None,
-                                                                                timestamp=dict(list(dict(record['Metadata']).values())[0])['signature_timestamp'] if 'Metadata' in record.columns and 'signature_timestamp' in dict(list(dict(record['Metadata']).values())[0])else None,)
+                                                                                ip=dict(list(dict(record[mongodb.metadata_field_names['metadata']]).values())[0])['signature_ip'] if mongodb.metadata_field_names['metadata'] in record.columns and 'signature_ip' in dict(list(dict(record[mongodb.metadata_field_names['metadata']]).values())[0])else None,
+                                                                                timestamp=dict(list(dict(record[mongodb.metadata_field_names['metadata']]).values())[0])['signature_timestamp'] if mongodb.metadata_field_names['metadata'] in record.columns and 'signature_timestamp' in dict(list(dict(record[mongodb.metadata_field_names['metadata']]).values())[0])else None,)
 
             # Added signature verification, see https://github.com/signebedi/libreForms/issues/144    
             if 'Approval' in display_data.columns:
@@ -749,8 +749,8 @@ def render_document_history(form_name, document_id):
                                     encrypted_string=display_data['Approval'].iloc[0],
                                     base_string=config['approval_key'],
                                     fallback_string=config['disapproval_key'],
-                                    ip=dict(list(dict(record['Metadata']).values())[0])['approval_ip'] if 'approval_ip' in dict(list(dict(record['Metadata']).values())[0])else None,
-                                    timestamp=dict(list(dict(record['Metadata']).values())[0])['approval_timestamp'] if 'approval_timestamp' in dict(list(dict(record['Metadata']).values())[0])else None,)
+                                    ip=dict(list(dict(record[mongodb.metadata_field_names['metadata']]).values())[0])['approval_ip'] if 'approval_ip' in dict(list(dict(record[mongodb.metadata_field_names['metadata']]).values())[0])else None,
+                                    timestamp=dict(list(dict(record[mongodb.metadata_field_names['metadata']]).values())[0])['approval_timestamp'] if 'approval_timestamp' in dict(list(dict(record[mongodb.metadata_field_names['metadata']]).values())[0])else None,)
                 
                 # After https://github.com/signebedi/libreForms/issues/145, adding this to ensure that
                 # `Approval` is never None. 
@@ -769,7 +769,7 @@ def render_document_history(form_name, document_id):
                 return redirect(url_for('submissions.render_document_history', form_name=form_name, document_id=document_id))
 
             t2 = t.loc[t.id == document_id] 
-            t3 = dict(t2[['Journal']].iloc[0].values[0]) 
+            t3 = dict(t2[[mongodb.metadata_field_names['journal']]].iloc[0].values[0]) 
             emphasize = [x for x in t3[timestamp].keys()]
             flash(f'The following values changed in this version and are emphasized below: {", ".join(emphasize)}. ')
 
@@ -915,7 +915,7 @@ def render_document_edit(form_name, document_id):
 
                     # here we build our message and subject, customized for anonymous users
                     subject = f'{config["site_name"]} {form_name} Updated ({document_id})'
-                    content = f"This email serves to verify that {current_user.username} ({current_user.email}) has just updated the {form_name} form, which you can view at {config['domain']}/submissions/{form_name}/{document_id}. {'; '.join(key + ': ' + str(value) for key, value in parsed_args.items() if key not in ['Journal', 'Metadata']) if options['_send_form_with_email_notification'] else ''}"
+                    content = f"This email serves to verify that {current_user.username} ({current_user.email}) has just updated the {form_name} form, which you can view at {config['domain']}/submissions/{form_name}/{document_id}. {'; '.join(key + ': ' + str(value) for key, value in parsed_args.items() if key not in [mongodb.metadata_field_names['journal'], mongodb.metadata_field_names['metadata']]) if options['_send_form_with_email_notification'] else ''}"
                     
                     # and then we send our message
                     m = send_mail_async.delay(subject=subject, content=content, to_address=current_user.email, cc_address_list=rationalize_routing_list(form_name)) if config['send_mail_asynchronously'] else mailer.send_mail(subject=subject, content=content, to_address=current_user.email, cc_address_list=rationalize_routing_list(form_name), logfile=log)
@@ -1065,7 +1065,7 @@ def review_document(form_name, document_id):
 
 
 
-        record.drop(columns=['Journal'], inplace=True)
+        record.drop(columns=[mongodb.metadata_field_names['journal']], inplace=True)
 
 
         # Added signature verification, see https://github.com/signebedi/libreForms/issues/8
@@ -1074,8 +1074,8 @@ def review_document(form_name, document_id):
                 record['Signature'].iloc[0] = set_digital_signature(username=record['Owner'].iloc[0],
                                                                     encrypted_string=record['Signature'].iloc[0], 
                                                                     base_string=config['signature_key'],
-                                                                    ip=dict(list(dict(record['Metadata']).values())[0])['signature_ip'] if 'Metadata' in record.columns and 'signature_ip' in dict(list(dict(record['Metadata']).values())[0])else None,
-                                                                    timestamp=dict(list(dict(record['Metadata']).values())[0])['signature_timestamp'] if 'Metadata' in record.columns and 'signature_timestamp' in dict(list(dict(record['Metadata']).values())[0])else None,)
+                                                                    ip=dict(list(dict(record[mongodb.metadata_field_names['metadata']]).values())[0])['signature_ip'] if mongodb.metadata_field_names['metadata'] in record.columns and 'signature_ip' in dict(list(dict(record[mongodb.metadata_field_names['metadata']]).values())[0])else None,
+                                                                    timestamp=dict(list(dict(record[mongodb.metadata_field_names['metadata']]).values())[0])['signature_timestamp'] if mongodb.metadata_field_names['metadata'] in record.columns and 'signature_timestamp' in dict(list(dict(record[mongodb.metadata_field_names['metadata']]).values())[0])else None,)
         else:
                 record.drop(columns=['Signature'], inplace=True)
         # Added signature verification, see https://github.com/signebedi/libreForms/issues/144    
@@ -1093,8 +1093,8 @@ def review_document(form_name, document_id):
                                                                     encrypted_string=record['Approval'].iloc[0],
                                                                     base_string=config['approval_key'],
                                                                     fallback_string=config['disapproval_key'],
-                                                                    ip=dict(list(dict(record['Metadata']).values())[0])['approval_ip'] if 'approval_ip' in dict(list(dict(record['Metadata']).values())[0])else None,
-                                                                    timestamp=dict(list(dict(record['Metadata']).values())[0])['approval_timestamp'] if 'approval_timestamp' in dict(list(dict(record['Metadata']).values())[0])else None,)
+                                                                    ip=dict(list(dict(record[mongodb.metadata_field_names['metadata']]).values())[0])['approval_ip'] if 'approval_ip' in dict(list(dict(record[mongodb.metadata_field_names['metadata']]).values())[0])else None,
+                                                                    timestamp=dict(list(dict(record[mongodb.metadata_field_names['metadata']]).values())[0])['approval_timestamp'] if 'approval_timestamp' in dict(list(dict(record[mongodb.metadata_field_names['metadata']]).values())[0])else None,)
             except Exception as e: 
                 log.warning(f"LIBREFORMS - {e}")
                 record['Approval'].iloc[0] = None
@@ -1103,7 +1103,7 @@ def review_document(form_name, document_id):
         record.replace({np.nan:None}, inplace=True)
 
         # drop Metadata field since it's not generally meant to be viewed 
-        record.drop(columns=['Metadata'], inplace=True)
+        record.drop(columns=[mongodb.metadata_field_names['metadata']], inplace=True)
 
 
         msg = Markup(f"<table><tr><td><a href = '{config['domain']}/submissions/{form_name}/{document_id}'>go back to document</a></td></tr>")
@@ -1176,7 +1176,7 @@ def generate_pdf(form_name, document_id):
             if len(record.index)<1:
                 return abort(404)
 
-            record.drop(columns=['Journal'], inplace=True)
+            record.drop(columns=[mongodb.metadata_field_names['journal']], inplace=True)
 
             # Added signature verification, see https://github.com/signebedi/libreForms/issues/8
             if 'Signature' in record.columns:
@@ -1185,8 +1185,8 @@ def generate_pdf(form_name, document_id):
                                                                         encrypted_string=record['Signature'].iloc[0], 
                                                                         base_string=config['signature_key'], 
                                                                         return_markup=False,
-                                                                        ip=dict(list(dict(record['Metadata']).values())[0])['signature_ip'] if 'Metadata' in record.columns and 'signature_ip' in dict(list(dict(record['Metadata']).values())[0])else None,
-                                                                        timestamp=dict(list(dict(record['Metadata']).values())[0])['signature_timestamp'] if 'Metadata' in record.columns and 'signature_timestamp' in dict(list(dict(record['Metadata']).values())[0])else None,)
+                                                                        ip=dict(list(dict(record[mongodb.metadata_field_names['metadata']]).values())[0])['signature_ip'] if mongodb.metadata_field_names['metadata'] in record.columns and 'signature_ip' in dict(list(dict(record[mongodb.metadata_field_names['metadata']]).values())[0])else None,
+                                                                        timestamp=dict(list(dict(record[mongodb.metadata_field_names['metadata']]).values())[0])['signature_timestamp'] if mongodb.metadata_field_names['metadata'] in record.columns and 'signature_timestamp' in dict(list(dict(record[mongodb.metadata_field_names['metadata']]).values())[0])else None,)
                 else:
                     record.drop(columns=['Signature'], inplace=True)
             
@@ -1203,8 +1203,8 @@ def generate_pdf(form_name, document_id):
                                 base_string=config['approval_key'],
                                 fallback_string=config['disapproval_key'],
                                 return_markup=False,
-                                ip=dict(list(dict(record['Metadata']).values())[0])['approval_ip'] if 'approval_ip' in dict(list(dict(record['Metadata']).values())[0])else None,
-                                timestamp=dict(list(dict(record['Metadata']).values())[0])['approval_timestamp'] if 'approval_timestamp' in dict(list(dict(record['Metadata']).values())[0])else None,)
+                                ip=dict(list(dict(record[mongodb.metadata_field_names['metadata']]).values())[0])['approval_ip'] if 'approval_ip' in dict(list(dict(record[mongodb.metadata_field_names['metadata']]).values())[0])else None,
+                                timestamp=dict(list(dict(record[mongodb.metadata_field_names['metadata']]).values())[0])['approval_timestamp'] if 'approval_timestamp' in dict(list(dict(record[mongodb.metadata_field_names['metadata']]).values())[0])else None,)
 
                 except Exception as e: 
                     log.warning(f"LIBREFORMS - {e}")
@@ -1214,7 +1214,7 @@ def generate_pdf(form_name, document_id):
             record.replace({np.nan:None}, inplace=True)
 
             # drop Metadata field since it's not generally meant to be viewed 
-            record.drop(columns=['Metadata'], inplace=True)
+            record.drop(columns=[mongodb.metadata_field_names['metadata']], inplace=True)
 
 
             import libreforms
