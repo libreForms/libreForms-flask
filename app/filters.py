@@ -221,6 +221,10 @@ def get_map_of_form_data(*args, add_hyperlink=False, single_form:str=None):
 
             TEMP[form].drop(columns=[x for x in args if x in TEMP[form].columns], inplace=True)
 
+        else:
+            
+            TEMP[form] = pd.DataFrame() # if no form data is found, let's return an empty DataFrame
+
     return TEMP
 
 # selects user-generated reports that have 'come due', that is, have reached the the time
