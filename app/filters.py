@@ -1,4 +1,3 @@
-
 """
 filters.py: managing filters and triggers primary for sending reports
 

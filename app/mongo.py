@@ -317,7 +317,6 @@ class MongoDB:
                 # but this is probably very redundant, so deprecating it here. 
                 # data[self.metadata_field_names['journal']][timestamp]['initial_submission'] = True 
 
-
                 # here we add a `Metadata` field, which is implemented per discussion in 
                 # https://github.com/signebedi/libreForms/issues/175 to capture form meta
                 # data not well suited to the `Journal`.
