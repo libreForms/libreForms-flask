@@ -208,22 +208,23 @@ def get_map_of_form_data(*args, add_hyperlink=False, single_form:str=None):
 
         TEMP[form] = mongodb.new_read_documents_from_collection(form)
 
+        # if no form data is found, let's return an empty DataFrame
+        if not isinstance(TEMP[form], pd.DataFrame):
+
+            TEMP[form] = pd.DataFrame()
+            continue
+
+        # we add a hyperlink field if it's been requested
+        if add_hyperlink:
+            # TEMP[form]['Hyperlink'] = TEMP[form].apply(lambda row: config['domain']+url_for('submissions.render_document', form_name=form, document_id=row['_id']), axis=1)
+            TEMP[form]['Hyperlink'] = TEMP[form].apply(lambda row: f"{config['domain']}/submissions/{form}/{row['_id']}", axis=1)
+
         # use *args to drop fields with value if the dataframe is not empty;
         # for example, if you run get_map_of_form_data('Metadata','Journal'),
         # you will receive back a dictionary of dataframes, each of which will
         # have their 'Metadata' and 'Journal' fields dropped if they exist.
-        if isinstance(TEMP[form], pd.DataFrame):
+        TEMP[form].drop(columns=[x for x in args if x in TEMP[form].columns], inplace=True)
 
-            # we add a hyperlink field if it's been requested
-            if add_hyperlink:
-                # TEMP[form]['Hyperlink'] = TEMP[form].apply(lambda row: config['domain']+url_for('submissions.render_document', form_name=form, document_id=row['_id']), axis=1)
-                TEMP[form]['Hyperlink'] = TEMP[form].apply(lambda row: f"{config['domain']}/submissions/{form}/{row['_id']}", axis=1)
-
-            TEMP[form].drop(columns=[x for x in args if x in TEMP[form].columns], inplace=True)
-
-        else:
-            
-            TEMP[form] = pd.DataFrame() # if no form data is found, let's return an empty DataFrame
 
     return TEMP
 
