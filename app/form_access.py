@@ -1,6 +1,31 @@
 """
 form_access.py: group- and user-based access controls to r/w own and other forms
 
+This script contains the logic used to manage access to form data. Specifically,
+there are two obvious ways that form access may be limited: first, what resources
+(eg. one's own, and other users') a user should be able to access, and what level 
+of access that user should have. Form configs deal with these questions in a 
+sometimes-robust, sometimes-Byzantine manner. For example, the following form 
+configs apply some form of access control to forms:
+
+    "_allow_anonymous_access": False,           # read-form-schema
+    '_deny_groups': [],                         # write-own-form-data
+    '_enable_universal_form_access': False,     # read-other-form-data
+    '_submission': {    
+        '_enable_universal_form_access': False, # read-other-form-data
+        '_deny_read': [],                       # read-other-form-data
+        '_deny_write': [],                      # write-other-form-data (in tandem with _enable_universal_form_access)
+    },
+
+and can be userful here in developing the following `categories` of specific form access 
+(nb. we accept an implied permission to view and edit your own forms, but that may change 
+in the future, see eg. https://github.com/libreForms/libreForms-flask/issues/90):
+
+    read-form-schema : are members of the group permitted to view the structure of the form
+    write-own-form-data : are members of the group permitted to edit their own form submissions
+    read-other-form-data : are members of the group permitted to view others' form submissions
+    write-other-form-data : are members of the group permitted to edit others' form submissions
+
 """
 
 __name__ = "app.form_access"
@@ -11,15 +36,14 @@ __license__ = "AGPL-3.0"
 __maintainer__ = "Sig Janoska-Bedi"
 __email__ = "signe@atreeus.com"
 
-
+from app.views.forms import propagate_form_configs
+from libreforms import forms
 
 # this mapper function helps map user groups to to their access restrictions, 
 # to ensure that search results (and possible other parts of the application) 
 # show correct results and avoid leakage / improper access; for more details, 
 # see https://github.com/libreForms/libreForms-flask/issues/259. 
 def form_access_single_group(group):
-    from app.views.forms import propagate_form_configs
-    from libreforms import forms
 
     # we create a mapping dict that pairs each form with its associated configs, 
     # which we'll search within. In effect, this will store a child key for each 
@@ -36,23 +60,6 @@ def form_access_single_group(group):
     for form in forms:
         full_options_mapping[form] = propagate_form_configs(form)
 
-            # The following options apply access controls to forms,:
-
-            # "_allow_anonymous_access": False,           # read-form-schema
-            # '_deny_groups': [],                         # write-own-form-data
-            # '_enable_universal_form_access': False,     # read-other-form-data
-            # '_submission': {    
-            #     '_enable_universal_form_access': False, # read-other-form-data
-            #     '_deny_read': [],                       # read-other-form-data
-            #     '_deny_write': [],                      # write-other-form-data (in tandem with _enable_universal_form_access)
-            #     },
-
-            # and can be userful here in developing the following measures 
-            # specific access, with an implied right to view your own submissions
-                # read-form-schema : are members of the group permitted to view the structure of the form
-                # write-own-form-data : are members of the group permitted to edit their own form submissions
-                # read-other-form-data : are members of the group permitted to view others' form submissions
-                # write-other-form-data : are members of the group permitted to edit others' form submissions
 
         group_access_mapping[form] = {  'read-form-schema':True if group not in full_options_mapping[form]['_deny_groups'] else False,
                                         'write-own-form-data':True if group not in full_options_mapping[form]['_deny_groups'] else False,
