@@ -596,6 +596,29 @@ class MongoDB:
             except:
                 return False
 
+
+    def get_access_roster(self, collection_name, document_id):
+
+        # This will read the access_roster data for a given form, expecting 
+        # the following format of the row's data formatted as a string:
+            # _access_roster = {
+            #     'group_a': {
+            #         'access':'read',
+            #         'target':'user'
+            #     }, 
+            #     'user_b': {
+            #         'access':'write',
+            #         'target':'group'
+            #     }, 
+            # }
+        # see https://github.com/libreForms/libreForms-flask/issues/200.
+
+        document = self.get_document_as_dict(collection_name, document_id)
+
+        _access_roster = document[self.metadata_field_names['access_roster']]
+
+        return _access_roster
+
 # create the mongodb instance that the rest of the application will connect from
 mongodb = MongoDB(user=config['mongodb_user'], 
                         host=config['mongodb_host'], 

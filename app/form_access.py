@@ -101,11 +101,19 @@ def test_access_single_group(   group,
 
 # This will read the access_roster data for a given form, expecting 
 # the following format of the row's data formatted as a string:
-#   `_access_roster = {'user_a':'permission', 'user_b':'permission'}`
+    # _access_roster = {
+    #     'group_a': {
+    #         'access':'read',
+    #         'target':'user'
+    #     }, 
+    #     'user_b': {
+    #         'access':'write',
+    #         'target':'group'
+    #     }, 
+    # }
 # see https://github.com/libreForms/libreForms-flask/issues/200.
-def parse_access_roster_from_row(row):
-    _access_roster = json.loads(row[mongodb.metadata_field_names['access_roster']].replace('\'', '"'))
-
-    return _access_roster
+# def parse_access_roster_from_row(row):
+#     _access_roster = json.loads(row[mongodb.metadata_field_names['access_roster']].replace('\'', '"'))
+#     return _access_roster
 
 
