@@ -37,7 +37,9 @@ __maintainer__ = "Sig Janoska-Bedi"
 __email__ = "signe@atreeus.com"
 
 from app.views.forms import propagate_form_configs
+from app.mongo import mongodb
 from libreforms import forms
+import json
 
 # this mapper function helps map user groups to to their access restrictions, 
 # to ensure that search results (and possible other parts of the application) 
@@ -95,3 +97,15 @@ def test_access_single_group(   group,
             exclude_list_mapping.append(form)
 
     return exclude_list_mapping, dict_mapping
+
+
+# This will read the access_roster data for a given form, expecting 
+# the following format of the row's data formatted as a string:
+#   `_access_roster = {'user_a':'permission', 'user_b':'permission'}`
+# see https://github.com/libreForms/libreForms-flask/issues/200.
+def parse_access_roster_from_row(row):
+    _access_roster = json.loads(row[mongodb.metadata_field_names['access_roster']].replace('\'', '"'))
+
+    return _access_roster
+
+
