@@ -565,6 +565,37 @@ class MongoDB:
         except Exception as e: 
             return False
 
+    # here we reimplement get_document() without pandas
+    def get_document_as_dict(self, collection_name, document_id):
+        with MongoClient(host=self.host, port=self.port) if not self.dbpw else MongoClient(self.connection_string) as client:
+            db = client['libreforms']
+
+            # if the collection doesn't exist, return false
+            if collection_name not in self.collections():
+                # print('not in collections')
+                return False
+
+            # if an invalid ObjectID is passed, return false
+            try:
+                assert(ObjectId(document_id))
+                _id = ObjectId(document_id)
+                # print(_id)
+            except Exception as e: 
+                return False
+
+            collection = db[collection_name]
+            # print(f'found {collection_name}')
+
+            try:
+                # return false if the length of the query is less than 1
+                x = list(collection.find({"_id": _id}))
+                assert(len(list(x)) > 0)
+                # print (list(x))
+                return x[0]
+
+            except:
+                return False
+
 # create the mongodb instance that the rest of the application will connect from
 mongodb = MongoDB(user=config['mongodb_user'], 
                         host=config['mongodb_host'], 
