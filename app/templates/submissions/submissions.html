@@ -21,10 +21,6 @@
       {% for col in submission.columns if col != "_timestamp" %}
       <td>{{submission[col][item]}}</td>
       {% endfor %}
-
-      <!-- <td>{{submission['hyperlink'][item]}}</td>
-      <td>{{submission['form'][item]}}</td>
-      <td>{{submission[mongodb.metadata_field_names['owner']][item]}}</td> -->
     </tr>
   {% endfor %}
   </tbody>
