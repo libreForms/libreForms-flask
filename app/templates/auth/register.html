@@ -71,13 +71,13 @@
 
       {% else %}
       <div class="form-group">
-        <label class="form-label mt-4" for="{{attribute}}">{{attribute | capitalize}}</label>
-        <input class="form-control" name="{{attribute}}" value="" id="{{attribute}}">  
+        <label class="form-label mt-4 {% if config['user_registration_fields'][attribute].required==true %} required{% endif %}" for="{{attribute}}">{{attribute | capitalize}}</label>
+        <input class="form-control" name="{{attribute}}" value="{%if edit_profile%}{{user|attr(attribute)}}{%endif%}" id="{{attribute}}">  
       </div>
       {% endif %}
       {% endfor %}
       {% endif %}
-      
+          
 
       {%if not edit_profile%}
       <div class="form-group">
