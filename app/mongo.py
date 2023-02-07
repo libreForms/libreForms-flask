@@ -301,17 +301,24 @@ class MongoDB:
 
             # but we create a copy anyways to keep things segmented and avoid potential
             # recursion problems.
-            data_copy = data.copy()
+            # data_copy = data.copy()
 
             # here we define the behavior of the `Journal` metadata field 
             if not modification:
+
+                # we create an access roster field that will set granular access, see
+                # https://github.com/libreForms/libreForms-flask/issues/200. 
+                data[self.metadata_field_names['access_roster']] = {}
+
                 # we create an `Owner` field to be more stable than the `Reporter`
                 # field - that is, something that does not generally change.
                 # See  https://github.com/signebedi/libreForms/issues/143
                 data[self.metadata_field_names['owner']] = data[self.metadata_field_names['reporter']]
-                data_copy[self.metadata_field_names['owner']] = data_copy[self.metadata_field_names['reporter']]
+                # data_copy[self.metadata_field_names['owner']] = data_copy[self.metadata_field_names['reporter']]
                 
-                data[self.metadata_field_names['journal']] = { timestamp_human_readable: data_copy }
+                # but we create a copy anyways to keep things segmented and avoid potential
+                # recursion problems.
+                data[self.metadata_field_names['journal']] = { timestamp_human_readable: data.copy() }
 
                 # In the past, we added an `initial_submission` tag the first time a form was submitted
                 # but this is probably very redundant, so deprecating it here. 
@@ -339,6 +346,12 @@ class MongoDB:
                     data[self.metadata_field_names['metadata']]['signature_timestamp'] = timestamp_human_readable
                     if ip_address:
                         data[self.metadata_field_names['metadata']]['signature_ip'] = ip_address
+
+                        # we add the approver to the access roster with `approver` level permissions
+                        data[self.metadata_field_names['access_roster']][approver] = 'approver'
+                
+                # we add the owner to the access roster with `owner` level permissions
+                data[self.metadata_field_names['access_roster']][reporter] = 'owner'
 
             
             # here we define the behavior of the `Journal` metadata field 
@@ -375,7 +388,7 @@ class MongoDB:
 
                 # some inefficient slicing and voila! we have our correct `Journal` values, 
                 # which we append to the `Journal` field of the parent dataframe
-                data[self.metadata_field_names['journal']][data['Timestamp']] =  dict(journal_data)
+                data[self.metadata_field_names['journal']][data[self.metadata_field_names['timestamp']]] =  dict(journal_data)
                 # print(final_data[self.metadata_field_names['journal']])
 
                 # create Metadata field if it doesn't exist

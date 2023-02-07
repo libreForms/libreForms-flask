@@ -116,8 +116,8 @@ def aggregate_form_data(*args, user=None):
                 for index, row in temp_df.iterrows():
 
                     TEMP = {mongodb.metadata_field_names['owner']:row[mongodb.metadata_field_names['owner']], 
-                            'Reporter':row[mongodb.metadata_field_names['reporter']], 
-                            'Timestamp':row[mongodb.metadata_field_names['timestamp']], 
+                            mongodb.metadata_field_names['reporter']:row[mongodb.metadata_field_names['reporter']], 
+                            mongodb.metadata_field_names['timestamp']:row[mongodb.metadata_field_names['timestamp']], 
                             'form':form, 
                             'id':row['id'], 
                             'hyperlink':gen_hyperlink(row, form),
