@@ -75,7 +75,7 @@
               <div class="dropdown-menu{{' bg-light text-dark' if not dark_mode else ''}}">
                 <a class="dropdown-item{{' bg-light text-dark' if not dark_mode else ''}}" href="{{ url_for( 'tables.tables_home' ) }}">Tables</a>
                 <a class="dropdown-item{{' bg-light text-dark' if not dark_mode else ''}}" href="{{ url_for( 'dashboards.dashboards_home' ) }}">Dashboards</a>
-                {%if config['user_defined_reports']%}<a class="dropdown-item{{' bg-light text-dark' if not dark_mode else ''}}" href="{{ url_for( 'reports.reports' ) }}">Reports</a>{%endif%}
+                {%if config['user_defined_reports'] and config['enable_reports']%}<a class="dropdown-item{{' bg-light text-dark' if not dark_mode else ''}}" href="{{ url_for( 'reports.reports' ) }}">Reports</a>{%endif%}
               </div>
             </li>
 

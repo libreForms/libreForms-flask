@@ -515,7 +515,7 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
 
     # if administrators have enabed user_defined_reports, then we import the `reports` 
     # blueprint, see https://github.com/signebedi/libreForms/issues/191.
-    if config['user_defined_reports']:
+    if config['user_defined_reports'] and config['enable_reports']:
         from .views import reports
         app.register_blueprint(reports.bp)
 
