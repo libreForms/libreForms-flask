@@ -121,11 +121,14 @@ def index_new_documents(elasticsearch_index="submissions"):
 
             id = row['_id']
 
-            print(f'{f} - {id}')
+            # print(f'{f} - {id}')
 
             # we write a little string to approximate the page content of the corresponding page; nb. we 
             # exclude certain fields that are not 'content' fields...
             fullString = ', '.join([f'{x} - {str(row[x])}' for x in df.columns if x not in mongodb.metadata_fields(exclude_id=True)])
+
+            # add back the stringified document ID
+            fullString = fullString + f', {id}' 
 
             # this is the new form data we want to pass
             v2_elasticsearch_content = dict(row)
@@ -157,6 +160,8 @@ def index_new_documents(elasticsearch_index="submissions"):
             app.elasticsearch.index(id=id, body=elasticsearch_data, index=elasticsearch_index)
 
             # log.info(f'LIBREFORMS - updated search index for document no. {document_id}.')
+
+    return True
 
     # log.info(f'LIBREFORMS - finished elasticsearch index process.')
 

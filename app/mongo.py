@@ -203,7 +203,7 @@ class MongoDB:
         # submission lifecyle, but which we may wish to strip from the data. 
         # this method returns a list of those fields. By default, we do not
         # drop the `_id` field.
-        fields = [ x for x in self.set_metadata_field_names() ]
+        fields = [ value for field,value in self.set_metadata_field_names().items() ]
         
         if exclude_id:
             return fields + ['_id']
@@ -306,10 +306,6 @@ class MongoDB:
             # here we define the behavior of the `Journal` metadata field 
             if not modification:
 
-                # we create an access roster field that will set granular access, see
-                # https://github.com/libreForms/libreForms-flask/issues/200. 
-                data[self.metadata_field_names['access_roster']] = {}
-
                 # we create an `Owner` field to be more stable than the `Reporter`
                 # field - that is, something that does not generally change.
                 # See  https://github.com/signebedi/libreForms/issues/143
@@ -323,6 +319,10 @@ class MongoDB:
                 # In the past, we added an `initial_submission` tag the first time a form was submitted
                 # but this is probably very redundant, so deprecating it here. 
                 # data[self.metadata_field_names['journal']][timestamp]['initial_submission'] = True 
+
+                # we create an access roster field that will set granular access, see
+                # https://github.com/libreForms/libreForms-flask/issues/200. 
+                data[self.metadata_field_names['access_roster']] = {}
 
                 # here we add a `Metadata` field, which is implemented per discussion in 
                 # https://github.com/signebedi/libreForms/issues/175 to capture form meta
