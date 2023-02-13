@@ -72,6 +72,7 @@ def search():
 
         # print(s.to_dict())
         results = s.execute()
+        # print([x for x in results])
 
 
     else: 
