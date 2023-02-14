@@ -215,6 +215,11 @@ try:
 except OSError:
     pass
 
+# these configs are used to add audio accessibility features in the UI. These are
+# defined further at https://github.com/libreForms/libreForms-flask/issues/283.
+config['enable_audio_accessibility'] = False
+config['use_tmp_audio_accessibility'] = False
+config['path_to_accessibility_audio'] = config['config_folder']
 
 # this config enables the use of elasticsearch by setting the `enable_search` 
 # option to a value that assesses to True. This will add a search bar to the
