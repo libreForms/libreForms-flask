@@ -36,3 +36,33 @@ def generate_audio_file(base_string, destination_filepath, language='en'):
     # and save it to the designated destination ... 
     # ideally, to a tmpfile defined in app.tmpfiles
     myobj.save(destination_filepath)
+
+
+def generate_all_app_audio_files(directory):
+    from libreforms import forms
+
+    for form,data in forms.items():
+
+        # we add a contextualizing string that is included at the begining 
+        # of the audio to give the user an idea of the form they are completing.
+        form_prep_str = f"This is the {form.replace('_',' ')} form."
+
+        if '_description' in data:
+            generate_audio_file(base_string=form_prep_str+data['_description'], destination_filepath=os.path.join(directory,f'{form}__description.mp3'))
+
+        if '_presubmit_msg' in data:
+            generate_audio_file(base_string=form_prep_str+data['_presubmit_msg'], destination_filepath=os.path.join(directory,f'{form}__presubmit_msg.mp3'))
+
+        for field,field_config in data.items():
+
+            # if the field starts with the reserved character, 
+            # we ignore it 
+            if field.startswith('_'):
+                continue
+            
+            if 'description' in field_config['output_data']:
+
+                # we add a contextualizing string that is included at the begining 
+                # of the audio to give the user an idea of the field they are completing.    
+                field_prep_str = f"This is the {field.replace('_',' ')} field of the {form.replace('_',' ')} form."
+                generate_audio_file(base_string=field_prep_str+field_config['output_data']['description'], destination_filepath=os.path.join(directory,f'{form}_{field}.mp3')) 
