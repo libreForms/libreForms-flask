@@ -6,7 +6,9 @@
             <p>Go <a href="{{ url_for( 'home' ) }}">home</a>.</p>
         {% endif %}
         {% if is_table %}
-            {{ table }}
+            <div class="container" style="overflow: auto;">
+                {{ table }}
+            </div>
         {% endif %}	
 
         {% if filename %}
