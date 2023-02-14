@@ -151,3 +151,4 @@ celerybeat-schedule
 celery_worker
 form_config.py
 libreforms.env
+app/static/*.mp3

@@ -3,7 +3,12 @@
 			{% if context %}
 			<form method="post" autocomplete="off">
 				<fieldset>
-					{% if options._description %}<label>{{ options._description }}</label><hr>{% endif %}
+					{% if options._description %}<label>{{ options._description }}
+						{% if config['enable_audio_accessibility'] %}
+						<img src="{{ url_for( 'static', filename='audio_dark.png' if dark_mode else 'audio_light.png' ) }}" alt="audio accessibility {{name}} description" style="padding-left:2px; max-width:1.5%; height: auto;" class="{{name}}__description" onClick="play( 'audio_{{name}}__description' )"> 
+						<audio id="audio_{{name}}__description" src="{{url_for (config['path_to_accessibility_audio'], filename=name+'__description.mp3') }}"></audio>
+						{%endif%}
+					</label><hr>{% endif %}
 					{% for field in context.keys() %}
 
 					{# here we assign a local variable called 'content' which either pulls a list of users or the regular field content #}
@@ -34,6 +39,10 @@
 
 					<div class="form-group autocomplete{% if context[field]['_depends_on'] %} {{ context[field]['_depends_on'][0] }}{% endif %}">
 						<label class="form-label mt-4{% if context[field].output_data.required==true %} required{% endif %}" for="{{ field }}" {% if context[field].output_data.description %}data-bs-toggle="tooltip" data-bs-placement="right" title="{{context[field].output_data.description}}"{% endif %}>{{ field | replace('_', ' ')}}</label>
+						{% if config['enable_audio_accessibility'] %}
+						<img src="{{ url_for( 'static', filename='audio_dark.png' if dark_mode else 'audio_light.png' ) }}" alt="audio accessibility {{name}} {{field}}" style="padding-left:2px; max-width:1.5%; height: auto;" class="{{name}}_{{field}}" onClick="play( 'audio_{{name}}_{{field}}' )"> 
+						<audio id="audio_{{name}}_{{field}}" src="{{url_for (config['path_to_accessibility_audio'], filename=name+'_'+field+'.mp3') }}"></audio>
+						{%endif%}
 						<input class="form-control" type="text" value="{{default_value}}" id="{{ field }}" name="{{ field }}" {% if context[field].output_data.required==true %}required{% endif %}/>
 					</div>
 
@@ -46,6 +55,10 @@
 					{% elif input_type == "select" %}
 					<div class="form-group{% if context[field]['_depends_on'] %} {{ context[field]['_depends_on'][0] }}{% endif %}">
 						<label class="form-label mt-4{% if context[field].output_data.required==true %} required{% endif %}" for="{{ field }}" {% if context[field].output_data.description %}data-bs-toggle="tooltip" data-bs-placement="right" title="{{context[field].output_data.description}}"{% endif %}>{{ field | replace('_', ' ')}}</label>
+						{% if config['enable_audio_accessibility'] %}
+						<img src="{{ url_for( 'static', filename='audio_dark.png' if dark_mode else 'audio_light.png' ) }}" alt="audio accessibility {{name}} {{field}}" style="padding-left:2px; max-width:1.5%; height: auto;" class="{{name}}_{{field}}" onClick="play( 'audio_{{name}}_{{field}}' )"> 
+						<audio id="audio_{{name}}_{{field}}" src="{{url_for (config['path_to_accessibility_audio'], filename=name+'_'+field+'.mp3') }}"></audio>
+						{%endif%}
 						<select name="{{ field }}" class="form-select" {% if context[field].output_data.required==true %}required{% endif %}>
 						{% for item in content %}
 								<option value="{{ item }}" id="{{ field }} {{ item }}" name="{{ field }}" {%if item == default_value%}selected="selected"{%endif%}>{{ item }}</option>
@@ -55,6 +68,10 @@
 					{% elif input_type == "radio" %}
 					<div class="form-group{% if context[field]['_depends_on'] %} {{ context[field]['_depends_on'][0] }}{% endif %}">
 						<label class="form-label mt-4{% if context[field].output_data.required==true %} required{% endif %}" for="" {% if context[field].output_data.description %}data-bs-toggle="tooltip" data-bs-placement="right" title="{{context[field].output_data.description}}"{% endif %}>{{ field | replace('_', ' ')}}</label>
+						{% if config['enable_audio_accessibility'] %}
+						<img src="{{ url_for( 'static', filename='audio_dark.png' if dark_mode else 'audio_light.png' ) }}" alt="audio accessibility {{name}} {{field}}" style="padding-left:2px; max-width:1.5%; height: auto;" class="{{name}}_{{field}}" onClick="play( 'audio_{{name}}_{{field}}' )"> 
+						<audio id="audio_{{name}}_{{field}}" src="{{url_for (config['path_to_accessibility_audio'], filename=name+'_'+field+'.mp3') }}"></audio>
+						{%endif%}
 						{% for item in content %}
 						<div class="form-check">
 							<label class='form-check-label' for="{{ field }} {{ item }}">{{ item }}
@@ -66,6 +83,10 @@
 					{% elif input_type == "checkbox" %}
 					<div class="form-group{% if context[field]['_depends_on'] %} {{ context[field]['_depends_on'][0] }}{% endif %}">
 						<label class="form-label mt-4{% if context[field].output_data.required==true %} required{% endif %}" for="" {% if context[field].output_data.description %}data-bs-toggle="tooltip" data-bs-placement="right" title="{{context[field].output_data.description}}"{% endif %}>{{ field | replace('_', ' ')}}</label>
+						{% if config['enable_audio_accessibility'] %}
+						<img src="{{ url_for( 'static', filename='audio_dark.png' if dark_mode else 'audio_light.png' ) }}" alt="audio accessibility {{name}} {{field}}" style="padding-left:2px; max-width:1.5%; height: auto;" class="{{name}}_{{field}}" onClick="play( 'audio_{{name}}_{{field}}' )"> 
+						<audio id="audio_{{name}}_{{field}}" src="{{url_for (config['path_to_accessibility_audio'], filename=name+'_'+field+'.mp3') }}"></audio>
+						{%endif%}
 						{% for item in content %}
 						<div class="form-check">
 							<label class='form-check-label' for="{{ field }} {{ item }}">{{ item }}
@@ -82,7 +103,11 @@
 					{% elif input_type == "immutable_user_field" %}
 					{% if current_user.is_authenticated %}
 					<div class="form-group{% if context[field]['_depends_on'] %} {{ context[field]['_depends_on'][0] }}{% endif %}">
-						<label class="form-label mt-4{% if context[field].output_data.required==true %} required{% endif %}" for="{{ field }}" {% if context[field].output_data.description %}data-bs-toggle="tooltip" data-bs-placement="right" title="{{context[field].output_data.description}}"{% endif %}>{{ field | replace('_', ' ')}}</label></td>
+						<label class="form-label mt-4{% if context[field].output_data.required==true %} required{% endif %}" for="{{ field }}" {% if context[field].output_data.description %}data-bs-toggle="tooltip" data-bs-placement="right" title="{{context[field].output_data.description}}"{% endif %}>{{ field | replace('_', ' ')}}</label>
+						{% if config['enable_audio_accessibility'] %}
+						<img src="{{ url_for( 'static', filename='audio_dark.png' if dark_mode else 'audio_light.png' ) }}" alt="audio accessibility {{name}} {{field}}" style="padding-left:2px; max-width:1.5%; height: auto;" class="{{name}}_{{field}}" onClick="play( 'audio_{{name}}_{{field}}' )"> 
+						<audio id="audio_{{name}}_{{field}}" src="{{url_for (config['path_to_accessibility_audio'], filename=name+'_'+field+'.mp3') }}"></audio>
+						{%endif%}
 						<input class="form-control" type="text" value="{{ current_user|attr(default_value) if not editing_existing_form else default_value }}" id="{{ field }}" name="{{ field }}" disabled=""/>
 					</div>
 					{% endif %}
@@ -90,26 +115,41 @@
 
 					{% elif input_type == "resizable_textarea" %}
 					<div class="form-group{% if context[field]['_depends_on'] %} {{ context[field]['_depends_on'][0] }}{% endif %}">
-						<label class="form-label mt-4{% if context[field].output_data.required==true %} required{% endif %}" for="{{ field }}" {% if context[field].output_data.description %}data-bs-toggle="tooltip" data-bs-placement="right" title="{{context[field].output_data.description}}"{% endif %}>{{ field | replace('_', ' ')}}</label></td>
+						<label class="form-label mt-4{% if context[field].output_data.required==true %} required{% endif %}" for="{{ field }}" {% if context[field].output_data.description %}data-bs-toggle="tooltip" data-bs-placement="right" title="{{context[field].output_data.description}}"{% endif %}>{{ field | replace('_', ' ')}}</label>
+						{% if config['enable_audio_accessibility'] %}
+						<img src="{{ url_for( 'static', filename='audio_dark.png' if dark_mode else 'audio_light.png' ) }}" alt="audio accessibility {{name}} {{field}}" style="padding-left:2px; max-width:1.5%; height: auto;" class="{{name}}_{{field}}" onClick="play( 'audio_{{name}}_{{field}}' )"> 
+						<audio id="audio_{{name}}_{{field}}" src="{{url_for (config['path_to_accessibility_audio'], filename=name+'_'+field+'.mp3') }}"></audio>
+						{%endif%}
 						<textarea class="form-control" rows="3" style="resize: vertical;" maxlength="{{context[field].input_field.maxlength if context[field].input_field.maxlength}}" value="{{ default_value }}" id="{{ field }}" name="{{ field }}"></textarea>
 					</div>
 
 
 					{% else %}
 					<div class="form-group{% if context[field]['_depends_on'] %} {{ context[field]['_depends_on'][0] }}{% endif %}">
-						<label class="form-label mt-4{% if context[field].output_data.required==true %} required{% endif %}" for="{{ field }}" {% if context[field].output_data.description %}data-bs-toggle="tooltip" data-bs-placement="right" title="{{context[field].output_data.description}}"{% endif %}>{{ field | replace('_', ' ')}}</label></td>
+						<label class="form-label mt-4{% if context[field].output_data.required==true %} required{% endif %}" for="{{ field }}" {% if context[field].output_data.description %}data-bs-toggle="tooltip" data-bs-placement="right" title="{{context[field].output_data.description}}"{% endif %}>{{ field | replace('_', ' ')}}</label>
+						{% if config['enable_audio_accessibility'] %}
+						<img src="{{ url_for( 'static', filename='audio_dark.png' if dark_mode else 'audio_light.png' ) }}" alt="audio accessibility {{name}} {{field}}" style="padding-left:2px; max-width:1.5%; height: auto;" class="{{name}}_{{field}}" onClick="play( 'audio_{{name}}_{{field}}' )"> 
+						<audio id="audio_{{name}}_{{field}}" src="{{url_for (config['path_to_accessibility_audio'], filename=name+'_'+field+'.mp3') }}"></audio>
+						{%endif%}
 						<input class="form-control" type="{{ input_type }}" value="{{ default_value }}" id="{{ field }}" name="{{ field }}"/>
 					</div>
 	
 					{% endif %}
 					{% endfor %}
 					
-					{% if options._presubmit_msg %}<hr/><label>{{ options._presubmit_msg }}</label>{% endif %}
+					{% if options._presubmit_msg %}<hr/><label>{{ options._presubmit_msg }}
+
+						{% if config['enable_audio_accessibility'] %}
+						<img src="{{ url_for( 'static', filename='audio_dark.png' if dark_mode else 'audio_light.png' ) }}" alt="audio accessibility {{name}} description" style="padding-left:2px; max-width:1.5%; height: auto;" class="{{name}}__presubmit_msg" onClick="play( 'audio_{{name}}__presubmit_msg' )"> 
+						<audio id="audio_{{name}}__presubmit_msg" src="{{url_for (config['path_to_accessibility_audio'], filename=name+'__presubmit_msg.mp3') }}"></audio>
+						{%endif%}
+
+					</label>{% endif %}
 
 					{% if require_password %}
 
 					<div class="form-group">
-						<label class="form-label mt-4 required" for="_password" data-bs-toggle="tooltip" data-bs-placement="right" title="Please re-enter your password to digitally sign this document">Password</label></td>
+						<label class="form-label mt-4 required" for="_password" data-bs-toggle="tooltip" data-bs-placement="right" title="Please re-enter your password to digitally sign this document">Password</label>
 						<input class="form-control" type="password" value="" id="_password" name="_password"/>
 					</div>	
 					{% endif %}
@@ -162,5 +202,13 @@
 		</div>
 	</div>
 </div>
+
+<script>
+	function play(element) {
+	  var audio = document.getElementById(element);
+	  // SET THE `audio` element's SRC to `element` ... then, play it
+	  audio.play();
+	}
+</script>
 
 {% endblock %}
