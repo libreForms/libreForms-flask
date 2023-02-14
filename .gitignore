@@ -128,27 +128,27 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# project specific files
-gunicorn.error
-gunicorn.access
-add_ons.py
-api_keys
-secret_key
-display_overrides.py
+##########################
+### project specific files 
+##########################
 config_overrides.py
-mongodb_creds
-log/*
-app/static/tmp/*
-update_release.sh
-smtp_creds
-ldap_creds
-config/*
-redis-stable/*
-signature_key
-approval_key
-disapproval_key
-celerybeat-schedule
-celery_worker
 form_config.py
 libreforms.env
 app/static/*.mp3
+
+# celery boilerplate
+celerybeat-schedule
+celery_worker
+
+# log, key, and config files
+log/*
+config/*
+api_keys
+secret_key
+signature_key
+approval_key
+disapproval_key
+mongodb_creds
+smtp_creds
+ldap_creds
+
