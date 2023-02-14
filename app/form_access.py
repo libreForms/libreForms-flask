@@ -38,8 +38,9 @@ __email__ = "signe@atreeus.com"
 
 from app.views.forms import propagate_form_configs
 from app.mongo import mongodb
+from app.models import db, User
 from libreforms import forms
-import json
+# import json
 
 # this mapper function helps map user groups to to their access restrictions, 
 # to ensure that search results (and possible other parts of the application) 
@@ -116,4 +117,27 @@ def test_access_single_group(   group,
 #     _access_roster = json.loads(row[mongodb.metadata_field_names['access_roster']].replace('\'', '"'))
 #     return _access_roster
 
+def unpack_access_roster(   username:str,
+                            # user:User, 
+                            form_name:str=None, 
+                            document_id:str=None, 
+                            permission:str=None): # the `permission` kwarg optionally tests for a permission for the user in the access roster, if passed
 
+    document = mongodb.get_document_as_dict(collection_name=form_name, document_id=document_id)
+    access_roster = document['_access_roster']
+
+    # return false if the user is not in the access roster keys - that way, we can assume that
+    # the user passed to the function is not authorized whenever this returns false.
+    if username not in access_roster:
+        return False
+
+    # this is unique behavior. If the function call receives a `permission` kwarg, then test
+    # for that permission as a string in the access roster keys for the current user, and 
+    # return true if found, otherwise false. This is a quick check for a specific permission
+    # level, that we want to be able to assess for its truth value. 
+    if permission:
+        return True if permission in access_roster['username'] else False
+ 
+    # If no permission is passed, then return all the current user's permissions
+    # as a list / string, see https://github.com/libreForms/libreForms-flask/issues/200.
+    return access_roster['username']

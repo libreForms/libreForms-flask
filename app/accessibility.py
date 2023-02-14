@@ -24,6 +24,10 @@ __maintainer__ = "Sig Janoska-Bedi"
 __email__ = "signe@atreeus.com"
 
 
+######################
+# Audio Accessibility
+######################
+
 from gtts import gTTS
 import os
 
@@ -69,3 +73,5 @@ def generate_all_app_audio_files(directory):
                 field_prep_str = f"This is the {field.replace('_',' ')} field of the {form.replace('_',' ')} form. It is a{' required' if 'required' in field_config['output_data'] and field_config['output_data']['required'] else ''} {field_config['input_field']['type']} field. "
                 print(field_prep_str+field_config['output_data']['description'])
                 generate_audio_file(base_string=field_prep_str+field_config['output_data']['description'], destination_filepath=os.path.join(directory,f'{form}_{field}.mp3')) 
+
+

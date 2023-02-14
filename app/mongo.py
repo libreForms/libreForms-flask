@@ -116,7 +116,6 @@ This method is a little heavy, but will get a document when you pass the collect
 document_id. 
 
 
-
 # Errors
 
 We've been noticing some `connection refused` errors in different environments. This might be 
