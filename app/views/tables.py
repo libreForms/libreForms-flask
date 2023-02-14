@@ -127,9 +127,9 @@ def tables(form_name):
         log.warning(f"LIBREFORMS - {e}")
         flash(f'This form does not exist. {e}')
         return redirect(url_for('tables.tables_home'))
-
+    
     return render_template('app/tables.html',
-        table=Markup(df.to_html(index=False, render_links=True, classes=f"table {'text-dark' if not (config['dark_mode'] or current_user.theme == 'dark') else ''}")),
+        table=Markup(df.to_html(index=False, render_links=True, classes='table text-dark' if not config['dark_mode'] or not current_user.theme == 'dark' else 'table')),
         # table=df,
         type="tables",
         name=form_name,
