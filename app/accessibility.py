@@ -24,3 +24,15 @@ __maintainer__ = "Sig Janoska-Bedi"
 __email__ = "signe@atreeus.com"
 
 
+from gtts import gTTS
+import os
+
+
+def generate_audio_file(base_string, destination_filepath, language='en'):
+
+    # generate the audio
+    myobj = gTTS(text=base_string, lang=language, slow=False)
+
+    # and save it to the designated destination ... 
+    # ideally, to a tmpfile defined in app.tmpfiles
+    myobj.save(destination_filepath)
