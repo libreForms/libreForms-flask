@@ -45,13 +45,15 @@ def generate_all_app_audio_files(directory):
 
         # we add a contextualizing string that is included at the begining 
         # of the audio to give the user an idea of the form they are completing.
-        form_prep_str = f"This is the {form.replace('_',' ')} form."
+        form_prep_str = f"This is the {form.replace('_',' ')} form. "
 
         if '_description' in data:
             generate_audio_file(base_string=form_prep_str+data['_description'], destination_filepath=os.path.join(directory,f'{form}__description.mp3'))
+            print(form_prep_str+data['_description'])
 
         if '_presubmit_msg' in data:
             generate_audio_file(base_string=form_prep_str+data['_presubmit_msg'], destination_filepath=os.path.join(directory,f'{form}__presubmit_msg.mp3'))
+            print(form_prep_str+data['_presubmit_msg'])
 
         for field,field_config in data.items():
 
@@ -64,5 +66,6 @@ def generate_all_app_audio_files(directory):
 
                 # we add a contextualizing string that is included at the begining 
                 # of the audio to give the user an idea of the field they are completing.    
-                field_prep_str = f"This is the {field.replace('_',' ')} field of the {form.replace('_',' ')} form."
+                field_prep_str = f"This is the {field.replace('_',' ')} field of the {form.replace('_',' ')} form. It is a{' required' if 'required' in field_config['output_data'] and field_config['output_data']['required'] else ''} {field_config['input_field']['type']} field. "
+                print(field_prep_str+field_config['output_data']['description'])
                 generate_audio_file(base_string=field_prep_str+field_config['output_data']['description'], destination_filepath=os.path.join(directory,f'{form}_{field}.mp3')) 
