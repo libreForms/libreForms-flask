@@ -1027,6 +1027,10 @@ def review_document(form_name, document_id):
             elif approve == 'no':
                 flash('You disapproved this form. ')
                 digital_signature = encrypt_with_symmetric_key(current_user.certificate, config['disapproval_key']) if options['_digitally_sign'] else None
+            elif approve == 'pushback':
+                flash('You returned this form without approval. ')
+                digital_signature = None
+
             else:
                 flash('You have not approved this form. ')
                 digital_signature = None
