@@ -1,25 +1,44 @@
 """ 
-libreforms/__init__.py: this script defines the libreForms abstraction layer
+libreforms/__init__.py: this script defines the libreForms internal form representation
 
-libreForms provides a simple but highly extensible method of form building in Python, 
-leveraging Flask's doctrine of 'simplicity and extensibility' to give significant 
-control and flexibility to organizations to design forms and data that meet their 
-needs. To accomplish this, the application is built on an abstraction layer that stores 
-all the information needed to generate a browser-based form and parse form data into a 
-cohesive data structure.
+libreForms-flask implements the libreForms spec, see https://github.com/libreForms/spec,
+a form configuration language and associated communication protocol built on HTTP requests 
+optimized for managing institutional forms over a network.
 
-The libreForms abstraction layer is defined in ```libreforms/forms/__init__.py``` 
-and expects organizations to overwrite the default form by adding a file called 
-```libreforms/form.py```. At this time, the abstraction layer can handle the 
-"text", "password", "radio", "select", "checkbox", "date", "hidden", and "number" 
-input types, and can write to Python's str, float, int, and list data types. 
+Modern bureaucracies often rely on complex processes that tend to send you mad. These processes 
+are typically built around the idea of institutional forms, a type of data that has a tendency 
+to require multiple users with varying institutional roles to repeatedly access and modify 
+individual records in processes that vary in their formality and clarity, and which tend to 
+change over time. The libreForms API is purpose-built to manage data in such environments while 
+keeping forms simple and flexible to changes in form layout and business processes.
 
-The abstraction layer breaks down individual forms into fields and configurations. A 
-field must have a unique name, which must employ underscores instead of spaces ("My 
-Form Field" would not work, but "My_Form_Field" is a correct field name). Configuration 
-names are preceded by an underscore (eg. "_dashboard" or "_allow_repeats") and allow 
-form administrators to define unique form behavior. All built in configurations default 
-to a value of False.
+At its core, the libreForms configuration language divides a form into its fields and configs. 
+A field is an element of a form that an end user will generally see and interact with. Fields are 
+generally composed of input and output specifications. Input specifications describe the type of 
+field the end user will see and interact with. Output specifications describe the data type and/or 
+structure that the field data will be treated as after the form is submitted.
+
+A config is an element of a form that an end user does not necessarily see or interact with, but 
+which modifies the behavior of the form in the client. Configs are generally denoted in their name 
+using some reserved character, like a leading underscore. 
+
+The internal form representation is a powerful tool built in Python dictionaries, but because it 
+allows for eg. the integration of macros, it is also potentially dangerous to allow low-trust
+users to make modifications to this directly. In these cases, we recommend an external form 
+representation in a scrubbable markup language like YAML. For further discussion on this topic,
+see https://github.com/libreForms/libreForms-flask/issues/280. The internal form representation 
+is defined in libreforms/__init__.py. It allows administrators to bootstrap their own forms in a 
+file called ```libreforms/form_config.py```. The internal form representation can generate a number 
+of HTML fields, including (but not limited to) "text", "password", "radio", "select", "checkbox", 
+"date", "hidden", and "number" fields. In addition, we plan to add support file uploads, see 
+https://github.com/libreForms/libreForms-flask/issues/10. Further, there are a number of custom 
+field types like "autocomplete" and "immutable_user_field" input types. The internal representation
+supports casting inputs into str, float, int, and list data types. 
+
+Fields must have a unique name, which must employ underscores instead of spaces ("My Form Field" would 
+not work, but "My_Form_Field" is a correct field name). Configs are preceded by an underscore (eg. 
+"_dashboard" or "_allow_repeats") and allow form administrators to define unique form behavior. Default 
+values for these configs can be seen in app.views.forms by reviewing the propagate_form_configs function.
 """
 
 __title__       = 'libreForms'
