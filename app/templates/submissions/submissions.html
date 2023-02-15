@@ -13,7 +13,7 @@
 
 {% elif form_home %}
 
-<table class="table {{'text-dark' if not dark_mode else 'table-hover'}}">
+<table title="submissions" class="table {{'text-dark' if not dark_mode else 'table-hover'}}">
   <tbody>
   {% for item in submission.index %} 
     <tr class="table{% if emphasize and item in emphasize %}-secondary{% else %}{{'-dark' if dark_mode else '-transparent'}}{% endif %}">
@@ -28,7 +28,7 @@
 
 
 {% else %}
-<table class="table {{'text-dark' if not dark_mode else 'table-hover'}}">
+<table title="submissions" class="table {{'text-dark' if not dark_mode else 'table-hover'}}">
     <tbody>
     {% for item in submission.columns %} 
       <tr class="table{% if emphasize and item in emphasize %}{{'-secondary' if dark_mode else '-primary'}}{% else %}{{'-dark' if dark_mode else '-transparent'}}{% endif %}">
@@ -46,7 +46,7 @@
 <h4>Review</h4>
 <form method="post">
   <fieldset>
-    <div class="form-group">
+    <div title="approval" class="form-group">
       <label class="form-label mt-4 required" for="" data-bs-toggle="tooltip" data-bs-placement="right" title="Please enter whether you approve, disapprove, or want to pushback this submission">Approval</label>
       <div class="form-check">
         <label class='form-check-label' for="approve yes">I approve
@@ -65,19 +65,19 @@
       </label>
     </div>
     <br/>
-    <div class="form-group">
+    <div title="comment" class="form-group">
       <label for="comment" data-bs-toggle="tooltip" data-bs-placement="right" title="Please provide any comments you have on this submission">Comment</label>
       <textarea class="form-control" id="comment" name="comment" value="" rows="3"></textarea>    
     </div>
 
     {% if require_password %}
-    <div class="form-group">
+    <div title="password" class="form-group">
       <label class="form-label mt-4 required" for="_password" data-bs-toggle="tooltip" data-bs-placement="right" title="Please re-enter your password to digitally sign this document">Password</label></td>
       <input class="form-control" type="password" value="" id="_password" name="_password"/>
     </div>	
     {% endif %}
     
-    <div class="form-group mt-4">
+    <div title="submit" class="form-group mt-4">
       <input class="btn btn-primary" type="submit" value="Submit">
     </div>
   </fieldset>

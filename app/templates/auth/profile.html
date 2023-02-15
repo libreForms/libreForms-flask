@@ -2,47 +2,47 @@
 
 {% block content %}
 <div class="position-relative">
-    <div class="position-absolute top-0 end-0">
+    <div title="edit_profile" class="position-absolute top-0 end-0">
         <a class="justify-content-end" href="{{config['domain']}}/auth/profile/edit">Edit Profile</a>
     </div>
 </div>
 <h4>Profile</h4>
 
-<table class="table {{'text-dark' if not dark_mode else ''}}">
-<tr><td><b>Username</b>: {{ user.username }}</td></tr>
-<tr><td><b>Email</b>: <span> {{ user.email }}</span></td></tr>
-<tr><td><b>Group</b>: {{ user.group }}</td></tr>
-<tr><td><b>Organization</b>: <span>{{ user.organization }}</span></td></tr>
-<tr><td><b>Phone</b>: <span>{{ user.phone }}</span></td></tr>
-<tr><td><b>Theme</b>: <span>{{ user.theme }}</span></td></tr>
+<table title="user_profile" class="table {{'text-dark' if not dark_mode else ''}}">
+<tr title="username" ><td><b>Username</b>: {{ user.username }}</td></tr>
+<tr title="email" ><td><b>Email</b>: <span> {{ user.email }}</span></td></tr>
+<tr title="group" ><td><b>Group</b>: {{ user.group }}</td></tr>
+<tr title="organization" ><td><b>Organization</b>: <span>{{ user.organization }}</span></td></tr>
+<tr title="phone" ><td><b>Phone</b>: <span>{{ user.phone }}</span></td></tr>
+<tr title="theme" ><td><b>Theme</b>: <span>{{ user.theme }}</span></td></tr>
 {% if config['user_registration_fields'] is defined %}
 {% for attribute in config['user_registration_fields'] %}
-<tr><td><b>{{attribute | capitalize | replace("_", " ")}}</b>: {{ user[attribute] }}</td></tr>
+<tr title="{{attribute}}"><td><b>{{attribute | capitalize | replace("_", " ")}}</b>: {{ user[attribute] }}</td></tr>
 {% endfor %}
 {% endif %}
 </td></tr>
-<tr><td><b>Created</b>: {{ user.created_date }}</td></tr>
-<tr><td><b>Submissions</b>: <a href="{{config['domain']}}/submissions/user/{{ user.username }}">view here</a></td></tr>
-<tr><td><b>Review</b>: <a href="{{config['domain']}}/submissions/review/{{ user.username }}">view here</a> {%if notifications%} <sup class="badge rounded-pill bg-primary">{{notifications}}</sup>{%endif%}</td></tr>
-<tr><td><b>Reports</b>: <a href="{{config['domain']}}/reports">view here</a></td></tr>
+<tr title="created_date"><td><b>Created</b>: {{ user.created_date }}</td></tr>
+<tr title="user_submissions"><td><b>Submissions</b>: <a href="{{config['domain']}}/submissions/user/{{ user.username }}">view here</a></td></tr>
+<tr title="user_documents_for_review"><td><b>Review</b>: <a href="{{config['domain']}}/submissions/review/{{ user.username }}">view here</a> {%if notifications%} <sup class="badge rounded-pill bg-primary">{{notifications}}</sup>{%endif%}</td></tr>
+<tr title="user_reports"><td><b>Reports</b>: <a href="{{config['domain']}}/reports">view here</a></td></tr>
 </table>
 
 <hr/>
 <h4>Change Password</h4>
-<form method="post">
+<form title="change_password" method="post">
     <fieldset>
 
-        <div class="form-group">
+        <div title="current_password" class="form-group">
             <label class="form-label mt-4" for="current_password">Current Password</label>
             <input class="form-control" type="password" name="current_password" id="current_password" placeholder="Enter current password" required>
         </div>
 
-        <div class="form-group">
+        <div title="new_password" class="form-group">
             <label class="form-label mt-4" for="new_password">New Password</label>
             <input class="form-control" type="password" name="new_password" id="new_password" placeholder="Enter new password" required>            
         </div>
 
-        <div class="form-group mt-4">
+        <div title="submit" class="form-group mt-4">
             <input class="btn btn-primary" type="submit" value="Update">
         </div>
         
@@ -50,12 +50,15 @@
 </form>
 
 {% if log_data %}
-<br/><hr/><h4>User Log</h4><br/>
+<div title="user_log" style="padding-top: 10px;">
+    <hr/>
+    <h4>User Log</h4>
 
-<div class="list-group vh-100 scrollable overflow-auto table table-hover">
-    {% for row in log_data %}
-    <span class="list-group-item list-group-item-action disabled {{'bg-transparent text-dark' if not dark_mode else ''}}">{{ row }}</span>
-    {% endfor %}
+    <div class="list-group vh-100 scrollable overflow-auto table table-hover">
+        {% for row in log_data %}
+        <section class="list-group-item list-group-item-action disabled {{'bg-transparent text-dark' if not dark_mode else ''}}">{{ row }}</section>
+        {% endfor %}
+    </div>
 </div>
 {% endif %}
 {% endblock %}

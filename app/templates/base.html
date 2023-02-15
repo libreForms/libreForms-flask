@@ -58,8 +58,7 @@
       
       <div class="row">
 
-
-        <nav class="navbar navbar-expand-lg {{'navbar-dark bg-dark' if dark_mode else 'navbar-light bg-light text-dark'}} border-bottom" style="padding-left: 30px;z-index:999999 !important;">
+        <nav title="top-nav" class="navbar navbar-expand-lg {{'navbar-dark bg-dark' if dark_mode else 'navbar-light bg-light text-dark'}} border-bottom" style="padding-left: 30px;z-index:999999 !important;">
           <a href="{% if type == 'external' %}#{% else %}{{ url_for('home') }}{% endif %}" class="navbar-brand">{{ config['site_name'] }} <small class="{{'text-muted' if dark_mode else 'text-secondary'}}">v.{{ config['version'] }}</small></a>    
           <ul class="nav navbar-nav">
             {% if user %}
@@ -97,14 +96,14 @@
 
             {%if config['enable_search'] and current_user.is_authenticated %}
             <div style="padding-left: 10px;">
-              <form class="d-flex" method="get" action="{{ url_for('search.search') }}">
+              <form class="d-flex" method="get" action="{{ url_for('search.search') }}" title="searchbar">
                 <input class="form-control me-sm-2" type="search" name="query" placeholder="Search" required>
                 <button class="btn btn-{{'secondary' if dark_mode else 'primary'}} my-2 my-sm-0" type="submit">Search</button>
               </form>
             </div>
             {%endif%}
 
-            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0" title="authenticated_user">
               {% if user %}
               <li class="nav-link active me-auto" style="padding-right: 30px;">Currently logged in as <small class="{{'text-muted' if dark_mode else 'text-secondary'}}muted">{{ user.username }}</small>.</li>
               {% elif signed_url %}
@@ -117,15 +116,14 @@
       <div class="row">
 
           <div class="col-12 col-md-3 d-none d-md-block  {{'bg-dark' if dark_mode else 'bg-transparent text-dark'}}" style="width:20%; padding-top: 20px; padding-left: 30px; height: 100%;z-index:999998 !important;">  
-                
-            <ul class="nav nav-pills nav-stacked flex-column">
-              <h3 class="nav-link {{' text-dark' if not dark_mode else ''}}{{' text-dark' if not dark_mode else ''}}">{{ name }} <small class="{{'text-muted' if dark_mode else 'text-secondary'}}">{% if context %}form{% elif is_table %}table{% elif graphJSON %}dashboard{% elif homepage %}home{% endif %}</small></h3>        
+            <table class="nav nav-pills nav-stacked flex-column" title="sidebar-nav">
+              <tr><th><h3 class="nav-link {{' text-dark' if not dark_mode else ''}}{{' text-dark' if not dark_mode else ''}}">{{ name }} <small class="{{'text-muted' if dark_mode else 'text-secondary'}}">{% if context %}form{% elif is_table %}table{% elif graphJSON %}dashboard{% elif homepage %}home{% endif %}</small></h3></th></tr>
                 {% if menu %}
                 {% for item in menu %} 
-                <li class="nav-item"><a class="nav-link{{' text-dark' if not dark_mode else ''}}" href="{{ url_for( 'reports.create_reports', form_name=item ) if type == 'reports' else url_for( type+'.'+type, form_name=item ) }}">{{ item }}</a></li>
+                <tr class="nav-item"><th><a class="nav-link{{' text-dark' if not dark_mode else ''}}" href="{{ url_for( 'reports.create_reports', form_name=item ) if type == 'reports' else url_for( type+'.'+type, form_name=item ) }}">{{ item }}</a></tr></th>
                 {% endfor %}
                 {% endif %}                           
-            </ul>
+            </table>
           </div>
 
 
@@ -134,7 +132,7 @@
             <div class="row" >
               {% if get_flashed_messages() %}
               <div class="alert alert-dismissible alert-primary">
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" title="dismiss-alert"></button>
                 <strong>{% for message in get_flashed_messages() %}{{ message }}{% endfor %}</strong>
               </div>
               {% endif %}
@@ -146,6 +144,7 @@
               </div>
               {% endif %} 
             </div>
+
             <div class="row" style="padding-top: 20px;">
               <hr>
               {% if config.warning_banner %}

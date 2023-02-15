@@ -6,23 +6,23 @@
   <form method="post">
     <fieldset>
 
-      <div class="form-group">
+      <div title="username" class="form-group">
         <label class="form-label mt-4 required" for="username">Username</label>
         <input class="form-control" name="username" id="username" placeholder="Enter a unique username"{%if edit_profile%} value="{{user.username}}" disabled=""{%endif%} required>
       </div>
 
-      <div class="form-group">
+      <div title="email" class="form-group">
         <label class="form-label mt-4{%if config['registration_email_required'] %} required{%endif%}" for="email">Email</label>
         <!-- <input type="email" name="email" id="email"> -->
         <input class="form-control" name="email" id="email" placeholder="Enter a unique email"{%if edit_profile%} value="{{user.email}}" disabled=""{%endif%}{%if config['registration_email_required'] %} required{%endif%}>  
       </div>
 
-      <div class="form-group">
+      <div title="organization" class="form-group">
         <label class="form-label mt-4{%if config['registration_organization_required'] %} required{%endif%}" for="organization">Organization</label>
         <input class="form-control" name="organization" {% if config.default_org != ""  %} value="{{ config.default_org }}" {% else %} placeholder="Enter your organization" {% endif %}id="organization"{%if edit_profile%} value="{{user.organization}}"{%endif%}{%if config['registration_organization_required'] %} required{%endif%}>  
       </div>
       
-      <div class="form-group">
+      <div title="phone" class="form-group">
         <label class="form-label mt-4{%if config['registration_phone_required'] %} required{%endif%}" for="phone">Phone</label>
         <!-- <input type="tel" name="phone" id="phone" pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}"> -->
         <input class="form-control" name="phone" id="phone" placeholder="Enter your phone number"{%if edit_profile%} value="{{user.phone}}"{%endif%}{%if config['registration_phone_required'] %} required{%endif%}>  
@@ -37,7 +37,7 @@
 
 
       {% elif config['user_registration_fields'][attribute].input_type == "autocomplete" %}
-      <div class="form-group autocomplete">
+      <div title="{{attribute}}" class="form-group autocomplete">
         <label class="form-label mt-4{% if config['user_registration_fields'][attribute].required==true %} required{% endif %}" for="{{ attribute }}" {% if config['user_registration_fields'][attribute].description %}data-bs-toggle="tooltip" data-bs-placement="right" title="{{config['user_registration_fields'][attribute].description}}"{% endif %}>{{ attribute | replace('_', ' ') | capitalize}}</label>
         <input class="form-control" type="text" value="" id="{{ attribute }}" name="{{ attribute }}"{%if edit_profile%} value="{{user[attribute]}}{%endif%}{% if config['user_registration_fields'][attribute].required==true %} required{% endif %}/>
       </div>
@@ -49,7 +49,7 @@
       </script>
 
       {% elif config['user_registration_fields'][attribute].input_type == "select" %}
-      <div class="form-group">
+      <div title="{{attribute}}" class="form-group">
         <label class="form-label mt-4{% if config['user_registration_fields'][attribute].required==true %} required{% endif %}" for="{{ attribute }}" {% if config['user_registration_fields'][attribute].description %}data-bs-toggle="tooltip" data-bs-placement="right" title="{{config['user_registration_fields'][attribute].description}}"{% endif %}>{{ attribute | replace('_', ' ') | capitalize}}</label>
         <select name="{{ attribute }}" class="form-select" {% if config['user_registration_fields'][attribute].required==true %}required{% endif %}>
         {% for item in config['user_registration_fields'][attribute].content %}
@@ -58,7 +58,7 @@
         </select>
       </div>
       {% elif config['user_registration_fields'][attribute].input_type == "radio" or config['user_registration_fields'][attribute].input_type == "checkbox" %}
-      <div class="form-group">
+      <div title="{{attribute}}" class="form-group">
         <label class="form-label mt-4{% if config['user_registration_fields'][attribute].required==true %} required{% endif %}" for="" {% if config['user_registration_fields'][attribute].description %}data-bs-toggle="tooltip" data-bs-placement="right" title="{{config['user_registration_fields'][attribute].description}}"{% endif %}>{{ attribute | replace('_', ' ') | capitalize}}</label>
         {% for item in config['user_registration_fields'][attribute].content %}
         <div class="form-check">
@@ -70,7 +70,7 @@
       </div>
 
       {% else %}
-      <div class="form-group">
+      <div title="{{attribute}}" class="form-group">
         <label class="form-label mt-4 {% if config['user_registration_fields'][attribute].required==true %} required{% endif %}" for="{{attribute}}">{{attribute | capitalize}}</label>
         <input class="form-control" name="{{attribute}}" value="{%if edit_profile%}{{user|attr(attribute)}}{%endif%}" id="{{attribute}}">  
       </div>
@@ -80,13 +80,13 @@
           
 
       {%if not edit_profile%}
-      <div class="form-group">
+      <div title="password" class="form-group">
         <label class="form-label mt-4 required" for="password">Password</label>
         <input class="form-control" type="password" name="password" id="password" placeholder="Enter a password" required>  
       </div>
 
       {% else %}
-      <div class="form-group">
+      <div title="theme" class="form-group">
         <label class="form-label mt-4 required" for="theme" data-bs-toggle="tooltip" data-bs-placement="right" title="Select a theme to view this application">Theme</label>
         <select name="theme" class="form-select" required>
             <option value="light" id="theme light" name="light" {%if edit_profile and user.theme == 'light' %} selected="selected" {%endif%}>Light</option>
@@ -96,11 +96,13 @@
       {% endif %}
 
       {% if config['enable_hcaptcha'] and not edit_profile %}
-      <br><div class="h-captcha" data-theme="{{'dark' if dark_mode else 'light'}}" data-sitekey="{{ config['hcaptcha_site_key'] }}"></div>
+      <div style="padding-top: 15px;" title="captcha" >
+        <div class="h-captcha" data-theme="{{'dark' if dark_mode else 'light'}}" data-sitekey="{{ config['hcaptcha_site_key'] }}"></div>
+      </div>
       {% endif %}
 
 
-      <div class="form-group mt-4">
+      <div title="submit" class="form-group mt-4">
         <input class="btn btn-primary" type="submit" value="Submit">
       </div>
     

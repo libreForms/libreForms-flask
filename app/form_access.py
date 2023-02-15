@@ -38,7 +38,7 @@ __email__ = "signe@atreeus.com"
 
 from app.views.forms import propagate_form_configs
 from app.mongo import mongodb
-from app.models import db, User
+# from app.models import db, User
 from libreforms import forms
 # import json
 
@@ -124,7 +124,7 @@ def unpack_access_roster(   username:str,
                             permission:str=None): # the `permission` kwarg optionally tests for a permission for the user in the access roster, if passed
 
     document = mongodb.get_document_as_dict(collection_name=form_name, document_id=document_id)
-    access_roster = document['_access_roster']
+    access_roster = document[mongodb.metadata_field_names['access_roster']]
 
     # return false if the user is not in the access roster keys - that way, we can assume that
     # the user passed to the function is not authorized whenever this returns false.
@@ -136,8 +136,8 @@ def unpack_access_roster(   username:str,
     # return true if found, otherwise false. This is a quick check for a specific permission
     # level, that we want to be able to assess for its truth value. 
     if permission:
-        return True if permission in access_roster['username'] else False
+        return True if permission in access_roster[username] else False
  
     # If no permission is passed, then return all the current user's permissions
     # as a list / string, see https://github.com/libreForms/libreForms-flask/issues/200.
-    return access_roster['username']
+    return access_roster[username]

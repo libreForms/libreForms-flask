@@ -37,7 +37,7 @@
 
 					{% if input_type == "autocomplete" %}
 
-					<div class="form-group autocomplete{% if context[field]['_depends_on'] %} {{ context[field]['_depends_on'][0] }}{% endif %}">
+					<div title="{{field}}" class="form-group autocomplete{% if context[field]['_depends_on'] %} {{ context[field]['_depends_on'][0] }}{% endif %}">
 						<label class="form-label mt-4{% if context[field].output_data.required==true %} required{% endif %}" for="{{ field }}" {% if context[field].output_data.description %}data-bs-toggle="tooltip" data-bs-placement="right" title="{{context[field].output_data.description}}"{% endif %}>{{ field | replace('_', ' ')}}</label>
 						{% if config['enable_audio_accessibility'] %}
 						<img src="{{ url_for( 'static', filename='audio_dark.png' if dark_mode else 'audio_light.png' ) }}" alt="audio accessibility {{name}} {{field}}" style="padding-left:2px; max-width:1.5%; height: auto;" class="{{name}}_{{field}}" onClick="play( 'audio_{{name}}_{{field}}' )"> 
@@ -53,7 +53,7 @@
 					</script>
 				
 					{% elif input_type == "select" %}
-					<div class="form-group{% if context[field]['_depends_on'] %} {{ context[field]['_depends_on'][0] }}{% endif %}">
+					<div title="{{field}}" class="form-group{% if context[field]['_depends_on'] %} {{ context[field]['_depends_on'][0] }}{% endif %}">
 						<label class="form-label mt-4{% if context[field].output_data.required==true %} required{% endif %}" for="{{ field }}" {% if context[field].output_data.description %}data-bs-toggle="tooltip" data-bs-placement="right" title="{{context[field].output_data.description}}"{% endif %}>{{ field | replace('_', ' ')}}</label>
 						{% if config['enable_audio_accessibility'] %}
 						<img src="{{ url_for( 'static', filename='audio_dark.png' if dark_mode else 'audio_light.png' ) }}" alt="audio accessibility {{name}} {{field}}" style="padding-left:2px; max-width:1.5%; height: auto;" class="{{name}}_{{field}}" onClick="play( 'audio_{{name}}_{{field}}' )"> 
@@ -66,7 +66,7 @@
 						</select>
 					</div>
 					{% elif input_type == "radio" %}
-					<div class="form-group{% if context[field]['_depends_on'] %} {{ context[field]['_depends_on'][0] }}{% endif %}">
+					<div title="{{field}}" class="form-group{% if context[field]['_depends_on'] %} {{ context[field]['_depends_on'][0] }}{% endif %}">
 						<label class="form-label mt-4{% if context[field].output_data.required==true %} required{% endif %}" for="" {% if context[field].output_data.description %}data-bs-toggle="tooltip" data-bs-placement="right" title="{{context[field].output_data.description}}"{% endif %}>{{ field | replace('_', ' ')}}</label>
 						{% if config['enable_audio_accessibility'] %}
 						<img src="{{ url_for( 'static', filename='audio_dark.png' if dark_mode else 'audio_light.png' ) }}" alt="audio accessibility {{name}} {{field}}" style="padding-left:2px; max-width:1.5%; height: auto;" class="{{name}}_{{field}}" onClick="play( 'audio_{{name}}_{{field}}' )"> 
@@ -81,7 +81,7 @@
 						{% endfor %}
 					</div>
 					{% elif input_type == "checkbox" %}
-					<div class="form-group{% if context[field]['_depends_on'] %} {{ context[field]['_depends_on'][0] }}{% endif %}">
+					<div title="{{field}}" class="form-group{% if context[field]['_depends_on'] %} {{ context[field]['_depends_on'][0] }}{% endif %}">
 						<label class="form-label mt-4{% if context[field].output_data.required==true %} required{% endif %}" for="" {% if context[field].output_data.description %}data-bs-toggle="tooltip" data-bs-placement="right" title="{{context[field].output_data.description}}"{% endif %}>{{ field | replace('_', ' ')}}</label>
 						{% if config['enable_audio_accessibility'] %}
 						<img src="{{ url_for( 'static', filename='audio_dark.png' if dark_mode else 'audio_light.png' ) }}" alt="audio accessibility {{name}} {{field}}" style="padding-left:2px; max-width:1.5%; height: auto;" class="{{name}}_{{field}}" onClick="play( 'audio_{{name}}_{{field}}' )"> 
@@ -96,13 +96,13 @@
 						{% endfor %}
 					</div>
 					{% elif input_type == "hidden" %}
-					<div class="form-group{% if context[field]['_depends_on'] %} {{ context[field]['_depends_on'][0] }}{% endif %}">
+					<div title="{{field}}" class="form-group{% if context[field]['_depends_on'] %} {{ context[field]['_depends_on'][0] }}{% endif %}">
 						<input class="form-control" type="hidden" value="{{ default_value }}" id="{{ field }}" name="{{ field }}"/>
 					</div>
 
 					{% elif input_type == "immutable_user_field" %}
 					{% if current_user.is_authenticated %}
-					<div class="form-group{% if context[field]['_depends_on'] %} {{ context[field]['_depends_on'][0] }}{% endif %}">
+					<div title="{{field}}" class="form-group{% if context[field]['_depends_on'] %} {{ context[field]['_depends_on'][0] }}{% endif %}">
 						<label class="form-label mt-4{% if context[field].output_data.required==true %} required{% endif %}" for="{{ field }}" {% if context[field].output_data.description %}data-bs-toggle="tooltip" data-bs-placement="right" title="{{context[field].output_data.description}}"{% endif %}>{{ field | replace('_', ' ')}}</label>
 						{% if config['enable_audio_accessibility'] %}
 						<img src="{{ url_for( 'static', filename='audio_dark.png' if dark_mode else 'audio_light.png' ) }}" alt="audio accessibility {{name}} {{field}}" style="padding-left:2px; max-width:1.5%; height: auto;" class="{{name}}_{{field}}" onClick="play( 'audio_{{name}}_{{field}}' )"> 
@@ -114,7 +114,7 @@
 
 
 					{% elif input_type == "resizable_textarea" %}
-					<div class="form-group{% if context[field]['_depends_on'] %} {{ context[field]['_depends_on'][0] }}{% endif %}">
+					<div title="{{field}}" class="form-group{% if context[field]['_depends_on'] %} {{ context[field]['_depends_on'][0] }}{% endif %}">
 						<label class="form-label mt-4{% if context[field].output_data.required==true %} required{% endif %}" for="{{ field }}" {% if context[field].output_data.description %}data-bs-toggle="tooltip" data-bs-placement="right" title="{{context[field].output_data.description}}"{% endif %}>{{ field | replace('_', ' ')}}</label>
 						{% if config['enable_audio_accessibility'] %}
 						<img src="{{ url_for( 'static', filename='audio_dark.png' if dark_mode else 'audio_light.png' ) }}" alt="audio accessibility {{name}} {{field}}" style="padding-left:2px; max-width:1.5%; height: auto;" class="{{name}}_{{field}}" onClick="play( 'audio_{{name}}_{{field}}' )"> 
@@ -125,7 +125,7 @@
 
 
 					{% else %}
-					<div class="form-group{% if context[field]['_depends_on'] %} {{ context[field]['_depends_on'][0] }}{% endif %}">
+					<div title="{{field}}" class="form-group{% if context[field]['_depends_on'] %} {{ context[field]['_depends_on'][0] }}{% endif %}">
 						<label class="form-label mt-4{% if context[field].output_data.required==true %} required{% endif %}" for="{{ field }}" {% if context[field].output_data.description %}data-bs-toggle="tooltip" data-bs-placement="right" title="{{context[field].output_data.description}}"{% endif %}>{{ field | replace('_', ' ')}}</label>
 						{% if config['enable_audio_accessibility'] %}
 						<img src="{{ url_for( 'static', filename='audio_dark.png' if dark_mode else 'audio_light.png' ) }}" alt="audio accessibility {{name}} {{field}}" style="padding-left:2px; max-width:1.5%; height: auto;" class="{{name}}_{{field}}" onClick="play( 'audio_{{name}}_{{field}}' )"> 
@@ -148,13 +148,13 @@
 
 					{% if require_password %}
 
-					<div class="form-group">
+					<div title="password" class="form-group">
 						<label class="form-label mt-4 required" for="_password" data-bs-toggle="tooltip" data-bs-placement="right" title="Please re-enter your password to digitally sign this document">Password</label>
 						<input class="form-control" type="password" value="" id="_password" name="_password"/>
 					</div>	
 					{% endif %}
 
-					<div class="form-group">
+					<div title="submit" class="form-group">
 						<input class="btn btn-primary mt-4" type=submit value="Submit">
 					</div>
 
@@ -193,7 +193,7 @@
 <div class="offcanvas offcanvas-bottom"  style="z-index:999998 !important;" tabindex="-1" id="templateHelp" aria-labelledby="templateHelpLabel">
 	<div class="offcanvas-header">
 		<h5 class="offcanvas-title" id="templateHelpLabel">Using CSV Templates</h5>
-		<button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+		<button title="dismiss" type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
 	</div>
 	<div class="offcanvas-body">
 		<div>

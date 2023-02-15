@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<table class="table {{'text-dark' if not dark_mode else 'table-hover'}}">
+<table title="search_results" class="table {{'text-dark' if not dark_mode else 'table-hover'}}">
   <tbody>
     {% for item in results %}
     <tr class="table{% if emphasize and item in emphasize %}{{'-secondary' if dark_mode else '-primary'}}{% else %}{{'-dark' if dark_mode else '-transparent'}}{% endif %}">
