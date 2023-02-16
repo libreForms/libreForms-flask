@@ -141,3 +141,54 @@ def unpack_access_roster(   username:str,
     # If no permission is passed, then return all the current user's permissions
     # as a list / string, see https://github.com/libreForms/libreForms-flask/issues/200.
     return access_roster[username]
+
+
+# this is a second stab at the access roster - this one inverts the data structure in a way to make
+# this method callable at runtime, without a persistent access roster to give form access more
+# dynamism, see https://github.com/libreForms/libreForms-flask/issues/295. Example data structure:
+#       {
+#           'read':['a','b','c'],
+#           'write':['a','b','c'],
+#           'delete':['a','b','c'], 
+#           'approve':['a','b','c'],
+#       }
+def v2_unpack_access_roster(    username:str=None,
+                                form_name:str=None, 
+                                document_id:str=None, 
+                                permission:str=None):
+
+    # here we propagate the form configs 
+    from app.views.forms import propagate_form_configs
+    form_config = propagate_form_configs(form_name)
+    
+    # here we get the document details from mongodb
+    document = mongodb.get_document_as_dict(collection_name=form_name, document_id=document_id)
+
+    ########################
+    # Compile access roster
+    ########################
+
+    # first we create the data structure skel
+    access_roster = {
+                        'read':[],
+                        'write':[],
+                        'delete':[], 
+                        'approve':[],
+                    }
+
+    # if the user doesn't pass a specific permission level or username, then return 
+    # the whole data structure
+    if not permission and not username:
+        return access_roster[permission]
+
+    # if we pass a username but not permission, find and return the highest level 
+    # permission the user has
+    elif not permission and username:
+        pass
+
+    # if we pass a permission and not a username,
+    elif permission and not username:
+        pass
+
+    
+    return (username in access_roster[permission]) if isinstance(username,str) else access_roster[permission]
