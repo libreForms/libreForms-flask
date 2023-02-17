@@ -152,17 +152,37 @@ def unpack_access_roster(   username:str,
 #           'delete':['a','b','c'], 
 #           'approve':['a','b','c'],
 #       }
-def v2_unpack_access_roster(    username:str=None,
-                                form_name:str=None, 
-                                document_id:str=None, 
-                                permission:str=None):
+def v2_unpack_access_roster(    permission:str=None, 
+                                username:str=None, 
+                                # you can pass a mongodb artifact as `document` and form config data as 
+                                # `form_config`. This is the recommended approach to minimize complexity
+                                document=None,
+                                form_config=None,
+                                # if you pass the form_name and document_id, and don't pass a document or 
+                                # form_config, then this function will fall back on querying for this data.
+                                # In most cases, this will be unnecessarily complex because we anticipate
+                                # that code will usually already have the form config and document in memory
+                                # when calling this method; but there are some cases where this is not feasible.
+                                form_name:str=None,
+                                document_id:str=None,):
 
-    # here we propagate the form configs 
-    from app.views.forms import propagate_form_configs
-    form_config = propagate_form_configs(form_name)
-    
-    # here we get the document details from mongodb
-    document = mongodb.get_document_as_dict(collection_name=form_name, document_id=document_id)
+    #########################
+    # Collect the input data
+    #########################
+
+    # the structure of this method necessitates that either a form_config object or form name is passed; likewise,
+    # it requires that either a document or document_id is passed. If these requireents are not met, return None.
+    if (not form_config and not form_name) or (not document and not document_id):
+        return None
+
+    if not form_config:
+        # here we propagate the form config if it has not been passed
+        from app.views.forms import propagate_form_configs
+        form_config = propagate_form_configs(form_name)
+
+    if not document:
+        # here we get the document details from mongodb if a document object has not been passed 
+        document = mongodb.get_document_as_dict(collection_name=form_name, document_id=document_id)
 
     ########################
     # Compile access roster
@@ -175,6 +195,33 @@ def v2_unpack_access_roster(    username:str=None,
                         'delete':[], 
                         'approve':[],
                     }
+
+
+    # read owner and approver details from form.
+
+    # read approver details from form config and, if approval for the 
+    # given form is not enabled, then continue without setting any approvers
+
+
+    ###########################
+    # Structure the output data
+    ###########################
+
+    # this method is intended to do a few things - though  we could alternatively write a single function 
+    # with several wrappers to tailor functionality. Irrespective of the eventual form, we want to at least
+    # think through the different use cases and the return data structure that they would entail. First, (1)
+    # in cases where no information or permission level have been passed, it is clear from context that there
+    # is no structuring of the data possible - and such structuring is probably not desired. In these cases,
+    # we simply return the full `access_roster` object from above, and allow the lower level application logic 
+    # parse and restructure it however needed. Next, (2) are cases where a username has been passed, but no
+    # permission level. In these instances, it is not really possible to return True / False because there is 
+    # no condition (permission-level) to assess the the username that was passed. Instead, we should consider 
+    # returning EITHER (a) a dict that maps the different permission levels (read, write, delete, approve) to
+    # a bool that assesses True when the passed username is contained in that permission level's list OR (b)
+    # a simple list of permission levels in which the passed username is contained. Third, (3) if a permission
+    # level is passed, but not a username, we simply return the list of usernames enabled at that permission
+    # level. Fourth, (4) if a username and permission level are both passed, we return a bool that assesses 
+    # True if the passed username is enabled at the passed permission level, else False.
 
     # if the user doesn't pass a specific permission level or username, then return 
     # the whole data structure
