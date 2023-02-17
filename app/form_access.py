@@ -215,27 +215,39 @@ def v2_unpack_access_roster(    permission:str=None,
     # we simply return the full `access_roster` object from above, and allow the lower level application logic 
     # parse and restructure it however needed. Next, (2) are cases where a username has been passed, but no
     # permission level. In these instances, it is not really possible to return True / False because there is 
-    # no condition (permission-level) to assess the the username that was passed. Instead, we should consider 
+    # no condition (permission-level) to assess the username that was passed. Instead, we should consider 
     # returning EITHER (a) a dict that maps the different permission levels (read, write, delete, approve) to
     # a bool that assesses True when the passed username is contained in that permission level's list OR (b)
     # a simple list of permission levels in which the passed username is contained. Third, (3) if a permission
-    # level is passed, but not a username, we simply return the list of usernames enabled at that permission
+    # level is passed, but not a username, we simply return the list of usernames authorized at that permission
     # level. Fourth, (4) if a username and permission level are both passed, we return a bool that assesses 
-    # True if the passed username is enabled at the passed permission level, else False.
+    # True if the passed username is authorized at the passed permission level, else False.
 
     # if the user doesn't pass a specific permission level or username, then return 
     # the whole data structure
     if not permission and not username:
-        return access_roster[permission]
+        return access_roster
 
-    # if we pass a username but not permission, find and return the highest level 
-    # permission the user has
+    # if we pass a username but not permission, find and return the permissions, as a list, that the user has
+    # been authorized - see major comment above for further discussion regarding the tradeoffs of this data
+    # structure - a list structure seems most effective because it captures the widest range of possible cases
+    # where we are trying to authorize a user and want a general, reusable list of authorized activities that
+    # we store in the frontend session.
     elif not permission and username:
-        pass
 
-    # if we pass a permission and not a username,
+        return {    
+                    'read':True if username in access_roster['read'] else False, 
+                    'write':True if username in access_roster['write'] else False, 
+                    'delete':True if username in access_roster['delete'] else False,  
+                    'approve':True if username in access_roster['approve'] else False, 
+                }
+
+    # if we pass a permission and not a username, then return the entire list of users authorized at the 
+    # passed permission level
     elif permission and not username:
-        pass
-
-    
+        return access_roster[permission]
+  
+    # if the passed username is a string, return a bool that assesses True if the username is contained at the
+    # passed permission level, else False. If the username isn't a string, then just return the list of users
+    # authorized at the passed permission level. 
     return (username in access_roster[permission]) if isinstance(username,str) else access_roster[permission]
