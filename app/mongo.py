@@ -187,10 +187,10 @@ class MongoDB:
         self.metadata_field_names['approval'] = '_approval' # self.metadata_field_names['approval'] = 'Approval'
         self.metadata_field_names['approver_comment'] = '_approver_comment' # self.metadata_field_names['approver_comment'] = 'Approver_Comment'
         self.metadata_field_names['signature'] = '_signature' # self.metadata_field_names['signature'] = 'Signature'
-        self.metadata_field_names['access_roster'] = '_access_roster' # self.metadata_field_names['access_roster'] = 'Access_Roster'
-        self.metadata_field_names['owner'] = '_owner' # self.metadata_field_names['access_roster'] = 'Owner'
-        self.metadata_field_names['reporter'] = '_reporter' # self.metadata_field_names['access_roster'] = 'Reporter'
-        self.metadata_field_names['timestamp'] = '_timestamp' # self.metadata_field_names['access_roster'] = 'Timestamp'
+        # self.metadata_field_names['access_roster'] = '_access_roster' # self.metadata_field_names['access_roster'] = 'Access_Roster'
+        self.metadata_field_names['owner'] = '_owner' # self.metadata_field_names['owner'] = 'Owner'
+        self.metadata_field_names['reporter'] = '_reporter' # self.metadata_field_names['reporter'] = 'Reporter'
+        self.metadata_field_names['timestamp'] = '_timestamp' # self.metadata_field_names['timestamp'] = 'Timestamp'
 
         # we allow them to be overwritten using kwargs
         self.metadata_field_names.update(kwargs) 
@@ -321,7 +321,7 @@ class MongoDB:
 
                 # we create an access roster field that will set granular access, see
                 # https://github.com/libreForms/libreForms-flask/issues/200. 
-                data[self.metadata_field_names['access_roster']] = {}
+                # data[self.metadata_field_names['access_roster']] = {}
 
                 # here we add a `Metadata` field, which is implemented per discussion in 
                 # https://github.com/signebedi/libreForms/issues/175 to capture form meta
@@ -347,10 +347,10 @@ class MongoDB:
                         data[self.metadata_field_names['metadata']]['signature_ip'] = ip_address
 
                         # we add the approver to the access roster with `approver` level permissions
-                        data[self.metadata_field_names['access_roster']][approver] = 'approver'
+                        # data[self.metadata_field_names['access_roster']][approver] = 'approver'
                 
                 # we add the owner to the access roster with `owner` level permissions
-                data[self.metadata_field_names['access_roster']][reporter] = 'owner'
+                # data[self.metadata_field_names['access_roster']][reporter] = 'owner'
 
             
             # here we define the behavior of the `Journal` metadata field 
@@ -609,27 +609,27 @@ class MongoDB:
                 return False
 
 
-    def get_access_roster(self, collection_name, document_id):
+    # def get_access_roster(self, collection_name, document_id):
 
-        # This will read the access_roster data for a given form, expecting 
-        # the following format of the row's data formatted as a string:
-            # _access_roster = {
-            #     'group_a': {
-            #         'access':'read',
-            #         'target':'user'
-            #     }, 
-            #     'user_b': {
-            #         'access':'write',
-            #         'target':'group'
-            #     }, 
-            # }
-        # see https://github.com/libreForms/libreForms-flask/issues/200.
+    #     # This will read the access_roster data for a given form, expecting 
+    #     # the following format of the row's data formatted as a string:
+    #         # _access_roster = {
+    #         #     'group_a': {
+    #         #         'access':'read',
+    #         #         'target':'user'
+    #         #     }, 
+    #         #     'user_b': {
+    #         #         'access':'write',
+    #         #         'target':'group'
+    #         #     }, 
+    #         # }
+    #     # see https://github.com/libreForms/libreForms-flask/issues/200.
 
-        document = self.get_document_as_dict(collection_name, document_id)
+    #     document = self.get_document_as_dict(collection_name, document_id)
 
-        _access_roster = document[self.metadata_field_names['access_roster']]
+    #     _access_roster = document[self.metadata_field_names['access_roster']]
 
-        return _access_roster
+    #     return _access_roster
 
 # create the mongodb instance that the rest of the application will connect from
 mongodb = MongoDB(user=config['mongodb_user'], 

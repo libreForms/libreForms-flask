@@ -251,3 +251,10 @@ def v2_unpack_access_roster(    permission:str=None,
     # passed permission level, else False. If the username isn't a string, then just return the list of users
     # authorized at the passed permission level. 
     return (username in access_roster[permission]) if isinstance(username,str) else access_roster[permission]
+
+
+def get_list_of_forms_this_group_approves(forms,group):
+    l = [] # this is the list object that we'll use to return the form names
+    for form in forms:
+        if 1:
+            pass
