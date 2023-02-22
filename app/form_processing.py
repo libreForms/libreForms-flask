@@ -22,6 +22,14 @@ These triggers are:
     onApproval - when the form is approved
     onDisapproval - when the form is disapproved
 
+Each of these should probably be tied to a separate trigger in the form 
+config, like:
+
+    _on_creation
+    _on_submission
+    _on_update
+    _on_approval
+    _on_disapproval
 
 """
 
@@ -44,13 +52,13 @@ class postProcessor:
         # store the forms object as a class attribute 
         self.forms = forms
 
-    def onCreation (self, *args):
+    def onCreation (self, document_id:str, form_name:str, *args):
         pass
-    def onSubmission (self, *args):
+    def onSubmission (self, document_id:str, form_name:str, *args):
         pass
-    def onUpdate (self, *args):
+    def onUpdate (self, document_id:str, form_name:str, *args):
         pass
-    def onApproval (self, *args):
+    def onApproval (self, document_id:str, form_name:str, *args):
         pass
-    def onDisapproval (self, *args):
+    def onDisapproval (self, document_id:str, form_name:str, *args):
         pass

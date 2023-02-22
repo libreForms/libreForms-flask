@@ -361,6 +361,11 @@ def propagate_form_configs(form=False):
             "_form_approval": False,
             "_collect_client_ip":True,
             "_submission_view_summary_fields": [],
+            '_on_creation':[],
+            '_on_submission':[],
+            '_on_update':[],
+            '_on_approval':[],
+            '_on_disapproval':[],
         }
 
         for field in list_fields.keys():
@@ -376,6 +381,10 @@ def propagate_form_configs(form=False):
                 if field in ['_routing_list', '_form_approval']:
                     assert (checkKey(list_fields[field],'type'))
                     assert (checkKey(list_fields[field],'target'))
+
+                # these, if set, should always be a list
+                if field in ['_on_creation', '_on_submission', '_on_update', '_on_approval', '_on_disapproval',]:
+                    assert (isinstance(list_fields[field],list))
 
                 # we overwrite existing option values, and add new ones
                 # based on the user defined configurations

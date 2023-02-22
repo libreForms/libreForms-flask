@@ -370,6 +370,7 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
     if config['enable_hcaptcha']:
         hcaptcha.init_app(app)
 
+
     # create form post processing object if enabled, see 
     # https://github.com/libreForms/libreForms-flask/issues/201
     if config['enable_form_processing']:
@@ -378,6 +379,7 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
     else:
         # else define a callable that always returns None
         post_process = lambda: None
+
 
     # here we employ some Flask-Login boilerplate to make 
     # user auth and session management a little easier. 
