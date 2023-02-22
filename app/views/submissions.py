@@ -1007,7 +1007,7 @@ def review_document(form_name, document_id):
 
             # here we conduct a passworde check if digital signatures are enabled and password
             # protected, see  https://github.com/signebedi/libreForms/issues/167
-            if config['require_password_for_electronic_signatures'] and options['_digitally_sign']:
+            if config['require_password_for_electronic_signatures']:
                 password = request.form['_password']
             
                 if not check_password_hash(current_user.password, password):
@@ -1036,10 +1036,10 @@ def review_document(form_name, document_id):
 
             if approve == 'yes':
                 flash('You have approved this form. ')
-                digital_signature = encrypt_with_symmetric_key(current_user.certificate, config['approval_key']) if options['_digitally_sign'] else None
+                digital_signature = encrypt_with_symmetric_key(current_user.certificate, config['approval_key']) if '_form_approval' in options else None
             elif approve == 'no':
                 flash('You disapproved this form. ')
-                digital_signature = encrypt_with_symmetric_key(current_user.certificate, config['disapproval_key']) if options['_digitally_sign'] else None
+                digital_signature = encrypt_with_symmetric_key(current_user.certificate, config['disapproval_key']) if '_form_approval' in options else None
             elif approve == 'pushback':
                 flash('You returned this form without approval. ')
                 digital_signature = None
@@ -1060,6 +1060,7 @@ def review_document(form_name, document_id):
             overrides = record.iloc[0].to_dict()
                     
             # here we drop any elements that are not changed from the overrides
+            verify_changes_to_approver = check_args_for_changes({mongodb.metadata_field_names['approver']: getattr(current_user, config['visible_signature_field'])}, overrides)
             verify_changes_to_approval = check_args_for_changes({mongodb.metadata_field_names['approval']: digital_signature}, overrides)
             verify_changes_to_approver_comment = check_args_for_changes({mongodb.metadata_field_names['approver_comment']: comment}, overrides)
 
@@ -1071,6 +1072,7 @@ def review_document(form_name, document_id):
                                                     reporter=current_user.username, 
                                                     modification=True,
                                                     # if these pass check_args_for_changes(), then pass values; else None
+                                                    approver=verify_changes_to_approver[mongodb.metadata_field_names['approver']] if mongodb.metadata_field_names['approver'] in verify_changes_to_approver else None,
                                                     approval=verify_changes_to_approval[mongodb.metadata_field_names['approval']] if mongodb.metadata_field_names['approval'] in verify_changes_to_approval else None,
                                                     approver_comment=verify_changes_to_approver_comment[mongodb.metadata_field_names['approver_comment']] if mongodb.metadata_field_names['approver_comment'] in verify_changes_to_approver_comment else None,
                                                     ip_address=request.remote_addr if options['_collect_client_ip'] else None,)
@@ -1124,7 +1126,7 @@ def review_document(form_name, document_id):
 
 
         msg = Markup(f"<table><tr><td><a href = '{config['domain']}/submissions/{form_name}/{document_id}'>go back to document</a></td></tr>")
-        msg = msg + Markup(f"<tr><td><a href = '{config['domain']}/submissions/{form_name}/{document_id}/history'>view document history</a>/td></tr></table>")
+        msg = msg + Markup(f"<tr><td><a href = '{config['domain']}/submissions/{form_name}/{document_id}/history'>view document history</a></td></tr></table>")
 
         # print (current_user.username)
         # print (record[mongodb.metadata_field_names['reporter']].iloc[0])
@@ -1142,7 +1144,7 @@ def review_document(form_name, document_id):
             menu=form_menu(checkFormGroup),
             # here we tell the jinja to include password re-entry for form signatures, if configured,
             # see https://github.com/signebedi/libreForms/issues/167.
-            require_password=True if config['require_password_for_electronic_signatures'] and options['_digitally_sign'] else False,
+            require_password=True if config['require_password_for_electronic_signatures'] and '_form_approval' in options else False,
         )
 
 
