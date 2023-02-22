@@ -415,20 +415,34 @@ def verify_form_approval(form_name):
             filters = (
                 User.email == getattr(current_user, approval['target']),
             )
-            manager = db.session.query(User).filter(*filters).first()
+            approver = db.session.query(User).filter(*filters).first()
 
             # print(vars(manager))
             
-            return manager
+            return approver
             
     # '_form_approval': {
     #   'type': 'user-specified',
-    #   'target': ['manager'],}
+    #   'target': 'manager',}
 
     # '_form_approval': {
     #   'type': 'static',
-    #   'target': ['username@example.com'],}
+    #   'target': 'username@example.com',}
 
+    if approval and approval['type'] == 'static':
+
+        with db.engine.connect() as conn:
+            # manager = db.session.query(User).filter_by(email=current_user[approval['target']]).first()
+
+            # unless we need to entire user object, this return value will probably be enough to get 
+            # us the email of the user's approver ...
+            # return getattr(current_user, approval['target'])
+
+            approver = db.session.query(User).filter(email=approval['target']).first()
+
+            # print(vars(manager))
+            
+            return approver
 
     # '_form_approval': {
     #   'type': 'group',
@@ -440,9 +454,6 @@ def verify_form_approval(form_name):
 
     else:
         return None
-
-
-
 
 
 bp = Blueprint('forms', __name__, url_prefix='/forms')
