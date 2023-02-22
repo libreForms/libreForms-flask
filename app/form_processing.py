@@ -1,12 +1,12 @@
 """
-post_processing.py: triggers for form behavior after submission
+form_processing.py: triggers for form behavior after submission
 
 After forms are submitted, they are stored by default in a MongoDB
 collection named after the form's name. For example, a user submits
 `form_a`, and the document details are written to a MongoDB database
 named `libreforms` under the `form_a` collection. But what if you
 want to define complex form behavior after submission? That is what
-post_processing is intended to solve, by defining a set of triggers
+form_processing is intended to solve, by defining a set of triggers
 that take a list of functions as its args. This I think is best 
 instantiated as a class, which persists for the duration of an app 
 runtime. For example, we instantiate postProcessor in app/__init__.py,
@@ -25,7 +25,7 @@ These triggers are:
 
 """
 
-__name__ = "app.post_processing"
+__name__ = "app.form_processing"
 __author__ = "Sig Janoska-Bedi"
 __credits__ = ["Sig Janoska-Bedi"]
 __version__ = "1.5.0"

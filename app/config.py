@@ -336,6 +336,11 @@ config['limit_bulk_registration_to_admin_group'] = True
 config['allow_forms_access_to_user_list'] = False
 
 
+# this config determines whether to enable form post processing, which defaults to True,
+# see https://github.com/libreForms/libreForms-flask/issues/201.
+config['enable_form_processing'] = True
+
+
 # here we overwrite the defaults above with any user-specified 
 # configurations in app.config_overrides, if it exists.
 if os.path.exists ("app/config_overrides.py"):
