@@ -39,8 +39,8 @@ __email__ = "signe@atreeus.com"
 from app.views.forms import propagate_form_configs
 from app.mongo import mongodb
 # from app.models import db, User
-from libreforms import forms
 # import json
+import pandas as pd
 
 # this mapper function helps map user groups to to their access restrictions, 
 # to ensure that search results (and possible other parts of the application) 
@@ -253,8 +253,38 @@ def v2_unpack_access_roster(    permission:str=None,
     return (username in access_roster[permission]) if isinstance(username,str) else access_roster[permission]
 
 
-def get_list_of_forms_this_group_approves(forms,group):
+# this creates a list of forms that require group-based approval, and for which the 
+# `group` value passed is set as the approving group.
+def list_of_forms_approved_by_this_group(group:str,forms:dict=None) -> list:
+
+    # import the forms object if none is passed
+    if not forms:
+        from libreforms import forms
+
     l = [] # this is the list object that we'll use to return the form names
-    for form in forms:
-        if 1:
-            pass
+    
+    # add form names to the list if the current group is their approver 
+    for form_name,form_config in forms.items():
+        if '_form_approval' in form_config and form_config['_form_approval']['type'] == 'group':
+            if form_config['_form_approval']['target'] == group:
+                l.append(form_name)
+    return l
+
+# this wraps the list_of_forms_approved_by_this_group function above, by returning 
+# an actual list of documents that need approval, so it can be appended (if len > 0) 
+# to the list of form approvals in app.views.submissions and app.action_needed.
+def documents_needing_this_groups_approval (group:str,forms:dict=None) -> list:
+
+    # import the forms object if none is passed
+    if not forms:
+        from libreforms import forms
+
+    df = pd.DataFrame()
+
+    form_list = list_of_forms_approved_by_this_group(group=group,forms=forms)
+
+    # select list of form where form_name in `form_list` and where there is no approval
+
+
+    return df
+

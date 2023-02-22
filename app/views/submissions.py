@@ -26,6 +26,7 @@ from bson import ObjectId
 import libreforms
 from app import config, log, mailer, mongodb
 from app.models import User, db
+from app.form_access import list_of_forms_approved_by_this_group
 from app.views.auth import login_required, session
 from app.certification import encrypt_with_symmetric_key, verify_symmetric_key
 from app.views.forms import form_menu, checkGroup, checkFormGroup, \
@@ -325,8 +326,15 @@ def aggregate_approval_count(select_on=None):
             # first we drop values that are not tied to the current list of acceptible forms
             record = record.drop(record.loc[~record.form.isin(libreforms.forms.keys())].index)
 
-            # then we return those whose approver is set to the select_on parameter
-            return record.loc[(record[mongodb.metadata_field_names['approver']] == select_on) & (record[mongodb.metadata_field_names['approval']].isna())]
+            # then we select those whose approver is set to the select_on parameter
+            forms_approved_by_user = record.loc[(record[mongodb.metadata_field_names['approver']] == select_on) & (record[mongodb.metadata_field_names['approval']].isna())]
+
+            # these forms should be approved by group
+            forms_approved_by_group = record.loc[record.form.isin(list_of_forms_approved_by_this_group(group=current_user.group))]
+
+            # we concat the two dataframes above and return
+            return pd.concat([forms_approved_by_user, forms_approved_by_group], ignore_index=True)
+
         except Exception as e: 
             log.warning(f"LIBREFORMS - {e}") 
             return pd.DataFrame()
@@ -638,7 +646,9 @@ def render_document(form_name, document_id):
             if ((not checkKey(verify_group, '_deny_write') or not current_user.group in verify_group['_deny_write'])) or current_user.username == record[mongodb.metadata_field_names['owner']].iloc[0]:
                 msg = msg + Markup(f"<tr><td><a href = '{config['domain']}/submissions/{form_name}/{document_id}/edit'>edit this document</a></td></tr>")
 
-            if propagate_form_configs(form_name)['_form_approval'] and mongodb.metadata_field_names['approver'] in record.columns and record[mongodb.metadata_field_names['approver']].iloc[0] == getattr(current_user,config['visible_signature_field']):
+            # if propagate_form_configs(form_name)['_form_approval'] and mongodb.metadata_field_names['approver'] in record.columns and record[mongodb.metadata_field_names['approver']].iloc[0] == getattr(current_user,config['visible_signature_field']):
+            # new method for checking whether to allow approval, see https://github.com/libreForms/libreForms-flask/issues/155
+            if len(aggregate_approval_count()['id'].str.contains(document_id)) > 0:
                 msg = msg + Markup(f"<tr><td><a href = '{config['domain']}/submissions/{form_name}/{document_id}/review'>go to form approval</a></td></tr>")
 
             if propagate_form_configs(form_name)['_allow_pdf_download']:
@@ -784,7 +794,9 @@ def render_document_history(form_name, document_id):
                 msg = msg + Markup(f"<tr><td><a href = '{config['domain']}/submissions/{form_name}/{document_id}/edit'>edit this document</a></td></tr>")
             
 
-            if propagate_form_configs(form_name)['_form_approval'] and mongodb.metadata_field_names['approver'] in display_data.columns and display_data[mongodb.metadata_field_names['approver']].iloc[0] == getattr(current_user,config['visible_signature_field']):
+            # if propagate_form_configs(form_name)['_form_approval'] and mongodb.metadata_field_names['approver'] in display_data.columns and display_data[mongodb.metadata_field_names['approver']].iloc[0] == getattr(current_user,config['visible_signature_field']):
+            # new method for checking whether to allow approval, see https://github.com/libreForms/libreForms-flask/issues/155
+            if len(aggregate_approval_count()['id'].str.contains(document_id)) > 0:
                 msg = msg + Markup(f"<tr><td><a href = '{config['domain']}/submissions/{form_name}/{document_id}/review'>go to form approval</a></td></tr>")
 
             # eventually, we may wish to add support for downloading past versions 
@@ -986,9 +998,10 @@ def review_document(form_name, document_id):
             return abort(404)
 
         # if the approver verification doesn't check out
-        if not mongodb.metadata_field_names['approver'] in record.columns or not record[mongodb.metadata_field_names['approver']].iloc[0] or record[mongodb.metadata_field_names['approver']].iloc[0] != getattr(current_user,config['visible_signature_field']):
+        # if not mongodb.metadata_field_names['approver'] in record.columns or not record[mongodb.metadata_field_names['approver']].iloc[0] or record[mongodb.metadata_field_names['approver']].iloc[0] != getattr(current_user,config['visible_signature_field']):
+        # new method for checking whether to allow approval, see https://github.com/libreForms/libreForms-flask/issues/155
+        if len(aggregate_approval_count()['id'].str.contains(document_id)) < 1:
             return abort(404)
-
 
         if request.method == 'POST':
 
@@ -1069,7 +1082,6 @@ def review_document(form_name, document_id):
             #     flash('You have added a comment to this form. ')
 
 
-
         record.drop(columns=[mongodb.metadata_field_names['journal']], inplace=True)
 
 
@@ -1081,7 +1093,7 @@ def review_document(form_name, document_id):
                                                                     base_string=config['signature_key'],
                                                                     ip=dict(list(dict(record[mongodb.metadata_field_names['metadata']]).values())[0])['signature_ip'] if mongodb.metadata_field_names['metadata'] in record.columns and 'signature_ip' in dict(list(dict(record[mongodb.metadata_field_names['metadata']]).values())[0])else None,
                                                                     timestamp=dict(list(dict(record[mongodb.metadata_field_names['metadata']]).values())[0])['signature_timestamp'] if mongodb.metadata_field_names['metadata'] in record.columns and 'signature_timestamp' in dict(list(dict(record[mongodb.metadata_field_names['metadata']]).values())[0])else None,)
-        else:
+            else:
                 record.drop(columns=[mongodb.metadata_field_names['signature']], inplace=True)
         # Added signature verification, see https://github.com/signebedi/libreForms/issues/144    
         if mongodb.metadata_field_names['approval'] in record.columns and record[mongodb.metadata_field_names['approval']].iloc[0]:
