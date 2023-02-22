@@ -360,6 +360,7 @@ class MongoDB:
                 #                                         'initial_submission': True}
                 #                                         }
 
+                # print(data)
                 return str(collection.insert_one(data).inserted_id)
 
             else:
@@ -409,6 +410,7 @@ class MongoDB:
 
                 collection.update_one({'_id': ObjectId(data['_id'])}, { "$set": data}, upsert=False)
 
+                # print(data)
                 return str(data['_id'])
 
 

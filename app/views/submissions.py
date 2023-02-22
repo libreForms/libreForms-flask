@@ -330,7 +330,7 @@ def aggregate_approval_count(select_on=None):
             forms_approved_by_user = record.loc[(record[mongodb.metadata_field_names['approver']] == select_on) & (record[mongodb.metadata_field_names['approval']].isna())]
 
             # these forms should be approved by group
-            forms_approved_by_group = record.loc[record.form.isin(list_of_forms_approved_by_this_group(group=current_user.group))]
+            forms_approved_by_group = record.loc[(record.form.isin(list_of_forms_approved_by_this_group(group=current_user.group))) & (record[mongodb.metadata_field_names['approval']].isna())]
 
             # we concat the two dataframes above and return
             return pd.concat([forms_approved_by_user, forms_approved_by_group], ignore_index=True)
