@@ -101,6 +101,14 @@ if config['enable_hcaptcha']:
     hcaptcha = hCaptcha()
     log.info(f'LIBREFORMS - initialized hCaptcha object.')
 
+# create form post processing object if enabled, see 
+# https://github.com/libreForms/libreForms-flask/issues/201
+if config['enable_form_post_processing']:
+    from app.post_processing import postProcessor
+    post_process = postProcessor()
+else:
+    # else define a callable that always returns None
+    post_process = lambda: None
 
 # here we add code (that probably NEEDS REVIEW) to verify that
 # it is possible to connect to a different / external database, see
