@@ -41,24 +41,109 @@ __license__ = "AGPL-3.0"
 __maintainer__ = "Sig Janoska-Bedi"
 __email__ = "signe@atreeus.com"
 
-
 class postProcessor:
-    def __init__(self, forms=None):
+    def __init__(self, forms=None,mongodb=None):
 
         # import the forms object if none is passed
         if not forms:
             from libreforms import forms
 
+        # import the mongodb object if none is passed
+        if not mongodb:
+            from app.mongo import mongodb
+
         # store the forms object as a class attribute 
         self.forms = forms
 
+        # store the mongodb object as a class attribute 
+        self.mongodb = mongodb
+
     def onCreation (self, document_id:str, form_name:str, *args):
-        pass
+
+        func_list = self.forms[form_name]['_on_creation']
+
+        if len (func_list) > 0 and isinstance(func_list, list): 
+            document = self.mongodb.get_document_as_dict(collection_name=form_name, document_id=document_id)
+            
+            if not document:
+                return None
+
+            for function in func_list:
+                function(document)
+
+            return True
+        else:
+            return False
+
+
     def onSubmission (self, document_id:str, form_name:str, *args):
-        pass
+
+        func_list = self.forms[form_name]['_on_submission']
+
+        if len (func_list) > 0 and isinstance(func_list, list): 
+            document = self.mongodb.get_document_as_dict(collection_name=form_name, document_id=document_id)
+            
+            if not document:
+                return None
+
+            for function in func_list:
+                function(document)
+
+            return True
+        else:
+            return False
+
+
+
     def onUpdate (self, document_id:str, form_name:str, *args):
-        pass
+
+        func_list = self.forms[form_name]['_on_update']
+
+        if len (func_list) > 0 and isinstance(func_list, list): 
+            document = self.mongodb.get_document_as_dict(collection_name=form_name, document_id=document_id)
+            
+            if not document:
+                return None
+
+            for function in func_list:
+                function(document)
+
+            return True
+        else:
+            return False
+
+
     def onApproval (self, document_id:str, form_name:str, *args):
-        pass
+
+        func_list = self.forms[form_name]['_on_approval']
+
+        if len (func_list) > 0 and isinstance(func_list, list): 
+            document = self.mongodb.get_document_as_dict(collection_name=form_name, document_id=document_id)
+            
+            if not document:
+                return None
+
+            for function in func_list:
+                function(document)
+
+            return True
+        else:
+            return False
+
+
     def onDisapproval (self, document_id:str, form_name:str, *args):
-        pass
+
+        func_list = self.forms[form_name]['_on_disapproval']
+
+        if len (func_list) > 0 and isinstance(func_list, list): 
+            document = self.mongodb.get_document_as_dict(collection_name=form_name, document_id=document_id)
+            
+            if not document:
+                return None
+
+            for function in func_list:
+                function(document)
+
+            return True
+        else:
+            return False
