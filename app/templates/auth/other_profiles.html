@@ -5,19 +5,19 @@
 <h4>Profile</h4>
 
 <table title="user_profile" class="table {{'text-dark' if not dark_mode else ''}}">
-<tr title="username" ><td><b>Username</b>: {{ user.username }}</td></tr>
-<tr title="email" ><td><b>Email</b>: <span> {{ user.email }}</span></td></tr>
-<tr title="group" ><td><b>Group</b>: {{ user.group }}</td></tr>
-<tr title="organization" ><td><b>Organization</b>: <span>{{ user.organization }}</span></td></tr>
-<tr title="phone" ><td><b>Phone</b>: <span>{{ user.phone }}</span></td></tr>
-<tr title="theme" ><td><b>Theme</b>: <span>{{ user.theme }}</span></td></tr>
+<tr title="username" ><td><b>Username</b>: {{ profile_user.username }}</td></tr>
+<tr title="email" ><td><b>Email</b>: <span> {{ profile_user.email }}</span></td></tr>
+<tr title="group" ><td><b>Group</b>: {{ profile_user.group }}</td></tr>
+<tr title="organization" ><td><b>Organization</b>: <span>{{ profile_user.organization }}</span></td></tr>
+<tr title="phone" ><td><b>Phone</b>: <span>{{ profile_user.phone }}</span></td></tr>
+<tr title="theme" ><td><b>Theme</b>: <span>{{ profile_user.theme }}</span></td></tr>
 {% if config['user_registration_fields'] is defined %}
 {% for attribute in config['user_registration_fields'] %}
 <tr title="{{attribute}}"><td><b>{{attribute | capitalize | replace("_", " ")}}</b>: {{ user[attribute] }}</td></tr>
 {% endfor %}
 {% endif %}
 </td></tr>
-<tr title="created_date"><td><b>Created</b>: {{ user.created_date }}</td></tr>
+<tr title="created_date"><td><b>Created</b>: {{ profile_user.created_date }}</td></tr>
 </table>
 
 {% endblock %}

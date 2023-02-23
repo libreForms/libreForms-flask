@@ -517,8 +517,8 @@ def other_profiles(username):
     try:
         # print(len(User.query.filter_by(username=username.lower())))
         # assert (len(User.query.filter_by(username=username.lower())) > 0)
-        user = User.query.filter_by(username=username.lower()).first()
-        assert(user.username) # assert that the user query has a username set
+        profile_user = User.query.filter_by(username=username.lower()).first()
+        assert(profile_user.username) # assert that the user query has a username set
     except:
         flash('This user does not exist. ')
         return redirect(url_for('auth.profile'))
@@ -528,7 +528,8 @@ def other_profiles(username):
         name=config['site_name'],
         config=config,
         notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
-        user=user,
+        user=current_user,
+        profile_user=profile_user,
     )
 
 
