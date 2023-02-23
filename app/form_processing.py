@@ -56,7 +56,7 @@ class postProcessor:
 
     def onCreation (self, document_id:str, form_name:str, *args, **kwargs):
 
-        func_list = self.forms[form_name]['_on_creation']
+        func_list = self.forms(form_name)['_on_creation']
 
         if len (func_list) > 0 and isinstance(func_list, list): 
             document = self.mongodb.get_document_as_dict(collection_name=form_name, document_id=document_id)
@@ -74,7 +74,7 @@ class postProcessor:
 
     # def onSubmission (self, document_id:str, form_name:str, *args, **kwargs):
 
-    #     func_list = self.forms[form_name]['_on_submission']
+    #     func_list = self.forms(form_name)['_on_submission']
 
     #     if len (func_list) > 0 and isinstance(func_list, list): 
     #         document = self.mongodb.get_document_as_dict(collection_name=form_name, document_id=document_id)
@@ -93,7 +93,7 @@ class postProcessor:
 
     def onUpdate (self, document_id:str, form_name:str, *args, **kwargs):
 
-        func_list = self.forms[form_name]['_on_update']
+        func_list = self.forms(form_name)['_on_update']
 
         if len (func_list) > 0 and isinstance(func_list, list): 
             document = self.mongodb.get_document_as_dict(collection_name=form_name, document_id=document_id)
@@ -111,7 +111,7 @@ class postProcessor:
 
     def onApproval (self, document_id:str, form_name:str, *args, **kwargs):
 
-        func_list = self.forms[form_name]['_on_approval']
+        func_list = self.forms(form_name)['_on_approval']
 
         if len (func_list) > 0 and isinstance(func_list, list): 
             document = self.mongodb.get_document_as_dict(collection_name=form_name, document_id=document_id)
@@ -129,7 +129,7 @@ class postProcessor:
 
     def onDisapproval (self, document_id:str, form_name:str, *args, **kwargs):
 
-        func_list = self.forms[form_name]['_on_disapproval']
+        func_list = self.forms(form_name)['_on_disapproval']
 
         if len (func_list) > 0 and isinstance(func_list, list): 
             document = self.mongodb.get_document_as_dict(collection_name=form_name, document_id=document_id)
