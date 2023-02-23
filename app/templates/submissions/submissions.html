@@ -33,7 +33,11 @@
     {% for item in submission.columns %} 
       <tr class="table{% if emphasize and item in emphasize %}{{'-secondary' if dark_mode else '-primary'}}{% else %}{{'-dark' if dark_mode else '-transparent'}}{% endif %}">
         <th scope="row">{{item}}</th>
-        <td>{{submission[item].iloc[0]}}</td>
+        {% item in badge_list %}
+          <td><span class="badge bg-primary">{{submission[item].iloc[0]}}</span></td>
+        {% else %}
+          <td>{{submission[item].iloc[0]}}</td>
+        {% endif %}
       </tr>
     {% endfor %}
     </tbody>

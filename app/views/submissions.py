@@ -340,6 +340,22 @@ def aggregate_approval_count(select_on=None):
             return pd.DataFrame()
             
 
+def generate_username_badge_list(form_name:str) -> list:
+    
+    if not config['parse_usernames_as_badges']:
+        return []
+    
+    FIELD_LIST = []
+    
+    # add the basic metadata fields
+    FIELD_LIST.append(mongodb.metadata_field_names['owner'])
+    FIELD_LIST.append(mongodb.metadata_field_names['reporter'])
+
+    for index,data in propagate_form_fields(form_name).items():
+        if '_render_user_badges' in data and data['_render_user_badges']:
+            FIELD_LIST.append(index)
+
+    return FIELD_LIST
 
 bp = Blueprint('submissions', __name__, url_prefix='/submissions')
 
@@ -663,6 +679,7 @@ def render_document(form_name, document_id):
                 config=config,
                 user=current_user,
                 menu=form_menu(checkFormGroup),
+                badge_list=generate_username_badge_list(form_name),
             )
 
 

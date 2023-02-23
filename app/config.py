@@ -341,10 +341,16 @@ config['enable_form_processing'] = True
 
 
 # this config determines whether other profiles can be viewed in the web application,
-# see https://github.com/libreForms/libreForms-flask/issues/298. Future work may improve
-# this by adding some access control restrictions to what groups can see profiles, and
-# how much information can be seen.
+# see https://github.com/libreForms/libreForms-flask/issues/298. Future work may improve this
+# by adding some access control restrictions to what groups can see profiles, and how much
+# information can be seen, see https://github.com/libreForms/libreForms-flask/issues/300.
 config['enable_other_profile_views'] = False
+
+# this config determines whether the application will try to render usernames as badges, 
+# for aesthetic and potentially funtional purposes, see the following for further discussion:
+# https://github.com/libreForms/libreForms-flask/issues/299. Please note this may not work as
+# expected / desired when `visible_signature_field` has been changed, but this can probably be fixed.
+config['parse_usernames_as_badges'] = True
 
 # here we overwrite the defaults above with any user-specified 
 # configurations in app.config_overrides, if it exists.
