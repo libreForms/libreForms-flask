@@ -335,11 +335,16 @@ config['limit_bulk_registration_to_admin_group'] = True
 # implicit security risk.
 config['allow_forms_access_to_user_list'] = False
 
-
 # this config determines whether to enable form post processing, which defaults to True,
 # see https://github.com/libreForms/libreForms-flask/issues/201.
 config['enable_form_processing'] = True
 
+
+# this config determines whether other profiles can be viewed in the web application,
+# see https://github.com/libreForms/libreForms-flask/issues/298. Future work may improve
+# this by adding some access control restrictions to what groups can see profiles, and
+# how much information can be seen.
+config['enable_other_profile_views'] = False
 
 # here we overwrite the defaults above with any user-specified 
 # configurations in app.config_overrides, if it exists.

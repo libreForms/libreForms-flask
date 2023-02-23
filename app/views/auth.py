@@ -650,6 +650,36 @@ def profile():
         log_data=aggregate_log_data(keyword=f'- {current_user.username.upper()} -', limit=1000, pull_from='end') if config['enable_user_profile_log_aggregation'] else None,
     )
 
+@bp.route('/profile/<username>')
+@login_required
+def other_profiles(username):
+
+    if not config['enable_other_profile_views']:
+        flash('This feature has not been enabled by your system administrator. ')
+        return redirect(url_for('auth.profile'))
+
+    try:
+        # print(len(User.query.filter_by(username=username.lower())))
+        # assert (len(User.query.filter_by(username=username.lower())) > 0)
+        user = User.query.filter_by(username=username.lower()).first()
+        assert(user.username) # assert that the user query has a username set
+    except:
+        flash('This user does not exist. ')
+        return redirect(url_for('auth.profile'))
+
+    return render_template('auth/other_profiles.html', 
+        type="profile",
+        name=config['site_name'],
+        config=config,
+        notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
+        user=user,
+    )
+
+
+
+
+
+
 # this is the download link for files in the temp directory
 @bp.route('/download/<path:filename>')
 @login_required
