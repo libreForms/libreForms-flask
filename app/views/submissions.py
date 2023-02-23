@@ -350,6 +350,8 @@ def generate_username_badge_list(form_name:str) -> list:
     # add the basic metadata fields
     FIELD_LIST.append(mongodb.metadata_field_names['owner'])
     FIELD_LIST.append(mongodb.metadata_field_names['reporter'])
+    FIELD_LIST.append(mongodb.metadata_field_names['approver'])
+    FIELD_LIST.append(mongodb.metadata_field_names['approval'])
 
     for index,data in propagate_form_fields(form_name).items():
         if '_render_user_badges' in data and data['_render_user_badges']:
