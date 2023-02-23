@@ -1,12 +1,18 @@
 {% extends 'base.html' %}
 {% block content %}
 
+<style>
+    a {
+        word-break: break-all;
+    }
+
+</style>
 
         {% if form_not_found %}
             <p>Go <a href="{{ url_for( 'home' ) }}">home</a>.</p>
         {% endif %}
         {% if is_table %}
-            <div title="table" class="container" style="overflow: auto; word-break: break-all;">
+            <div title="table" class="container" style="overflow: auto;">
                 {{ table }}
             </div>
         {% endif %}	
