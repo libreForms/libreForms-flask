@@ -61,9 +61,8 @@ from app.models import User, db
 from app.certification import generate_symmetric_key
 from werkzeug.utils import secure_filename
 import pandas as pd
-import os, tempfile
+import os, tempfile, datetime
 from app import log
-from datetime import datetime
 import app.signing as signing
 from werkzeug.security import generate_password_hash
 from celeryd.tasks import send_mail_async
