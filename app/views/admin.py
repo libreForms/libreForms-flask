@@ -68,12 +68,13 @@ def is_admin(func):
             return current_app.login_manager.unauthorized()
 
         elif not current_user.group == config['admin_group']:
-            return current_app.login_manager.unauthorized()
+            return abort(404)
 
         # flask 1.x compatibility
         # current_app.ensure_sync is only available in Flask >= 2.0
         if callable(getattr(current_app, "ensure_sync", None)):
             return current_app.ensure_sync(func)(*args, **kwargs)
+
         return func(*args, **kwargs)
 
     return decorated_view
@@ -82,9 +83,9 @@ def is_admin(func):
 
 bp = Blueprint('admin', __name__, url_prefix='/admin')
 
-@bp.route('/all')
-
 # the admin handler view will verify that a user has access to the assciated 
 # resource before redirecting them to it
+@bp.route('/handler/<view_name>', methods=('GET', 'POST'))
+@is_admin
 def admin_handler(view_name):
-    pass
+    return f"{view_name}"
