@@ -41,24 +41,20 @@ __license__ = "AGPL-3.0"
 __maintainer__ = "Sig Janoska-Bedi"
 __email__ = "signe@atreeus.com"
 
+from app.views.forms import propagate_form_configs
+# from libreforms import forms
+from app.mongo import mongodb
+
 class postProcessor:
-    def __init__(self, forms=None,mongodb=None):
-
-        # import the forms object if none is passed
-        if not forms:
-            from libreforms import forms
-
-        # import the mongodb object if none is passed
-        if not mongodb:
-            from app.mongo import mongodb
+    def __init__(self, form_data=None,db=None):
 
         # store the forms object as a class attribute 
-        self.forms = forms
+        self.forms = form_data if form_data else propagate_form_configs
 
         # store the mongodb object as a class attribute 
-        self.mongodb = mongodb
+        self.mongodb = db if db else mongodb
 
-    def onCreation (self, document_id:str, form_name:str, *args):
+    def onCreation (self, document_id:str, form_name:str, *args, **kwargs):
 
         func_list = self.forms[form_name]['_on_creation']
 
@@ -76,26 +72,26 @@ class postProcessor:
             return False
 
 
-    def onSubmission (self, document_id:str, form_name:str, *args):
+    # def onSubmission (self, document_id:str, form_name:str, *args, **kwargs):
 
-        func_list = self.forms[form_name]['_on_submission']
+    #     func_list = self.forms[form_name]['_on_submission']
 
-        if len (func_list) > 0 and isinstance(func_list, list): 
-            document = self.mongodb.get_document_as_dict(collection_name=form_name, document_id=document_id)
+    #     if len (func_list) > 0 and isinstance(func_list, list): 
+    #         document = self.mongodb.get_document_as_dict(collection_name=form_name, document_id=document_id)
             
-            if not document:
-                return None
+    #         if not document:
+    #             return None
 
-            for function in func_list:
-                function(document)
+    #         for function in func_list:
+    #             function(document)
 
-            return True
-        else:
-            return False
+    #         return True
+    #     else:
+    #         return False
 
 
 
-    def onUpdate (self, document_id:str, form_name:str, *args):
+    def onUpdate (self, document_id:str, form_name:str, *args, **kwargs):
 
         func_list = self.forms[form_name]['_on_update']
 
@@ -113,7 +109,7 @@ class postProcessor:
             return False
 
 
-    def onApproval (self, document_id:str, form_name:str, *args):
+    def onApproval (self, document_id:str, form_name:str, *args, **kwargs):
 
         func_list = self.forms[form_name]['_on_approval']
 
@@ -131,7 +127,7 @@ class postProcessor:
             return False
 
 
-    def onDisapproval (self, document_id:str, form_name:str, *args):
+    def onDisapproval (self, document_id:str, form_name:str, *args, **kwargs):
 
         func_list = self.forms[form_name]['_on_disapproval']
 

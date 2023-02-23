@@ -933,6 +933,12 @@ def render_document_edit(form_name, document_id):
                     # and then we send our message
                     m = send_mail_async.delay(subject=subject, content=content, to_address=current_user.email, cc_address_list=rationalize_routing_list(form_name)) if config['send_mail_asynchronously'] else mailer.send_mail(subject=subject, content=content, to_address=current_user.email, cc_address_list=rationalize_routing_list(form_name), logfile=log)
 
+
+                    # form processing trigger, see https://github.com/libreForms/libreForms-flask/issues/201    
+                    if config['enable_form_processing']:
+                        current_app.config['FORM_PROCESSING'].onUpdate(document_id=document_id, form_name=form_name)
+
+
                     # and then we redirect to the forms view page
                     return redirect(url_for('submissions.render_document', form_name=form_name, document_id=document_id))
 
@@ -1076,6 +1082,14 @@ def review_document(form_name, document_id):
                                                     approval=verify_changes_to_approval[mongodb.metadata_field_names['approval']] if mongodb.metadata_field_names['approval'] in verify_changes_to_approval else None,
                                                     approver_comment=verify_changes_to_approver_comment[mongodb.metadata_field_names['approver_comment']] if mongodb.metadata_field_names['approver_comment'] in verify_changes_to_approver_comment else None,
                                                     ip_address=request.remote_addr if options['_collect_client_ip'] else None,)
+
+
+            # form processing trigger, see https://github.com/libreForms/libreForms-flask/issues/201
+            if config['enable_form_processing']:
+                if approve == 'yes':
+                    current_app.config['FORM_PROCESSING'].onApproval(document_id=document_id, form_name=form_name)
+                elif approve == 'no':
+                    current_app.config['FORM_PROCESSING'].onDisapproval(document_id=document_id, form_name=form_name)
 
             return redirect(url_for('submissions.render_document', form_name=form_name, document_id=document_id))
 

@@ -606,6 +606,10 @@ def forms(form_name):
                     content = f"This email serves to notify that {current_user.username} ({current_user.email}) has just submitted the {form_name} form for your review, which you can view at {config['domain']}/submissions/{form_name}/{document_id}/review."
                     m = send_mail_async.delay(subject=subject, content=content, to_address=approver.email, cc_address_list=rationalize_routing_list(form_name)) if config['send_mail_asynchronously'] else mailer.send_mail(subject=subject, content=content, to_address=approver.email, cc_address_list=rationalize_routing_list(form_name), logfile=log)
 
+                # form processing trigger, see https://github.com/libreForms/libreForms-flask/issues/201
+                if config['enable_form_processing']:
+                    current_app.config['FORM_PROCESSING'].onCreation(document_id=document_id, form_name=form_name)
+
                 return redirect(url_for('submissions.render_document', form_name=form_name, document_id=document_id))
 
             return render_template('app/forms.html', 

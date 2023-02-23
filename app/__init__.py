@@ -375,10 +375,10 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
     # https://github.com/libreForms/libreForms-flask/issues/201
     if config['enable_form_processing']:
         from app.form_processing import postProcessor
-        post_process = postProcessor()
-    else:
-        # else define a callable that always returns None
-        post_process = lambda: None
+        app.config['FORM_PROCESSING'] = postProcessor()
+    # else:
+    #     # else define a callable that always returns None
+    #     form_processing = lambda: None
 
 
     # here we employ some Flask-Login boilerplate to make 
