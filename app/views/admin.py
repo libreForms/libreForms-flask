@@ -83,9 +83,17 @@ def is_admin(func):
 
 bp = Blueprint('admin', __name__, url_prefix='/admin')
 
-# the admin handler view will verify that a user has access to the assciated 
-# resource before redirecting them to it
-@bp.route('/handler/<view_name>', methods=('GET', 'POST'))
+
+# this is the redirect point for the admin left-hand menu.
+# the admin handler view may be a good point to verify that a user 
+# has access to the associated resource before redirecting them to it
 @is_admin
+@bp.route('/handler/<view_name>')
 def admin_handler(view_name):
-    return f"{view_name}"
+    return redirect(url_for(f'admin.{view_name}'))
+
+
+@is_admin
+@bp.route('/')
+def admin_home():
+    return True
