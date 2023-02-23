@@ -654,6 +654,9 @@ def profile():
 @login_required
 def other_profiles(username):
 
+    if username == current_user.username:
+        return redirect(url_for('auth.profile'))
+
     if not config['enable_other_profile_views']:
         flash('This feature has not been enabled by your system administrator. ')
         return redirect(url_for('auth.profile'))
