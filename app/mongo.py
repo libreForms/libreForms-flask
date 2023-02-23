@@ -367,7 +367,7 @@ class MongoDB:
 
                 # some very overkill slicing to get the original 'Journal' value...
                 TEMP = self.read_documents_from_collection(collection_name)
-
+                
                 df = pd.DataFrame(list(TEMP))
                 data[self.metadata_field_names['journal']] = dict(df.loc[ (df['_id'] == data['_id'])][self.metadata_field_names['journal']].iloc[0])
                 # print("\n\n\n", data[self.metadata_field_names['journal']])

@@ -48,3 +48,21 @@ __version__ = "1.6.0"
 __license__ = "AGPL-3.0"
 __maintainer__ = "Sig Janoska-Bedi"
 __email__ = "signe@atreeus.com"
+
+from flask import current_app, Blueprint, g, flash, abort, render_template, \
+    request, send_from_directory, send_file, redirect, url_for
+from app.views.auth import login_required, session
+from flask_login import current_user
+
+
+# config['admin_group']
+
+bp = Blueprint('admin', __name__, url_prefix='/admin')
+
+
+@bp.route('/all')
+
+# the admin handler view will verify that a user has access to the assciated 
+# resource before redirecting them to it
+def admin_handler(view_name):
+    pass
