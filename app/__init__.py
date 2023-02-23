@@ -531,6 +531,10 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
         from .views import search
         app.register_blueprint(search.bp)
 
+    if config['enable_admin_console']:
+        from .views import admin
+        app.register_blueprint(admin.bp)
+
     # return the app object with the above configurations
     return app
 
