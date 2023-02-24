@@ -91,7 +91,7 @@ def is_admin(func):
     return decorated_view
 
 
-def compile_prettified_admin_views():
+def compile_admin_views_for_menu():
     
     views = []
 
@@ -129,7 +129,7 @@ def admin_home():
         subtitle='Home',
         type="admin",
         user=current_user,
-        menu=compile_prettified_admin_views(),
+        menu=compile_admin_views_for_menu(),
         config=config,)
 
 
@@ -278,6 +278,6 @@ def bulk_register():
         name='Admin',
         subtitle='Bulk Register',
         type="admin",
-        menu=compile_prettified_admin_views(),
+        menu=compile_admin_views_for_menu(),
         user=current_user,
         config=config,)
