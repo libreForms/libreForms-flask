@@ -46,7 +46,7 @@ import pandas as pd
 # to ensure that search results (and possible other parts of the application) 
 # show correct results and avoid leakage / improper access; for more details, 
 # see https://github.com/libreForms/libreForms-flask/issues/259. 
-def form_access_single_group(group):
+def form_access_single_group(group,forms=None):
 
     # we create a mapping dict that pairs each form with its associated configs, 
     # which we'll search within. In effect, this will store a child key for each 
@@ -59,6 +59,9 @@ def form_access_single_group(group):
     # contain child keys for each form defined in the form config. Finally,
     # it will store the the configs that are `relevant` (not `all`) to access. 
     group_access_mapping = {}
+    
+    if not forms:
+        from libreforms import forms
 
     for form in forms:
         full_options_mapping[form] = propagate_form_configs(form)
