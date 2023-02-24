@@ -310,12 +310,19 @@ def propagate_form_fields(form=False, group=None):
         VALUES = {}
 
         # here we drop the meta data fields   
-        
+
         for field in list_fields.keys():
             if not field.startswith("_") and checkGroup(group, libreforms.forms[form][field]): # drop configs and fields we don't have access to
                 VALUES[field] = list_fields[field]
-        
+                # if the content field is callable, then call it, see
+                # https://github.com/libreForms/libreForms-flask/issues/305
+                if callable(VALUES[field]['input_field']['content'][0]):
+                    # print (VALUES[field]['input_field']['content'][0]())
+                    VALUES[field]['input_field']['content'] = VALUES[field]['input_field']['content'][0]()
+                    
+                
         return VALUES
+    
     except Exception as e: 
         log.warning(f"LIBREFORMS - {e}")
         return {}
