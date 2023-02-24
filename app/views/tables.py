@@ -33,7 +33,7 @@ from app import config, log, mongodb, db
 import os
 import pandas as pd
 
-pd.set_option('display.max_colwidth', 20)
+# pd.set_option('display.max_colwidth', 30)
 
 bp = Blueprint('tables', __name__, url_prefix='/tables')
 
