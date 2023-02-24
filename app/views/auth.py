@@ -93,7 +93,8 @@ def reset_password(signature):
     
         return render_template('auth/forgot_password.html',
             site_name=config['site_name'],
-            name="Reset Password", 
+            name='User',
+            subtitle='Reset Password',
             reset=True,
             config=config)
         
@@ -136,7 +137,8 @@ def forgot_password():
     if config["smtp_enabled"]:
         return render_template('auth/forgot_password.html',
             site_name=config['site_name'],
-            name="Forgot Password", 
+            name='User',
+            subtitle='Forgot Password',
             config=config)
 
     else:
@@ -249,7 +251,8 @@ def register():
 
     return render_template('auth/register.html',
         site_name=config['site_name'],
-        name="Register",
+        name='User',
+        subtitle='Register',
         config=config,)
 
 
@@ -366,7 +369,8 @@ def login():
 
     return render_template('auth/login.html',
             site_name=config['site_name'],
-            name="Login",
+            name='User',
+            subtitle='Login',
             config=config,)
 
 @bp.before_app_request
@@ -457,7 +461,8 @@ def edit_profile():
         edit_profile=True,
         user=current_user,
         notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
-        name="Profile",
+        name='User',
+        subtitle='Edit Profile',
         config=config,)
 
 @bp.route('/profile', methods=('GET', 'POST'))
@@ -496,7 +501,8 @@ def profile():
 
     return render_template('auth/profile.html', 
         type="profile",
-        name=config['site_name'],
+        name='User',
+        subtitle='Profile',
         config=config,
         notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
         user=current_user,
@@ -525,7 +531,8 @@ def other_profiles(username):
 
     return render_template('auth/other_profiles.html', 
         type="profile",
-        name=config['site_name'],
+        name='User',
+        subtitle=f'{username}',
         config=config,
         notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
         user=current_user,

@@ -105,7 +105,8 @@ if config['allow_anonymous_form_submissions']:
                 flash(error)
                 
         return render_template('app/external_request.html', 
-            name=form_name,             
+            name='Forms',
+            subtitle=form_name,
             config=config,
             suppress_navbar=True,
             user=current_user if config['require_auth_users_to_initiate_external_forms'] else None,
@@ -173,7 +174,8 @@ if config['allow_anonymous_form_submissions']:
 
                 return render_template('app/forms.html', 
                     context=forms,
-                    name=form_name,             
+                    name='Forms',
+                    subtitle=form_name,
                     options=options, 
                     config=config,
                     suppress_navbar=True,

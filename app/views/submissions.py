@@ -401,7 +401,8 @@ def render_all_submissions():
 
             return render_template('submissions/submissions.html',
                 type="submissions",
-                name="all",
+                name='Submissions',
+                subtitle="All",
                 submission=record,
                 config=config,
                 notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
@@ -419,7 +420,8 @@ def submissions_home():
     return render_template('submissions/submissions.html', 
             msg="Select a form from the left-hand menu to view past submissions.",
             notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
-            name="Submissions",
+            name='Submissions',
+            subtitle="Home",
             type="submissions",
             submissions_home=True,
             menu=form_menu(checkFormGroup),
@@ -475,7 +477,8 @@ def submissions(form_name):
 
             return render_template('submissions/submissions.html',
                 type="submissions",
-                name=form_name,
+                name='Submissions',
+                subtitle=form_name,
                 submission=record,
                 notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
                 config=config,
@@ -504,7 +507,8 @@ def render_user_review(user):
         return render_template('submissions/submissions.html',
             type="submissions",
             notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
-            name="review",
+            name='Submissions',
+            subtitle="Review",
             submission=record,
             config=config,
             form_home=True,
@@ -558,7 +562,8 @@ def render_user_submissions(user):
             return render_template('submissions/submissions.html',
                 type="submissions",
                 notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
-                name="all",
+                name='Submissions',
+                subtitle="All",
                 submission=record,
                 config=config,
                 form_home=True,
@@ -674,7 +679,8 @@ def render_document(form_name, document_id):
             
             return render_template('submissions/submissions.html',
                 type="submissions",
-                name=form_name,
+                name='Submissions',
+                subtitle=form_name,
                 notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
                 submission=record,
                 msg=msg,
@@ -826,7 +832,8 @@ def render_document_history(form_name, document_id):
 
             return render_template('submissions/submissions.html',
                 type="submissions",
-                name=form_name,
+                name='Submissions',
+                subtitle=form_name,
                 submission=display_data,
                 config=config,
                 notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
@@ -966,7 +973,8 @@ def render_document_edit(form_name, document_id):
 
                 return render_template('app/forms.html', 
                     context=forms,                                          # this passes the form fields as the primary 'context' variable
-                    name=form_name,                                         # this sets the name of the page for the page header
+                    name='Forms',
+                    subtitle='Edit',
                     menu=form_menu(checkFormGroup),              # this returns the forms in libreform/forms to display in the lefthand menu
                     type="forms",       
                     default_overrides=overrides,
@@ -1167,7 +1175,8 @@ def review_document(form_name, document_id):
 
         return render_template('submissions/submissions.html',
             type="submissions",
-            name=form_name,
+            name='Submissions',
+            subtitle=form_name,
             submission=record,
             notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
             msg=msg,

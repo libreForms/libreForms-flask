@@ -59,11 +59,11 @@ from functools import wraps
 # requirements for bulk email management
 from app.models import User, db
 from app.certification import generate_symmetric_key
+import app.signing as signing
 from werkzeug.utils import secure_filename
 import pandas as pd
 import os, tempfile, datetime
 from app import log
-import app.signing as signing
 from werkzeug.security import generate_password_hash
 from celeryd.tasks import send_mail_async
 
@@ -107,8 +107,19 @@ def admin_handler(view_name):
 @is_admin
 @bp.route('/')
 def admin_home():
-    return True
+    admin_views = {}
+    for key, view in current_app.view_functions.items():
+        if key.startswith('admin'):
+            admin_views[key] = view
+    # return str(admin_views.keys())
 
+    return render_template('admin/admin_home.html',
+        site_name=config['site_name'],
+        notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
+        name='Admin',
+        subtitle='Home',
+        user=current_user,
+        config=config,)
 
 
 @is_admin
@@ -250,9 +261,10 @@ def bulk_register():
 
 
 
-    return render_template('auth/add_users.html',
+    return render_template('admin/add_users.html',
         site_name=config['site_name'],
         notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
-        name="Bulk Register",
+        name='Admin',
+        subtitle='Bulk Register',
         user=current_user,
         config=config,)

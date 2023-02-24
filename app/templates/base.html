@@ -117,7 +117,7 @@
 
           <div class="col-12 col-md-3 d-none d-md-block  {{'bg-dark' if dark_mode else 'bg-transparent text-dark'}}" style="width:20%; padding-top: 20px; padding-left: 30px; height: 100%;z-index:999998 !important;">  
             <table class="nav nav-pills nav-stacked flex-column" title="sidebar-nav">
-              <tr><th><h3 class="nav-link {{' text-dark' if not dark_mode else ''}}{{' text-dark' if not dark_mode else ''}}">{{ name }} <small class="{{'text-muted' if dark_mode else 'text-secondary'}}">{% if context %}form{% elif is_table %}table{% elif graphJSON %}dashboard{% elif homepage %}home{% endif %}</small></h3></th></tr>
+              <tr><th><h3 class="nav-link {{' text-dark' if not dark_mode else ''}}{{' text-dark' if not dark_mode else ''}}">{%if name%}{{name}}{%endif%} <small class="{{'text-muted' if dark_mode else 'text-secondary'}}">{%if subtitle%}{{subtitle}}{%endif%}</small></h3></th></tr>
                 {% if menu %}
                 {% for item in menu %} 
                 {% if type == 'reports' %}

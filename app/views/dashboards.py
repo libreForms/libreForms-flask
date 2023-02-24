@@ -42,7 +42,8 @@ bp = Blueprint('dashboards', __name__, url_prefix='/dashboards')
 def dashboards_home():
     return render_template('app/dashboards.html', 
             msg="Select a dashboard from the left-hand menu.",
-            name="Dashboard",
+            name='Dashboards',
+            subtitle='Home',
             notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
             type="dashboards",
             menu=form_menu(checkDashboardGroup),
@@ -131,7 +132,8 @@ def dashboards(form_name):
 
         return render_template('app/dashboards.html', 
             graphJSON=graphJSON,
-            name=form_name,
+            name='Dashboards',
+            subtitle=form_name,
             type="dashboards",
             site_name=config['site_name'],
             notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,

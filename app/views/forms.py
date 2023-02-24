@@ -481,7 +481,8 @@ def forms_home():
     # print(generate_list_of_users()) 
     return render_template('app/forms.html', 
             msg="Select a form from the left-hand menu.",
-            name="Form",
+            name='Forms',
+            subtitle="Home",
             type="forms",
             notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
             menu=form_menu(checkFormGroup),
@@ -621,7 +622,8 @@ def forms(form_name):
 
             return render_template('app/forms.html', 
                 context=forms,                                          # this passes the form fields as the primary 'context' variable
-                name=form_name,                                         # this sets the name of the page for the page header
+                name='Forms',
+                subtitle=form_name,
                 menu=form_menu(checkFormGroup),              # this returns the forms in libreform/forms to display in the lefthand menu
                 type="forms",       
                 options=options, 
