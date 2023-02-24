@@ -30,7 +30,7 @@
     <link rel="shortcut icon" href='{{ url_for('static', filename=config.favicon) }}' />
     <link rel='shortcut icon' type='image/x-icon' href='{{ url_for('static', filename=config.favicon) }}' />
 
-    <title>{{ config['site_name'] }} {{ name }}</title>
+    <title>{{ config['site_name'] }}{%if name%} {{name}}{%endif%}{%if subtitle%} {{subtitle}}{%endif%}</title>
     <style>
 
     @media only screen and (max-width: 620px) {
