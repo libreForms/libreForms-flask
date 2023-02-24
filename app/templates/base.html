@@ -85,6 +85,11 @@
                 <a class="dropdown-item{{' bg-light text-dark' if not dark_mode else ''}}" href="{{ url_for( 'auth.logout' ) }}">Logout</a>
               </div>
             </li>
+            
+            {%if user.group == config['admin_group']%}
+            <li class="nav-item"><a class="nav-link" href="{{ url_for( 'admin.admin_home' ) }}">Admin</a></li>
+            {% endif %}
+            
             {% elif suppress_navbar %}   
             {% else %}
               <li class="nav-item"><a class="nav-link" href="{{ url_for( 'auth.login' ) }}">Login</a></li>
