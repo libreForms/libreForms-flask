@@ -7,27 +7,9 @@
 
 {% endif %}    
 
-{% if submissions_home %}
+{% if not submissions_home %}
 
   
-
-{% elif form_home %}
-
-<table title="submissions" class="table {{'text-dark' if not dark_mode else 'table-hover'}}">
-  <tbody>
-  {% for item in submission.index %} 
-    <tr class="table{% if emphasize and item in emphasize %}-secondary{% else %}{{'-dark' if dark_mode else '-transparent'}}{% endif %}">
-      <th scope="row">{{submission['_timestamp'][item]}}</th>
-      {% for col in submission.columns if col != "_timestamp" %}
-      <td>{{submission[col][item]}}</td>
-      {% endfor %}
-    </tr>
-  {% endfor %}
-  </tbody>
-</table>
-
-
-{% else %}
 <table title="submissions" class="table {{'text-dark' if not dark_mode else 'table-hover'}}">
     <tbody>
     {% for item in submission.columns %} 

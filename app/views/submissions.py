@@ -399,14 +399,13 @@ def render_all_submissions():
     
         else:
 
-            return render_template('submissions/submissions.html',
+            return render_template('submissions/submissions_form_home.html',
                 type="submissions",
                 name='Submissions',
                 subtitle="All",
                 submission=record,
                 config=config,
                 notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
-                form_home=True,
                 user=current_user,
                 menu=form_menu(checkFormGroup),
             )
@@ -475,14 +474,13 @@ def submissions(form_name):
 
             record['hyperlink'] = record.apply(lambda x: gen_hyperlink(x, form_name), axis=1)
 
-            return render_template('submissions/submissions.html',
+            return render_template('submissions/submissions_form_home.html',
                 type="submissions",
                 name='Submissions',
                 subtitle=form_name,
                 submission=record,
                 notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
                 config=config,
-                form_home=True,
                 user=current_user,
                 menu=form_menu(checkFormGroup),
             )
@@ -504,14 +502,13 @@ def render_user_review(user):
         #         record = record.drop(record[record['form'] == form].index)
     
 
-        return render_template('submissions/submissions.html',
+        return render_template('submissions/submissions_form_home.html',
             type="submissions",
             notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
             name='Submissions',
             subtitle="Review",
             submission=record,
             config=config,
-            form_home=True,
             user=current_user,
             menu=form_menu(checkFormGroup),
         )
@@ -559,14 +556,13 @@ def render_user_submissions(user):
     
         else:
 
-            return render_template('submissions/submissions.html',
+            return render_template('submissions/submissions_form_home.html',
                 type="submissions",
                 notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
                 name='Submissions',
                 subtitle="All",
                 submission=record,
                 config=config,
-                form_home=True,
                 user=current_user,
                 menu=form_menu(checkFormGroup),
             )
