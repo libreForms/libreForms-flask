@@ -91,6 +91,19 @@ def is_admin(func):
     return decorated_view
 
 
+def compile_prettified_admin_views():
+    
+    views = []
+
+    for view in [key for key in current_app.view_functions if key.startswith('admin')]:
+        v = view.replace('admin_','')
+        v = v.replace('admin.','')
+        v = v.replace('_',' ')
+        v = v.title()
+        views.append([view,v])
+
+    # print (views)
+    return views
 
 bp = Blueprint('admin', __name__, url_prefix='/admin')
 
@@ -98,27 +111,25 @@ bp = Blueprint('admin', __name__, url_prefix='/admin')
 # this is the redirect point for the admin left-hand menu.
 # the admin handler view may be a good point to verify that a user 
 # has access to the associated resource before redirecting them to it
-@is_admin
-@bp.route('/handler/<view_name>')
-def admin_handler(view_name):
-    return redirect(url_for(f'admin.{view_name}'))
+# @is_admin
+# @bp.route('/handler/<view_name>')
+# def admin_handler(view_name):
+#     return redirect(url_for(f'admin.{view_name}'))
 
 
 @is_admin
 @bp.route('/')
 def admin_home():
-    admin_views = {}
-    for key, view in current_app.view_functions.items():
-        if key.startswith('admin'):
-            admin_views[key] = view
-    # return str(admin_views.keys())
+
 
     return render_template('admin/admin_home.html',
         site_name=config['site_name'],
         notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
         name='Admin',
         subtitle='Home',
+        type="admin",
         user=current_user,
+        menu=compile_prettified_admin_views(),
         config=config,)
 
 
@@ -266,5 +277,7 @@ def bulk_register():
         notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
         name='Admin',
         subtitle='Bulk Register',
+        type="admin",
+        menu=compile_prettified_admin_views(),
         user=current_user,
         config=config,)
