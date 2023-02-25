@@ -20,7 +20,7 @@ from flask_login import current_user
 # import custom packages from the current repository
 import libreforms
 from app.views.auth import login_required
-from app.views.forms import propagate_form_configs, checkGroup, checkDashboardGroup, form_menu
+from app.views.forms import propagate_form_configs, checkGroup, checkDashboardGroup, form_menu, standard_view_kwargs
 from app import config, log, mongodb
 from app.models import db
 
@@ -44,11 +44,9 @@ def dashboards_home():
             msg="Select a dashboard from the left-hand menu.",
             name='Dashboards',
             subtitle='Home',
-            notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
             type="dashboards",
             menu=form_menu(checkDashboardGroup),
-            config=config,
-            user=current_user,
+            **standard_view_kwargs(),
         ) 
 
 
@@ -135,12 +133,9 @@ def dashboards(form_name):
             name='Dashboards',
             subtitle=form_name,
             type="dashboards",
-            site_name=config['site_name'],
-            notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
             menu=form_menu(checkDashboardGroup),
             options=propagate_form_configs(form=form_name),
-            config=config,
-            user=current_user,
+            **standard_view_kwargs(),
         )
     except Exception as e: 
         

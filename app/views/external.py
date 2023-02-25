@@ -108,7 +108,7 @@ if config['allow_anonymous_form_submissions']:
             name='Forms',
             subtitle=form_name,
             config=config,
-            suppress_navbar=True,
+            suppress_navbar=True if not config['require_auth_users_to_initiate_external_forms'] else None,
             user=current_user if config['require_auth_users_to_initiate_external_forms'] else None,
             type='external',
             )

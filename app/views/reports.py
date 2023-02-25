@@ -19,7 +19,7 @@ from markupsafe import Markup
 
 # import custom packages from the current repository
 import libreforms
-from app.views.forms import form_menu, checkFormGroup, propagate_form_configs, checkGroup
+from app.views.forms import form_menu, checkFormGroup, propagate_form_configs, checkGroup, standard_view_kwargs
 from app.views.auth import login_required
 from app.signing import generate_key
 from app.models import Report
@@ -98,14 +98,12 @@ def reports():
     # dim those that are inactive
 
     return render_template('reports/reports_home.html', 
-            notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
             name='Reports',
             subtitle="Home",
             type="reports",
-            config=config,
-            user=current_user,
             reports=get_list_of_users_reports(id=current_user.id),
             menu=form_menu(checkFormGroup),
+            **standard_view_kwargs(),
         ) 
 
 
@@ -153,16 +151,14 @@ def create_reports(form_name):
     msg = Markup(f"<a href = \"{url_for('reports.reports')}\">Go back to report home</a>")
 
     return render_template('reports/create_report.html', 
-            notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
             name='Reports',
             subtitle=f"Create {form_name}",
             type="reports",
-            config=config,
             form_name=form_name,
-            user=current_user,
             lint_filters=lint_filters,
             msg=msg,
             menu=form_menu(checkFormGroup),
+            **standard_view_kwargs(),
         ) 
 
 
@@ -225,16 +221,15 @@ def modify_report(report_id):
     # now we render the create_report template, but pass the report object,
     # which will be used to populate the fields with their previous values
     return render_template('reports/create_report.html', 
-            notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
             name='Reports',
             subtitle=f"Modify {report.form_name}",
             type="reports",
-            config=config,
             form_name=report.form_name,
-            user=current_user,
             report=report,
             menu=form_menu(checkFormGroup),
+            **standard_view_kwargs(),
         ) 
+        
 
 
 @bp.route(f'/view/<report_id>', methods=['GET', 'POST'])
@@ -274,15 +269,13 @@ def view_report(report_id):
     # now we render the view_report template, but pass the report object,
     # which will be used to populate the fields with their proper values
     return render_template('reports/view_report.html', 
-            notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
             name='Reports',
             subtitle=report.name,
             type="reports",
-            config=config,
-            user=current_user,
             report=report,
             msg=msg,
             menu=form_menu(checkFormGroup),
+            **standard_view_kwargs(),
         ) 
 
 @bp.route(f'/activate/<report_id>', methods=['GET', 'POST'])

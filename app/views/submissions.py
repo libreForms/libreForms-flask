@@ -31,7 +31,7 @@ from app.views.auth import login_required, session
 from app.certification import encrypt_with_symmetric_key, verify_symmetric_key
 from app.views.forms import form_menu, checkGroup, checkFormGroup, \
     checkKey, propagate_form_configs, propagate_form_fields, define_webarg_form_data_types, \
-    collect_list_of_users, compile_depends_on_data, rationalize_routing_list
+    collect_list_of_users, compile_depends_on_data, rationalize_routing_list, standard_view_kwargs
 from celeryd.tasks import send_mail_async
 
 
@@ -404,10 +404,8 @@ def render_all_submissions():
                 name='Submissions',
                 subtitle="All",
                 submission=record,
-                config=config,
-                notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
-                user=current_user,
                 menu=form_menu(checkFormGroup),
+                **standard_view_kwargs(),
             )
 
 
@@ -418,14 +416,12 @@ def render_all_submissions():
 def submissions_home():
     return render_template('submissions/submissions.html', 
             msg="Select a form from the left-hand menu to view past submissions.",
-            notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
             name='Submissions',
             subtitle="Home",
             type="submissions",
             submissions_home=True,
             menu=form_menu(checkFormGroup),
-            config=config,
-            user=current_user,
+            **standard_view_kwargs(),
         ) 
 
 
@@ -479,10 +475,8 @@ def submissions(form_name):
                 name='Submissions',
                 subtitle=form_name,
                 submission=record,
-                notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
-                config=config,
-                user=current_user,
                 menu=form_menu(checkFormGroup),
+                **standard_view_kwargs(),
             )
 
 # this view shows the forms that are requiring current_user review
@@ -504,13 +498,11 @@ def render_user_review(user):
 
         return render_template('submissions/submissions_form_home.html',
             type="submissions",
-            notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
             name='Submissions',
             subtitle="Review",
             submission=record,
-            config=config,
-            user=current_user,
             menu=form_menu(checkFormGroup),
+            **standard_view_kwargs(),
         )
 
 # this is the user by user view; it allows any authenticated user to view, 
@@ -558,13 +550,11 @@ def render_user_submissions(user):
 
             return render_template('submissions/submissions_form_home.html',
                 type="submissions",
-                notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
                 name='Submissions',
                 subtitle="All",
                 submission=record,
-                config=config,
-                user=current_user,
                 menu=form_menu(checkFormGroup),
+                **standard_view_kwargs(),
             )
 
 
@@ -677,13 +667,11 @@ def render_document(form_name, document_id):
                 type="submissions",
                 name='Submissions',
                 subtitle=form_name,
-                notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
                 submission=record,
                 msg=msg,
-                config=config,
-                user=current_user,
                 menu=form_menu(checkFormGroup),
                 badge_list=generate_username_badge_list(form_name),
+                **standard_view_kwargs(),
             )
 
 
@@ -831,13 +819,11 @@ def render_document_history(form_name, document_id):
                 name='Submissions',
                 subtitle=form_name,
                 submission=display_data,
-                config=config,
-                notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
                 emphasize=emphasize,
                 breadcrumb=breadcrumb,
-                user=current_user,
                 msg=msg,
                 menu=form_menu(checkFormGroup),
+                **standard_view_kwargs(),
             )
 
 
@@ -974,17 +960,15 @@ def render_document_edit(form_name, document_id):
                     menu=form_menu(checkFormGroup),              # this returns the forms in libreform/forms to display in the lefthand menu
                     type="forms",       
                     default_overrides=overrides,
-                    notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
                     editing_existing_form=True,
                     options=options, 
-                    config=config,
                     filename = f'{form_name.lower().replace(" ","")}.csv' if options['_allow_csv_templates'] else False,
-                    user=current_user,
                     depends_on=compile_depends_on_data(form_name, user_group=current_user.group),
                     user_list = collect_list_of_users() if config['allow_forms_access_to_user_list'] else [],
                     # here we tell the jinja to include password re-entry for form signatures, if configured,
                     # see https://github.com/signebedi/libreForms/issues/167.
                     require_password=True if config['require_password_for_electronic_signatures'] and options['_digitally_sign'] else False,
+                    **standard_view_kwargs(),
                     )
 
     except Exception as e: 
@@ -1174,15 +1158,13 @@ def review_document(form_name, document_id):
             name='Submissions',
             subtitle=form_name,
             submission=record,
-            notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
             msg=msg,
-            config=config,
             form_approval=True,
-            user=current_user,
             menu=form_menu(checkFormGroup),
             # here we tell the jinja to include password re-entry for form signatures, if configured,
             # see https://github.com/signebedi/libreForms/issues/167.
             require_password=True if config['require_password_for_electronic_signatures'] and '_form_approval' in options else False,
+            **standard_view_kwargs(),
         )
 
 

@@ -22,6 +22,7 @@ from app import config
 from app.mongo import mongodb
 from app.form_access import test_access_single_group
 from app.views.auth import login_required
+from app.views.forms import standard_view_kwargs
 
 
 bp = Blueprint('search', __name__, url_prefix='/search')
@@ -36,14 +37,11 @@ def search():
         query = request.args.get('query').lower()
     except:
         return render_template('app/search.html', 
-            site_name=config['site_name'],
             type="home",
             name='Search',
             subtitle="Results",
-            notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
-            config=config,
             results=[],
-            user=current_user if current_user.is_authenticated else None,
+            **standard_view_kwargs(),
         )
 
     # here we collect the group access data for search result control
@@ -104,12 +102,9 @@ def search():
         flash(f"No results found for search term {query}")
 
     return render_template('app/search.html', 
-        site_name=config['site_name'],
         type="home",
         name='Search',
         subtitle="Results",
-        notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
-        config=config,
         results=results,
-        user=current_user if current_user.is_authenticated else None,
+        **standard_view_kwargs(),
     )

@@ -436,36 +436,6 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
     #         return abort(404)
 
 
-    # define a home route
-    @app.route('/')
-    def home():
-        return render_template('app/index.html', 
-            homepage=True,
-            site_name=config['site_name'],
-            type="home",
-            notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
-            name='Site',
-            subtitle='Home',
-            config=config,
-            user=current_user if current_user.is_authenticated else None,
-        )
-
-    # @app.route("/ip", methods=["GET"])
-    # def get_my_ip():
-    #     return jsonify({'ip': request.remote_addr}), 200
-
-    # define a route to show the application's privacy policy 
-    @app.route('/privacy')
-    def privacy():
-        return render_template('app/privacy.html', 
-            site_name=config['site_name'],
-            type="home",
-            name='Site',
-            subtitle='Privacy',
-            notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
-            config=config,
-            user=current_user if current_user.is_authenticated else None,
-        )
 
     # define a route to show the application's privacy policy 
     # @app.route('/loading/<form_name>/<document_id>')
@@ -474,7 +444,6 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
     #     if mongodb.is_document_in_collection(form_name, document_id):
 
     #         return render_template('app/loading.html', 
-    #             site_name=config['site_name'],
     #             type="home",
     #             name='loading',
     #             notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
@@ -486,13 +455,13 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
     #     else:
     #         return abort(404)
 
-    # import the `auth` blueprint for user / session management
-    from .views import auth
-    app.register_blueprint(auth.bp)
-
     # import the `forms` blueprint for form submission
     from .views import forms
     app.register_blueprint(forms.bp)
+
+    # import the `auth` blueprint for user / session management
+    from .views import auth
+    app.register_blueprint(auth.bp)
 
     # import the `submissionss` blueprint for post-submission form view / management
     from .views import submissions
@@ -536,6 +505,32 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
     if config['enable_admin_console']:
         from .views import admin
         app.register_blueprint(admin.bp)
+
+    
+    # define a home route
+    @app.route('/')
+    def home():
+        return render_template('app/index.html', 
+            homepage=True,
+            type="home",
+            name='Site',
+            subtitle='Home',
+            **forms.standard_view_kwargs(),
+        )
+
+    # @app.route("/ip", methods=["GET"])
+    # def get_my_ip():
+    #     return jsonify({'ip': request.remote_addr}), 200
+
+    # define a route to show the application's privacy policy 
+    @app.route('/privacy')
+    def privacy():
+        return render_template('app/privacy.html', 
+            type="home",
+            name='Site',
+            subtitle='Privacy',
+            **forms.standard_view_kwargs(),
+        )
 
     # return the app object with the above configurations
     return app

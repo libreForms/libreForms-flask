@@ -22,7 +22,7 @@ from markupsafe import Markup
 # import custom packages from the current repository
 import libreforms as libreforms
 from app.views.auth import login_required
-from app.views.forms import propagate_form_configs, checkGroup, checkTableGroup, form_menu
+from app.views.forms import propagate_form_configs, checkGroup, checkTableGroup, form_menu, standard_view_kwargs
 from app.views.submissions import set_digital_signature
 from app.models import User
 from app import config, log, mongodb, db
@@ -46,10 +46,8 @@ def tables_home():
             name='Tables',
             subtitle="Home",
             type="tables",
-            notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
             menu=form_menu(checkTableGroup),
-            config=config,
-            user=current_user,
+            **standard_view_kwargs(),
         ) 
 
 # this creates the route to each of the tables
@@ -136,12 +134,10 @@ def tables(form_name):
         name='Tables',
         subtitle=form_name,
         is_table=True,
-        notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
         options=propagate_form_configs(form=form_name),
         menu=form_menu(checkTableGroup),
-        config=config,
         filename=f'{form_name.lower().replace(" ","")}.csv', #if propagate_form_configs(form_name)['_allow_csv_templates'] else False,
-        user=current_user,
+        **standard_view_kwargs(),
     )
 
 

@@ -56,6 +56,8 @@ from app.config import config
 from flask_login import current_user
 from functools import wraps
 import string
+from app.views.forms import standard_view_kwargs
+from app.log_functions import aggregate_log_data
 
 # requirements for bulk email management
 from app.models import User, db
@@ -124,14 +126,12 @@ def admin_home():
 
 
     return render_template('admin/admin_home.html',
-        site_name=config['site_name'],
-        notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
         name='Admin',
         subtitle='Home',
         type="admin",
-        user=current_user,
         menu=compile_admin_views_for_menu(),
-        config=config,)
+        **standard_view_kwargs(),
+        )
 
 
 @is_admin
@@ -139,14 +139,13 @@ def admin_home():
 def log_management():
 
     return render_template('admin/log_management.html',
-        site_name=config['site_name'],
-        notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
         name='Admin',
         subtitle='Logs',
         type="admin",
-        user=current_user,
         menu=compile_admin_views_for_menu(),
-        config=config,)
+        log_data=aggregate_log_data(keyword=f'- {current_user.username.upper()} -', limit=1000, pull_from='end') if config['enable_user_profile_log_aggregation'] else None,
+        **standard_view_kwargs(),
+        )
 
 @is_admin
 @bp.route('/register/bulk', methods=('GET', 'POST'))
@@ -288,11 +287,9 @@ def bulk_register():
 
 
     return render_template('admin/add_users.html',
-        site_name=config['site_name'],
-        notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
         name='Admin',
         subtitle='Bulk Register',
         type="admin",
         menu=compile_admin_views_for_menu(),
-        user=current_user,
-        config=config,)
+        **standard_view_kwargs(),
+        )

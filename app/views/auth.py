@@ -28,6 +28,7 @@ from flask_login import login_required, current_user, login_user
 from app.log_functions import aggregate_log_data
 from app.certification import generate_symmetric_key
 from celeryd.tasks import send_mail_async
+from app.views.forms import standard_view_kwargs
 
 
 if config['enable_hcaptcha']:
@@ -92,7 +93,6 @@ def reset_password(signature):
                 flash(error)
     
         return render_template('auth/forgot_password.html',
-            site_name=config['site_name'],
             name='User',
             subtitle='Reset Password',
             reset=True,
@@ -136,7 +136,6 @@ def forgot_password():
 
     if config["smtp_enabled"]:
         return render_template('auth/forgot_password.html',
-            site_name=config['site_name'],
             name='User',
             subtitle='Forgot Password',
             config=config)
@@ -250,7 +249,6 @@ def register():
         flash(error)
 
     return render_template('auth/register.html',
-        site_name=config['site_name'],
         name='User',
         subtitle='Register',
         config=config,)
@@ -368,7 +366,6 @@ def login():
         flash(error)
 
     return render_template('auth/login.html',
-            site_name=config['site_name'],
             name='User',
             subtitle='Login',
             config=config,)
@@ -457,13 +454,11 @@ def edit_profile():
         flash(error)
 
     return render_template('auth/register.html',
-        site_name=config['site_name'],
         edit_profile=True,
-        user=current_user,
-        notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
         name='User',
         subtitle='Edit Profile',
-        config=config,)
+        **standard_view_kwargs(),
+        )
 
 @bp.route('/profile', methods=('GET', 'POST'))
 @login_required
@@ -503,10 +498,8 @@ def profile():
         type="profile",
         name='User',
         subtitle='Profile',
-        config=config,
-        notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
-        user=current_user,
         log_data=aggregate_log_data(keyword=f'- {current_user.username.upper()} -', limit=1000, pull_from='end') if config['enable_user_profile_log_aggregation'] else None,
+        **standard_view_kwargs(),
     )
 
 @bp.route('/profile/<username>')
@@ -533,10 +526,8 @@ def other_profiles(username):
         type="profile",
         name='User',
         subtitle=f'{username}',
-        config=config,
-        notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
-        user=current_user,
         profile_user=profile_user,
+        **standard_view_kwargs(),
     )
 
 

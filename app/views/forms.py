@@ -20,14 +20,13 @@ from flask import Blueprint, flash, render_template, request, send_from_director
                                 send_file, redirect, url_for, current_app
 from werkzeug.security import check_password_hash        
 from webargs import fields, flaskparser
-from flask_login import current_user
+from flask_login import current_user, login_required
 from sqlalchemy.sql import text
 
 # import custom packages from the current repository
 import libreforms
 from app import config, log, mailer, mongodb
 from app.models import User, db
-from app.views.auth import login_required, session
 from app.certification import encrypt_with_symmetric_key
 from celeryd.tasks import send_mail_async
 
@@ -43,9 +42,8 @@ def standard_view_kwargs():
 
     kwargs = {}
 
-    kwargs['site_name'] = config['site_name']
     kwargs['notifications'] = current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None
-    kwargs['user'] = current_user,
+    kwargs['user'] = current_user
     kwargs['config'] = config
 
     return kwargs
@@ -496,10 +494,8 @@ def forms_home():
             name='Forms',
             subtitle="Home",
             type="forms",
-            notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
             menu=form_menu(checkFormGroup),
-            config=config,
-            user=current_user,
+            **standard_view_kwargs(),
         ) 
         
 
@@ -632,6 +628,7 @@ def forms(form_name):
 
                 return redirect(url_for('submissions.render_document', form_name=form_name, document_id=document_id))
 
+
             return render_template('app/forms.html', 
                 context=forms,                                          # this passes the form fields as the primary 'context' variable
                 name='Forms',
@@ -639,15 +636,13 @@ def forms(form_name):
                 menu=form_menu(checkFormGroup),              # this returns the forms in libreform/forms to display in the lefthand menu
                 type="forms",       
                 options=options, 
-                config=config,
-                notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
                 filename = f'{form_name.lower().replace(" ","")}.csv' if options['_allow_csv_templates'] else False,
-                user=current_user,
                 depends_on=compile_depends_on_data(form_name, user_group=current_user.group),
                 user_list = collect_list_of_users() if config['allow_forms_access_to_user_list'] else [],
                 # here we tell the jinja to include password re-entry for form signatures, if configured,
                 # see https://github.com/signebedi/libreForms/issues/167.
                 require_password=True if config['require_password_for_electronic_signatures'] and options['_digitally_sign'] else False,
+                **standard_view_kwargs(),
                 )
 
         except Exception as e: 
