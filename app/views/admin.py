@@ -55,6 +55,7 @@ from app.views.auth import login_required, session
 from app.config import config
 from flask_login import current_user
 from functools import wraps
+import string
 
 # requirements for bulk email management
 from app.models import User, db
@@ -99,7 +100,7 @@ def compile_admin_views_for_menu():
         v = view.replace('admin_','')
         v = v.replace('admin.','')
         v = v.replace('_',' ')
-        v = v.title()
+        v = string.capwords(v)
         views.append([view,v])
 
     # print (views)
@@ -132,6 +133,20 @@ def admin_home():
         menu=compile_admin_views_for_menu(),
         config=config,)
 
+
+@is_admin
+@bp.route('/logs', methods=('GET', 'POST'))
+def log_management():
+
+    return render_template('admin/log_management.html',
+        site_name=config['site_name'],
+        notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
+        name='Admin',
+        subtitle='Logs',
+        type="admin",
+        user=current_user,
+        menu=compile_admin_views_for_menu(),
+        config=config,)
 
 @is_admin
 @bp.route('/register/bulk', methods=('GET', 'POST'))

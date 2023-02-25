@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block content %}
+
+  
+{% if log_data %}
+<div title="user_log" style="padding-top: 10px;">
+    <hr/>
+    <h4>User Log</h4>
+
+    <div class="list-group vh-100 scrollable overflow-auto table table-hover">
+        {% for row in log_data %}
+        <section class="list-group-item list-group-item-action disabled {{'bg-transparent text-dark' if not dark_mode else ''}}">{{ row }}</section>
+        {% endfor %}
+    </div>
+</div>
+{%endif%}
+
+
+{% endblock %}
