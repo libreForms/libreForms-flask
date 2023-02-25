@@ -158,10 +158,17 @@
 
             <div class="row" style="padding-top: 20px;">
               <hr>
-              {% if config.warning_banner %}
+              <p>
+              {% if config.warning_banner_on_every_page or homepage %}
               {{ config.warning_banner }}
-              {% endif %}            
+              {% endif %}
+              {%if config['enable_privacy_policy']%}
+              View our <a href="{{url_for('privacy')}}">Privacy Policy</a>.
+              {%endif%}
+              </p>
             </div>
+            
+
   
           </main>
 
