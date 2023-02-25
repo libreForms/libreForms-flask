@@ -82,6 +82,7 @@ config['dark_mode'] = True
 # some organizations may wish to set a privacy policy and/or warning banner, which 
 # these configurations allow them to do; privacy_policy is rendered at the /privacy
 # route, while the warning_banner is rendered on all pages.
+config['enable_privacy_policy'] = False
 config['privacy_policy'] = ''
 config['warning_banner'] = ''
 

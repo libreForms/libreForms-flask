@@ -522,15 +522,17 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
     # def get_my_ip():
     #     return jsonify({'ip': request.remote_addr}), 200
 
-    # define a route to show the application's privacy policy 
-    @app.route('/privacy')
-    def privacy():
-        return render_template('app/privacy.html', 
-            type="home",
-            name='Site',
-            subtitle='Privacy',
-            **forms.standard_view_kwargs(),
-        )
+    # define a route to show the application's privacy policy,
+    # if it has been enabled, see
+    if config['enable_privacy_policy']:
+        @app.route('/privacy')
+        def privacy():
+            return render_template('app/privacy.html', 
+                type="home",
+                name='Site',
+                subtitle='Privacy',
+                **forms.standard_view_kwargs(),
+            )
 
     # return the app object with the above configurations
     return app
