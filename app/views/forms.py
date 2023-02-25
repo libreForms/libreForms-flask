@@ -36,7 +36,19 @@ from celeryd.tasks import send_mail_async
 import os, json
 import pandas as pd
 
+# The kwargs we are passing to view function rendered jinja is getting out-
+# of-hand. We can easily replace this with the following method as **kwargs, 
+# see https://github.com/libreForms/libreForms-flask/issues/306.
+def standard_view_kwargs():
 
+    kwargs = {}
+
+    kwargs['site_name'] = config['site_name']
+    kwargs['notifications'] = current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None
+    kwargs['user'] = current_user,
+    kwargs['config'] = config
+
+    return kwargs
 
 # this logic was written generally to support rationalize_routing_list()
 # by accepting a group name as a parameter and returning a list of email addresses
