@@ -23,7 +23,7 @@
 </td></tr>
 <tr title="created_date"><td><b>Created</b>: {{ user.created_date }}</td></tr>
 <tr title="user_submissions"><td><b>Submissions</b>: <a href="{{config['domain']}}/submissions/user/{{ user.username }}">view here</a></td></tr>
-<tr title="user_documents_for_review"><td><b>Review</b>: <a href="{{config['domain']}}/submissions/review/{{ user.username }}">view here</a> {%if notifications%} <sup class="badge rounded-pill bg-primary">{{notifications}}</sup>{%endif%}</td></tr>
+<tr title="user_documents_for_review"><td><b>Review</b>: <a href="{{config['domain']}}/submissions/review/{{ user.username }}">view here</a> {%if notifications%} <span class="badge bg-primary">{{notifications}}{%endif%}</span></td></tr>
 <tr title="user_reports"><td><b>Reports</b>: <a href="{{config['domain']}}/reports">view here</a></td></tr>
 </table>
 
