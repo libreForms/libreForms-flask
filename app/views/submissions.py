@@ -272,6 +272,15 @@ def set_digital_signature(      username,
     # so, let's just return that Nonetype and go about our business
     if not encrypted_string:
         return None
+    
+    # interestingly, we're referencing documents using a pandas dataframe, instead of the raw
+    # dictionary. This was, initially, for simplicity and ease of queries. In fact, it still
+    # makes sense for summary views that provide lists of documents. But it is highly ineffecient
+    # for single document views, and results in added logic like this, where if the `encrypted_string`
+    # parameter is a float, then it is probably a NAN value in the pandas dataframe, see 
+    # https://pandas.pydata.org/pandas-docs/stable/user_guide/missing_data.html.
+    if type(encrypted_string) == float:
+        return None
 
     # print(ip if ip else '')
     # print(timestamp if timestamp else '')
