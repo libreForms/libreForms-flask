@@ -105,7 +105,8 @@ def compile_admin_views_for_menu():
     
     views = []
 
-    for view in [key for key in current_app.view_functions if key.startswith('admin')]:
+    # here we build a list of admin views, excluding some
+    for view in [key for key in current_app.view_functions if key.startswith('admin') and not key in ['admin.restart_now']]:
         v = view.replace('admin_','')
         v = v.replace('admin.','')
         v = v.replace('_',' ')
@@ -145,12 +146,12 @@ def admin_home():
 # see discussion at https://github.com/libreForms/libreForms-flask/issues/311.
 @is_admin
 @bp.route('/restart', methods=('GET', 'POST'))
-def restart_ui():
+def restart_application():
 
     if request.method == 'POST':
-        return redirect(url_for('admin.restart_now'))
+        return redirect(url_for('admin.restart_application'))
 
-    return render_template('admin/restart_ui.html',
+    return render_template('admin/restart_application.html',
         name='Admin',
         subtitle='Restart',
         type="admin",
@@ -168,7 +169,7 @@ def restart_now():
     flash('Restart has been queued. ')
     log.info(f'{current_user.username.upper()} - successfully queued application restart.')
     restart_app_async.delay() # will not run if celery is not running..
-    return redirect(url_for('admin.restart_ui'))
+    return redirect(url_for('admin.restart_application'))
 
 
 

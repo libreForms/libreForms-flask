@@ -59,7 +59,7 @@ def write_document_to_collection_async(self, data, collection_name, reporter=Non
 # celery wrapper for the function library defined in app.smtp.
 @celery.task()
 def restart_app_async(type='gunicorn'):
-    if type == 'gunicorn':
+    if type == 'gunicorn': # we leave the door open here to support run methods other than gunicorn ...
         # here we try to restart gunicorn ... which might not be in use ...
         os.system("ps aux | grep libreforms-gunicorn | awk '{ print $2 }' | xargs kill -HUP")
         # os.system('systemctl restart libreforms-gunicorn')
