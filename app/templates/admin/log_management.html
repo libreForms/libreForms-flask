@@ -2,6 +2,19 @@
 {% block content %}
 
   
+<form action="" method="post">
+<div title="users" class="form-group">
+    <label class="form-label mt-4 required" for="user" data-bs-toggle="tooltip" data-bs-placement="right" title="Select a user whose logs you'd like to review">User</label>
+    <select name="user" onChange="this.form.submit()" class="form-select" required>
+        <option value="*all logs*" id="*all logs*" name="*all logs*">*all logs*</option>
+        {%for user in user_list%}
+        <option value="{{user}}" id="{{user}}" name="{{user}}" {%if user_selected == user %} selected="selected" {%endif%}>{{user}}</option>
+        {%endfor%}
+    </select>
+</div>
+
+</form>
+
 {% if log_data %}
 <div title="user_log" style="padding-top: 10px;">
     <hr/>

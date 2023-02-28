@@ -137,17 +137,25 @@ def admin_home():
 @is_admin
 @bp.route('/logs', methods=('GET', 'POST'))
 def log_management():
-    
+
+    user_selected = None
+
     try:
-        username = request.args.get('user').lower().strip()
-        # assert (len(User.query.filter_by(username=username).first()) > 0)
-        log_data = aggregate_log_data(keyword=f'- {username.upper()} -', limit=1000, pull_from='end')
+        username = request.form['user'].upper().strip()
+
+        assert(username != '*ALL LOGS*')
+
+        log_data = aggregate_log_data(keyword=f'- {username} -', limit=1000, pull_from='end')
+
+        user_selected = username.lower()
 
     except:
+
         log_data = aggregate_log_data(limit=1000, pull_from='end')
 
 
-    # user_list = list(pd.read_sql_table(User.__tablename__, con=db.engine.connect())['username'])
+    # print(user_selected)
+    user_list = [row.username for row in User.query.with_entities(User.username).all()]
 
     return render_template('admin/log_management.html',
         name='Admin',
@@ -155,7 +163,8 @@ def log_management():
         type="admin",
         menu=compile_admin_views_for_menu(),
         log_data=log_data,
-        # user_list=user_list,
+        user_list=user_list,
+        user_selected=user_selected,
         **standard_view_kwargs(),
         )
 
