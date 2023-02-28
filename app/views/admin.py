@@ -17,17 +17,21 @@ Generally, the admin console will try to provide the following features, though 
 features themselves are `far horizon` features that are not currently planned in the libreForms-flask
 backlog, see https://github.com/libreForms/libreForms-flask/issues/39.
 
+Data management
     Database externalization
+    User and Group/Role Configuration
+    Log Management
+    Signing Key rotation
+    Restart application
+
+Config management
     Add LDAP / OAuth Authentication
     SMTP Configuration
     File System Configuration (set max file upload size)
-    User and Group/Role Configuration
-    Log Access
     REST API privileges (read-only or full CRUD)
     External forms (allowed or not)
     Data backup, rotation, management, retention, restore-from-backup
     Look and Feel (display overrides)
-    Signing Key rotation
 
 References:
 - Edit configs using dotenv https://github.com/libreForms/libreForms-flask/issues/233
@@ -39,6 +43,7 @@ References:
 - Facilitate form ~deletion~ https://github.com/libreForms/libreForms-flask/issues/186
 - Add `form management` view https://github.com/libreForms/libreForms-flask/issues/187
 - Add `mail server` view https://github.com/libreForms/libreForms-flask/issues/234
+- Add a restart app option to the admin view https://github.com/libreForms/libreForms-flask/issues/311
 """
 
 __name__ = "app.views.admin"
@@ -134,6 +139,20 @@ def admin_home():
         menu=compile_admin_views_for_menu(),
         **standard_view_kwargs(),
         )
+
+
+@is_admin
+@bp.route('/restart')
+def restart_ui():
+    pass
+
+
+
+@is_admin
+@bp.route('/restart/now')
+def restart_now():
+    pass
+
 
 
 @is_admin
