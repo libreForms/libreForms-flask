@@ -16,6 +16,12 @@ from app import create_app
 # initialize the app
 app = create_app()
 
+# this code tries to define an alternative debug script that reloads on change
+# from werkzeug.serving import run_simple
+
+# def run():
+#     run_simple('0.0.0.0', 5000, app, use_debugger=True, use_reloader=True)
+
 if __name__ == "__main__":
         app.run()
 

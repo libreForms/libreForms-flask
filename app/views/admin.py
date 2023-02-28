@@ -75,7 +75,7 @@ import pandas as pd
 import os, tempfile, datetime
 from app import log
 from werkzeug.security import generate_password_hash
-from celeryd.tasks import send_mail_async
+from celeryd.tasks import send_mail_async, restart_app_async
 
 # borrows from and extends the functionality of flask_login.login_required, see
 # https://github.com/maxcountryman/flask-login/blob/main/src/flask_login/utils.py.
@@ -141,17 +141,34 @@ def admin_home():
         )
 
 
+# Implementing this will only work in production (eg. using wsgi / gunicorn) for now,
+# see discussion at https://github.com/libreForms/libreForms-flask/issues/311.
 @is_admin
-@bp.route('/restart')
+@bp.route('/restart', methods=('GET', 'POST'))
 def restart_ui():
-    pass
 
+    if request.method == 'POST':
+        return redirect(url_for('admin.restart_now'))
+
+    return render_template('admin/restart_ui.html',
+        name='Admin',
+        subtitle='Restart',
+        type="admin",
+        menu=compile_admin_views_for_menu(),
+        **standard_view_kwargs(),
+        )
 
 
 @is_admin
-@bp.route('/restart/now')
+@bp.route('/restart/now', methods=('GET', 'POST'))
 def restart_now():
-    pass
+
+    # with open('restart.flag','w'): pass # touch the restart file.
+
+    flash('Restart has been queued. ')
+    log.info(f'{current_user.username.upper()} - successfully queued application restart.')
+    restart_app_async.delay() # will not run if celery is not running..
+    return redirect(url_for('admin.restart_ui'))
 
 
 

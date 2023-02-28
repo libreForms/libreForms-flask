@@ -22,6 +22,7 @@ __email__ = "signe@atreeus.com"
 
 from app import celery, log, mailer, mongodb, create_app
 from flask import current_app
+import os
 
 # here we define a tasks to send emails asynchonously - it's just a 
 # celery wrapper for the function library defined in app.smtp.
@@ -52,3 +53,14 @@ def write_document_to_collection_async(self, data, collection_name, reporter=Non
     # print('COMPLETE')
 
     return document_id
+
+
+# here we define a tasks to send emails asynchonously - it's just a 
+# celery wrapper for the function library defined in app.smtp.
+@celery.task()
+def restart_app_async(type='gunicorn'):
+    if type == 'gunicorn':
+        # here we try to restart gunicorn ... which might not be in use ...
+        os.system("ps aux | grep libreforms-gunicorn | awk '{ print $2 }' | xargs kill -HUP")
+        # os.system('systemctl restart libreforms-gunicorn')
+
