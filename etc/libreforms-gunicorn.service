@@ -7,7 +7,7 @@ User=libreforms
 Group=libreforms
 WorkingDirectory=/opt/libreForms/
 Environment="PATH=/opt/libreForms/venv/bin"
-ExecStart=/opt/libreForms/venv/bin/gunicorn 'app:create_app()' --config /opt/libreForms/etc/gunicorn.conf.py
+ExecStart=/opt/libreForms/venv/bin/gunicorn 'app:create_app()' --config /opt/libreForms/etc/gunicorn.conf.py --reload-extra-file libreforms.env
 
 [Install]
 WantedBy=multi-user.target
