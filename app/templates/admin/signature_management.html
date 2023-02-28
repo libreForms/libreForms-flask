@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block content %}
+
+  
+<form action="" method="post">
+<div title="users" class="form-group">
+    <label class="form-label mt-4 required" for="user" data-bs-toggle="tooltip" data-bs-placement="right" title="Select a user whose logs you'd like to review">User</label>
+    <select name="user" onChange="this.form.submit()" class="form-select" required>
+        <option value="*all logs*" id="*all logs*" name="*all logs*">*all logs*</option>
+        {%for user in user_list%}
+        <option value="{{user}}" id="{{user}}" name="{{user}}" {%if user_selected == user %} selected="selected" {%endif%}>{{user}}</option>
+        {%endfor%}
+    </select>
+</div>
+
+</form>
+
+<div title="signature_list" style="padding-top: 10px;">
+    <hr/>
+    <h4>Signing Keys</h4>
+
+    <div class="list-group vh-100 scrollable overflow-auto table table-hover">
+        {% for row in signature_list %}
+        <section class="list-group-item list-group-item-action disabled {{'bg-transparent text-dark' if not dark_mode else ''}}">{{ row }}</section>
+        {% endfor %}
+    </div>
+</div>
+
+
+{% endblock %}

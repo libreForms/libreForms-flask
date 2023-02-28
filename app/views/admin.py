@@ -58,9 +58,11 @@ from functools import wraps
 import string
 from app.views.forms import standard_view_kwargs
 from app.log_functions import aggregate_log_data
+from markupsafe import Markup
+
 
 # requirements for bulk email management
-from app.models import User, db
+from app.models import User, Signing, db
 from app.certification import generate_symmetric_key
 import app.signing as signing
 from werkzeug.utils import secure_filename
@@ -167,6 +169,46 @@ def log_management():
         user_selected=user_selected,
         **standard_view_kwargs(),
         )
+
+
+
+@is_admin
+@bp.route('/signatures', methods=('GET', 'POST'))
+def signature_management():
+
+    # user_selected = None
+
+    # try:
+    #     username = request.form['user'].upper().strip()
+
+    #     assert(username != '*ALL LOGS*')
+
+    #     log_data = aggregate_log_data(keyword=f'- {username} -', limit=1000, pull_from='end')
+
+    #     user_selected = username.lower()
+
+    # except:
+
+    #     log_data = aggregate_log_data(limit=1000, pull_from='end')
+
+    signature_list = [f"{row.signature} - {row.email} - {row.scope} - {row.active} - {row.timestamp_human_readable} - {row.expiration_human_readable}" for row in Signing.query.all()]
+    # print(signature_list)
+
+    # print(user_selected)
+    user_list = [row.username for row in User.query.with_entities(User.username).all()]
+
+    return render_template('admin/signature_management.html',
+        name='Admin',
+        subtitle='Logs',
+        type="admin",
+        menu=compile_admin_views_for_menu(),
+        signature_list=signature_list,
+        user_list=user_list,
+        # user_selected=user_selected,
+        **standard_view_kwargs(),
+        )
+
+
 
 @is_admin
 @bp.route('/register/bulk', methods=('GET', 'POST'))
