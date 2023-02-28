@@ -137,13 +137,25 @@ def admin_home():
 @is_admin
 @bp.route('/logs', methods=('GET', 'POST'))
 def log_management():
+    
+    try:
+        username = request.args.get('user').lower().strip()
+        # assert (len(User.query.filter_by(username=username).first()) > 0)
+        log_data = aggregate_log_data(keyword=f'- {username.upper()} -', limit=1000, pull_from='end')
+
+    except:
+        log_data = aggregate_log_data(limit=1000, pull_from='end')
+
+
+    # user_list = list(pd.read_sql_table(User.__tablename__, con=db.engine.connect())['username'])
 
     return render_template('admin/log_management.html',
         name='Admin',
         subtitle='Logs',
         type="admin",
         menu=compile_admin_views_for_menu(),
-        log_data=aggregate_log_data(keyword=f'- {current_user.username.upper()} -', limit=1000, pull_from='end') if config['enable_user_profile_log_aggregation'] else None,
+        log_data=log_data,
+        # user_list=user_list,
         **standard_view_kwargs(),
         )
 
