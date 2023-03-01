@@ -39,10 +39,6 @@ def pre_fork(server, worker):
         cleanup_stray_log_handlers()
         # print('cleanup')
 
-    # create an empty env file if none exists, see
-    # https://github.com/libreForms/libreForms-flask/issues/233
-    with open ('libreforms.env', 'a'): pass
-
     # create the app database if it doesn't exist
     if not os.path.exists(os.path.join('instance','app.sqlite')):
         from app import create_app    
@@ -99,3 +95,7 @@ errorlog = os.path.join(logpath, "gunicorn.error")
 accesslog = os.path.join(logpath, "gunicorn.access")
 loglevel = "debug"
 
+# create an empty env file if none exists, see
+# https://github.com/libreForms/libreForms-flask/issues/233
+with open ('libreforms.env', 'a'): pass
+reload_extra_files = ['libreforms.env']
