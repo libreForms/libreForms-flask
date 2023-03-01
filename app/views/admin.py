@@ -179,6 +179,9 @@ def log_management():
 
     user_selected = None
 
+
+    # here we gauge whether user data has been passed, 
+    # which will be used to tailor the log data shown.
     try:
         username = request.form['user'].upper().strip()
 
@@ -191,6 +194,24 @@ def log_management():
     except:
 
         log_data = aggregate_log_data(limit=1000, pull_from='end')
+
+
+    # here we gauge whether user data has been passed, 
+    # which will be used to tailor the log data shown.
+    try:
+        username = request.form['user'].upper().strip()
+
+        assert(username != '*ALL LOGS*')
+
+        log_data = aggregate_log_data(keyword=f'- {username} -', limit=1000, pull_from='end')
+
+        user_selected = username.lower()
+
+    except:
+
+        log_data = aggregate_log_data(limit=1000, pull_from='end')
+
+
 
 
     # print(user_selected)
