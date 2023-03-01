@@ -33,6 +33,7 @@ __maintainer__ = "Sig Janoska-Bedi"
 __email__ = "signe@atreeus.com"
 
 import os, secrets, dotenv
+from ast import literal_eval
 from markupsafe import Markup
 
 # Added based on https://github.com/signebedi/libreForms/issues/148 to
@@ -377,6 +378,16 @@ if os.path.exists ("app/config_overrides.py"):
 # which take precendence over both base configs and config overrides.
 if os.path.exists ("libreforms.env"):
     dotenv_file = dotenv.find_dotenv('libreforms.env')
-    dotenv.load_dotenv(dotenv_file)
-    for conf in config:
-        config[conf] = os.environ[conf.upper()] if conf in os.environ else config[conf]
+
+    # dotenv.load_dotenv(dotenv_file)
+    # for key,value in config.items():
+    #     config[key] = os.environ[key.upper()] if key in os.environ else value
+
+    dotenv_configs = dotenv.dotenv_values(dotenv_file)
+    # print(dotenv_configs)
+
+    for key,value in dotenv_configs.items():
+        value = literal_eval(value) if value in ['True','False'] else value
+        # print(key,value,type(value))
+        config[key.lower()] = value
+        # print(key.lower(), config[key.lower()])
