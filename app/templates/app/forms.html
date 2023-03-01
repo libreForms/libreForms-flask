@@ -25,8 +25,12 @@
 					{% endif %}
 
 					{# here we override the default value with overrides if default_overrides was passed #}
+					{% set other_field_override = false %}
 					{% if default_overrides and field in default_overrides %}
 						{% set default_value = default_overrides[field] %}
+						{% if default_value not in context[field].input_field.content %}
+							{% set other_field_override = true %}
+						{% endif %}
 					{% else %}
 						{% if context['_suppress_default_values'] == true or context[field].input_field.type in ['checkbox', 'radio', 'autocomplete'] %}
 							{% set default_value = '' %}
@@ -79,6 +83,14 @@
 							</label>
 						</div>
 						{% endfor %}
+						{% if 'allow_other' in context[field].input_field and context[field].input_field['allow_other']%}
+						<div class="form-check">
+							<label>
+								<input class="form-check-input" style="{{'border: 1px solid;' if not dark_mode else ''}}" type="radio" value="" id="_{{ field }} Other" name="{{ field }}" {%if other_field_override %}checked="checked"{%endif%}> Other
+								<input type="text" name="" class="form-control" id="" {%if other_field_override %}value='{{default_value}}'{%endif%} onChange="populateOther('_{{ field }} Other', this.value)" placeholder="Enter other option here" />
+							</label>
+						</div>
+						{%endif%}
 					</div>
 					{% elif input_type == "checkbox" %}
 					<div title="{{field}}" class="form-group{% if context[field]['_depends_on'] %} {{ context[field]['_depends_on'][0] }}{% endif %}">
@@ -94,6 +106,14 @@
 							</label>
 						</div>
 						{% endfor %}
+						{% if 'allow_other' in context[field].input_field and context[field].input_field['allow_other']%}
+						<div class="form-check">
+							<label>
+								<input class="form-check-input" style="{{'border: 1px solid;' if not dark_mode else ''}}" type="checkbox" value="" id="_{{ field }} Other" name="{{ field }}" {%if other_field_override %}checked="checked"{%endif%}> Other
+								<input type="text" name="" {%if other_field_override %}value='{{default_value}}'{%endif%} class="form-control" id="" onChange="populateOther('_{{ field }} Other', this.value)" placeholder="Enter other option here" />
+							</label>
+						</div>
+						{%endif%}
 					</div>
 					{% elif input_type == "hidden" %}
 					<div title="{{field}}" class="form-group{% if context[field]['_depends_on'] %} {{ context[field]['_depends_on'][0] }}{% endif %}">
@@ -209,6 +229,12 @@
 	  // SET THE `audio` element's SRC to `element` ... then, play it
 	  audio.play();
 	}
+
+	function populateOther (id, value) {
+		// console.log(id, value);
+		document.getElementById(id).value = value;
+	}
+
 </script>
 
 {% endblock %}
