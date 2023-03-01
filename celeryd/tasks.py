@@ -64,3 +64,9 @@ def restart_app_async(type='gunicorn'):
         os.system("ps aux | grep libreforms-gunicorn | awk '{ print $2 }' | xargs kill -HUP")
         # os.system('systemctl restart libreforms-gunicorn')
 
+
+    # else:
+    #     import subprocess
+    #     from werkzeug.serving import shutdown_server
+    #     shutdown_server()  # Stop the current server instance
+    #     subprocess.Popen(["flask", "run"])  # Start a new server instance using subprocess

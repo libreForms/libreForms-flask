@@ -233,6 +233,9 @@ def log_management():
         enable_user_profile_log_aggregation = True if enable_user_profile_log_aggregation=='yes' else False
         # print(enable_user_profile_log_aggregation)
         dotenv_overrides(enable_user_profile_log_aggregation=enable_user_profile_log_aggregation)
+        restart_app_async.delay() # will not run if celery is not running..
+        # return redirect(url_for('admin.restart_now',redirect_to='admin.log_management'))
+
 
     except:
 
