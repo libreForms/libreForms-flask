@@ -172,7 +172,7 @@ if config['allow_anonymous_form_submissions']:
 
                     return redirect(url_for('home'))
 
-                return render_template('app/forms.html', 
+                return render_template('app/forms.html.jinja', 
                     context=forms,
                     name='Forms',
                     subtitle=form_name,
