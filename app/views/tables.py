@@ -41,7 +41,7 @@ bp = Blueprint('tables', __name__, url_prefix='/tables')
 @bp.route(f'/')
 @login_required
 def tables_home():
-    return render_template('app/tables.html', 
+    return render_template('app/tables.html.jinja', 
             msg="Select a table from the left-hand menu.",
             name='Tables',
             subtitle="Home",
@@ -127,7 +127,7 @@ def tables(form_name):
         flash(f'This form does not exist. {e}')
         return redirect(url_for('tables.tables_home'))
     
-    return render_template('app/tables.html',
+    return render_template('app/tables.html.jinja',
         table=Markup(df.to_html(index=False, render_links=True, classes='table text-dark' if not config['dark_mode'] or not current_user.theme == 'dark' else 'table')),
         # table=df,
         type="tables",

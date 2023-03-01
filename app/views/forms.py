@@ -489,7 +489,7 @@ bp = Blueprint('forms', __name__, url_prefix='/forms')
 def forms_home():
 
     # print(generate_list_of_users()) 
-    return render_template('app/forms.html', 
+    return render_template('app/forms.html.jinja', 
             msg="Select a form from the left-hand menu.",
             name='Forms',
             subtitle="Home",
@@ -629,7 +629,7 @@ def forms(form_name):
                 return redirect(url_for('submissions.render_document', form_name=form_name, document_id=document_id))
 
 
-            return render_template('app/forms.html', 
+            return render_template('app/forms.html.jinja', 
                 context=forms,                                          # this passes the form fields as the primary 'context' variable
                 name='Forms',
                 subtitle=form_name,

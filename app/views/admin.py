@@ -133,7 +133,7 @@ bp = Blueprint('admin', __name__, url_prefix='/admin')
 def admin_home():
 
 
-    return render_template('admin/admin_home.html',
+    return render_template('admin/admin_home.html.jinja',
         name='Admin',
         subtitle='Home',
         type="admin",
@@ -151,7 +151,7 @@ def restart_application():
     if request.method == 'POST':
         return redirect(url_for('admin.restart_application'))
 
-    return render_template('admin/restart_application.html',
+    return render_template('admin/restart_application.html.jinja',
         name='Admin',
         subtitle='Restart',
         type="admin",
@@ -196,7 +196,7 @@ def log_management():
     # print(user_selected)
     user_list = [row.username for row in User.query.with_entities(User.username).all()]
 
-    return render_template('admin/log_management.html',
+    return render_template('admin/log_management.html.jinja',
         name='Admin',
         subtitle='Logs',
         type="admin",
@@ -234,7 +234,7 @@ def signature_management():
     # print(user_selected)
     user_list = [row.username for row in User.query.with_entities(User.username).all()]
 
-    return render_template('admin/signature_management.html',
+    return render_template('admin/signature_management.html.jinja',
         name='Admin',
         subtitle='Logs',
         type="admin",
@@ -386,7 +386,7 @@ def bulk_register():
 
 
 
-    return render_template('admin/add_users.html',
+    return render_template('admin/add_users.html.jinja',
         name='Admin',
         subtitle='Bulk Register',
         type="admin",

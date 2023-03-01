@@ -407,7 +407,7 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
     #             # data = json.dumps({
     #             #     'url': url_for('submissions.render_document', form_name=form_name, document_id=document_id), 
     #             #     'title': document_id,
-    #             #     'content': render_template('app/index_friendly_submissions.html', form_name=form_name, submission=parsed_args),
+    #             #     'content': render_template('app/index_friendly_submissions.html.jinja', form_name=form_name, submission=parsed_args),
     #             #     'page_id': document_id,
     #             # })
 
@@ -443,7 +443,7 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
 
     #     if mongodb.is_document_in_collection(form_name, document_id):
 
-    #         return render_template('app/loading.html', 
+    #         return render_template('app/loading.html.jinja', 
     #             type="home",
     #             name='loading',
     #             notifications=current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None,
@@ -510,7 +510,7 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
     # define a home route
     @app.route('/')
     def home():
-        return render_template('app/index.html', 
+        return render_template('app/index.html.jinja', 
             homepage=True,
             type="home",
             name='Site',
@@ -527,7 +527,7 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
     if config['enable_privacy_policy']:
         @app.route('/privacy')
         def privacy():
-            return render_template('app/privacy.html', 
+            return render_template('app/privacy.html.jinja', 
                 type="home",
                 name='Site',
                 subtitle='Privacy',

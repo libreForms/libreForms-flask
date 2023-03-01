@@ -36,7 +36,7 @@ def search():
     try:
         query = request.args.get('query').lower()
     except:
-        return render_template('app/search.html', 
+        return render_template('app/search.html.jinja', 
             type="home",
             name='Search',
             subtitle="Results",
@@ -101,7 +101,7 @@ def search():
     if len(results) < 1:
         flash(f"No results found for search term {query}")
 
-    return render_template('app/search.html', 
+    return render_template('app/search.html.jinja', 
         type="home",
         name='Search',
         subtitle="Results",

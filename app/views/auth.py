@@ -92,7 +92,7 @@ def reset_password(signature):
             else:
                 flash(error)
     
-        return render_template('auth/forgot_password.html',
+        return render_template('auth/forgot_password.html.jinja',
             name='User',
             subtitle='Reset Password',
             reset=True,
@@ -135,7 +135,7 @@ def forgot_password():
             flash(error)
 
     if config["smtp_enabled"]:
-        return render_template('auth/forgot_password.html',
+        return render_template('auth/forgot_password.html.jinja',
             name='User',
             subtitle='Forgot Password',
             config=config)
@@ -248,7 +248,7 @@ def register():
 
         flash(error)
 
-    return render_template('auth/register.html',
+    return render_template('auth/register.html.jinja',
         name='User',
         subtitle='Register',
         config=config,)
@@ -365,7 +365,7 @@ def login():
 
         flash(error)
 
-    return render_template('auth/login.html',
+    return render_template('auth/login.html.jinja',
             name='User',
             subtitle='Login',
             config=config,)
@@ -453,7 +453,7 @@ def edit_profile():
             
         flash(error)
 
-    return render_template('auth/register.html',
+    return render_template('auth/register.html.jinja',
         edit_profile=True,
         name='User',
         subtitle='Edit Profile',
@@ -494,7 +494,7 @@ def profile():
         flash(error)
 
 
-    return render_template('auth/profile.html', 
+    return render_template('auth/profile.html.jinja', 
         type="profile",
         name='User',
         subtitle='Profile',
@@ -522,7 +522,7 @@ def other_profiles(username):
         flash('This user does not exist. ')
         return redirect(url_for('auth.profile'))
 
-    return render_template('auth/other_profiles.html', 
+    return render_template('auth/other_profiles.html.jinja', 
         type="profile",
         name='User',
         subtitle=f'{username}',

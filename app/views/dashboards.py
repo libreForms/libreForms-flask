@@ -40,7 +40,7 @@ bp = Blueprint('dashboards', __name__, url_prefix='/dashboards')
 @bp.route('/')
 @login_required
 def dashboards_home():
-    return render_template('app/dashboards.html', 
+    return render_template('app/dashboards.html.jinja', 
             msg="Select a dashboard from the left-hand menu.",
             name='Dashboards',
             subtitle='Home',
@@ -128,7 +128,7 @@ def dashboards(form_name):
             graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
 
 
-        return render_template('app/dashboards.html', 
+        return render_template('app/dashboards.html.jinja', 
             graphJSON=graphJSON,
             name='Dashboards',
             subtitle=form_name,

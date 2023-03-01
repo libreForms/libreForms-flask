@@ -104,7 +104,7 @@ if config['allow_anonymous_form_submissions']:
             else:
                 flash(error)
                 
-        return render_template('app/external_request.html', 
+        return render_template('app/external_request.html.jinja', 
             name='Forms',
             subtitle=form_name,
             config=config,

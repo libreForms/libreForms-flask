@@ -408,7 +408,7 @@ def render_all_submissions():
     
         else:
 
-            return render_template('submissions/submissions_form_home.html',
+            return render_template('submissions/submissions_form_home.html.jinja',
                 type="submissions",
                 name='Submissions',
                 subtitle="All",
@@ -423,7 +423,7 @@ def render_all_submissions():
 @bp.route('/')
 @login_required
 def submissions_home():
-    return render_template('submissions/submissions.html', 
+    return render_template('submissions/submissions.html.jinja', 
             msg="Select a form from the left-hand menu to view past submissions.",
             name='Submissions',
             subtitle="Home",
@@ -479,7 +479,7 @@ def submissions(form_name):
 
             record['hyperlink'] = record.apply(lambda x: gen_hyperlink(x, form_name), axis=1)
 
-            return render_template('submissions/submissions_form_home.html',
+            return render_template('submissions/submissions_form_home.html.jinja',
                 type="submissions",
                 name='Submissions',
                 subtitle=form_name,
@@ -505,7 +505,7 @@ def render_user_review(user):
         #         record = record.drop(record[record['form'] == form].index)
     
 
-        return render_template('submissions/submissions_form_home.html',
+        return render_template('submissions/submissions_form_home.html.jinja',
             type="submissions",
             name='Submissions',
             subtitle="Review",
@@ -557,7 +557,7 @@ def render_user_submissions(user):
     
         else:
 
-            return render_template('submissions/submissions_form_home.html',
+            return render_template('submissions/submissions_form_home.html.jinja',
                 type="submissions",
                 name='Submissions',
                 subtitle="All",
@@ -672,7 +672,7 @@ def render_document(form_name, document_id):
             if propagate_form_configs(form_name)['_allow_pdf_download']:
                 msg = msg + Markup(f"<tr><td><a href = '{config['domain']}/submissions/{form_name}/{document_id}/download'>download PDF</a></td></tr></table>")
             
-            return render_template('submissions/submissions.html',
+            return render_template('submissions/submissions.html.jinja',
                 type="submissions",
                 name='Submissions',
                 subtitle=form_name,
@@ -823,7 +823,7 @@ def render_document_history(form_name, document_id):
             if propagate_form_configs(form_name)['_allow_pdf_download']:
                 msg = msg + Markup(f"<tr><td><a href = '{config['domain']}/submissions/{form_name}/{document_id}/download'>download PDF</a></td></tr></table>")
 
-            return render_template('submissions/submissions.html',
+            return render_template('submissions/submissions.html.jinja',
                 type="submissions",
                 name='Submissions',
                 subtitle=form_name,
@@ -962,7 +962,7 @@ def render_document_edit(form_name, document_id):
                 
 
 
-                return render_template('app/forms.html', 
+                return render_template('app/forms.html.jinja', 
                     context=forms,                                          # this passes the form fields as the primary 'context' variable
                     name='Forms',
                     subtitle='Edit',
@@ -1162,7 +1162,7 @@ def review_document(form_name, document_id):
         # print (record[mongodb.metadata_field_names['reporter']].iloc[0])
 
 
-        return render_template('submissions/submissions.html',
+        return render_template('submissions/submissions.html.jinja',
             type="submissions",
             name='Submissions',
             subtitle=form_name,

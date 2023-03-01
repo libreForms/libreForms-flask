@@ -97,7 +97,7 @@ def reports():
     # generate a list of reports, and render a list of links to these here. 
     # dim those that are inactive
 
-    return render_template('reports/reports_home.html', 
+    return render_template('reports/reports_home.html.jinja', 
             name='Reports',
             subtitle="Home",
             type="reports",
@@ -150,7 +150,7 @@ def create_reports(form_name):
 
     msg = Markup(f"<a href = \"{url_for('reports.reports')}\">Go back to report home</a>")
 
-    return render_template('reports/create_report.html', 
+    return render_template('reports/create_report.html.jinja', 
             name='Reports',
             subtitle=f"Create {form_name}",
             type="reports",
@@ -220,7 +220,7 @@ def modify_report(report_id):
 
     # now we render the create_report template, but pass the report object,
     # which will be used to populate the fields with their previous values
-    return render_template('reports/create_report.html', 
+    return render_template('reports/create_report.html.jinja', 
             name='Reports',
             subtitle=f"Modify {report.form_name}",
             type="reports",
@@ -268,7 +268,7 @@ def view_report(report_id):
 
     # now we render the view_report template, but pass the report object,
     # which will be used to populate the fields with their proper values
-    return render_template('reports/view_report.html', 
+    return render_template('reports/view_report.html.jinja', 
             name='Reports',
             subtitle=report.name,
             type="reports",
