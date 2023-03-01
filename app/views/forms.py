@@ -43,7 +43,7 @@ def standard_view_kwargs():
     kwargs = {}
 
     kwargs['notifications'] = current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None
-    kwargs['user'] = current_user
+    kwargs['user'] = current_user if current_user.is_authenticated else None
     kwargs['config'] = config
 
     return kwargs
