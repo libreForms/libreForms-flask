@@ -98,4 +98,4 @@ loglevel = "debug"
 # create an empty env file if none exists, see
 # https://github.com/libreForms/libreForms-flask/issues/233
 with open ('libreforms.env', 'a'): pass
-reload_extra_files = ['libreforms.env']
+reload_extra_files = ['./libreforms.env']
