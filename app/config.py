@@ -355,6 +355,16 @@ config['enable_other_profile_views'] = False
 # expected / desired when `visible_signature_field` has been changed, but this can probably be fixed.
 config['parse_usernames_as_badges'] = True
 
+# this config determines whether the application render user documentation pages, but will disable
+# them by default. In addition, if `require_login_for_docs` is set to True, then only logged in users
+# will be able to see the documentation. The `docs_body` field stores the information that will be
+# presented to end users on the docs page. For further discussion of this feature, see 
+# https://github.com/libreForms/libreForms-flask/issues/197.
+config['enable_docs'] = False
+config['docs_body'] = Markup("<h4>Sample Documentation</h4><br/><hr/><p>If you are seeing this, that means that your system administrators have enabled documentation views for the web application, but have not written their own docs. It's highly recommended that they do so!</p>")
+config['require_login_for_docs'] = True
+
+
 # here we overwrite the defaults above with any user-specified 
 # configurations in app.config_overrides, if it exists.
 if os.path.exists ("app/config_overrides.py"):

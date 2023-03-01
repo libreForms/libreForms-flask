@@ -33,7 +33,7 @@ bp = Blueprint('docs', __name__, url_prefix='/docs')
 def tables_home():
     return render_template('docs/documentation.html.jinja', 
             name='Documentation',
-            documentation = config['documentation_body'],
+            documentation = config['docs_body'],
             subtitle="Home",
             type="docs",
             **standard_view_kwargs(),
