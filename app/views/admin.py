@@ -64,7 +64,7 @@ import string
 from app.views.forms import standard_view_kwargs
 from app.log_functions import aggregate_log_data
 from markupsafe import Markup
-
+import dotenv
 
 # requirements for bulk email management
 from app.models import User, Signing, db
@@ -115,6 +115,36 @@ def compile_admin_views_for_menu():
 
     # print (views)
     return views
+
+
+def dotenv_overrides(env_file='libreforms.env',**kwargs):
+
+    try:
+        # Load existing configuration variables
+        existing_config = dotenv.dotenv_values(env_file)
+        # print(existing_config)
+
+        # overwrite with old configs
+        for key,value in existing_config.items():
+            # print(key,value)
+            dotenv.set_key(env_file, key.upper(), value)
+
+        # Overwrite with new configuration
+        for key, value in kwargs.items():
+            # print(key,value)
+            # here we re-type bools to integer representations
+            if type(value) == bool:
+                value = "True" if value else 'False'
+            dotenv.set_key(env_file, key.upper(), value)
+
+        return True
+
+    except Exception as e:
+        # print(e)
+        return False
+
+
+
 
 bp = Blueprint('admin', __name__, url_prefix='/admin')
 
@@ -196,21 +226,17 @@ def log_management():
         log_data = aggregate_log_data(limit=1000, pull_from='end')
 
 
-    # here we gauge whether user data has been passed, 
-    # which will be used to tailor the log data shown.
+    # here we gauge whether the admin wants to change the dotenv config for logs, see dotenv 
+    # config discussion here https://github.com/libreForms/libreForms-flask/issues/233.
     try:
-        username = request.form['user'].upper().strip()
-
-        assert(username != '*ALL LOGS*')
-
-        log_data = aggregate_log_data(keyword=f'- {username} -', limit=1000, pull_from='end')
-
-        user_selected = username.lower()
+        enable_user_profile_log_aggregation = request.form['enable_user_profile_log_aggregation'].strip()
+        enable_user_profile_log_aggregation = True if enable_user_profile_log_aggregation=='yes' else False
+        # print(enable_user_profile_log_aggregation)
+        dotenv_overrides(enable_user_profile_log_aggregation=enable_user_profile_log_aggregation)
 
     except:
 
-        log_data = aggregate_log_data(limit=1000, pull_from='end')
-
+        pass
 
 
 

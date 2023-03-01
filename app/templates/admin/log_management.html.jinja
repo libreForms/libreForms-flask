@@ -9,10 +9,7 @@
         <option value="no" id="no" name="no" {%if not config['enable_user_profile_log_aggregation'] %} selected="selected" {%endif%}>No</option>
     </select>
 </div>
-
 <hr/>
-
-<form action="" method="post">
 <div title="users" class="form-group">
     <label class="form-label mt-4 required" for="user" data-bs-toggle="tooltip" data-bs-placement="right" title="Select a user whose logs you'd like to review">User</label>
     <select name="user" onChange="this.form.submit()" class="form-select" required>
