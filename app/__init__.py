@@ -506,7 +506,10 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
         from .views import admin
         app.register_blueprint(admin.bp)
 
-    
+    if config['enable_docs']:
+        from .views import docs
+        app.register_blueprint(docs.bp)
+
     # define a home route
     @app.route('/')
     def home():
