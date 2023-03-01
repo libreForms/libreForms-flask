@@ -30,7 +30,7 @@ bp = Blueprint('docs', __name__, url_prefix='/docs')
 
 @bp.route(f'/')
 @conditional_decorator(login_required, config['require_login_for_docs'])
-def tables_home():
+def docs_home():
     return render_template('docs/documentation.html.jinja', 
             name='Documentation',
             documentation = config['docs_body'],

@@ -89,12 +89,18 @@
             {%if user.group == config['admin_group']%}
             <li class="nav-item"><a class="nav-link" href="{{ url_for( 'admin.admin_home' ) }}">Admin</a></li>
             {% endif %}
+            {% if config.enable_docs %}
+              <li class="nav-item"><a class="nav-link" href="{{ url_for( 'docs.docs_home' ) }}">Documentation</a></li>
+            {% endif %}
             
             {% elif suppress_navbar %}   
             {% else %}
               <li class="nav-item"><a class="nav-link" href="{{ url_for( 'auth.login' ) }}">Login</a></li>
               {% if config.allow_anonymous_registration %}
               <li class="nav-item"><a class="nav-link" href="{{ url_for( 'auth.register' ) }}">Register</a></li>
+              {% endif %}
+              {% if config.enable_docs and not config.require_login_for_docs %}
+              <li class="nav-item"><a class="nav-link" href="{{ url_for( 'docs.docs_home' ) }}">Documentation</a></li>
               {% endif %}
             {% endif %}
             </ul>
