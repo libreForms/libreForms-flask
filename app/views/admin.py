@@ -233,7 +233,7 @@ def log_management():
         enable_user_profile_log_aggregation = True if enable_user_profile_log_aggregation=='yes' else False
         # print(enable_user_profile_log_aggregation)
         dotenv_overrides(enable_user_profile_log_aggregation=enable_user_profile_log_aggregation)
-        restart_app_async.delay() # will not run if celery is not running..
+        # restart_app_async.delay() # will not run if celery is not running..
         # return redirect(url_for('admin.restart_now',redirect_to='admin.log_management'))
 
 
@@ -290,12 +290,51 @@ def signature_management():
         type="admin",
         menu=compile_admin_views_for_menu(),
         signature_list=signature_list,
-        user_list=user_list,
-        # user_selected=user_selected,
         **standard_view_kwargs(),
         )
 
 
+
+
+@is_admin
+@bp.route('/smtp', methods=('GET', 'POST'))
+def smtp_configuration():
+
+
+    try:
+        smtp_enabled = request.form['smtp_enabled'].strip()
+        # here we assert that, if SMTP is turned off, that none of its dependent configurations have been set
+        if smtp_enabled == 'no' and (config['enable_email_verification'] or config['enable_reports'] or config['allow_password_resets'] or config['allow_anonymous_form_submissions']):
+            raise Exception("Please enable SMTP if you'd like to enable email verification, allow password resets, send reports, or allow anonymous form submissions.")
+        smtp_enabled = True if smtp_enabled=='yes' else False
+
+        smtp_mail_server = request.form['smtp_mail_server'].strip()
+        smtp_port = request.form['smtp_port'].strip()
+        smtp_username = request.form['smtp_username'].strip()
+        smtp_password = request.form['smtp_password'].strip()
+        smtp_from_address = request.form['smtp_from_address'].strip()
+        send_mail_asynchronously = request.form['send_mail_asynchronously'].strip()
+        send_mail_asynchronously = True if send_mail_asynchronously=='yes' else False
+
+        # write all of these to the overrides file
+        dotenv_overrides(   smtp_enabled=smtp_enabled,
+                            smtp_mail_server=smtp_mail_server,
+                            smtp_port=smtp_port,
+                            smtp_username=smtp_username,
+                            smtp_password=smtp_password,
+                            smtp_from_address=smtp_from_address,
+                            send_mail_asynchronously=send_mail_asynchronously,)
+
+    except Exception as e:
+        flash(f"Could not save configs. {e} ")
+
+    return render_template('admin/smtp_configuration.html.jinja',
+        name='Admin',
+        subtitle='SMTP',
+        type="admin",
+        menu=compile_admin_views_for_menu(),
+        **standard_view_kwargs(),
+        )
 
 @is_admin
 @bp.route('/register/bulk', methods=('GET', 'POST'))
