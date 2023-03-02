@@ -14,14 +14,13 @@ As a rule, we will not accept pull requests that are not linked to an issue, or 
 
 #### What to do when you modify or add a feature
 
-If there is a new feature you would like to contribute, you should start by reviewing the Github issues to see if a discussion has already been opened.  
-This is the best way to discuss proposed modifications, and understand how that might effect the codebase, before making them. Next, you should review the [project roadmap](https://github.com/libreForms/libreForms-flask/issues/39) to determine whether there is a planned application version under which your proposed fix would best fit. 
+If there is a new feature you would like to contribute, you should start by reviewing the Github [Issues](https://github.com/libreForms/libreForms-flask/issues) to see if a discussion has already been opened. This is the best way to discuss proposed modifications, and understand how that might effect the codebase, before making them. Next, you should review the [project roadmap](https://github.com/libreForms/libreForms-flask/issues/39) to determine whether there is a planned application version under which your proposed fix would best fit. 
 
 Any time you write add functionality in a new script, ensure that this script conforms to the project's [standard boilerplate](https://github.com/libreForms/libreForms-flask/issues/78). If you've proposed a change to existing scripts, add your name in the \_\_credits\_\_ list of that script - you've earned it!
 
 #### What to do when you have questions about the source code
 
-You should start by reviewing the [application documentation](https://libreforms.readthedocs.io/en/latest/), which may answer your question. You may also benefit from briefly reviewing the [specification](https://github.com/libreForms/spec) upon which this application is built. You should also search the Github issues and filter using the \[question\] tag. Lastly, all scripts in this application should include developer notes at the top of the scipt - you should consider looking there if you know which script your question concerns.
+You should start by reviewing the [application documentation](https://libreforms.readthedocs.io/en/latest/), which may answer your question. You may also benefit from briefly reviewing the [specification](https://github.com/libreForms/spec) upon which this application is built. You should also search the  Github [Issues](https://github.com/libreForms/libreForms-flask/issues) and filter using the \[question\] tag. Lastly, all scripts in this application should include developer notes at the top of the scipt - you should consider looking there if you know which script your question concerns.
 
 If these resources don't answer your questions, open a Github [Issue](https://github.com/libreForms/libreForms-flask/issues) with the \[question\] tag. It's likely that others will have the same question and benefit from the discussion.
 
