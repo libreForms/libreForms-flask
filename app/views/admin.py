@@ -145,6 +145,7 @@ def dotenv_overrides(env_file='libreforms.env',restart_app=True,**kwargs):
 
     except Exception as e:
         # print(e)
+        log.error (f'{current_user.username.upper()} - {e}')
         return False
 
 
