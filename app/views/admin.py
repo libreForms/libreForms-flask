@@ -305,7 +305,8 @@ def smtp_configuration():
         smtp_enabled = request.form['smtp_enabled'].strip()
         # here we assert that, if SMTP is turned off, that none of its dependent configurations have been set
         if smtp_enabled == 'no' and (config['enable_email_verification'] or config['enable_reports'] or config['allow_password_resets'] or config['allow_anonymous_form_submissions']):
-            raise Exception("Please enable SMTP if you'd like to enable email verification, allow password resets, send reports, or allow anonymous form submissions.")
+            flash("You cannot disable SMTP if email verification, password resets, sending reports, or anonymous form submissions is enabled. ")
+            raise Exception()
         smtp_enabled = True if smtp_enabled=='yes' else False
 
         smtp_mail_server = request.form['smtp_mail_server'].strip()
@@ -325,8 +326,8 @@ def smtp_configuration():
                             smtp_from_address=smtp_from_address,
                             send_mail_asynchronously=send_mail_asynchronously,)
 
-    except Exception as e:
-        flash(f"Could not save configs. {e} ")
+    except:
+        pass
 
     return render_template('admin/smtp_configuration.html.jinja',
         name='Admin',
