@@ -117,7 +117,7 @@ def compile_admin_views_for_menu():
     return views
 
 
-def dotenv_overrides(env_file='libreforms.env',**kwargs):
+def dotenv_overrides(env_file='libreforms.env',restart_app=True,**kwargs):
 
     try:
         # Load existing configuration variables
@@ -136,6 +136,10 @@ def dotenv_overrides(env_file='libreforms.env',**kwargs):
             if type(value) == bool:
                 value = "True" if value else 'False'
             dotenv.set_key(env_file, key.upper(), value)
+
+        # here we restart the application on config change 
+        if restart_app:
+            restart_app_async.delay() # will not run if celery is not running.
 
         return True
 
@@ -202,8 +206,6 @@ def log_management():
         enable_user_profile_log_aggregation = True if enable_user_profile_log_aggregation=='yes' else False
         # print(enable_user_profile_log_aggregation)
         dotenv_overrides(enable_user_profile_log_aggregation=enable_user_profile_log_aggregation)
-        # restart_app_async.delay() # will not run if celery is not running..
-        # return redirect(url_for('admin.restart_now',redirect_to='admin.log_management'))
 
 
     except:
