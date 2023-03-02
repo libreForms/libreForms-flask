@@ -35,6 +35,7 @@ __email__ = "signe@atreeus.com"
 import os, secrets, dotenv
 from ast import literal_eval
 from markupsafe import Markup
+from datetime import datetime
 
 # Added based on https://github.com/signebedi/libreForms/issues/148 to
 # support creating secrets and writing them to file if they don't exist.
@@ -61,6 +62,9 @@ config = {}
 
 # set the default site name
 config['site_name'] = "libreForms"
+
+# set the last restarted timestamp
+config['last_restart'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S") 
 
 # this sets the welcome message for the website, so customization is expected;
 # you can remove the Markup designation if you don't want to render this as HTML.
