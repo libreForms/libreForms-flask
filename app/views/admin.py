@@ -268,7 +268,7 @@ def signature_management():
 
     #     log_data = aggregate_log_data(limit=1000, pull_from='end')
 
-    signature_list = [[row.signature, row.email, row.scope, row.active, row.timestamp_human_readable, row.expiration_human_readable] for row in Signing.query.all()]
+    signature_list = [row for row in Signing.query.all()]
     # print(signature_list)
 
     # print(user_selected)

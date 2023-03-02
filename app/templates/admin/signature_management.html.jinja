@@ -22,12 +22,12 @@
 
             <tr class="table{% if emphasize and item in emphasize %}-secondary{% else %}{{'-dark' if dark_mode else '-transparent'}}{% endif %}">
 
-                <td>{{row[0]}}</td>
-                <td>{{row[1]}}</td>
-                <td>{{row[2]}}</td>
-                <td>{{row[3]}}</td>
-                <td>{{row[4]}}</td>
-                <td>{{row[5]}}</td>
+                <td>{{ row.signature }}</td>
+                <td>{{ row.email }}</td>
+                <td>{{ row.scope }}</td>
+                <td>{{ row.active }}</td>
+                <td>{{ row.timestamp_human_readable }}</td>
+                <td>{{ row.expiration_human_readable }}</td>
 
             </tr>
             </tbody>
