@@ -56,9 +56,9 @@ __email__ = "signe@atreeus.com"
 
 from flask import current_app, Blueprint, g, flash, abort, render_template, \
     request, send_from_directory, send_file, redirect, url_for
-from app.views.auth import login_required, session
+from app.views.auth import session
 from app.config import config
-from flask_login import current_user
+from flask_login import current_user, login_required
 from functools import wraps
 import string
 from app.views.forms import standard_view_kwargs
@@ -83,22 +83,22 @@ def is_admin(func):
 
     @wraps(func)
     def decorated_view(*args, **kwargs):
+
+        # print(current_user)
+
         if current_app.config.get("LOGIN_DISABLED"):
             pass
+
         elif not current_user.is_authenticated:
             return current_app.login_manager.unauthorized()
-
-        elif not current_user.group == config['admin_group']:
+        
+        if not current_user.group == config['admin_group']:
             return abort(404)
-
-        # flask 1.x compatibility
-        # current_app.ensure_sync is only available in Flask >= 2.0
-        if callable(getattr(current_app, "ensure_sync", None)):
-            return current_app.ensure_sync(func)(*args, **kwargs)
-
+        
         return func(*args, **kwargs)
-
+        
     return decorated_view
+
 
 
 def compile_admin_views_for_menu():
@@ -157,16 +157,15 @@ bp = Blueprint('admin', __name__, url_prefix='/admin')
 # this is the redirect point for the admin left-hand menu.
 # the admin handler view may be a good point to verify that a user 
 # has access to the associated resource before redirecting them to it
-# @is_admin
+# # @is_admin
 # @bp.route('/handler/<view_name>')
 # def admin_handler(view_name):
 #     return redirect(url_for(f'admin.{view_name}'))
 
 
-@is_admin
 @bp.route('/')
+@is_admin
 def admin_home():
-
 
     return render_template('admin/admin_home.html.jinja',
         name='Admin',
@@ -177,8 +176,8 @@ def admin_home():
         )
 
 
-@is_admin
 @bp.route('/logs', methods=('GET', 'POST'))
+@is_admin
 def log_management():
 
     user_selected = None
@@ -231,9 +230,10 @@ def log_management():
 
 
 
-@is_admin
 @bp.route('/signatures', methods=('GET', 'POST'))
+@is_admin
 def signature_management():
+
 
     # user_selected = None
 
@@ -268,10 +268,9 @@ def signature_management():
 
 
 
-@is_admin
 @bp.route('/smtp', methods=('GET', 'POST'))
+@is_admin
 def smtp_configuration():
-
 
     try:
         smtp_enabled = request.form['smtp_enabled'].strip()
@@ -309,8 +308,8 @@ def smtp_configuration():
         **standard_view_kwargs(),
         )
 
-@is_admin
 @bp.route('/register/bulk', methods=('GET', 'POST'))
+@is_admin
 def bulk_register():
 
     if not config['allow_bulk_registration']:
@@ -460,9 +459,10 @@ def bulk_register():
 
 # Implementing this will only work in production (eg. using wsgi / gunicorn) for now,
 # see discussion at https://github.com/libreForms/libreForms-flask/issues/311.
-@is_admin
 @bp.route('/restart', methods=('GET', 'POST'))
+@is_admin
 def restart_application():
+
 
     if request.method == 'POST':
         return redirect(url_for('admin.restart_now'))
@@ -476,8 +476,8 @@ def restart_application():
         )
 
 
-@is_admin
 @bp.route('/restart/now', methods=('GET', 'POST'))
+@is_admin
 def restart_now():
 
     # with open('restart.flag','w'): pass # touch the restart file.
