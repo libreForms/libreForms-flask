@@ -172,37 +172,6 @@ def admin_home():
         )
 
 
-# Implementing this will only work in production (eg. using wsgi / gunicorn) for now,
-# see discussion at https://github.com/libreForms/libreForms-flask/issues/311.
-@is_admin
-@bp.route('/restart', methods=('GET', 'POST'))
-def restart_application():
-
-    if request.method == 'POST':
-        return redirect(url_for('admin.restart_application'))
-
-    return render_template('admin/restart_application.html.jinja',
-        name='Admin',
-        subtitle='Restart',
-        type="admin",
-        menu=compile_admin_views_for_menu(),
-        **standard_view_kwargs(),
-        )
-
-
-@is_admin
-@bp.route('/restart/now', methods=('GET', 'POST'))
-def restart_now():
-
-    # with open('restart.flag','w'): pass # touch the restart file.
-
-    flash('Restart has been queued. ')
-    log.info(f'{current_user.username.upper()} - successfully queued application restart.')
-    restart_app_async.delay() # will not run if celery is not running..
-    return redirect(url_for('admin.restart_application'))
-
-
-
 @is_admin
 @bp.route('/logs', methods=('GET', 'POST'))
 def log_management():
@@ -483,3 +452,35 @@ def bulk_register():
         menu=compile_admin_views_for_menu(),
         **standard_view_kwargs(),
         )
+
+
+
+# Implementing this will only work in production (eg. using wsgi / gunicorn) for now,
+# see discussion at https://github.com/libreForms/libreForms-flask/issues/311.
+@is_admin
+@bp.route('/restart', methods=('GET', 'POST'))
+def restart_application():
+
+    if request.method == 'POST':
+        return redirect(url_for('admin.restart_now'))
+
+    return render_template('admin/restart_application.html.jinja',
+        name='Admin',
+        subtitle='Restart',
+        type="admin",
+        menu=compile_admin_views_for_menu(),
+        **standard_view_kwargs(),
+        )
+
+
+@is_admin
+@bp.route('/restart/now', methods=('GET', 'POST'))
+def restart_now():
+
+    # with open('restart.flag','w'): pass # touch the restart file.
+
+    flash('Restart has been queued. ')
+    log.info(f'{current_user.username.upper()} - successfully queued application restart.')
+    restart_app_async.delay() # will not run if celery is not running..
+    return redirect(url_for('admin.restart_application'))
+
