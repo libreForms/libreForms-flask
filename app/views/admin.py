@@ -176,6 +176,24 @@ def admin_home():
         )
 
 
+
+@bp.route('/users', methods=('GET', 'POST'))
+@is_admin
+def user_management():
+
+    user_list = [row for row in User.query.with_entities(User.username).all()]
+
+    return render_template('admin/user_management.html.jinja',
+        name='Admin',
+        subtitle='Logs',
+        type="admin",
+        menu=compile_admin_views_for_menu(),
+        user_list=user_list,
+        **standard_view_kwargs(),
+        )
+
+
+
 @bp.route('/logs', methods=('GET', 'POST'))
 @is_admin
 def log_management():
