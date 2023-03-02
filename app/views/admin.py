@@ -181,7 +181,8 @@ def admin_home():
 @is_admin
 def user_management():
 
-    user_list = [row for row in User.query.with_entities(User.username).all()]
+    # user_list = [row for row in User.query.with_entities(User.username).all()]
+    user_list = [row for row in User.query.all()]
 
     return render_template('admin/user_management.html.jinja',
         name='Admin',

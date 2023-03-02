@@ -18,21 +18,20 @@
                 </tr>
 
             {% for row in signature_list %}
-            <tr class="table{% if emphasize and item in emphasize %}-secondary{% else %}{{'-dark' if dark_mode else '-transparent'}}{% endif %}">
+                <tr class="table{% if emphasize and item in emphasize %}-secondary{% else %}{{'-dark' if dark_mode else '-transparent'}}{% endif %}">
 
-            <tr class="table{% if emphasize and item in emphasize %}-secondary{% else %}{{'-dark' if dark_mode else '-transparent'}}{% endif %}">
 
-                <td>{{ row.signature }}</td>
-                <td>{{ row.email }}</td>
-                <td>{{ row.scope }}</td>
-                <td>{{ row.active }}</td>
-                <td>{{ row.timestamp_human_readable }}</td>
-                <td>{{ row.expiration_human_readable }}</td>
+                    <td>{{ row.signature }}</td>
+                    <td>{{ row.email }}</td>
+                    <td>{{ row.scope }}</td>
+                    <td>{{ row.active }}</td>
+                    <td>{{ row.timestamp_human_readable }}</td>
+                    <td>{{ row.expiration_human_readable }}</td>
 
-            </tr>
+                </tr>
+            {% endfor %}
             </tbody>
         </table>
-    {% endfor %}
     </div>
 </div>
 
