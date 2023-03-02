@@ -278,7 +278,7 @@ def signature_management():
 
     #     log_data = aggregate_log_data(limit=1000, pull_from='end')
 
-    signature_list = [f"{row.signature} - {row.email} - {row.scope} - {row.active} - {row.timestamp_human_readable} - {row.expiration_human_readable}" for row in Signing.query.all()]
+    signature_list = [[row.signature, row.email, row.scope, row.active, row.timestamp_human_readable, row.expiration_human_readable] for row in Signing.query.all()]
     # print(signature_list)
 
     # print(user_selected)
@@ -286,7 +286,7 @@ def signature_management():
 
     return render_template('admin/signature_management.html.jinja',
         name='Admin',
-        subtitle='Logs',
+        subtitle='Signatures',
         type="admin",
         menu=compile_admin_views_for_menu(),
         signature_list=signature_list,

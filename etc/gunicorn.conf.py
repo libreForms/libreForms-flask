@@ -95,9 +95,8 @@ errorlog = os.path.join(logpath, "gunicorn.error")
 accesslog = os.path.join(logpath, "gunicorn.access")
 loglevel = "debug"
 
+# here we configure touch reload and create the dotenv file if none
+# exists, see https://github.com/libreForms/libreForms-flask/issues/233.
 reload = True
-
-# create an empty env file if none exists, see
-# https://github.com/libreForms/libreForms-flask/issues/233
 with open ('libreforms.env', 'a'): pass
 reload_extra_files = ['./libreforms.env']
