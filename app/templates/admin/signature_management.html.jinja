@@ -2,37 +2,35 @@
 {% block content %}
 
   
-<div title="signature_list" style="padding-top: 10px;">
-    <h4>Signing Keys</h4>
-    <div class="list-group vh-100 scrollable overflow-auto table table-hover">
+<h4>Signing Keys</h4>
+<div class="list-group vh-100 scrollable overflow-auto table table-hover">
 
-        <table title="signature_table" class="table {{'text-dark' if not dark_mode else 'table-hover'}}">
-            <tbody>
-                <tr>
-                    <th>signature</th>
-                    <th>email</th>
-                    <th>scope</th>
-                    <th>active</th>
-                    <th>timestamp_human_readable</th>
-                    <th>expiration_human_readable</th>
-                </tr>
+    <table title="signature_table" class="table {{'text-dark' if not dark_mode else 'table-hover'}}">
+        <tbody>
+            <tr>
+                <th>signature</th>
+                <th>email</th>
+                <th>scope</th>
+                <th>active</th>
+                <th>timestamp_human_readable</th>
+                <th>expiration_human_readable</th>
+            </tr>
 
-            {% for row in signature_list %}
-                <tr class="table{% if emphasize and item in emphasize %}-secondary{% else %}{{'-dark' if dark_mode else '-transparent'}}{% endif %}">
+        {% for row in signature_list %}
+            <tr class="table{% if emphasize and item in emphasize %}-secondary{% else %}{{'-dark' if dark_mode else '-transparent'}}{% endif %}">
 
 
-                    <td>{{ row.signature }}</td>
-                    <td>{{ row.email }}</td>
-                    <td>{{ row.scope }}</td>
-                    <td>{{ row.active }}</td>
-                    <td>{{ row.timestamp_human_readable }}</td>
-                    <td>{{ row.expiration_human_readable }}</td>
+                <td>{{ row.signature }}</td>
+                <td>{{ row.email }}</td>
+                <td>{{ row.scope }}</td>
+                <td>{{ row.active }}</td>
+                <td>{{ row.timestamp_human_readable }}</td>
+                <td>{{ row.expiration_human_readable }}</td>
 
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-    </div>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
 </div>
 
 

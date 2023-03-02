@@ -2,41 +2,39 @@
 {% block content %}
 
   
-<div title="user_list" style="padding-top: 10px;">
-    <h4>Users</h4>
-    <div class="list-group vh-100 scrollable overflow-auto table table-hover">
+<h4>Users</h4>
+<div class="list-group vh-100 scrollable overflow-auto table table-hover">
 
-        <table title="user_table" class="table {{'text-dark' if not dark_mode else 'table-hover'}}">
-            <tbody>
-                <tr>
-                    <th>id</th>
-                    <th>email</th>
-                    <th>username</th>
-                    <th>group</th>
-                    <th>organization</th>
-                    <th>phone</th>
-                    <th>certificate</th>
-                    <th>active</th>
-                    <th>created_date</th>
-                </tr>
+    <table title="user_table" class="table {{'text-dark' if not dark_mode else 'table-hover'}}">
+        <tbody>
+            <tr>
+                <th>id</th>
+                <th>email</th>
+                <th>username</th>
+                <th>group</th>
+                <th>organization</th>
+                <th>phone</th>
+                <th>certificate</th>
+                <th>active</th>
+                <th>created_date</th>
+            </tr>
 
-            {% for row in user_list %}
-                <tr class="table{% if emphasize and item in emphasize %}-secondary{% else %}{{'-dark' if dark_mode else '-transparent'}}{% endif %}">
+        {% for row in user_list %}
+            <tr class="table{% if emphasize and item in emphasize %}-secondary{% else %}{{'-dark' if dark_mode else '-transparent'}}{% endif %}">
 
-                    <td>{{ row.id }}</td>
-                    <td>{{ row.email }}</td>
-                    <td>{{ row.username }}</td>
-                    <td>{{ row.group }}</td>
-                    <td>{{ row.organization }}</td>
-                    <td>{{ row.phone }}</td>
-                    <td>{{ row.certificate }}</td>
-                    <td>{{ row.active }}</td>
-                    <td>{{ row.created_date }}</td>
-                </tr>
-            {% endfor %}
-           </tbody>
-        </table>
-    </div>
+                <td>{{ row.id }}</td>
+                <td>{{ row.email }}</td>
+                <td>{{ row.username }}</td>
+                <td>{{ row.group }}</td>
+                <td>{{ row.organization }}</td>
+                <td>{{ row.phone }}</td>
+                <td>{{ row.certificate }}</td>
+                <td>{{ row.active }}</td>
+                <td>{{ row.created_date }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
 </div>
 
 
