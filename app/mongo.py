@@ -633,11 +633,12 @@ class MongoDB:
             from_collection = db[from_collection_name]
             to_collection = db[to_collection_name]
 
-            # Retrieve all documents from collection A
+            # Retrieve all documents from from_collection
             pipeline = []
             documents = from_collection.aggregate(pipeline)
 
             to_collection.insert_many(documents)
+            
             if delete_originals_on_transfer:
                 from_collection.delete_many({})
 
@@ -660,9 +661,27 @@ class MongoDB:
             # Insert copied document into new collection
             to_collection.insert_one(document_copy)
 
-            from_collection.delete_one({'_id': ObjectId(document_id)})
+            if delete_originals_on_transfer:
+                from_collection.delete_one({'_id': ObjectId(document_id)})
 
             return True
+
+    # this is a wrapper function for migrate_single_document, which moves document 
+    # document_id to '_'+from_collection, with delete_originals_on_transfer set to True.
+    # We call this `soft deletion` to distinguish it from hard deletion, which would 
+    # entirely remove the document from the database.
+    def soft_delete_document(self,from_collection_name,document_id):
+
+        # here we set the to_collection name to the 'deletion' collection (_COLLECTION_NAME)
+        # unless it already starts with an underscore, in which case we either return None
+        # or, perhaps, can just set the to_collection equal to the from_collection ...
+        if not from_collection_name.startswith('_'):
+            to_collection_name = '_'+from_collection_name
+        else:
+            # to_collection_name = from_collection_name
+            return None
+        
+        self.migrate_single_document(from_collection_name, to_collection_name,document_id)
 
 
 
