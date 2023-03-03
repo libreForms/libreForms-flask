@@ -63,8 +63,10 @@ from functools import wraps
 import string
 from app.views.forms import standard_view_kwargs
 from app.log_functions import aggregate_log_data
+from app.mongo import mongodb
 from markupsafe import Markup
 import dotenv
+import libreforms
 
 # requirements for bulk email management
 from app.models import User, Signing, db
@@ -150,6 +152,31 @@ def dotenv_overrides(env_file='libreforms.env',restart_app=True,**kwargs):
 
 
 
+def compile_form_data(form_names=[]):
+    df = pd.DataFrame(columns = ['form', 'id', 'owner', 'timestamp'])
+
+
+    if not isinstance(form_names,list) or len(form_names) < 1:
+        form_names = libreforms.forms
+
+
+    for form_name in form_names:        
+        temp = mongodb.new_read_documents_from_collection(form_name)
+
+        if not isinstance(temp,pd.DataFrame):
+            continue
+
+        for index,row in temp.iterrows():
+            
+            new_row = pd.DataFrame({    'form':[form_name], 
+                                        'id': [Markup(f"<a href=\"{config['domain']}/submissions/{form_name}/{row['_id']}\">{row['_id']}</a>")], 
+                                        'owner':[row[mongodb.metadata_field_names['owner']]], 
+                                        'timestamp':[row[mongodb.metadata_field_names['timestamp']]],})
+
+            df = pd.concat([df, new_row],
+                       ignore_index=True)
+            
+    return df
 
 bp = Blueprint('admin', __name__, url_prefix='/admin')
 
@@ -232,7 +259,6 @@ def log_management():
         pass
 
 
-
     # print(user_selected)
     user_list = [row.username for row in User.query.with_entities(User.username).all()]
 
@@ -244,6 +270,45 @@ def log_management():
         log_data=log_data,
         user_list=user_list,
         user_selected=user_selected,
+        **standard_view_kwargs(),
+        )
+
+@bp.route('/forms', methods=('GET', 'POST'))
+@is_admin
+def form_management():
+
+    form_selected = None
+
+
+    # here we gauge whether user data has been passed, 
+    # which will be used to tailor the log data shown.
+    try:
+        form = request.form['form'].strip()
+
+        assert(form != '*all forms*')
+
+        # QUERY FORM DATA for `form` collection
+        form_data = compile_form_data(form_names=[form])
+
+        form_selected = form
+
+    except:
+
+        # QUERY FORM DATA for all collections
+        form_data = compile_form_data()
+
+
+    # print(user_selected)
+    
+
+    return render_template('admin/form_management.html.jinja',
+        name='Admin',
+        subtitle='Forms',
+        type="admin",
+        menu=compile_admin_views_for_menu(),
+        form_data=form_data,
+        form_list=libreforms.forms,
+        form_selected=form_selected,
         **standard_view_kwargs(),
         )
 

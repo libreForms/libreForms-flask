@@ -4,8 +4,9 @@
 
 <form action="" method="post">
 <div title="forms" class="form-group">
-    <label class="form-label mt-4 required" for="forms" data-bs-toggle="tooltip" data-bs-placement="right" title="Select a form that you'd like to view">Forms</label>
-    <select name="forms" onChange="this.form.submit()" class="form-select" required>
+    <label class="form-label mt-4 required" for="form" data-bs-toggle="tooltip" data-bs-placement="right" title="Select a form that you'd like to view">Forms</label>
+    <select name="form" onChange="this.form.submit()" class="form-select" required>
+        <option value="*all forms*" id="*all forms*" name="*all forms*">*all forms*</option>
         {%for form in form_list%}
         <option value="{{form}}" id="{{form}}" name="{{form}}" {%if form_selected == form %} selected="selected" {%endif%}>{{form}}</option>
         {%endfor%}
@@ -21,25 +22,20 @@
     <table role="presentation" title="user table" class="table {{'text-dark' if not dark_mode else 'table-hover'}}">
         <tbody>
             <tr>
+                <th>Form</th>
                 <th>Document ID</th>
                 <th>Owner</th>
-                <th>Submitted</th>
                 <th>Last Edited</th>
-                <th>Link</th>
             </tr>
 
-        {% for row in form_data %}
+        {% for index, row in form_data.iterrows() %}
             <tr class="table{% if emphasize and item in emphasize %}-secondary{% else %}{{'-dark' if dark_mode else '-transparent'}}{% endif %}">
 
+                <td>{{ row.form }}</td>
                 <td>{{ row.id }}</td>
-                <td>{{ row.email }}</td>
-                <td>{{ row.username }}</td>
-                <td>{{ row.group }}</td>
-                <td>{{ row.organization }}</td>
-                <td>{{ row.phone }}</td>
-                <td>{{ row.certificate }}</td>
-                <td>{{ row.active }}</td>
-                <td>{{ row.created_date }}</td>
+                <td>{{ row.owner }}</td>
+                <td>{{ row.timestamp }}</td>
+            
             </tr>
         {% endfor %}
         </tbody>
