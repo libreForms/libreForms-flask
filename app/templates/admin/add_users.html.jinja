@@ -6,9 +6,9 @@
 
 <label>Upload a CSV file with a list of the users you want to add</label><hr>
 
-<form title="bulk_upload" method = "POST" enctype = "multipart/form-data">
+<form title="bulk upload" method = "POST" enctype = "multipart/form-data">
 
-  <div title="upload_users" class="form-group">
+  <div title="upload users" class="form-group">
     <label class="form-label mt-4 required" for="file">Upload</label>
     <input class="form-control" type = "file" name = "file" />
   </div>
@@ -19,7 +19,7 @@
 </form>
 
 <br/>
-<table role="presentation" title="download_user_template" >
+<table role="presentation" title="download user template" >
   <tr><td>
   <a href="{{ url_for('auth.download_bulk_user_template', filename='bulk_user_template.csv') }}">download a template</a>
   </td></tr>

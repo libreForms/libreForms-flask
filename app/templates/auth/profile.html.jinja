@@ -2,13 +2,13 @@
 
 {% block content %}
 <div class="position-relative">
-    <div title="edit_profile" class="position-absolute top-0 end-0">
+    <div title="edit profile" class="position-absolute top-0 end-0">
         <a class="justify-content-end" href="{{config['domain']}}/auth/profile/edit">Edit Profile</a>
     </div>
 </div>
 <h4>Profile</h4>
 
-<table role="presentation" title="user_profile" class="table {{'text-dark' if not dark_mode else ''}}">
+<table role="presentation" title="user profile" class="table {{'text-dark' if not dark_mode else ''}}">
 <tr title="username" ><td><b>Username</b></td><td style="width: 80%;">{{ user.username }}</td></tr>
 <tr title="email" ><td><b>Email</b></td><td style="width: 80%;"><span> {{ user.email }}</span></td></tr>
 <tr title="group" ><td><b>Group</b></td><td style="width: 80%;">{{ user.group }}</td></tr>
@@ -21,23 +21,23 @@
 {% endfor %}
 {% endif %}
 </td></tr>
-<tr title="created_date"><td><b>Created</b></td><td style="width: 80%;">{{ user.created_date }}</td></tr>
-<tr title="user_submissions"><td><b>Submissions</b></td><td style="width: 80%;"><a href="{{config['domain']}}/submissions/user/{{ user.username }}">view here</a></td></tr>
-<tr title="user_documents_for_review"><td><b>Review</b></td><td style="width: 80%;"><a href="{{config['domain']}}/submissions/review/{{ user.username }}">view here</a> {%if notifications%} <span class="badge bg-primary">{{notifications}}{%endif%}</span></td></tr>
-<tr title="user_reports"><td><b>Reports</b></td><td style="width: 80%;"><a href="{{config['domain']}}/reports">view here</a></td></tr>
+<tr title="created date"><td><b>Created</b></td><td style="width: 80%;">{{ user.created_date }}</td></tr>
+<tr title="user submissions"><td><b>Submissions</b></td><td style="width: 80%;"><a href="{{config['domain']}}/submissions/user/{{ user.username }}">view here</a></td></tr>
+<tr title="user documents_for_review"><td><b>Review</b></td><td style="width: 80%;"><a href="{{config['domain']}}/submissions/review/{{ user.username }}">view here</a> {%if notifications%} <span class="badge bg-primary">{{notifications}}{%endif%}</span></td></tr>
+<tr title="user reports"><td><b>Reports</b></td><td style="width: 80%;"><a href="{{config['domain']}}/reports">view here</a></td></tr>
 </table>
 
 <hr/>
 <h4>Change Password</h4>
-<form title="change_password" method="post">
+<form title="change password" method="post">
     <fieldset>
 
-        <div title="current_password" class="form-group">
+        <div title="current password" class="form-group">
             <label class="form-label mt-4" for="current_password">Current Password</label>
             <input class="form-control" type="password" name="current_password" id="current_password" placeholder="Enter current password" required>
         </div>
 
-        <div title="new_password" class="form-group">
+        <div title="new password" class="form-group">
             <label class="form-label mt-4" for="new_password">New Password</label>
             <input class="form-control" type="password" name="new_password" id="new_password" placeholder="Enter new password" required>            
         </div>
@@ -50,7 +50,7 @@
 </form>
 
 {% if log_data %}
-<div title="user_log" style="padding-top:10px;">
+<div title="user log" style="padding-top:10px;">
     <hr/>
     <h4>User Log</h4>
 

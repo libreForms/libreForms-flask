@@ -56,9 +56,9 @@
     <div class="container-fluid">
       
       
-      <div class="row">
+      <div role="navigation" class="row">
 
-        <nav title="top-nav" class="navbar navbar-expand-lg {{'navbar-dark bg-dark' if dark_mode else 'navbar-light bg-light text-dark'}} border-bottom" style="padding-left: 30px;z-index:999999 !important;">
+        <nav title="top nav" class="navbar navbar-expand-lg {{'navbar-dark bg-dark' if dark_mode else 'navbar-light bg-light text-dark'}} border-bottom" style="padding-left: 30px;z-index:999999 !important;">
           <a href="{% if type == 'external' %}#{% else %}{{ url_for('home') }}{% endif %}" class="navbar-brand">{{ config['site_name'] }} <small class="{{'text-muted' if dark_mode else 'text-secondary'}}">v.{{ config['version'] }}</small></a>    
           <ul class="nav navbar-nav">
             {% if user %}
@@ -107,14 +107,14 @@
 
             {%if config['enable_search'] and current_user.is_authenticated %}
             <div style="padding-left: 10px;">
-              <form class="d-flex" method="get" action="{{ url_for('search.search') }}" title="searchbar">
+              <form class="d-flex" method="get" action="{{ url_for('search.search') }}" title="search bar">
                 <input class="form-control me-sm-2" type="search" name="query" placeholder="Search" required>
                 <button class="btn btn-{{'secondary' if dark_mode else 'primary'}} my-2 my-sm-0" type="submit">Search</button>
               </form>
             </div>
             {%endif%}
 
-            <ul class="navbar-nav ms-auto mb-2 mb-lg-0" title="authenticated_user">
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0" title="authenticated user">
               {% if user %}
               <li class="nav-link active me-auto" style="padding-right: 30px;">Currently logged in as <small class="{{'text-muted' if dark_mode else 'text-secondary'}}muted">{{ user.username }}</small>.</li>
               {% elif signed_url %}
@@ -127,7 +127,7 @@
       <div class="row">
 
           <div role="navigation" class="col-12 col-md-3 d-none d-md-block  {{'bg-dark' if dark_mode else 'bg-transparent text-dark'}}" style="width:20%; padding-top: 20px; padding-left: 30px; height: 100%;z-index:999998 !important;">  
-            <table class="nav nav-pills nav-stacked flex-column" title="sidebar-nav">
+            <table class="nav nav-pills nav-stacked flex-column" title="sidebar navigation">
               <tr><th><h3 class="nav-link {{' text-dark' if not dark_mode else ''}}{{' text-dark' if not dark_mode else ''}}">{%if name%}{{name}}{%endif%} <small class="{{'text-muted' if dark_mode else 'text-secondary'}}">{%if subtitle%}{{subtitle}}{%endif%}</small></h3></th></tr>
                 {% if menu %}
                 {% for item in menu %} 

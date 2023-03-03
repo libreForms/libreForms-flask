@@ -1,7 +1,7 @@
 {% extends 'base.html.jinja' %}
 {% block content %}
  
-<form title="create_report" method="post">
+<form title="create report" method="post">
   <fieldset>
     <div title="name" class="form-group">
       <label class="form-label mt-4 required" for="name" data-bs-toggle="tooltip" data-bs-placement="right" title="Enter a name for the new report (100 chars max)">Name</label>
@@ -37,7 +37,7 @@
     </div>
 
 
-    <div title="time_condition" class="form-group">
+    <div title="time condition" class="form-group">
       <label class="form-label mt-4 required" for="time_condition" data-bs-toggle="tooltip" data-bs-placement="right" title="Select the timeframe for the reports you'd like captured by this report">Forms Included</label>
       <select class="form-control" id="time_condition" name="time_condition" required>
         <option value="created_since_last_run"{%if report and report.time_condition == 'created_since_last_run'%} selected="selected"{%endif%}>{{form_name}} forms created since last run</option>
@@ -51,12 +51,12 @@
       </select>
     </div>
     
-    <div title="start_at" class="form-group">
+    <div title="start at" class="form-group">
       <label class="form-label mt-4" for="start_at" data-bs-toggle="tooltip" data-bs-placement="right" title="Select the starting date (defaults to today)">Start Date</label>
       <input class="form-control" type="date" id="start_at" name="start_at" value="{{ report.start_at_human_readable if report else ''}}"/>
     </div>
 
-    <div title="end_at" class="form-group">
+    <div title="end at" class="form-group">
       <label class="form-label mt-4" for="end_at" data-bs-toggle="tooltip" data-bs-placement="right" title="Select the ending date (defaults to never)">End Date</label>
       <input class="form-control" type="date" id="end_at" name="end_at" value="{{ report.end_at_human_readable if report else ''}}"/> 
     </div>

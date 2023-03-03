@@ -6,7 +6,7 @@
 
 <table role="presentation" class="table {{'text-dark' if not dark_mode else 'table-hover'}}">
   <tbody>
-    <tr title="report_id" class="table{% if emphasize and item in emphasize %}{{'-secondary' if dark_mode else '-primary'}}{% else %}{{'-dark' if dark_mode else '-transparent'}}{% endif %}">
+    <tr title="report id" class="table{% if emphasize and item in emphasize %}{{'-secondary' if dark_mode else '-primary'}}{% else %}{{'-dark' if dark_mode else '-transparent'}}{% endif %}">
       <th scope="row">Report ID</th>
       <td>{{report.report_id}}</td>
     </tr>
@@ -41,22 +41,22 @@
       <td>{{ report.active }}</td>
     </tr>
     
-    <tr title="last_modified" class="table{% if emphasize and item in emphasize %}{{'-secondary' if dark_mode else '-primary'}}{% else %}{{'-dark' if dark_mode else '-transparent'}}{% endif %}">
+    <tr title="last modified" class="table{% if emphasize and item in emphasize %}{{'-secondary' if dark_mode else '-primary'}}{% else %}{{'-dark' if dark_mode else '-transparent'}}{% endif %}">
       <th scope="row">Last Modified</th>
       <td>{{ report.timestamp_human_readable }}</td>
     </tr>
     
-    <tr title="start_at" class="table{% if emphasize and item in emphasize %}{{'-secondary' if dark_mode else '-primary'}}{% else %}{{'-dark' if dark_mode else '-transparent'}}{% endif %}">
+    <tr title="start at" class="table{% if emphasize and item in emphasize %}{{'-secondary' if dark_mode else '-primary'}}{% else %}{{'-dark' if dark_mode else '-transparent'}}{% endif %}">
       <th scope="row">Start Date</th>
       <td>{{ report.start_at_human_readable }}</td>
     </tr>
     
-    <tr title="end_at" class="table{% if emphasize and item in emphasize %}{{'-secondary' if dark_mode else '-primary'}}{% else %}{{'-dark' if dark_mode else '-transparent'}}{% endif %}">
+    <tr title="end at" class="table{% if emphasize and item in emphasize %}{{'-secondary' if dark_mode else '-primary'}}{% else %}{{'-dark' if dark_mode else '-transparent'}}{% endif %}">
       <th scope="row">End Date</th>
       <td>{{ report.end_at_human_readable }}</td>
     </tr>
 
-    <tr title="last_run" class="table{% if emphasize and item in emphasize %}{{'-secondary' if dark_mode else '-primary'}}{% else %}{{'-dark' if dark_mode else '-transparent'}}{% endif %}">
+    <tr title="last run" class="table{% if emphasize and item in emphasize %}{{'-secondary' if dark_mode else '-primary'}}{% else %}{{'-dark' if dark_mode else '-transparent'}}{% endif %}">
       <th scope="row">Last Run</th>
       <td>{{ report.last_run_at_human_readable }}</td>
     </tr>

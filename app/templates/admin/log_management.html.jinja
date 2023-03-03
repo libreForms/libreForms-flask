@@ -2,7 +2,7 @@
 {% block content %}
 
 <form action="" method="post">
-<div title="enable_user_profile_log_aggregation" class="form-group">
+<div title="enable user profile log aggregation" class="form-group">
     <label class="form-label mt-4 required" for="enable_user_profile_log_aggregation" data-bs-toggle="tooltip" data-bs-placement="right" title="Select whether you'd like users to see logs in their profiles">Show logs in user profiles</label>
     <select name="enable_user_profile_log_aggregation" onChange="this.form.submit()" class="form-select" required>
         <option value="yes" id="yes" name="yes" {%if config['enable_user_profile_log_aggregation'] %} selected="selected" {%endif%}>Yes</option>
@@ -23,7 +23,7 @@
 </form>
 
 {% if log_data %}
-<div title="user_log" style="padding-top: 10px;">
+<div title="user log" style="padding-top: 10px;">
     <hr/>
     <h4>Log Data</h4>
 

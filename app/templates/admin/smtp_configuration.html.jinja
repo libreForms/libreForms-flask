@@ -2,7 +2,7 @@
 {% block content %}
 
 <form action="" method="post">
-<div title="smtp_enabled" class="form-group">
+<div title="smtp enabled" class="form-group">
     <label class="form-label mt-4 required" for="smtp_enabled" data-bs-toggle="tooltip" data-bs-placement="right" title="Select whether you'd like to enable SMTP">Enable SMTP</label>
     <select name="smtp_enabled" onChange="this.form.submit()" class="form-select" required>
         <option value="yes" id="yes" name="yes" {%if config['smtp_enabled'] %} selected="selected" {%endif%}>Yes</option>
@@ -10,31 +10,31 @@
     </select>
 </div>
 
-<div title="smtp_mail_server" class="form-group">
+<div title="smtp mail server" class="form-group">
     <label class="form-label mt-4 required" for="smtp_mail_server" data-bs-toggle="tooltip" data-bs-placement="right" title="Please identify the mail server to use">Mail Server</label>
     <input value="{{config['smtp_mail_server'] if config['smtp_mail_server'] else ''}}"  type="text" name="smtp_mail_server" onChange="this.form.submit()" class="form-control"/>
 </div>
-<div title="smtp_port" class="form-group">
+<div title="smtp port" class="form-group">
     <label class="form-label mt-4 required" for="smtp_port" data-bs-toggle="tooltip" data-bs-placement="right" title="Please identify the mail port to use">Mail Port</label>
     <input value="{{config['smtp_port'] if config['smtp_port'] else ''}}"  type="number" name="smtp_port" onChange="this.form.submit()" class="form-control"/>
 </div>
 
-<div title="smtp_username" class="form-group">
+<div title="smtp username" class="form-group">
     <label class="form-label mt-4 required" for="smtp_username" data-bs-toggle="tooltip" data-bs-placement="right" title="Please identify the mail user">Mail User</label>
     <input value="{{config['smtp_username'] if config['smtp_username'] else ''}}"  type="text" name="smtp_username" onChange="this.form.submit()" class="form-control"/>
 </div>
 
-<div title="smtp_password" class="form-group">
+<div title="smtp password" class="form-group">
     <label class="form-label mt-4 required" for="smtp_password" data-bs-toggle="tooltip" data-bs-placement="right" title="Please identify the mail password to use">Mail Password</label>
     <input value="{{config['smtp_password'] if config['smtp_password'] else ''}}"  type="password" name="smtp_password" onChange="this.form.submit()" class="form-control"/>
 </div>
 
-<div title="smtp_from_address" class="form-group">
+<div title="smtp from address" class="form-group">
     <label class="form-label mt-4 required" for="smtp_from_address" data-bs-toggle="tooltip" data-bs-placement="right" title="Please identify the mail from-address to use">Mail From Address</label>
     <input value="{{config['smtp_from_address'] if config['smtp_from_address'] else ''}}" type="text" name="smtp_from_address" onChange="this.form.submit()" class="form-control"/>
 </div>
 
-<div title="send_mail_asynchronously" class="form-group">
+<div title="send mail asynchronously" class="form-group">
     <label class="form-label mt-4 required" for="send_mail_asynchronously" data-bs-toggle="tooltip" data-bs-placement="right" title="Select whether you'd like to send mail asynchronously">Send mail asynchronously</label>
     <select name="send_mail_asynchronously" onChange="this.form.submit()" class="form-select">
         <option value="yes" id="yes" name="yes" {%if config['send_mail_asynchronously'] %} selected="selected" {%endif%}>Yes</option>
