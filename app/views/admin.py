@@ -49,7 +49,7 @@ References:
 __name__ = "app.views.admin"
 __author__ = "Sig Janoska-Bedi"
 __credits__ = ["Sig Janoska-Bedi"]
-__version__ = "1.6.0"
+__version__ = "1.7.0"
 __license__ = "AGPL-3.0"
 __maintainer__ = "Sig Janoska-Bedi"
 __email__ = "signe@atreeus.com"
@@ -228,6 +228,7 @@ def admin_home():
         name='Admin',
         subtitle='Home',
         type="admin",
+        msg="Select an admin view from the left-hand menu.",
         menu=compile_admin_views_for_menu(),
         **standard_view_kwargs(),
         )

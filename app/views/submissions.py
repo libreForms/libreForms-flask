@@ -8,7 +8,7 @@ submissions.py: implementation of views for post-submission form management
 __name__ = "app.views.submissions"
 __author__ = "Sig Janoska-Bedi"
 __credits__ = ["Sig Janoska-Bedi"]
-__version__ = "1.6.0"
+__version__ = "1.7.0"
 __license__ = "AGPL-3.0"
 __maintainer__ = "Sig Janoska-Bedi"
 __email__ = "signe@atreeus.com"
