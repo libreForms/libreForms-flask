@@ -178,6 +178,36 @@ def compile_form_data(form_names=[]):
             
     return df
 
+
+def prettify_time_diff(time:float):
+    if time < 3600:
+        if (time / 60) < 1:
+            return "less than a minute ago"
+        elif (time / 90) < 1 <= (time / 60):
+            return "about a minute ago"
+        elif (time / 420) < 1 <= (time / 90):
+            return "a few minutes ago"
+        elif (time / 900) < 1 <= (time / 420):
+            return "about ten minutes ago"
+        elif (time / 1500) < 1 <= (time / 900):
+            return "about twenty minutes ago"
+        elif (time / 2100) < 1 <= (time / 1500):
+            return "about thirty minutes ago"
+        elif (time / 2700) < 1 <= (time / 2100):
+            return "about thirty minutes ago"
+        elif (time / 3300) < 1 <= (time / 2700):
+            return "about forty minutes ago"
+        elif (time / 3600) < 1 <= (time / 3300):
+            return "about fifty minutes ago"
+    elif 84600 > time >= 3600: # we short 86400 seconds by 1800 seconds to manage rounding issues
+        return f"about {round(time / 3600)} hour/s ago"
+    elif 84600 <= time:
+        return f"about {round(time / 86400)} day/s ago"
+    else:
+        return ""
+
+
+
 bp = Blueprint('admin', __name__, url_prefix='/admin')
 
 
@@ -551,10 +581,17 @@ def restart_application():
     if request.method == 'POST':
         return redirect(url_for('admin.restart_now'))
 
+    last_restart = datetime.datetime.strptime(config['last_restart'], "%Y-%m-%d %H:%M:%S")
+    current_time = datetime.datetime.now()
+
+    # Calculate time difference
+    uptime = current_time - last_restart
+
     return render_template('admin/restart_application.html.jinja',
         name='Admin',
         subtitle='Restart',
         type="admin",
+        uptime=prettify_time_diff(uptime.total_seconds()),
         menu=compile_admin_views_for_menu(),
         **standard_view_kwargs(),
         )

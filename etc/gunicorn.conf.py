@@ -99,7 +99,7 @@ loglevel = "debug"
 # exists, see https://github.com/libreForms/libreForms-flask/issues/233.
 with open ('libreforms.env', 'a'): pass
 
-# we laos add a restart log, which will be used to trigger reloads
+# we load add a restart log, which will be used to trigger reloads
 with open (os.path.join(logpath, "restart.log"), 'a'): pass
 
 reload = True

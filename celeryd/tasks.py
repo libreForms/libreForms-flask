@@ -66,7 +66,7 @@ def restart_app_async():
     #     # os.system('systemctl restart libreforms-gunicorn')
 
     with open ('log/restart.log','a') as f:
-        f.write(datetime.now().strftime("%Y-%m-%d %H:%M:%S") )
+        f.write(datetime.now().strftime("%Y-%m-%d %H:%M:%S")+"\n")
 
     # else:
     #     import subprocess
