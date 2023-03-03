@@ -229,7 +229,7 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
     # This should enable us to access the client IP address using request.remote_addr.
     app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1)
 
-    #  create any directories that haven't been created.
+    #  create any files / directories that haven't been created.
     try:
         os.makedirs(app.instance_path)
     except OSError:
@@ -242,6 +242,11 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
         os.makedirs(config['config_folder'])
     except OSError:
         pass
+
+    # here we create files that will be used to trigger touch reload 
+    # see https://github.com/libreForms/libreForms-flask/issues/233.
+    with open ('libreforms.env', 'a'): pass
+    with open ("log/restart.log", 'a'): pass
 
     ##########################
     # DB initialization -- initialize a context-bound db instance
