@@ -251,7 +251,7 @@ def view_report(report_id):
     # print(Report.__table__.columns)
 
     # this is the link to edit report
-    msg = Markup(f"<table><tr><td><a href = \"{url_for('reports.modify_report', report_id=report_id)}\">Edit report</a></td></tr>")
+    msg = Markup(f"<table role=\"presentation\"><tr><td><a href = \"{url_for('reports.modify_report', report_id=report_id)}\">Edit report</a></td></tr>")
     
     # this is the link to activate / deactivate report
     if report.active:

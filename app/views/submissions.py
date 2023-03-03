@@ -656,7 +656,7 @@ def render_document(form_name, document_id):
             # is generally not intended to be visible
             record.drop(columns=[mongodb.metadata_field_names['metadata']], inplace=True)
 
-            msg = Markup(f"<table><tr><td><a href = '{config['domain']}/submissions/{form_name}/{document_id}/history'>view document history</a></td></tr>")
+            msg = Markup(f"<table role=\"presentation\"><tr><td><a href = '{config['domain']}/submissions/{form_name}/{document_id}/history'>view document history</a></td></tr>")
 
             # print (current_user.username)
             # print (record[mongodb.metadata_field_names['reporter']].iloc[0])
@@ -802,7 +802,7 @@ def render_document_history(form_name, document_id):
             emphasize = [x for x in t3[timestamp].keys()]
             flash(f'The following values changed in this version and are emphasized below: {", ".join(emphasize)}. ')
 
-            msg = Markup(f"<table><tr><td><a href = '{config['domain']}/submissions/{form_name}/{document_id}'>go back to document</a></td></tr>")
+            msg = Markup(f"<table role=\"presentation\"><tr><td><a href = '{config['domain']}/submissions/{form_name}/{document_id}'>go back to document</a></td></tr>")
 
             # print (current_user.username)
             # print (record.transpose()[mongodb.metadata_field_names['reporter']].iloc[0])
@@ -1155,7 +1155,7 @@ def review_document(form_name, document_id):
         record.drop(columns=[mongodb.metadata_field_names['metadata']], inplace=True)
 
 
-        msg = Markup(f"<table><tr><td><a href = '{config['domain']}/submissions/{form_name}/{document_id}'>go back to document</a></td></tr>")
+        msg = Markup(f"<table role=\"presentation\"><tr><td><a href = '{config['domain']}/submissions/{form_name}/{document_id}'>go back to document</a></td></tr>")
         msg = msg + Markup(f"<tr><td><a href = '{config['domain']}/submissions/{form_name}/{document_id}/history'>view document history</a></td></tr></table>")
 
         # print (current_user.username)

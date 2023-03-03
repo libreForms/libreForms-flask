@@ -2,7 +2,7 @@
 {% block content %}
 
 
-<table title="submissions" class="table {{'text-dark' if not dark_mode else 'table-hover'}}">
+<table role="presentation" title="submissions" class="table {{'text-dark' if not dark_mode else 'table-hover'}}">
   <tbody>
   {% for item in submission.index %} 
     <tr class="table{% if emphasize and item in emphasize %}-secondary{% else %}{{'-dark' if dark_mode else '-transparent'}}{% endif %}">

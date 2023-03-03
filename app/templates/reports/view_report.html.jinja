@@ -4,7 +4,7 @@
   
 
 
-<table class="table {{'text-dark' if not dark_mode else 'table-hover'}}">
+<table role="presentation" class="table {{'text-dark' if not dark_mode else 'table-hover'}}">
   <tbody>
     <tr title="report_id" class="table{% if emphasize and item in emphasize %}{{'-secondary' if dark_mode else '-primary'}}{% else %}{{'-dark' if dark_mode else '-transparent'}}{% endif %}">
       <th scope="row">Report ID</th>
