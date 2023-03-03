@@ -626,6 +626,46 @@ class MongoDB:
                 from_collection.delete_many({})
 
 
+    def migrate_collection(self,from_collection_name,to_collection_name,delete_originals_on_transfer=True):
+        with MongoClient(host=self.host, port=self.port) if not self.dbpw else MongoClient(self.connection_string) as client:
+            db = client['libreforms']
+
+            from_collection = db[from_collection_name]
+            to_collection = db[to_collection_name]
+
+            # Retrieve all documents from collection A
+            pipeline = []
+            documents = from_collection.aggregate(pipeline)
+
+            to_collection.insert_many(documents)
+            if delete_originals_on_transfer:
+                from_collection.delete_many({})
+
+
+    def migrate_single_document(self,from_collection_name,to_collection_name,document_id,delete_originals_on_transfer=True):
+        with MongoClient(host=self.host, port=self.port) if not self.dbpw else MongoClient(self.connection_string) as client:
+            db = client['libreforms']
+
+            from_collection = db[from_collection_name]
+            to_collection = db[to_collection_name]
+
+            # Find document in from_collection and make a copy
+            document = from_collection.find_one({'_id': ObjectId(document_id)})
+
+            # return None if document not found
+            if not document:
+                return None
+            
+            document_copy = document.copy()
+            # Insert copied document into new collection
+            to_collection.insert_one(document_copy)
+
+            from_collection.delete_one({'_id': ObjectId(document_id)})
+
+            return True
+
+
+
     # def get_access_roster(self, collection_name, document_id):
 
     #     # This will read the access_roster data for a given form, expecting 
