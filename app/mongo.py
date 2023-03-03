@@ -610,6 +610,21 @@ class MongoDB:
             except:
                 return False
 
+    def migrate_form_data(self,from_collection_name,to_collection_name,delete_originals_on_transfer=True):
+        with MongoClient(host=self.host, port=self.port) if not self.dbpw else MongoClient(self.connection_string) as client:
+            db = client['libreforms']
+
+            from_collection = db[from_collection_name]
+            to_collection = db[to_collection_name]
+
+            # Retrieve all documents from collection A
+            pipeline = []
+            documents = from_collection.aggregate(pipeline)
+
+            to_collection.insert_many(documents)
+            if delete_originals_on_transfer:
+                from_collection.delete_many({})
+
 
     # def get_access_roster(self, collection_name, document_id):
 
