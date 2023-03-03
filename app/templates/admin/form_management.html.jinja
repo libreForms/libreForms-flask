@@ -2,9 +2,9 @@
 {% block content %}
 
 
+<h4>Forms</h4>
 <form action="" method="post">
 <div title="forms" class="form-group">
-    <label class="form-label mt-4 required" for="form" data-bs-toggle="tooltip" data-bs-placement="right" title="Select a form that you'd like to view">Forms</label>
     <select name="form" onChange="this.form.submit()" class="form-select" required>
         <option value="*all forms*" id="*all forms*" name="*all forms*">*all forms*</option>
         {%for form in form_list%}
@@ -12,12 +12,9 @@
         {%endfor%}
     </select>
 </div>
-
 </form>
 
-  
-<h4>Forms</h4>
-<div class="list-group vh-60 scrollable overflow-auto table table-hover">
+<div style='padding-top:10px;' class="list-group vh-60 scrollable overflow-auto table table-hover">
 
     <table role="presentation" title="user table" class="table {{'text-dark' if not dark_mode else 'table-hover'}}">
         <tbody>
