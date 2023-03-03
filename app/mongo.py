@@ -681,8 +681,19 @@ class MongoDB:
             # to_collection_name = from_collection_name
             return None
         
-        self.migrate_single_document(from_collection_name, to_collection_name,document_id)
+        return self.migrate_single_document(from_collection_name, to_collection_name,document_id)
 
+    # this method will restore a soft-deleted document.
+    def restore_soft_deleted_document(self,to_collection_name,document_id):
+
+        # here we set the from_collection name to the 'deletion' collection (_COLLECTION_NAME)
+        # unless it already starts with an underscore, in which case we return None
+        if not to_collection_name.startswith('_'):
+            from_collection_name = '_'+to_collection_name
+        else:
+            return None
+        
+        return self.migrate_single_document(from_collection_name, to_collection_name,document_id)
 
 
     # def get_access_roster(self, collection_name, document_id):
