@@ -9,22 +9,22 @@
 <h4>Profile</h4>
 
 <table title="user_profile" class="table {{'text-dark' if not dark_mode else ''}}">
-<tr title="username" ><td><b>Username</b>: {{ user.username }}</td></tr>
-<tr title="email" ><td><b>Email</b>: <span> {{ user.email }}</span></td></tr>
-<tr title="group" ><td><b>Group</b>: {{ user.group }}</td></tr>
-<tr title="organization" ><td><b>Organization</b>: <span>{{ user.organization }}</span></td></tr>
-<tr title="phone" ><td><b>Phone</b>: <span>{{ user.phone }}</span></td></tr>
-<tr title="theme" ><td><b>Theme</b>: <span>{{ user.theme }}</span></td></tr>
+<tr title="username" ><td><b>Username</b></td><td style="width: 80%;">{{ user.username }}</td></tr>
+<tr title="email" ><td><b>Email</b></td><td style="width: 80%;"><span> {{ user.email }}</span></td></tr>
+<tr title="group" ><td><b>Group</b></td><td style="width: 80%;">{{ user.group }}</td></tr>
+<tr title="organization" ><td><b>Organization</b></td><td style="width: 80%;"><span>{{ user.organization }}</span></td></tr>
+<tr title="phone" ><td><b>Phone</b></td><td style="width: 80%;"><span>{{ user.phone }}</span></td></tr>
+<tr title="theme" ><td><b>Theme</b></td><td style="width: 80%;"><span>{{ user.theme }}</span></td></tr>
 {% if config['user_registration_fields'] is defined %}
 {% for attribute in config['user_registration_fields'] %}
-<tr title="{{attribute}}"><td><b>{{attribute | capitalize | replace("_", " ")}}</b>: {{ user[attribute] }}</td></tr>
+<tr title="{{attribute}}"><td><b>{{attribute | capitalize | replace("_", " ")}}</b></td><td style="width: 80%;">{{ user[attribute] }}</td></tr>
 {% endfor %}
 {% endif %}
 </td></tr>
-<tr title="created_date"><td><b>Created</b>: {{ user.created_date }}</td></tr>
-<tr title="user_submissions"><td><b>Submissions</b>: <a href="{{config['domain']}}/submissions/user/{{ user.username }}">view here</a></td></tr>
-<tr title="user_documents_for_review"><td><b>Review</b>: <a href="{{config['domain']}}/submissions/review/{{ user.username }}">view here</a> {%if notifications%} <span class="badge bg-primary">{{notifications}}{%endif%}</span></td></tr>
-<tr title="user_reports"><td><b>Reports</b>: <a href="{{config['domain']}}/reports">view here</a></td></tr>
+<tr title="created_date"><td><b>Created</b></td><td style="width: 80%;">{{ user.created_date }}</td></tr>
+<tr title="user_submissions"><td><b>Submissions</b></td><td style="width: 80%;"><a href="{{config['domain']}}/submissions/user/{{ user.username }}">view here</a></td></tr>
+<tr title="user_documents_for_review"><td><b>Review</b></td><td style="width: 80%;"><a href="{{config['domain']}}/submissions/review/{{ user.username }}">view here</a> {%if notifications%} <span class="badge bg-primary">{{notifications}}{%endif%}</span></td></tr>
+<tr title="user_reports"><td><b>Reports</b></td><td style="width: 80%;"><a href="{{config['domain']}}/reports">view here</a></td></tr>
 </table>
 
 <hr/>
@@ -50,7 +50,7 @@
 </form>
 
 {% if log_data %}
-<div title="user_log" style="padding-top: 10px;">
+<div title="user_log" style="padding-top:10px;">
     <hr/>
     <h4>User Log</h4>
 
