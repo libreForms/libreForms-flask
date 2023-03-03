@@ -97,6 +97,10 @@ loglevel = "debug"
 
 # here we configure touch reload and create the dotenv file if none
 # exists, see https://github.com/libreForms/libreForms-flask/issues/233.
-reload = True
 with open ('libreforms.env', 'a'): pass
-reload_extra_files = ['./libreforms.env']
+
+# we laos add a restart log, which will be used to trigger reloads
+with open (os.path.join(logpath, "restart.log"), 'a'): pass
+
+reload = True
+reload_extra_files = ['./libreforms.env', os.path.join(logpath, "restart.log")]
