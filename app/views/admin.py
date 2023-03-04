@@ -170,7 +170,7 @@ def compile_form_data(form_names=[]):
             
             new_row = pd.DataFrame({    'form':[form_name], 
                                         'id': [Markup(f"<a href=\"{config['domain']}/submissions/{form_name}/{row['_id']}\">{row['_id']}</a>")], 
-                                        'owner':[row[mongodb.metadata_field_names['owner']]], 
+                                        'owner':[Markup(f"<a href=\"{config['domain']}/auth/profile/{row[mongodb.metadata_field_names['owner']]}\">{row[mongodb.metadata_field_names['owner']]}</a>")], 
                                         'timestamp':[row[mongodb.metadata_field_names['timestamp']]],})
 
             df = pd.concat([df, new_row],
