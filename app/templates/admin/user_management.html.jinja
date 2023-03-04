@@ -23,7 +23,7 @@
 
                 <td>{{ row.id }}</td>
                 <td>{{ row.email }}</td>
-                <td>{{ row.username }}</td>
+                <td><a href="{{url_for('auth.other_profiles',username=row.username)}}">{{ row.username }}</td>
                 <td>{{ row.group }}</td>
                 <td>{{ row.organization }}</td>
                 <td>{{ row.phone }}</td>
