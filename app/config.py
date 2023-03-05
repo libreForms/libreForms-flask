@@ -271,6 +271,9 @@ config['require_login_for_docs'] = True
 config['enable_front_page_feed'] = False
 config['number_of_forms_in_feed'] = 5
 
+# this config determines whether to enable the libreforms CLI interface, which is defined
+# further at https://github.com/libreForms/libreForms-flask/issues/123.
+config['enable_cli'] = True
 
 ##########################
 # User Registration / Auth
