@@ -18,10 +18,17 @@ __maintainer__ = "Sig Janoska-Bedi"
 __email__ = "signe@atreeus.com"
 
 
+# general dependencies
+import os, sys
+
 # import flask-related packages
 from flask import Blueprint
 from flask.cli import with_appcontext
-import click, os, sys
+import click
+
+# libreforms dependencies
+from app import log
+from app.models import db, User
 
 bp = Blueprint('cli', __name__)
 
@@ -31,15 +38,37 @@ bp = Blueprint('cli', __name__)
 def create_user(username):
     """Add USERNAME to the libreforms user db."""
     click.echo(username)
+    click.echo("Need to add user options and interactive user creation process.")
+    
 
 
 @bp.cli.command('activate')
-@click.argument('username')
 @click.option('--deactivate', is_flag=True, show_default=True, default=False, help='deactivate USERNAME')
+@click.option('--show-status','-s', is_flag=True, show_default=True, default=False, help='show activation status for USERNAME')
+@click.argument('username')
 @with_appcontext
-def activate_user(username):
+def activate_user(username,deactivate=False):
     """Manage active status for USERNAME in libreforms user db."""
-    click.echo(username)
+
+    # query user database for user
+    user = User.query.filter_by(username=str(username)).first()
+    
+    # return 2 if user doesn't exist
+    if isinstance(user,type(None)):
+        click.echo(f"Error: user {username} does not exist. You can create them by running `flask libreforms useradd {username}`.")
+        sys.exit(2)
+
+    # return 2 if user is already inactive when deactivation is requested, or 
+    # if user is already active when activation is requested.
+    if (deactivate and user.active==0) or (not deactivate and user.active==1):
+        click.echo(f"Error: user {username} is already {'inactive' if deactivate else 'active'}.")
+        sys.exit(2)    
+
+    user.active=0 if deactivate else 1 
+    db.session.commit()
+    click.echo(f"Success: {'deactivated' if deactivate else 'activated'} user {username}.")
+    log.info(f"LIBREFORMS - successfully {'deactivated' if deactivate else 'activated'} user {username} via CLI.")
+    sys.exit(0)
 
 
 # this command is used to generate accessibility audio for the libreForms-flask web application,
@@ -47,7 +76,7 @@ def activate_user(username):
 @bp.cli.command('generate-accessibility-audio')
 @click.option('--directory', show_default=True, default='/opt/libreForms/app/static', help='directory to store accessibility audio')
 @with_appcontext
-def activate_user(directory):
+def generate_accessibility_audio(directory):
     """Generate accessibility audio for libreForms web app."""
     
     # first we ensure a valid path has been provided
@@ -59,5 +88,5 @@ def activate_user(directory):
     from app.accessibility import generate_all_app_audio_files
     click.echo(f"Started generating accessibility audio in {directory}.")
     generate_all_app_audio_files(directory)
-    click.echo (f"Successfully generated accessibility audio in {directory}.")
+    click.echo (f"Success: generated accessibility audio in {directory}.")
     sys.exit(0)
