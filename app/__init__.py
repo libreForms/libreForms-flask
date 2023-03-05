@@ -515,6 +515,11 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
         from .views import docs
         app.register_blueprint(docs.bp)
 
+    if config['enable_cli']:
+        from .views import cli
+        app.register_blueprint(cli.bp, cli_group='libreforms')
+
+
     # define a home route
     @app.route('/')
     def home():
