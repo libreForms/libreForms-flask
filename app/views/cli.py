@@ -44,10 +44,10 @@ def create_user(username):
 
 @bp.cli.command('activate')
 @click.option('--deactivate', is_flag=True, show_default=True, default=False, help='deactivate USERNAME')
-@click.option('--show-status','-s', is_flag=True, show_default=True, default=False, help='show activation status for USERNAME')
+@click.option('-s','--show', is_flag=True, show_default=True, default=False, help='show activation status for USERNAME')
 @click.argument('username')
 @with_appcontext
-def activate_user(username,deactivate=False):
+def activate_user(username,deactivate=False,show=False):
     """Manage active status for USERNAME in libreforms user db."""
 
     # query user database for user
@@ -57,6 +57,11 @@ def activate_user(username,deactivate=False):
     if isinstance(user,type(None)):
         click.echo(f"Error: user {username} does not exist. You can create them by running `flask libreforms useradd {username}`.")
         sys.exit(2)
+    
+    if show:
+        click.echo(f"Success: user {username} has an active status of {user.active}.")
+        sys.exit(0)
+       
 
     # return 2 if user is already inactive when deactivation is requested, or 
     # if user is already active when activation is requested.
