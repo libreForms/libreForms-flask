@@ -29,17 +29,36 @@ import click
 # libreforms dependencies
 from app import log
 from app.models import db, User
+from app.config import config
 
 bp = Blueprint('cli', __name__)
 
+# @bp.cli.command('test')
+# @click.option('--prompt', prompt=True, help='this option will prompt for a response if none is given.')
+# def test_command(prompt):
+#     """This is a test command."""
+#     click.echo(prompt)
+
+
+# STILL NEED TO ADD ADD'L ADMIN-DEFINED OPTIONS
 @bp.cli.command('useradd')
 @click.argument('username')
+@click.option('--email', prompt=True, help='email')
+@click.password_option()
+@click.option('--organization', prompt=True, default=config['default_org'], help='organization')
+@click.option('--phone', prompt=True, help='phone')
+@click.option('--active', show_default=True, default=0, help='activate, options [0,1]')
+@click.option('--theme', show_default=True, default=f'{"dark" if config["dark_mode"] else "light"}', help='theme, select from ["light","dark"]')
+@click.option('--group', show_default=True, default=config['default_group'], help=f'group, select from {config["groups"]}')
 @with_appcontext
-def create_user(username):
+def create_user(username, email, password, organization, phone, active, theme, group):
     """Add USERNAME to the libreforms user db."""
-    click.echo(username)
-    click.echo("Need to add user options and interactive user creation process.")
+    click.echo(f"{username}, {email}, {password}, {organization}, {phone}, {active}, {theme}, {group},")
+    # click.echo("Need to add user options and interactive user creation process.")
     
+    # id = db.Column(db.Integer, primary_key=True) 
+    # certificate = db.Column(db.LargeBinary())
+    # created_date = db.Column(db.String(1000))
 
 
 @bp.cli.command('activate')
