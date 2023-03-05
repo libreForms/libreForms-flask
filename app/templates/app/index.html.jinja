@@ -1,8 +1,41 @@
 {% extends 'base.html.jinja' %}
 {% block content %}
-			{% if homepage %}
-			  {{ config.homepage_msg }}
-		    {% endif %}
+{% if homepage %}
+	{{ config.homepage_msg }}
+{% endif %}
+
+{% if config['enable_front_page_feed'] and current_user.is_authenticated %}
+
+<h4>News Feed</h4>
+
+<div style='padding-top:10px;' class="list-group vh-60 scrollable overflow-auto table table-hover">
+
+    <table role="presentation" title="user table" class="table {{'text-dark' if not dark_mode else 'table-hover'}}">
+        <tbody>
+            <tr>
+                <th>Form</th>
+                <th>Document ID</th>
+                <th>Owner</th>
+                <th>Last Edited</th>
+            </tr>
+
+        {% for index, row in news_feed.iterrows() %}
+            <tr class="table{% if emphasize and item in emphasize %}-secondary{% else %}{{'-dark' if dark_mode else '-transparent'}}{% endif %}">
+
+                <td>{{ row.form }}</td>
+                <td>{{ row.id }}</td>
+                <td>{{ row.owner }}</td>
+                <td>{{ row.timestamp }}</td>
+            
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+
+
+{% endif %}
 
 			
 {% endblock %}

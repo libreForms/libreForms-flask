@@ -253,6 +253,25 @@ config['elasticsearch_index_refresh_rate'] = 600.0
 config['fuzzy_search'] = False # | "AUTO" | 5 | 80 < examples for elasticsearch, elasticsearch, and fuzzywuzzy
 config['limit_search_results_length'] = None
 
+# this config determines whether to enable form post processing, which defaults to True,
+# see https://github.com/libreForms/libreForms-flask/issues/201.
+config['enable_form_processing'] = True
+
+# this config determines whether the application render user documentation pages, but will disable
+# them by default. In addition, if `require_login_for_docs` is set to True, then only logged in users
+# will be able to see the documentation. The `docs_body` field stores the information that will be
+# presented to end users on the docs page. For further discussion of this feature, see 
+# https://github.com/libreForms/libreForms-flask/issues/197.
+config['enable_docs'] = False
+config['docs_body'] = Markup("<h4>Sample Documentation</h4><br/><hr/><p>If you are seeing this, that means that your system administrators have enabled documentation views for the web application, but have not written their own docs. It's highly recommended that they do so!</p>")
+config['require_login_for_docs'] = True
+
+# this config determines whether to show the five most recent forms visible to the 
+# current user, see https://github.com/libreForms/libreForms-flask/issues/199.
+config['enable_front_page_feed'] = False
+config['number_of_forms_in_feed'] = 5
+
+
 ##########################
 # User Registration / Auth
 ##########################
@@ -343,10 +362,6 @@ config['limit_bulk_registration_to_admin_group'] = True
 # implicit security risk.
 config['allow_forms_access_to_user_list'] = False
 
-# this config determines whether to enable form post processing, which defaults to True,
-# see https://github.com/libreForms/libreForms-flask/issues/201.
-config['enable_form_processing'] = True
-
 
 # this config determines whether other profiles can be viewed in the web application,
 # see https://github.com/libreForms/libreForms-flask/issues/298. Future work may improve this
@@ -359,15 +374,6 @@ config['enable_other_profile_views'] = False
 # https://github.com/libreForms/libreForms-flask/issues/299. Please note this may not work as
 # expected / desired when `visible_signature_field` has been changed, but this can probably be fixed.
 config['parse_usernames_as_badges'] = True
-
-# this config determines whether the application render user documentation pages, but will disable
-# them by default. In addition, if `require_login_for_docs` is set to True, then only logged in users
-# will be able to see the documentation. The `docs_body` field stores the information that will be
-# presented to end users on the docs page. For further discussion of this feature, see 
-# https://github.com/libreForms/libreForms-flask/issues/197.
-config['enable_docs'] = False
-config['docs_body'] = Markup("<h4>Sample Documentation</h4><br/><hr/><p>If you are seeing this, that means that your system administrators have enabled documentation views for the web application, but have not written their own docs. It's highly recommended that they do so!</p>")
-config['require_login_for_docs'] = True
 
 
 # here we overwrite the defaults above with any user-specified 

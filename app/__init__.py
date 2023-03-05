@@ -518,11 +518,50 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
     # define a home route
     @app.route('/')
     def home():
+
+        if not config['enable_front_page_feed'] or not current_user.is_authenticated:
+
+            return render_template('app/index.html.jinja', 
+                homepage=True,
+                type="home",
+                name='Site',
+                subtitle='Home',
+                **forms.standard_view_kwargs(),
+            )
+
+        # sort by: date
+        # select through index = config['number_of_forms_in_feed']
+
+        df = pd.DataFrame(columns = ['form', 'id', 'owner', 'timestamp'])
+        import libreforms
+
+        for form_name in libreforms.forms:
+
+            if not forms.checkFormGroup(form_name,current_user.group):
+                continue
+
+            temp = mongodb.new_read_documents_from_collection(form_name)
+
+            if not isinstance(temp,pd.DataFrame):
+                continue
+
+            for index,row in temp.iterrows():
+                
+                new_row = pd.DataFrame({    'form':[form_name], 
+                                            'id': [Markup(f"<a href=\"{config['domain']}/submissions/{form_name}/{row['_id']}\">{row['_id']}</a>")], 
+                                            'owner':[Markup(f"<a href=\"{config['domain']}/auth/profile/{row[mongodb.metadata_field_names['owner']]}\">{row[mongodb.metadata_field_names['owner']]}</a>")], 
+                                            'timestamp':[row[mongodb.metadata_field_names['timestamp']]],})
+
+                df = pd.concat([df, new_row],
+                        ignore_index=True)
+                
+
         return render_template('app/index.html.jinja', 
             homepage=True,
             type="home",
             name='Site',
             subtitle='Home',
+            news_feed=df if config['enable_front_page_feed'] else None,
             **forms.standard_view_kwargs(),
         )
 
