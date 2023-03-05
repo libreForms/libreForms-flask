@@ -6,11 +6,15 @@
 
 {% if config['enable_front_page_feed'] and current_user.is_authenticated %}
 
+<hr/> 
+
 <h4>News Feed</h4>
+
+{% if news_feed.index|length > 0 %}
 
 <div style='padding-top:10px;' class="list-group vh-60 scrollable overflow-auto table table-hover">
 
-    <table role="presentation" title="user table" class="table {{'text-dark' if not dark_mode else 'table-hover'}}">
+    <table role="presentation" title="news feed" class="table {{'text-dark' if not dark_mode else 'table-hover'}}">
         <tbody>
             <tr>
                 <th>Form</th>
@@ -33,7 +37,9 @@
     </table>
 </div>
 
-
+{% else %}
+<p>No news to show at this time.</p>
+{% endif %}
 
 {% endif %}
 

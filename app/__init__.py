@@ -529,15 +529,17 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
                 **forms.standard_view_kwargs(),
             )
 
-        # sort by: date
-        # select through index = config['number_of_forms_in_feed']
-
         df = pd.DataFrame(columns = ['form', 'id', 'owner', 'timestamp'])
         import libreforms
 
         for form_name in libreforms.forms:
 
-            if not forms.checkFormGroup(form_name,current_user.group):
+            # we start by verifying that this form's permissions allow it to be viewed 
+            # by the current user.
+            form_config = forms.propagate_form_configs(form_name)
+
+            if any ((current_user.group in form_config['_deny_groups'],
+                     current_user.group in form_config['_submission']['_deny_read'],)):
                 continue
 
             temp = mongodb.new_read_documents_from_collection(form_name)
@@ -547,6 +549,10 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
 
             for index,row in temp.iterrows():
                 
+                if all ((not form_config['_submission']['_enable_universal_form_access'],
+                        current_user.username != row[mongodb.metadata_field_names['owner']] )):
+                    continue
+
                 new_row = pd.DataFrame({    'form':[form_name], 
                                             'id': [Markup(f"<a href=\"{config['domain']}/submissions/{form_name}/{row['_id']}\">{row['_id']}</a>")], 
                                             'owner':[Markup(f"<a href=\"{config['domain']}/auth/profile/{row[mongodb.metadata_field_names['owner']]}\">{row[mongodb.metadata_field_names['owner']]}</a>")], 
@@ -554,7 +560,10 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
 
                 df = pd.concat([df, new_row],
                         ignore_index=True)
-                
+            df.sort_values(by='timestamp', inplace=True, ignore_index=True, ascending=False)
+        
+            if len(df.index) > config['number_of_forms_in_feed']:
+                df = df.iloc[:config['number_of_forms_in_feed']]
 
         return render_template('app/index.html.jinja', 
             homepage=True,
