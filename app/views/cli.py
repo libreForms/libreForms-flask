@@ -33,7 +33,7 @@ from app.models import db, User
 from app.config import config
 from app.certification import generate_symmetric_key
 
-def parse_addl_fields_as_options(options_dict=config['user_registration_fields']):
+def parse_addl_fields_as_options(options_dict=config['user_registration_fields'].copy()):
     options = []
     for key, value in options_dict.items():
         default_value = value['default_value'] if 'default_value' in value else value['content'][0]
@@ -68,10 +68,29 @@ def usermod_prompt_if_true(ctx, param, value):
             click.echo(f"Error: user {username} does not exist. You can create them by running `flask libreforms useradd {username}`.")
             sys.exit(2)
 
-        new_value = click.prompt(param.human_readable_name, default=getattr(user,param.human_readable_name))
+        if param.human_readable_name == 'password':
+            new_value = click.prompt(param.human_readable_name, hide_input=True, confirmation_prompt=True)  
+        else:
+            new_value = click.prompt(param.human_readable_name, default=getattr(user,param.human_readable_name))
         return new_value
     else:
         return value
+
+
+def usermod_parse_addl_fields_as_options(options_dict=config['user_registration_fields'].copy()):
+    options = []
+    for key, value in options_dict.items():
+        default_value = value['default_value'] if 'default_value' in value else value['content'][0]
+        option = click.option(f"--{key}", is_flag=True, callback=usermod_prompt_if_true)
+        options.append(option)
+    # return tuple(options)
+
+    def decorator(func):
+        for option in reversed(options):
+            func = option(func)
+        return func
+
+    return decorator
 
 
 bp = Blueprint('cli', __name__)
@@ -180,18 +199,18 @@ def create_user(username, email, password, organization, phone, active, theme, g
 @bp.cli.command('usermod')
 @click.argument('username', is_eager=True) # we set this as eager so the username is passed to the callback functions later
 @click.option('--organization', is_flag=True, callback=usermod_prompt_if_true)
-# @click.option("--password", prompt=True, hide_input=True,
-#                 confirmation_prompt=True)
-# @click.option('--organization', prompt=True, default=config['default_org'], help='organization, open field')
-# @click.option('--phone', prompt=True, help='phone, open field')
-# @parse_addl_fields_as_options()
-# @click.option('--theme', show_default=True, default=f'{"dark" if config["dark_mode"] else "light"}', help='theme, select from ["light","dark"].')
-# @click.option('--group', show_default=True, default=config['default_group'], help=f'group, select from {config["groups"]}.')
+@click.option('--password', is_flag=True, callback=usermod_prompt_if_true)
+@click.option('--phone', is_flag=True, callback=usermod_prompt_if_true)
+@click.option('--theme', is_flag=True, callback=usermod_prompt_if_true)
+@click.option('--group', is_flag=True, callback=usermod_prompt_if_true)
+@usermod_parse_addl_fields_as_options()
 @with_appcontext
-# def modify_user(username, email, password, organization, phone, active, theme, group, **kwargs):
-def modify_user(username, organization):
-    """Modify USERNAME in the libreforms user table."""
+def modify_user(username, password, organization, phone, theme, group, **kwargs):
+    """Modify record for USERNAME in the libreforms user table."""
+
     click.echo(f"{organization} {type(organization)}")
+
+
 
 # this subcommand seeks to replicate the fuctionality of the unix `id` command.
 # see discussion at https://github.com/libreForms/libreForms-flask/issues/332.
