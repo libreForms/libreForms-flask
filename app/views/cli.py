@@ -56,6 +56,9 @@ def print_version(ctx, param, value, version=__version__):
     ctx.exit()
 
 
+
+# the following two methods are specific to the `usermod` command belows, see 
+# https://github.com/libreForms/libreForms-flask/issues/329
 def usermod_prompt_if_true(ctx, param, value):
     if value:
 
@@ -77,6 +80,9 @@ def usermod_prompt_if_true(ctx, param, value):
         return value
 
 
+# this is a restatement of the parse_addl_fields_as_options function above, with the click options specified  
+# for the `usermod` command, see https://github.com/libreForms/libreForms-flask/issues/329.
+
 def usermod_parse_addl_fields_as_options(options_dict=config['user_registration_fields'].copy()):
     options = []
     for key, value in options_dict.items():
@@ -95,11 +101,11 @@ def usermod_parse_addl_fields_as_options(options_dict=config['user_registration_
 
 bp = Blueprint('cli', __name__)
 
-# @bp.cli.command('test')
-# @click.option('--prompt', prompt=True, help='this option will prompt for a response if none is given.')
-# def test_command(prompt):
-#     """This is a test command."""
-#     click.echo(prompt)
+
+
+###########################################
+## `run` run libreforms development server
+###########################################
 
 @bp.cli.command('run')
 @click.option('--version', is_flag=True, callback=print_version,
@@ -116,6 +122,10 @@ def run():
 
     os.system("flask --debug run --extra-files libreforms.env --extra-files log/restart.log")
 
+
+###########################################
+## `useradd` add a new user to the user table
+###########################################
 
 # added as part of the following github issue, this allows admins to create users 
 # through the tty, see https://github.com/libreForms/libreForms-flask/issues/242.
@@ -192,8 +202,13 @@ def create_user(username, email, password, organization, phone, active, theme, g
     db.session.add(new_user)
     db.session.commit()
     click.echo(f"Success: created user {username}.")
+    log.info(f"LIBREFORMS - successfully created user {username} via CLI.")
     sys.exit(0)
 
+
+##############################################
+## `usermod` modify a record in the user table
+##############################################
 
 # with the usermod command, we don't want to force admins to reiterate ALL of the user fields that they may need to
 @bp.cli.command('usermod')
@@ -205,12 +220,44 @@ def create_user(username, email, password, organization, phone, active, theme, g
 @click.option('--group', is_flag=True, callback=usermod_prompt_if_true)
 @usermod_parse_addl_fields_as_options()
 @with_appcontext
-def modify_user(username, password, organization, phone, theme, group, **kwargs):
+# def modify_user(username, password, organization, phone, theme, group, **kwargs):
+def modify_user(username, **kwargs):
     """Modify record for USERNAME in the libreforms user table."""
 
-    click.echo(f"{organization} {type(organization)}")
+    # query user database for user
+    user = User.query.filter_by(username=str(username)).first()
+    
+    # return 2 if user doesn't exist
+    if isinstance(user,type(None)):
+        click.echo(f"Error: user {username} does not exist. You can create them by running `flask libreforms useradd {username}`.")
+        sys.exit(2)
+
+    # quit if no arguments have been passed
+    # print(len([x for x,y in kwargs.items() if y]))
+    if len([x for x,y in kwargs.items() if y]) < 1:
+        click.echo(f"Error: no arguments passed.")
+        sys.exit(2)
+
+    for attribute,value in kwargs.items():
+
+        # we ignore attributes that have not been set here
+        if not value:
+            continue
+    
+        setattr(user, attribute, value)
+
+    db.session.commit()
+
+    #### add user modification logic
+
+    click.echo(f"Success: modified user {username}. Run `flask libreforms id {username}` to see their new details.")
+    log.info(f"LIBREFORMS - successfully modified user {username} via CLI.")
+    sys.exit(0)
 
 
+###############################
+## `id` get user information
+###############################
 
 # this subcommand seeks to replicate the fuctionality of the unix `id` command.
 # see discussion at https://github.com/libreForms/libreForms-flask/issues/332.
@@ -233,6 +280,12 @@ def id_user(username):
 
     click.echo(s)
     sys.exit(0)
+
+
+
+##############################################
+## `activate` manage user activation status
+##############################################
 
 @bp.cli.command('activate')
 @click.option('--version', is_flag=True, callback=print_version,
@@ -269,6 +322,12 @@ def activate_user(username,deactivate=False,show=False):
     log.info(f"LIBREFORMS - successfully {'deactivated' if deactivate else 'activated'} user {username} via CLI.")
     sys.exit(0)
 
+
+
+
+########################################################################
+## `generate-accessibility-audio` generate audio files for accessibility
+########################################################################
 
 # this command is used to generate accessibility audio for the libreForms-flask web application,
 # see https://github.com/libreForms/libreForms-flask/issues/286 for more information.
