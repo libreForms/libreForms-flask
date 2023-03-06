@@ -193,8 +193,27 @@ def modify_user(username, organization):
     """Modify USERNAME in the libreforms user table."""
     click.echo(f"{organization} {type(organization)}")
 
+# this subcommand seeks to replicate the fuctionality of the unix `id` command.
+# see discussion at https://github.com/libreForms/libreForms-flask/issues/332.
+@bp.cli.command('id')
+@click.argument('username') 
+@with_appcontext
+def id_user(username):
 
+    # query user database for user
+    user = User.query.filter_by(username=str(username)).first()
 
+    # return 2 if user doesn't exist
+    if isinstance(user,type(None)):
+        click.echo(f"Error: user {username} does not exist. You can create them by running `flask libreforms useradd {username}`.")
+        sys.exit(2)
+
+    # create a string with the relevant user data (minus the user's password and certificate)
+    # s = '\n'.join([f"{x}: {getattr(user,x)}" for x in dir(user) if not x.startswith('_') and x not in ['password', 'certificate']])
+    s = '\n'.join([f"{x}: {getattr(user,x)}" for x in ['username','email', 'organization','group','phone','theme','created_date','active',]+[x for x in config['user_registration_fields'].keys()]])
+
+    click.echo(s)
+    sys.exit(0)
 
 @bp.cli.command('activate')
 @click.option('--version', is_flag=True, callback=print_version,
