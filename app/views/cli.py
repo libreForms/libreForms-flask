@@ -55,6 +55,25 @@ def print_version(ctx, param, value, version=__version__):
     click.echo(f'libreForms-flask CLI version {version}.')
     ctx.exit()
 
+
+def usermod_prompt_if_true(ctx, param, value):
+    if value:
+
+        username = ctx.params['username']
+        # query user database for user
+        user = User.query.filter_by(username=str(username)).first()
+        
+        # return 2 if user doesn't exist
+        if isinstance(user,type(None)):
+            click.echo(f"Error: user {username} does not exist. You can create them by running `flask libreforms useradd {username}`.")
+            sys.exit(2)
+
+        new_value = click.prompt(param.human_readable_name, default=getattr(user,param.human_readable_name))
+        return new_value
+    else:
+        return value
+
+
 bp = Blueprint('cli', __name__)
 
 # @bp.cli.command('test')
@@ -157,19 +176,22 @@ def create_user(username, email, password, organization, phone, active, theme, g
     sys.exit(0)
 
 
-
-# @bp.cli.command('usermod')
-# @click.argument('username')
-# @click.password_option()
+# with the usermod command, we don't want to force admins to reiterate ALL of the user fields that they may need to
+@bp.cli.command('usermod')
+@click.argument('username', is_eager=True) # we set this as eager so the username is passed to the callback functions later
+@click.option('--organization', is_flag=True, callback=usermod_prompt_if_true)
+# @click.option("--password", prompt=True, hide_input=True,
+#                 confirmation_prompt=True)
 # @click.option('--organization', prompt=True, default=config['default_org'], help='organization, open field')
 # @click.option('--phone', prompt=True, help='phone, open field')
 # @parse_addl_fields_as_options()
-# @click.option('--active', show_default=True, default=0, help='activate, options [0,1]')
 # @click.option('--theme', show_default=True, default=f'{"dark" if config["dark_mode"] else "light"}', help='theme, select from ["light","dark"].')
 # @click.option('--group', show_default=True, default=config['default_group'], help=f'group, select from {config["groups"]}.')
-# @with_appcontext
+@with_appcontext
 # def modify_user(username, email, password, organization, phone, active, theme, group, **kwargs):
-#     """Modify USERNAME in the libreforms user table."""
+def modify_user(username, organization):
+    """Modify USERNAME in the libreforms user table."""
+    click.echo(f"{organization} {type(organization)}")
 
 
 
