@@ -48,6 +48,12 @@ def parse_addl_fields_as_options(options_dict=config['user_registration_fields']
 
     return decorator
 
+# borrowed version callback from https://click.palletsprojects.com/en/7.x/options/#callbacks-and-eager-options
+def print_version(ctx, param, value, version=__version__):
+    if not value or ctx.resilient_parsing:
+        return
+    click.echo(f'libreForms-flask CLI version {version}.')
+    ctx.exit()
 
 bp = Blueprint('cli', __name__)
 
@@ -58,6 +64,8 @@ bp = Blueprint('cli', __name__)
 #     click.echo(prompt)
 
 @bp.cli.command('run')
+@click.option('--version', is_flag=True, callback=print_version,
+              expose_value=False, is_eager=True)
 def run():
     """Run libreForms in development mode."""
 
@@ -70,9 +78,13 @@ def run():
 
     os.system("flask --debug run --extra-files libreforms.env --extra-files log/restart.log")
 
-# STILL NEED TO ADD ADD'L ADMIN-DEFINED OPTIONS
+
+# added as part of the following github issue, this allows admins to create users 
+# through the tty, see https://github.com/libreForms/libreForms-flask/issues/242.
 @bp.cli.command('useradd')
 @click.argument('username')
+@click.option('--version', is_flag=True, callback=print_version,
+              expose_value=False, is_eager=True)
 @click.option('--email', prompt=True, help='email, open field')
 @click.password_option()
 @click.option('--organization', prompt=True, default=config['default_org'], help='organization, open field')
@@ -84,14 +96,8 @@ def run():
 @with_appcontext
 def create_user(username, email, password, organization, phone, active, theme, group, **kwargs):
 # def create_user(**kwargs):
-    """Add USERNAME to the libreforms user db."""
-    # click.echo(f"{[y for x,y in kwargs.items()]}")
-    # click.echo(f"{username}, {email}, {password}, {organization}, {phone}, {active}, {theme}, {group}, {[y for x,y in kwargs.items()]}")
-    # click.echo("Need to add user options and interactive user creation process.")
-    
-    # id = db.Column(db.Integer, primary_key=True) 
-    # certificate = db.Column(db.LargeBinary())
-    # created_date = db.Column(db.String(1000))
+    """Add USERNAME to the libreforms user table."""
+
     created_date = datetime.datetime.today().strftime("%Y-%m-%d %H:%M:%S")
 
     if phone == "":
@@ -152,8 +158,25 @@ def create_user(username, email, password, organization, phone, active, theme, g
 
 
 
+# @bp.cli.command('usermod')
+# @click.argument('username')
+# @click.password_option()
+# @click.option('--organization', prompt=True, default=config['default_org'], help='organization, open field')
+# @click.option('--phone', prompt=True, help='phone, open field')
+# @parse_addl_fields_as_options()
+# @click.option('--active', show_default=True, default=0, help='activate, options [0,1]')
+# @click.option('--theme', show_default=True, default=f'{"dark" if config["dark_mode"] else "light"}', help='theme, select from ["light","dark"].')
+# @click.option('--group', show_default=True, default=config['default_group'], help=f'group, select from {config["groups"]}.')
+# @with_appcontext
+# def modify_user(username, email, password, organization, phone, active, theme, group, **kwargs):
+#     """Modify USERNAME in the libreforms user table."""
+
+
+
 
 @bp.cli.command('activate')
+@click.option('--version', is_flag=True, callback=print_version,
+              expose_value=False, is_eager=True)
 @click.option('--deactivate', is_flag=True, show_default=True, default=False, help='deactivate USERNAME')
 @click.option('-s','--show', is_flag=True, show_default=True, default=False, help='show activation status for USERNAME')
 @click.argument('username')
@@ -190,6 +213,8 @@ def activate_user(username,deactivate=False,show=False):
 # this command is used to generate accessibility audio for the libreForms-flask web application,
 # see https://github.com/libreForms/libreForms-flask/issues/286 for more information.
 @bp.cli.command('generate-accessibility-audio')
+@click.option('--version', is_flag=True, callback=print_version,
+              expose_value=False, is_eager=True)
 @click.option('--directory', show_default=True, default='/opt/libreForms/app/static', help='directory to store accessibility audio')
 @with_appcontext
 def generate_accessibility_audio(directory):
