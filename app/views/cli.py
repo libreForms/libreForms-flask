@@ -212,7 +212,7 @@ def create_user(username, email, password, organization, phone, active, theme, g
 
 # with the usermod command, we don't want to force admins to reiterate ALL of the user fields that they may need to
 @bp.cli.command('usermod')
-@click.argument('username', is_eager=True) # we set this as eager so the username is passed to the callback functions later
+@click.argument('username', is_eager=True, required=False) # we set this as eager so the username is passed to the callback functions later
 @click.option('--organization', is_flag=True, callback=usermod_prompt_if_true)
 @click.option('--password', is_flag=True, callback=usermod_prompt_if_true)
 @click.option('--phone', is_flag=True, callback=usermod_prompt_if_true)
@@ -221,8 +221,12 @@ def create_user(username, email, password, organization, phone, active, theme, g
 @usermod_parse_addl_fields_as_options()
 @with_appcontext
 # def modify_user(username, password, organization, phone, theme, group, **kwargs):
-def modify_user(username, **kwargs):
+def modify_user(username=None, **kwargs):
     """Modify record for USERNAME in the libreforms user table."""
+
+    if not username:
+        click.echo(f"Error: please provide a USERNAME to modify.")
+        sys.exit(2)
 
     # query user database for user
     user = User.query.filter_by(username=str(username)).first()
