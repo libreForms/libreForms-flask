@@ -57,6 +57,18 @@ bp = Blueprint('cli', __name__)
 #     """This is a test command."""
 #     click.echo(prompt)
 
+@bp.cli.command('run')
+def run():
+    """Run libreForms in development mode."""
+
+    # here we configure touch reload and create the dotenv file if none
+    # exists, see https://github.com/libreForms/libreForms-flask/issues/233.
+    with open ('libreforms.env', 'a'): pass
+
+    # we load add a restart log, which will be used to trigger reloads
+    with open (os.path.join('log', "restart.log"), 'a'): pass
+
+    os.system("flask --debug run --extra-files libreforms.env --extra-files log/restart.log")
 
 # STILL NEED TO ADD ADD'L ADMIN-DEFINED OPTIONS
 @bp.cli.command('useradd')
