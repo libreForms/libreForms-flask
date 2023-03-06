@@ -31,6 +31,22 @@ from app import log
 from app.models import db, User
 from app.config import config
 
+def parse_addl_fields_as_options(options_dict=config['user_registration_fields']):
+    options = []
+    for key, value in options_dict.items():
+        default_value = value['default_value'] if 'default_value' in value else value['content'][0]
+        option = click.option(f"--{key}", prompt=True, type=value['type'], default=default_value, help=f"{key}, select from {value['content']}")
+        options.append(option)
+    # return tuple(options)
+
+    def decorator(func):
+        for option in reversed(options):
+            func = option(func)
+        return func
+
+    return decorator
+
+
 bp = Blueprint('cli', __name__)
 
 # @bp.cli.command('test')
@@ -43,17 +59,18 @@ bp = Blueprint('cli', __name__)
 # STILL NEED TO ADD ADD'L ADMIN-DEFINED OPTIONS
 @bp.cli.command('useradd')
 @click.argument('username')
-@click.option('--email', prompt=True, help='email')
+@click.option('--email', prompt=True, help='email, open')
 @click.password_option()
-@click.option('--organization', prompt=True, default=config['default_org'], help='organization')
-@click.option('--phone', prompt=True, help='phone')
+@click.option('--organization', prompt=True, default=config['default_org'], help='organization, open field')
+@click.option('--phone', prompt=True, help='phone, open field')
+@parse_addl_fields_as_options()
 @click.option('--active', show_default=True, default=0, help='activate, options [0,1]')
-@click.option('--theme', show_default=True, default=f'{"dark" if config["dark_mode"] else "light"}', help='theme, select from ["light","dark"]')
-@click.option('--group', show_default=True, default=config['default_group'], help=f'group, select from {config["groups"]}')
+@click.option('--theme', show_default=True, default=f'{"dark" if config["dark_mode"] else "light"}', help='theme, select from ["light","dark"].')
+@click.option('--group', show_default=True, default=config['default_group'], help=f'group, select from {config["groups"]}.')
 @with_appcontext
-def create_user(username, email, password, organization, phone, active, theme, group):
+def create_user(username, email, password, organization, phone, active, theme, group, **kwargs):
     """Add USERNAME to the libreforms user db."""
-    click.echo(f"{username}, {email}, {password}, {organization}, {phone}, {active}, {theme}, {group},")
+    click.echo(f"{username}, {email}, {password}, {organization}, {phone}, {active}, {theme}, {group}, {[y for x,y in kwargs.items()]}")
     # click.echo("Need to add user options and interactive user creation process.")
     
     # id = db.Column(db.Integer, primary_key=True) 
