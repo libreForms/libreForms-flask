@@ -33,7 +33,7 @@
 
   {% for item in submission.columns if item.startswith('_') %} 
     <tr class="table{% if emphasize and item in emphasize %}{{'-secondary' if dark_mode else '-primary'}}{% else %}{{'-dark' if dark_mode else '-transparent'}}{% endif %}">
-      <th scope="row">{{item}}</th>
+      <th scope="row">{{item[1:]}}</th>
         <td>
 
         
