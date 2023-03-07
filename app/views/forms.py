@@ -337,6 +337,16 @@ def propagate_form_fields(form=False, group=None):
         log.warning(f"LIBREFORMS - {e}")
         return {}
 
+def render_form_display_name(form_name, form_config):
+  
+  if '_title' in form_config and '_subtitle' in form_config:
+    return f"{form_config['_title']}: {form_config['_subtitle']}"
+
+  elif '_title' in form_config:
+    return form_config['_title']
+
+  return form_name
+
 
 # every form defined under libreforms/ contains a series of key-value pairs for fields and configs. 
 # Configs define unique behavior for each form and are denoted by a _ at the beginning of the key;
@@ -350,6 +360,10 @@ def propagate_form_configs(form=False):
 
         # we define the default values for application-defined options
         OPTIONS = {
+            # we're doing something a lil strange with the _display_name field 
+            # by calling ahead to values we have not yet iterated through... 
+            # see https://github.com/libreForms/libreForms-flask/issues/333
+            "_display_name": render_form_display_name(form, list_fields), 
             "_dashboard": None,
             "_table": None,
             "_description": False,

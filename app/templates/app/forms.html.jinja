@@ -1,6 +1,7 @@
 {% extends 'base.html.jinja' %}
 {% block content %}
-			{% if context %}
+			{% if context %}	
+			<h4>{{options._display_name}}</h4>
 			<form method="post" autocomplete="off">
 				<fieldset>
 					{% if options._description %}<label>{{ options._description }}
