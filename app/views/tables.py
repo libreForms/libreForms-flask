@@ -120,6 +120,10 @@ def tables(form_name):
                 # prevent type-mismatch by casting both fields as strings
                 df = df.loc[df[col].astype("string") == str(request.args.get(col))] 
 
+        # sort values using timestamp field (last edit time) by default, newest
+        # on top, see https://github.com/libreForms/libreForms-flask/issues/336.
+        df.sort_values(by=mongodb.metadata_field_names['timestamp'], inplace=True, ignore_index=True, ascending=False)
+
         df.columns = [x.replace("_", " ") for x in df.columns]
 
     except Exception as e: 
