@@ -10,7 +10,7 @@
 {% if not submissions_home %}
 <table role="presentation" title="submissions" class="table {{'text-dark' if not dark_mode else 'table-hover'}}">
   <tbody>
-  {% for item in submission.columns %} 
+  {% for item in submission.columns if not item.startswith('_') %} 
     <tr class="table{% if emphasize and item in emphasize %}{{'-secondary' if dark_mode else '-primary'}}{% else %}{{'-dark' if dark_mode else '-transparent'}}{% endif %}">
       <th scope="row">{{item}}</th>
         <td>
@@ -30,6 +30,31 @@
       </td>
     </tr>
   {% endfor %}
+
+  {% for item in submission.columns if item.startswith('_') %} 
+    <tr class="table{% if emphasize and item in emphasize %}{{'-secondary' if dark_mode else '-primary'}}{% else %}{{'-dark' if dark_mode else '-transparent'}}{% endif %}">
+      <th scope="row">{{item}}</th>
+        <td>
+
+        
+        {% if item in badge_list and submission[item].iloc[0].__class__.__name__ in ['str','Markup'] %}
+        <!-- <button type="button" class="btn btn-secondary" data-bs-container="body" data-bs-toggle="popover" data-bs-placement="bottom" data-bs-content="Vivamus sagittis lacus vel augue laoreet rutrum faucibus." data-bs-original-title="Popover Title">Bottom</button> -->
+
+          {% if config['enable_other_profile_views'] == true %}
+          <span class="badge bg-primary"><a href="{{url_for('auth.other_profiles', username=submission[item].iloc[0].split(' ')[0])}}" style="color: inherit; text-decoration: inherit;">{{submission[item].iloc[0].split(' ')[0]}}</a></span> {{' '.join(submission[item].iloc[0].split(' ')[1:])|safe()}}
+          {% else %}
+          <span class="badge bg-primary">{{submission[item].iloc[0].split(' ')[0]}}</span> {{' '.join(submission[item].iloc[0].split(' ')[1:])|safe()}}
+          {% endif %}
+        {% else %}
+          {{submission[item].iloc[0]}}
+        {% endif %}
+      </td>
+    </tr>
+  {% endfor %}
+
+
+
+
   </tbody>
 </table>
 {% endif %}    
