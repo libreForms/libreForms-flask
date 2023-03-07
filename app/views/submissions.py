@@ -51,7 +51,7 @@ def get_record_of_submissions(form_name=None, user=None, remove_underscores=Fals
 
             # set ID to string instead of object ID
             df['_id'] = df['_id'].astype(str)
-            df.rename(columns = {'_id':'id'}, inplace = True)
+            # df.rename(columns = {'_id':'id'}, inplace = True)
 
             # set the document id as the index
             # df.set_index('_id')
@@ -90,14 +90,14 @@ def get_record_of_submissions(form_name=None, user=None, remove_underscores=Fals
 
 
 def gen_hyperlink(row, form_name):
-    # return Markup(f"<p><a href=\"{config['domain']}/submissions/{form_name}/{row.id}\">{form_name}</a></p>")
-    return Markup(f"<a href=\"{config['domain']}/submissions/{form_name}/{row.id}\">{config['domain']}/submissions/{form_name}/{row.id}</a>")
+    # return Markup(f"<p><a href=\"{config['domain']}/submissions/{form_name}/{row._id}\">{form_name}</a></p>")
+    return Markup(f"<a href=\"{config['domain']}/submissions/{form_name}/{row._id}\">{config['domain']}/submissions/{form_name}/{row._id}</a>")
 
 
 # in this method we aggregate all the relevant information
 def aggregate_form_data(*args, user=None):
 
-    columns=['form', mongodb.metadata_field_names['timestamp'], 'id', 'hyperlink', mongodb.metadata_field_names['reporter'], mongodb.metadata_field_names['owner']]+[x for x in args]
+    columns=['form', mongodb.metadata_field_names['timestamp'], '_id', 'hyperlink', mongodb.metadata_field_names['reporter'], mongodb.metadata_field_names['owner']]+[x for x in args]
     # print (columns)
 
     df = pd.DataFrame(columns=columns)
@@ -120,7 +120,7 @@ def aggregate_form_data(*args, user=None):
                             mongodb.metadata_field_names['reporter']:row[mongodb.metadata_field_names['reporter']], 
                             mongodb.metadata_field_names['timestamp']:row[mongodb.metadata_field_names['timestamp']], 
                             'form':form, 
-                            'id':row['id'], 
+                            '_id':row['_id'], 
                             'hyperlink':gen_hyperlink(row, form),
                             }
 
@@ -155,7 +155,7 @@ def generate_full_document_history(form, document_id, user=None):
     try:
         df = get_record_of_submissions(form, user=user if user else None) # here we get the list of entries
 
-        record = df.loc[df.id == document_id] # here we search for the document ID
+        record = df.loc[df._id == document_id] # here we search for the document ID
 
         history = dict(record[[mongodb.metadata_field_names['journal']]].iloc[0].values[0]) # here we pull out the document history
 
@@ -341,8 +341,11 @@ def aggregate_approval_count(select_on=None):
             # these forms should be approved by group
             forms_approved_by_group = record.loc[(record.form.isin(list_of_forms_approved_by_this_group(group=current_user.group))) & (record[mongodb.metadata_field_names['approval']].isna())]
 
+            # print(pd.concat([forms_approved_by_user, forms_approved_by_group], ignore_index=True))
+
             # we concat the two dataframes above and return
             return pd.concat([forms_approved_by_user, forms_approved_by_group], ignore_index=True)
+            
 
         except Exception as e: 
             log.warning(f"LIBREFORMS - {e}") 
@@ -474,7 +477,7 @@ def submissions(form_name):
     
         else:
 
-            record = record [[mongodb.metadata_field_names['timestamp'], 'id', mongodb.metadata_field_names['owner']]+propagate_form_configs(form=form_name)['_submission_view_summary_fields']]
+            record = record [[mongodb.metadata_field_names['timestamp'], '_id', mongodb.metadata_field_names['owner']]+propagate_form_configs(form=form_name)['_submission_view_summary_fields']]
             record['form'] = form_name
 
             record['hyperlink'] = record.apply(lambda x: gen_hyperlink(x, form_name), axis=1)
@@ -607,7 +610,7 @@ def render_document(form_name, document_id):
             return redirect(url_for('submissions.submissions_home'))
     
         else:
-            record = record.loc[record['id'] == str(document_id)]
+            record = record.loc[record['_id'] == str(document_id)]
             # we abort if the form doesn't exist
             if len(record.index)<1:
                 return abort(404)
@@ -666,7 +669,7 @@ def render_document(form_name, document_id):
 
             # if propagate_form_configs(form_name)['_form_approval'] and mongodb.metadata_field_names['approver'] in record.columns and record[mongodb.metadata_field_names['approver']].iloc[0] == getattr(current_user,config['visible_signature_field']):
             # new method for checking whether to allow approval, see https://github.com/libreForms/libreForms-flask/issues/155
-            if len(aggregate_approval_count()['id'].str.contains(document_id)) > 0:
+            if len(aggregate_approval_count()['_id'].str.contains(document_id)) > 0:
                 msg = msg + Markup(f"<tr><td><a href = '{config['domain']}/submissions/{form_name}/{document_id}/review'>go to form approval</a></td></tr>")
 
             if propagate_form_configs(form_name)['_allow_pdf_download']:
@@ -797,7 +800,7 @@ def render_document_history(form_name, document_id):
                 flash(f'Could not render document history for datetime {timestamp}. ')
                 return redirect(url_for('submissions.render_document_history', form_name=form_name, document_id=document_id))
 
-            t2 = t.loc[t.id == document_id] 
+            t2 = t.loc[t._id == document_id] 
             t3 = dict(t2[[mongodb.metadata_field_names['journal']]].iloc[0].values[0]) 
             emphasize = [x for x in t3[timestamp].keys()]
             flash(f'The following values changed in this version and are emphasized below: {", ".join(emphasize)}. ')
@@ -814,7 +817,7 @@ def render_document_history(form_name, document_id):
 
             # if propagate_form_configs(form_name)['_form_approval'] and mongodb.metadata_field_names['approver'] in display_data.columns and display_data[mongodb.metadata_field_names['approver']].iloc[0] == getattr(current_user,config['visible_signature_field']):
             # new method for checking whether to allow approval, see https://github.com/libreForms/libreForms-flask/issues/155
-            if len(aggregate_approval_count()['id'].str.contains(document_id)) > 0:
+            if len(aggregate_approval_count()['_id'].str.contains(document_id)) > 0:
                 msg = msg + Markup(f"<tr><td><a href = '{config['domain']}/submissions/{form_name}/{document_id}/review'>go to form approval</a></td></tr>")
 
             # eventually, we may wish to add support for downloading past versions 
@@ -881,11 +884,11 @@ def render_document_edit(form_name, document_id):
                 options = propagate_form_configs(form_name)
                 forms = propagate_form_fields(form_name, group=current_user.group)
 
-                if not str(document_id) in record['id'].values:
+                if not str(document_id) in record['_id'].values:
                     flash('You do not have edit access to this form.')
                     return redirect(url_for('submissions.submissions_home'))      
 
-                record = record.loc[record['id'] == str(document_id)]
+                record = record.loc[record['_id'] == str(document_id)]
                 # we abort if the form doesn't exist
                 if len(record.index)<1:
                     return abort(404)
@@ -1014,7 +1017,7 @@ def review_document(form_name, document_id):
 
     else:
 
-        record = record.loc[record['id'] == str(document_id)]
+        record = record.loc[record['_id'] == str(document_id)]
         # we abort if the form doesn't exist
         if len(record.index)<1:
             return abort(404)
@@ -1022,7 +1025,7 @@ def review_document(form_name, document_id):
         # if the approver verification doesn't check out
         # if not mongodb.metadata_field_names['approver'] in record.columns or not record[mongodb.metadata_field_names['approver']].iloc[0] or record[mongodb.metadata_field_names['approver']].iloc[0] != getattr(current_user,config['visible_signature_field']):
         # new method for checking whether to allow approval, see https://github.com/libreForms/libreForms-flask/issues/155
-        if len(aggregate_approval_count()['id'].str.contains(document_id)) < 1:
+        if len(aggregate_approval_count()['_id'].str.contains(document_id)) < 1:
             return abort(404)
 
         if request.method == 'POST':
@@ -1219,7 +1222,7 @@ def generate_pdf(form_name, document_id):
     
         else:
     
-            record = record.loc[record['id'] == str(document_id)]
+            record = record.loc[record['_id'] == str(document_id)]
             # we abort if the form doesn't exist
             if len(record.index)<1:
                 return abort(404)
