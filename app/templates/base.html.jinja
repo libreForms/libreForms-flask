@@ -148,7 +148,7 @@
           <main class="col-12 col-md-9" style="width:60%; padding-top: 40px; padding-bottom: 20px;">
             <div class="row" >
               {% if get_flashed_messages() %}
-              <div class="alert alert-dismissible alert-primary">
+              <div role="status" class="alert alert-dismissible alert-primary" aria-live="polite">
                 <button type="button" class="btn-close" data-bs-dismiss="alert" title="dismiss-alert"></button>
                 <strong>{% for message in get_flashed_messages() %}{{ message }}{% endfor %}</strong>
               </div>
