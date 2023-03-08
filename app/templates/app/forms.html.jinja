@@ -83,7 +83,7 @@
 			{% for item in content %}
 			<div class="form-check">
 				<label class='form-check-label' for="{{ field }} {{ item }}">{{ item }}
-					<input class="form-check-input" style="{{'border: 1px solid;' if not dark_mode else ''}}" type="radio" value="{{ item }}" id="{{ field }} {{ item }}" name="{{ field }}"  {%if item == default_value%}checked="checked"{%endif%}/>
+					<input class="form-check-input" style="{{'border: 1px solid;' if not dark_mode else ''}}" type="radio" {% if '_lookup_other_document' in context[field] %}onChange = "generateLookup(this.form.{{field}}.value,'{{context[field]['_lookup_other_document']}}');"{%endif%} value="{{ item }}" id="{{ field }} {{ item }}" name="{{ field }}"  {%if item == default_value%}checked="checked"{%endif%}/>
 				</label>
 			</div>
 			{% endfor %}
@@ -106,7 +106,7 @@
 			{% for item in content %}
 			<div class="form-check">
 				<label class='form-check-label' for="{{ field }} {{ item }}">{{ item }}
-					<input class="form-check-input" style="{{'border: 1px solid;' if not dark_mode else ''}}" type="checkbox" value="{{ item }}" id="{{ field }} {{ item }}" name="{{ field }}"  {%if item in default_value%}checked="checked"{%endif%}/>
+					<input class="form-check-input" style="{{'border: 1px solid;' if not dark_mode else ''}}" type="checkbox"{% if '_lookup_other_document' in context[field] %} onChange = "generateLookup(this.form.{{field}}.value,'{{context[field]['_lookup_other_document']}}');"{%endif%} value="{{ item }}" id="{{ field }} {{ item }}" name="{{ field }}"  {%if item in default_value%}checked="checked"{%endif%}/>
 				</label>
 			</div>
 			{% endfor %}
@@ -277,11 +277,33 @@ async function generateLookup(s, form_name, id="right_bar_content") {
   let code = await response.status;
 
   if (code == {{config.error_code}}) {
-    foo.classList.remove("is-invalid")
-    foo.classList.add("is-valid")
+    foo.innerHTML = ""
   } else {
-    foo.classList.add("is-invalid")
-    foo.classList.remove("is-valid")
+
+	// Create an HTML table element
+	let table = document.createElement("table");
+	table.setAttribute("role", "presentation");
+	table.setAttribute("title", "lookup table");
+	table.setAttribute("class", "table {{'text-dark' if not dark_mode else ''}}");
+
+	// Iterate over the JSON object and create HTML rows for each key-value pair
+	for (let [key, value] of Object.entries(result)) {
+		// Create a table row element
+		let row = table.insertRow();
+  
+		// Create a table cell element for the key
+		let keyCell = row.insertCell(0);
+		keyCell.innerHTML = key;
+  
+		// Create a table cell element for the value
+		let valueCell = row.insertCell(1);
+		valueCell.innerHTML = value;
+	}	
+
+	// Set the table as the inner HTML of the parent element
+	foo.innerHTML = table.outerHTML;
+
+    // foo.innerHTML = JSON.stringify(result)
   }
 }
 
