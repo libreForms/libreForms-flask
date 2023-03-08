@@ -240,3 +240,44 @@
 </script>
 
 {% endblock %}
+
+{% block right_bar %}
+
+<div class="container" id="right_bar" >
+
+</div>
+
+{% endblock %}
+
+
+{% block js %}
+
+
+async function generateLookup(s, id="right_bar") {
+
+  const foo = document.getElementById(id)
+
+  let payload = {
+    string: s
+  };
+
+  let response = await fetch('{{ url_for ('forms.generate_lookup') }}', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json;charset=utf-8'
+    },
+    body: JSON.stringify(payload)
+  });
+  
+  let result = await response.json();
+
+  if (result['status'] == 'success') {
+    foo.classList.remove("is-invalid")
+    foo.classList.add("is-valid")
+  } else {
+    foo.classList.add("is-invalid")
+    foo.classList.remove("is-valid")
+  }
+}
+
+{% endblock %}
