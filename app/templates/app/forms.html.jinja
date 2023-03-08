@@ -43,6 +43,14 @@
 			{% endif %}
 		{% endif %}
 
+
+		{% if 'apparent_content' in context[field].input_field %}
+			{% set apparent_values = context[field].input_field.apparent_content %}
+		{% else %}
+			{% set apparent_values = context[field].input_field.content %}
+		{% endif %}
+
+
 		{% if input_type == "autocomplete" %}
 
 		<div title="{{field}}" class="form-group autocomplete{% if context[field]['_depends_on'] %} {{ context[field]['_depends_on'][0] }}{% endif %}">
@@ -69,7 +77,7 @@
 			{%endif%}
 			<select name="{{ field }}" class="form-select" {% if '_lookup_other_document' in context[field] %}onChange = "generateLookup(this.form.{{field}}.value,'{{context[field]['_lookup_other_document']}}');"{%endif%} {% if context[field].output_data.required==true %}required{% endif %}>
 			{% for item in content %}
-					<option value="{{ item }}" id="{{ field }} {{ item }}" name="{{ field }}" {%if item == default_value%}selected="selected"{%endif%}>{{ item }}</option>
+					<option value="{{ item }}" id="{{ field }} {{ item }}" name="{{ field }}" {%if item == default_value%}selected="selected"{%endif%}>{{ apparent_values[loop.index0] }}</option>
 			{% endfor %}
 			</select>
 		</div>
@@ -83,7 +91,7 @@
 			{% for item in content %}
 			<div class="form-check">
 				<label class='form-check-label' for="{{ field }} {{ item }}">{{ item }}
-					<input class="form-check-input" style="{{'border: 1px solid;' if not dark_mode else ''}}" type="radio" {% if '_lookup_other_document' in context[field] %}onChange = "generateLookup(this.form.{{field}}.value,'{{context[field]['_lookup_other_document']}}');"{%endif%} value="{{ item }}" id="{{ field }} {{ item }}" name="{{ field }}"  {%if item == default_value%}checked="checked"{%endif%}/>
+					<input class="form-check-input" style="{{'border: 1px solid;' if not dark_mode else ''}}" type="radio" {% if '_lookup_other_document' in context[field] %}onChange = "generateLookup(this.form.{{field}}.value,'{{context[field]['_lookup_other_document']}}');"{%endif%} value="{{ apparent_values[loop.index0] }}" id="{{ field }} {{ item }}" name="{{ field }}"  {%if item == default_value%}checked="checked"{%endif%}/>
 				</label>
 			</div>
 			{% endfor %}
@@ -106,7 +114,7 @@
 			{% for item in content %}
 			<div class="form-check">
 				<label class='form-check-label' for="{{ field }} {{ item }}">{{ item }}
-					<input class="form-check-input" style="{{'border: 1px solid;' if not dark_mode else ''}}" type="checkbox"{% if '_lookup_other_document' in context[field] %} onChange = "generateLookup(this.form.{{field}}.value,'{{context[field]['_lookup_other_document']}}');"{%endif%} value="{{ item }}" id="{{ field }} {{ item }}" name="{{ field }}"  {%if item in default_value%}checked="checked"{%endif%}/>
+					<input class="form-check-input" style="{{'border: 1px solid;' if not dark_mode else ''}}" type="checkbox"{% if '_lookup_other_document' in context[field] %} onChange = "generateLookup(this.form.{{field}}.value,'{{context[field]['_lookup_other_document']}}');"{%endif%} value="{{ apparent_values[loop.index0] }}" id="{{ field }} {{ item }}" name="{{ field }}"  {%if item in default_value%}checked="checked"{%endif%}/>
 				</label>
 			</div>
 			{% endfor %}
