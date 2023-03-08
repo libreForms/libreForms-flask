@@ -17,7 +17,7 @@ __email__ = "signe@atreeus.com"
 from cmath import e
 from fileinput import filename
 from flask import Blueprint, flash, render_template, request, send_from_directory, \
-                                send_file, redirect, url_for, current_app
+                        send_file, redirect, url_for, current_app, abort, Response
 from werkzeug.security import check_password_hash        
 from webargs import fields, flaskparser
 from flask_login import current_user, login_required
@@ -663,6 +663,26 @@ def forms(form_name):
             log.warning(f"LIBREFORMS - {e}")
             flash(f'This form does not exist. {e}')
             return redirect(url_for('forms.forms_home'))
+
+
+
+@bp.route(f'/lookup', methods=['GET', 'POST'])
+@login_required
+def generate_lookup():
+
+    if request.method == 'POST':
+        # print(request)
+
+        string = request.json['string']
+        # print(string)
+
+        if string:
+            return Response(json.dumps({'status':'success'}), status=config['success_code'], mimetype='application/json')
+
+        return Response(json.dumps({'status':'failure'}), status=config['error_code'], mimetype='application/json')
+
+    return abort(404)
+
 
 
 # this is the download link for files in the temp directory
