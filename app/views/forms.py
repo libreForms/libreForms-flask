@@ -673,12 +673,15 @@ def generate_lookup():
     if request.method == 'POST':
         # print(request)
 
-        string = request.json['string']
-        form = request.json['form_name']
-        # print(string)
+        document_id = request.json['document_id']
+        form_name = request.json['form_name']
 
-        if string:
-            return Response(json.dumps({'status':'success'}), status=config['success_code'], mimetype='application/json')
+        data = mongodb.get_document_as_dict(form_name, document_id)
+
+        if isinstance(data,dict):
+
+            data = {key:value for key, value in data.items() if key not in mongodb.metadata_fields(exclude_id=True)}
+            return Response(json.dumps(data), status=config['success_code'], mimetype='application/json')
 
         return Response(json.dumps({'status':'failure'}), status=config['error_code'], mimetype='application/json')
 
