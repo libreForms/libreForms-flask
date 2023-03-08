@@ -1,211 +1,214 @@
 {% extends 'base.html.jinja' %}
 {% block content %}
-			{% if context %}	
-			<h4>{{options._display_name}}</h4>
-			<form method="post" autocomplete="off">
-				<fieldset>
-					{% if options._description %}<label>{{ options._description }}
-						{% if config['enable_audio_accessibility'] %}
-						<img src="{{ url_for( 'static', filename='audio_dark.png' if dark_mode else 'audio_light.png' ) }}" alt="audio accessibility {{name}} description" style="padding-left:2px; max-width:1.5%; height: auto;" class="{{name}}__description" onClick="play( 'audio_{{name}}__description' )"> 
-						<audio id="audio_{{name}}__description" src="{{url_for (config['path_to_accessibility_audio'], filename=name+'__description.mp3') }}"></audio>
-						{%endif%}
-					</label><hr>{% endif %}
-					{% for field in context.keys() %}
-
-					{# here we assign a local variable called 'content' which either pulls a list of users or the regular field content #}
-					{% if context[field].input_field.lookup == "user_list" %}
-					{% set content = user_list %}
-					{% else %}
-					{% set content = context[field].input_field.content %}
-					{% endif %}
-
-					{% if editing_existing_form and context[field]['input_field']['type'] == 'hidden' and context[field]['_make_visible_in_edits'] and context[field]['_secondary_input_type'] %}
-						{% set input_type = context[field]['_secondary_input_type'] %}
-					{% else %}
-						{% set input_type = context[field]['input_field']['type'] %}
-					{% endif %}
-
-					{# here we override the default value with overrides if default_overrides was passed #}
-					{% set other_field_override = false %}
-					{% if default_overrides and field in default_overrides %}
-						{% set default_value = default_overrides[field] %}
-						{% if default_value not in context[field].input_field.content %}
-							{% set other_field_override = true %}
-						{% endif %}
-					{% else %}
-						{% if context['_suppress_default_values'] == true or context[field].input_field.type in ['checkbox', 'radio', 'autocomplete'] %}
-							{% set default_value = '' %}
-						{% else %}
-							{% set default_value = context[field].input_field.content[0] %}
-						{% endif %}
-					{% endif %}
-
-					{% if input_type == "autocomplete" %}
-
-					<div title="{{field}}" class="form-group autocomplete{% if context[field]['_depends_on'] %} {{ context[field]['_depends_on'][0] }}{% endif %}">
-						<label class="form-label mt-4{% if context[field].output_data.required==true %} required{% endif %}" for="{{ field }}" {% if context[field].output_data.description %}data-bs-toggle="tooltip" data-bs-placement="right" title="{{context[field].output_data.description}}"{% endif %}>{{ field | replace('_', ' ')}}</label>
-						{% if config['enable_audio_accessibility'] %}
-						<img src="{{ url_for( 'static', filename='audio_dark.png' if dark_mode else 'audio_light.png' ) }}" alt="audio accessibility {{name}} {{field}}" style="padding-left:2px; max-width:1.5%; height: auto;" class="{{name}}_{{field}}" onClick="play( 'audio_{{name}}_{{field}}' )"> 
-						<audio id="audio_{{name}}_{{field}}" src="{{url_for (config['path_to_accessibility_audio'], filename=name+'_'+field+'.mp3') }}"></audio>
-						{%endif%}
-						<input class="form-control" type="text" value="{{default_value}}" id="{{ field }}" name="{{ field }}" {% if context[field].output_data.required==true %}required{% endif %}/>
-					</div>
-
-					<script>
-						/*An array containing all values passed for this field:*/
-						var {{ field }} = {{ content | safe }};
-						autocomplete(document.getElementById("{{ field }}"), {{ field }});
-					</script>
-				
-					{% elif input_type == "select" %}
-					<div title="{{field}}" class="form-group{% if context[field]['_depends_on'] %} {{ context[field]['_depends_on'][0] }}{% endif %}">
-						<label class="form-label mt-4{% if context[field].output_data.required==true %} required{% endif %}" for="{{ field }}" {% if context[field].output_data.description %}data-bs-toggle="tooltip" data-bs-placement="right" title="{{context[field].output_data.description}}"{% endif %}>{{ field | replace('_', ' ')}}</label>
-						{% if config['enable_audio_accessibility'] %}
-						<img src="{{ url_for( 'static', filename='audio_dark.png' if dark_mode else 'audio_light.png' ) }}" alt="audio accessibility {{name}} {{field}}" style="padding-left:2px; max-width:1.5%; height: auto;" class="{{name}}_{{field}}" onClick="play( 'audio_{{name}}_{{field}}' )"> 
-						<audio id="audio_{{name}}_{{field}}" src="{{url_for (config['path_to_accessibility_audio'], filename=name+'_'+field+'.mp3') }}"></audio>
-						{%endif%}
-						<select name="{{ field }}" class="form-select" {% if context[field].output_data.required==true %}required{% endif %}>
-						{% for item in content %}
-								<option value="{{ item }}" id="{{ field }} {{ item }}" name="{{ field }}" {%if item == default_value%}selected="selected"{%endif%}>{{ item }}</option>
-						{% endfor %}
-						</select>
-					</div>
-					{% elif input_type == "radio" %}
-					<div title="{{field}}" class="form-group{% if context[field]['_depends_on'] %} {{ context[field]['_depends_on'][0] }}{% endif %}">
-						<label class="form-label mt-4{% if context[field].output_data.required==true %} required{% endif %}" for="" {% if context[field].output_data.description %}data-bs-toggle="tooltip" data-bs-placement="right" title="{{context[field].output_data.description}}"{% endif %}>{{ field | replace('_', ' ')}}</label>
-						{% if config['enable_audio_accessibility'] %}
-						<img src="{{ url_for( 'static', filename='audio_dark.png' if dark_mode else 'audio_light.png' ) }}" alt="audio accessibility {{name}} {{field}}" style="padding-left:2px; max-width:1.5%; height: auto;" class="{{name}}_{{field}}" onClick="play( 'audio_{{name}}_{{field}}' )"> 
-						<audio id="audio_{{name}}_{{field}}" src="{{url_for (config['path_to_accessibility_audio'], filename=name+'_'+field+'.mp3') }}"></audio>
-						{%endif%}
-						{% for item in content %}
-						<div class="form-check">
-							<label class='form-check-label' for="{{ field }} {{ item }}">{{ item }}
-								<input class="form-check-input" style="{{'border: 1px solid;' if not dark_mode else ''}}" type="radio" value="{{ item }}" id="{{ field }} {{ item }}" name="{{ field }}"  {%if item == default_value%}checked="checked"{%endif%}/>
-							</label>
-						</div>
-						{% endfor %}
-						{% if 'allow_other' in context[field].input_field and context[field].input_field['allow_other']%}
-						<div class="form-check">
-							<label>
-								<input class="form-check-input" style="{{'border: 1px solid;' if not dark_mode else ''}}" type="radio" value="" id="_{{ field }} Other" name="{{ field }}" {%if other_field_override %}checked="checked"{%endif%}> Other
-								<input type="text" name="" class="form-control" id="" {%if other_field_override %}value='{{default_value}}'{%endif%} onChange="populateOther('_{{ field }} Other', this.value)" placeholder="Enter other option here" />
-							</label>
-						</div>
-						{%endif%}
-					</div>
-					{% elif input_type == "checkbox" %}
-					<div title="{{field}}" class="form-group{% if context[field]['_depends_on'] %} {{ context[field]['_depends_on'][0] }}{% endif %}">
-						<label class="form-label mt-4{% if context[field].output_data.required==true %} required{% endif %}" for="" {% if context[field].output_data.description %}data-bs-toggle="tooltip" data-bs-placement="right" title="{{context[field].output_data.description}}"{% endif %}>{{ field | replace('_', ' ')}}</label>
-						{% if config['enable_audio_accessibility'] %}
-						<img src="{{ url_for( 'static', filename='audio_dark.png' if dark_mode else 'audio_light.png' ) }}" alt="audio accessibility {{name}} {{field}}" style="padding-left:2px; max-width:1.5%; height: auto;" class="{{name}}_{{field}}" onClick="play( 'audio_{{name}}_{{field}}' )"> 
-						<audio id="audio_{{name}}_{{field}}" src="{{url_for (config['path_to_accessibility_audio'], filename=name+'_'+field+'.mp3') }}"></audio>
-						{%endif%}
-						{% for item in content %}
-						<div class="form-check">
-							<label class='form-check-label' for="{{ field }} {{ item }}">{{ item }}
-								<input class="form-check-input" style="{{'border: 1px solid;' if not dark_mode else ''}}" type="checkbox" value="{{ item }}" id="{{ field }} {{ item }}" name="{{ field }}"  {%if item in default_value%}checked="checked"{%endif%}/>
-							</label>
-						</div>
-						{% endfor %}
-						{% if 'allow_other' in context[field].input_field and context[field].input_field['allow_other']%}
-						<div class="form-check">
-							<label>
-								<input class="form-check-input" style="{{'border: 1px solid;' if not dark_mode else ''}}" type="checkbox" value="" id="_{{ field }} Other" name="{{ field }}" {%if other_field_override %}checked="checked"{%endif%}> Other
-								<input type="text" name="" {%if other_field_override %}value='{{default_value}}'{%endif%} class="form-control" id="" onChange="populateOther('_{{ field }} Other', this.value)" placeholder="Enter other option here" />
-							</label>
-						</div>
-						{%endif%}
-					</div>
-					{% elif input_type == "hidden" %}
-					<div title="{{field}}" class="form-group{% if context[field]['_depends_on'] %} {{ context[field]['_depends_on'][0] }}{% endif %}">
-						<input class="form-control" type="hidden" value="{{ default_value }}" id="{{ field }}" name="{{ field }}"/>
-					</div>
-
-					{% elif input_type == "immutable_user_field" %}
-					{% if current_user.is_authenticated %}
-					<div title="{{field}}" class="form-group{% if context[field]['_depends_on'] %} {{ context[field]['_depends_on'][0] }}{% endif %}">
-						<label class="form-label mt-4{% if context[field].output_data.required==true %} required{% endif %}" for="{{ field }}" {% if context[field].output_data.description %}data-bs-toggle="tooltip" data-bs-placement="right" title="{{context[field].output_data.description}}"{% endif %}>{{ field | replace('_', ' ')}}</label>
-						{% if config['enable_audio_accessibility'] %}
-						<img src="{{ url_for( 'static', filename='audio_dark.png' if dark_mode else 'audio_light.png' ) }}" alt="audio accessibility {{name}} {{field}}" style="padding-left:2px; max-width:1.5%; height: auto;" class="{{name}}_{{field}}" onClick="play( 'audio_{{name}}_{{field}}' )"> 
-						<audio id="audio_{{name}}_{{field}}" src="{{url_for (config['path_to_accessibility_audio'], filename=name+'_'+field+'.mp3') }}"></audio>
-						{%endif%}
-						<input class="form-control" type="text" value="{{ current_user|attr(default_value) if not editing_existing_form else default_value }}"disabled=""/>
-						<input class="form-control" type="hidden" value="{{ current_user|attr(default_value) if not editing_existing_form else default_value }}" id="{{ field }}" name="{{ field }}"/>
-					</div>
-					{% endif %}
 
 
-					{% elif input_type == "resizable_textarea" %}
-					<div title="{{field}}" class="form-group{% if context[field]['_depends_on'] %} {{ context[field]['_depends_on'][0] }}{% endif %}">
-						<label class="form-label mt-4{% if context[field].output_data.required==true %} required{% endif %}" for="{{ field }}" {% if context[field].output_data.description %}data-bs-toggle="tooltip" data-bs-placement="right" title="{{context[field].output_data.description}}"{% endif %}>{{ field | replace('_', ' ')}}</label>
-						{% if config['enable_audio_accessibility'] %}
-						<img src="{{ url_for( 'static', filename='audio_dark.png' if dark_mode else 'audio_light.png' ) }}" alt="audio accessibility {{name}} {{field}}" style="padding-left:2px; max-width:1.5%; height: auto;" class="{{name}}_{{field}}" onClick="play( 'audio_{{name}}_{{field}}' )"> 
-						<audio id="audio_{{name}}_{{field}}" src="{{url_for (config['path_to_accessibility_audio'], filename=name+'_'+field+'.mp3') }}"></audio>
-						{%endif%}
-						<textarea class="form-control" rows="3" style="resize: vertical;" maxlength="{{context[field].input_field.maxlength if context[field].input_field.maxlength}}" value="{{ default_value }}" id="{{ field }}" name="{{ field }}"></textarea>
-					</div>
 
+{% if context %}	
+<h4>{{options._display_name}}</h4>
+<form method="post" autocomplete="off">
+	<fieldset>
+		{% if options._description %}<label>{{ options._description }}
+			{% if config['enable_audio_accessibility'] %}
+			<img src="{{ url_for( 'static', filename='audio_dark.png' if dark_mode else 'audio_light.png' ) }}" alt="audio accessibility {{name}} description" style="padding-left:2px; max-width:1.5%; height: auto;" class="{{name}}__description" onClick="play( 'audio_{{name}}__description' )"> 
+			<audio id="audio_{{name}}__description" src="{{url_for (config['path_to_accessibility_audio'], filename=name+'__description.mp3') }}"></audio>
+			{%endif%}
+		</label><hr>{% endif %}
+		{% for field in context.keys() %}
 
-					{% else %}
-					<div title="{{field}}" class="form-group{% if context[field]['_depends_on'] %} {{ context[field]['_depends_on'][0] }}{% endif %}">
-						<label class="form-label mt-4{% if context[field].output_data.required==true %} required{% endif %}" for="{{ field }}" {% if context[field].output_data.description %}data-bs-toggle="tooltip" data-bs-placement="right" title="{{context[field].output_data.description}}"{% endif %}>{{ field | replace('_', ' ')}}</label>
-						{% if config['enable_audio_accessibility'] %}
-						<img src="{{ url_for( 'static', filename='audio_dark.png' if dark_mode else 'audio_light.png' ) }}" alt="audio accessibility {{name}} {{field}}" style="padding-left:2px; max-width:1.5%; height: auto;" class="{{name}}_{{field}}" onClick="play( 'audio_{{name}}_{{field}}' )"> 
-						<audio id="audio_{{name}}_{{field}}" src="{{url_for (config['path_to_accessibility_audio'], filename=name+'_'+field+'.mp3') }}"></audio>
-						{%endif%}
-						<input class="form-control" type="{{ input_type }}" value="{{ default_value }}" id="{{ field }}" name="{{ field }}"/>
-					</div>
-	
-					{% endif %}
-					{% endfor %}
-					
-					{% if options._presubmit_msg %}<hr/><label>{{ options._presubmit_msg }}
+		{# here we assign a local variable called 'content' which either pulls a list of users or the regular field content #}
+		{% if context[field].input_field.lookup == "user_list" %}
+		{% set content = user_list %}
+		{% else %}
+		{% set content = context[field].input_field.content %}
+		{% endif %}
 
-						{% if config['enable_audio_accessibility'] %}
-						<img src="{{ url_for( 'static', filename='audio_dark.png' if dark_mode else 'audio_light.png' ) }}" alt="audio accessibility {{name}} description" style="padding-left:2px; max-width:1.5%; height: auto;" class="{{name}}__presubmit_msg" onClick="play( 'audio_{{name}}__presubmit_msg' )"> 
-						<audio id="audio_{{name}}__presubmit_msg" src="{{url_for (config['path_to_accessibility_audio'], filename=name+'__presubmit_msg.mp3') }}"></audio>
-						{%endif%}
+		{% if editing_existing_form and context[field]['input_field']['type'] == 'hidden' and context[field]['_make_visible_in_edits'] and context[field]['_secondary_input_type'] %}
+			{% set input_type = context[field]['_secondary_input_type'] %}
+		{% else %}
+			{% set input_type = context[field]['input_field']['type'] %}
+		{% endif %}
 
-					</label>{% endif %}
-
-					{% if require_password %}
-
-					<div title="password" class="form-group">
-						<label class="form-label mt-4 required" for="_password" data-bs-toggle="tooltip" data-bs-placement="right" title="Please re-enter your password to digitally sign this document">Password</label>
-						<input class="form-control" type="password" value="" id="_password" name="_password"/>
-					</div>	
-					{% endif %}
-
-					<div title="submit" class="form-group">
-						<input class="btn btn-primary mt-4" type=submit value="Submit">
-					</div>
-
-				</fieldset>
-
-				
-			</form>
+		{# here we override the default value with overrides if default_overrides was passed #}
+		{% set other_field_override = false %}
+		{% if default_overrides and field in default_overrides %}
+			{% set default_value = default_overrides[field] %}
+			{% if default_value not in context[field].input_field.content %}
+				{% set other_field_override = true %}
 			{% endif %}
+		{% else %}
+			{% if context['_suppress_default_values'] == true or context[field].input_field.type in ['checkbox', 'radio', 'autocomplete'] %}
+				{% set default_value = '' %}
+			{% else %}
+				{% set default_value = context[field].input_field.content[0] %}
+			{% endif %}
+		{% endif %}
 
+		{% if input_type == "autocomplete" %}
 
-			{% if filename %}
+		<div title="{{field}}" class="form-group autocomplete{% if context[field]['_depends_on'] %} {{ context[field]['_depends_on'][0] }}{% endif %}">
+			<label class="form-label mt-4{% if context[field].output_data.required==true %} required{% endif %}" for="{{ field }}" {% if context[field].output_data.description %}data-bs-toggle="tooltip" data-bs-placement="right" title="{{context[field].output_data.description}}"{% endif %}>{{ field | replace('_', ' ')}}</label>
+			{% if config['enable_audio_accessibility'] %}
+			<img src="{{ url_for( 'static', filename='audio_dark.png' if dark_mode else 'audio_light.png' ) }}" alt="audio accessibility {{name}} {{field}}" style="padding-left:2px; max-width:1.5%; height: auto;" class="{{name}}_{{field}}" onClick="play( 'audio_{{name}}_{{field}}' )"> 
+			<audio id="audio_{{name}}_{{field}}" src="{{url_for (config['path_to_accessibility_audio'], filename=name+'_'+field+'.mp3') }}"></audio>
+			{%endif%}
+			<input class="form-control" type="text" value="{{default_value}}" id="{{ field }}" name="{{ field }}" {% if context[field].output_data.required==true %}required{% endif %}/>
+		</div>
 
-
-			<div style="padding-top: 10px;">
-			  <hr/>
-				<a href="{{ url_for(type+'.download_file', filename = filename, signature=signed_url) }}">download a CSV template of this form</a>
-				<sup><span data-bs-toggle="tooltip" data-bs-placement="right" title="Click me for help"><button class="btn btn-link btn-sm" type="button" data-bs-toggle="offcanvas" data-bs-target="#templateHelp" aria-controls="templateHelp">(?)</button></span></sup>
+		<script>
+			/*An array containing all values passed for this field:*/
+			var {{ field }} = {{ content | safe }};
+			autocomplete(document.getElementById("{{ field }}"), {{ field }});
+		</script>
+	
+		{% elif input_type == "select" %}
+		<div title="{{field}}" class="form-group{% if context[field]['_depends_on'] %} {{ context[field]['_depends_on'][0] }}{% endif %}">
+			<label class="form-label mt-4{% if context[field].output_data.required==true %} required{% endif %}" for="{{ field }}" {% if context[field].output_data.description %}data-bs-toggle="tooltip" data-bs-placement="right" title="{{context[field].output_data.description}}"{% endif %}>{{ field | replace('_', ' ')}}</label>
+			{% if config['enable_audio_accessibility'] %}
+			<img src="{{ url_for( 'static', filename='audio_dark.png' if dark_mode else 'audio_light.png' ) }}" alt="audio accessibility {{name}} {{field}}" style="padding-left:2px; max-width:1.5%; height: auto;" class="{{name}}_{{field}}" onClick="play( 'audio_{{name}}_{{field}}' )"> 
+			<audio id="audio_{{name}}_{{field}}" src="{{url_for (config['path_to_accessibility_audio'], filename=name+'_'+field+'.mp3') }}"></audio>
+			{%endif%}
+			<select name="{{ field }}" class="form-select" {% if '_lookup_other_document' in context[field] %}onChange = "generateLookup(this.form.{{field}}.value,'{{context[field]['_lookup_other_document']}}');"{%endif%} {% if context[field].output_data.required==true %}required{% endif %}>
+			{% for item in content %}
+					<option value="{{ item }}" id="{{ field }} {{ item }}" name="{{ field }}" {%if item == default_value%}selected="selected"{%endif%}>{{ item }}</option>
+			{% endfor %}
+			</select>
+		</div>
+		{% elif input_type == "radio" %}
+		<div title="{{field}}" class="form-group{% if context[field]['_depends_on'] %} {{ context[field]['_depends_on'][0] }}{% endif %}">
+			<label class="form-label mt-4{% if context[field].output_data.required==true %} required{% endif %}" for="" {% if context[field].output_data.description %}data-bs-toggle="tooltip" data-bs-placement="right" title="{{context[field].output_data.description}}"{% endif %}>{{ field | replace('_', ' ')}}</label>
+			{% if config['enable_audio_accessibility'] %}
+			<img src="{{ url_for( 'static', filename='audio_dark.png' if dark_mode else 'audio_light.png' ) }}" alt="audio accessibility {{name}} {{field}}" style="padding-left:2px; max-width:1.5%; height: auto;" class="{{name}}_{{field}}" onClick="play( 'audio_{{name}}_{{field}}' )"> 
+			<audio id="audio_{{name}}_{{field}}" src="{{url_for (config['path_to_accessibility_audio'], filename=name+'_'+field+'.mp3') }}"></audio>
+			{%endif%}
+			{% for item in content %}
+			<div class="form-check">
+				<label class='form-check-label' for="{{ field }} {{ item }}">{{ item }}
+					<input class="form-check-input" style="{{'border: 1px solid;' if not dark_mode else ''}}" type="radio" value="{{ item }}" id="{{ field }} {{ item }}" name="{{ field }}"  {%if item == default_value%}checked="checked"{%endif%}/>
+				</label>
 			</div>
-		  
-		    {% endif %}
+			{% endfor %}
+			{% if 'allow_other' in context[field].input_field and context[field].input_field['allow_other']%}
+			<div class="form-check">
+				<label>
+					<input class="form-check-input" style="{{'border: 1px solid;' if not dark_mode else ''}}" type="radio" value="" id="_{{ field }} Other" name="{{ field }}" {%if other_field_override %}checked="checked"{%endif%}> Other
+					<input type="text" name="" class="form-control" id="" {%if other_field_override %}value='{{default_value}}'{%endif%} onChange="populateOther('_{{ field }} Other', this.value)" placeholder="Enter other option here" />
+				</label>
+			</div>
+			{%endif%}
+		</div>
+		{% elif input_type == "checkbox" %}
+		<div title="{{field}}" class="form-group{% if context[field]['_depends_on'] %} {{ context[field]['_depends_on'][0] }}{% endif %}">
+			<label class="form-label mt-4{% if context[field].output_data.required==true %} required{% endif %}" for="" {% if context[field].output_data.description %}data-bs-toggle="tooltip" data-bs-placement="right" title="{{context[field].output_data.description}}"{% endif %}>{{ field | replace('_', ' ')}}</label>
+			{% if config['enable_audio_accessibility'] %}
+			<img src="{{ url_for( 'static', filename='audio_dark.png' if dark_mode else 'audio_light.png' ) }}" alt="audio accessibility {{name}} {{field}}" style="padding-left:2px; max-width:1.5%; height: auto;" class="{{name}}_{{field}}" onClick="play( 'audio_{{name}}_{{field}}' )"> 
+			<audio id="audio_{{name}}_{{field}}" src="{{url_for (config['path_to_accessibility_audio'], filename=name+'_'+field+'.mp3') }}"></audio>
+			{%endif%}
+			{% for item in content %}
+			<div class="form-check">
+				<label class='form-check-label' for="{{ field }} {{ item }}">{{ item }}
+					<input class="form-check-input" style="{{'border: 1px solid;' if not dark_mode else ''}}" type="checkbox" value="{{ item }}" id="{{ field }} {{ item }}" name="{{ field }}"  {%if item in default_value%}checked="checked"{%endif%}/>
+				</label>
+			</div>
+			{% endfor %}
+			{% if 'allow_other' in context[field].input_field and context[field].input_field['allow_other']%}
+			<div class="form-check">
+				<label>
+					<input class="form-check-input" style="{{'border: 1px solid;' if not dark_mode else ''}}" type="checkbox" value="" id="_{{ field }} Other" name="{{ field }}" {%if other_field_override %}checked="checked"{%endif%}> Other
+					<input type="text" name="" {%if other_field_override %}value='{{default_value}}'{%endif%} class="form-control" id="" onChange="populateOther('_{{ field }} Other', this.value)" placeholder="Enter other option here" />
+				</label>
+			</div>
+			{%endif%}
+		</div>
+		{% elif input_type == "hidden" %}
+		<div title="{{field}}" class="form-group{% if context[field]['_depends_on'] %} {{ context[field]['_depends_on'][0] }}{% endif %}">
+			<input class="form-control" type="hidden" value="{{ default_value }}" id="{{ field }}" name="{{ field }}"/>
+		</div>
 
+		{% elif input_type == "immutable_user_field" %}
+		{% if current_user.is_authenticated %}
+		<div title="{{field}}" class="form-group{% if context[field]['_depends_on'] %} {{ context[field]['_depends_on'][0] }}{% endif %}">
+			<label class="form-label mt-4{% if context[field].output_data.required==true %} required{% endif %}" for="{{ field }}" {% if context[field].output_data.description %}data-bs-toggle="tooltip" data-bs-placement="right" title="{{context[field].output_data.description}}"{% endif %}>{{ field | replace('_', ' ')}}</label>
+			{% if config['enable_audio_accessibility'] %}
+			<img src="{{ url_for( 'static', filename='audio_dark.png' if dark_mode else 'audio_light.png' ) }}" alt="audio accessibility {{name}} {{field}}" style="padding-left:2px; max-width:1.5%; height: auto;" class="{{name}}_{{field}}" onClick="play( 'audio_{{name}}_{{field}}' )"> 
+			<audio id="audio_{{name}}_{{field}}" src="{{url_for (config['path_to_accessibility_audio'], filename=name+'_'+field+'.mp3') }}"></audio>
+			{%endif%}
+			<input class="form-control" type="text" value="{{ current_user|attr(default_value) if not editing_existing_form else default_value }}"disabled=""/>
+			<input class="form-control" type="hidden" value="{{ current_user|attr(default_value) if not editing_existing_form else default_value }}" id="{{ field }}" name="{{ field }}"/>
+		</div>
+		{% endif %}
+
+
+		{% elif input_type == "resizable_textarea" %}
+		<div title="{{field}}" class="form-group{% if context[field]['_depends_on'] %} {{ context[field]['_depends_on'][0] }}{% endif %}">
+			<label class="form-label mt-4{% if context[field].output_data.required==true %} required{% endif %}" for="{{ field }}" {% if context[field].output_data.description %}data-bs-toggle="tooltip" data-bs-placement="right" title="{{context[field].output_data.description}}"{% endif %}>{{ field | replace('_', ' ')}}</label>
+			{% if config['enable_audio_accessibility'] %}
+			<img src="{{ url_for( 'static', filename='audio_dark.png' if dark_mode else 'audio_light.png' ) }}" alt="audio accessibility {{name}} {{field}}" style="padding-left:2px; max-width:1.5%; height: auto;" class="{{name}}_{{field}}" onClick="play( 'audio_{{name}}_{{field}}' )"> 
+			<audio id="audio_{{name}}_{{field}}" src="{{url_for (config['path_to_accessibility_audio'], filename=name+'_'+field+'.mp3') }}"></audio>
+			{%endif%}
+			<textarea class="form-control" rows="3" style="resize: vertical;" maxlength="{{context[field].input_field.maxlength if context[field].input_field.maxlength}}" value="{{ default_value }}" id="{{ field }}" name="{{ field }}"></textarea>
+		</div>
+
+
+		{% else %}
+		<div title="{{field}}" class="form-group{% if context[field]['_depends_on'] %} {{ context[field]['_depends_on'][0] }}{% endif %}">
+			<label class="form-label mt-4{% if context[field].output_data.required==true %} required{% endif %}" for="{{ field }}" {% if context[field].output_data.description %}data-bs-toggle="tooltip" data-bs-placement="right" title="{{context[field].output_data.description}}"{% endif %}>{{ field | replace('_', ' ')}}</label>
+			{% if config['enable_audio_accessibility'] %}
+			<img src="{{ url_for( 'static', filename='audio_dark.png' if dark_mode else 'audio_light.png' ) }}" alt="audio accessibility {{name}} {{field}}" style="padding-left:2px; max-width:1.5%; height: auto;" class="{{name}}_{{field}}" onClick="play( 'audio_{{name}}_{{field}}' )"> 
+			<audio id="audio_{{name}}_{{field}}" src="{{url_for (config['path_to_accessibility_audio'], filename=name+'_'+field+'.mp3') }}"></audio>
+			{%endif%}
+			<input class="form-control" type="{{ input_type }}" value="{{ default_value }}" id="{{ field }}" name="{{ field }}"/>
+		</div>
+
+		{% endif %}
+		{% endfor %}
 		
-			{% if homepage %}
-			  {{ config.homepage_msg }}
-		    {% endif %}
+		{% if options._presubmit_msg %}<hr/><label>{{ options._presubmit_msg }}
 
-		    {% if form_not_found %}
-			    <p>Go <a href="{{ url_for( 'home' ) }}">home</a>.</p>
-		    {% endif %}
+			{% if config['enable_audio_accessibility'] %}
+			<img src="{{ url_for( 'static', filename='audio_dark.png' if dark_mode else 'audio_light.png' ) }}" alt="audio accessibility {{name}} description" style="padding-left:2px; max-width:1.5%; height: auto;" class="{{name}}__presubmit_msg" onClick="play( 'audio_{{name}}__presubmit_msg' )"> 
+			<audio id="audio_{{name}}__presubmit_msg" src="{{url_for (config['path_to_accessibility_audio'], filename=name+'__presubmit_msg.mp3') }}"></audio>
+			{%endif%}
+
+		</label>{% endif %}
+
+		{% if require_password %}
+
+		<div title="password" class="form-group">
+			<label class="form-label mt-4 required" for="_password" data-bs-toggle="tooltip" data-bs-placement="right" title="Please re-enter your password to digitally sign this document">Password</label>
+			<input class="form-control" type="password" value="" id="_password" name="_password"/>
+		</div>	
+		{% endif %}
+
+		<div title="submit" class="form-group">
+			<input class="btn btn-primary mt-4" type=submit value="Submit">
+		</div>
+
+	</fieldset>
+
+	
+</form>
+{% endif %}
+
+
+{% if filename %}
+
+
+<div style="padding-top: 10px;">
+	<hr/>
+	<a href="{{ url_for(type+'.download_file', filename = filename, signature=signed_url) }}">download a CSV template of this form</a>
+	<sup><span data-bs-toggle="tooltip" data-bs-placement="right" title="Click me for help"><button class="btn btn-link btn-sm" type="button" data-bs-toggle="offcanvas" data-bs-target="#templateHelp" aria-controls="templateHelp">(?)</button></span></sup>
+</div>
+
+{% endif %}
+
+
+{% if homepage %}
+	{{ config.homepage_msg }}
+{% endif %}
+
+{% if form_not_found %}
+	<p>Go <a href="{{ url_for( 'home' ) }}">home</a>.</p>
+{% endif %}
 
 {% endblock %}
 

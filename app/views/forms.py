@@ -364,6 +364,7 @@ def propagate_form_configs(form=False):
             # by calling ahead to values we have not yet iterated through... 
             # see https://github.com/libreForms/libreForms-flask/issues/333
             "_display_name": render_form_display_name(form, list_fields), 
+            "_form_name": form, # add the form name as an option for self-referencing
             "_dashboard": None,
             "_table": None,
             "_description": False,
@@ -671,7 +672,6 @@ def forms(form_name):
 def generate_lookup():
 
     if request.method == 'POST':
-        # print(request)
 
         document_id = request.json['document_id']
         form_name = request.json['form_name']
