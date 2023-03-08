@@ -243,7 +243,7 @@
 
 {% block right_bar %}
 
-<div class="container" id="right_bar" >
+<div class="container" id="right_bar_content" >
 
 </div>
 
@@ -253,12 +253,13 @@
 {% block js %}
 
 
-async function generateLookup(s, id="right_bar") {
+async function generateLookup(s, form_name, id="right_bar_content") {
 
   const foo = document.getElementById(id)
 
   let payload = {
-    string: s
+    string: s,
+	form_name: form_name
   };
 
   let response = await fetch('{{ url_for ('forms.generate_lookup') }}', {
@@ -270,8 +271,9 @@ async function generateLookup(s, id="right_bar") {
   });
   
   let result = await response.json();
+  let code = await response.status;
 
-  if (result['status'] == 'success') {
+  if (code == {{config.error_code}}) {
     foo.classList.remove("is-invalid")
     foo.classList.add("is-valid")
   } else {

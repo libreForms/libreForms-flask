@@ -674,6 +674,7 @@ def generate_lookup():
         # print(request)
 
         string = request.json['string']
+        form = request.json['form_name']
         # print(string)
 
         if string:
