@@ -680,7 +680,7 @@ def generate_lookup():
 
         if isinstance(data,dict):
 
-            data = {key:value for key, value in data.items() if key not in mongodb.metadata_fields(exclude_id=True)}
+            data = {key.replace('_',' '):value for key, value in data.items() if key not in mongodb.metadata_fields(exclude_id=True)}
             return Response(json.dumps(data), status=config['success_code'], mimetype='application/json')
 
         return Response(json.dumps({'status':'failure'}), status=config['error_code'], mimetype='application/json')
