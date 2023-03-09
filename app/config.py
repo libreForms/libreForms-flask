@@ -19,7 +19,7 @@ config = {
 
 Please note that config_overrides.py must be created in order for the 
 web application to function. In addition, it must include a field for
-`libreforms_user_email` to set the email for the default `libreforms` 
+`default_user_email` to set the email for the default `libreforms` 
 user, otherwise the application will fail.
 
 """
@@ -285,7 +285,9 @@ config['user_registration_fields'] = {}
 
 # this config, added per https://github.com/signebedi/libreForms/issues/83, requires
 # administrators to set a unique email for the `libreforms` default user.
-config['libreforms_user_email'] = None
+config['default_user_email'] = None
+config['default_user_username'] = 'libreforms'
+
 
 # these configs define the groups available for users to fall under, and the default
 # group that new users are part of; this application employs a one-to-one user:group

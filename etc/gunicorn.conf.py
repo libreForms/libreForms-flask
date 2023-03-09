@@ -69,14 +69,15 @@ def pre_fork(server, worker):
             
             db.create_all()
 
-            if db.session.query(User).filter_by(username='libreforms').count() < 1:
+            user = db.session.query(User).filter_by(id=1)
+            if user.count() < 1:
                 initial_user = User(id=1,
-                                    username='libreforms', 
+                                    username=appconfig['default_user_username'], 
                                     active=1,
                                     theme='dark' if appconfig['dark_mode'] else 'light',
                                     group=appconfig['admin_group'],
                                     certificate=generate_symmetric_key(),
-                                    email=appconfig['libreforms_user_email'] if appconfig['libreforms_user_email'] and re.fullmatch(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', appconfig['libreforms_user_email']) else None,
+                                    email=appconfig['default_user_email'] if appconfig['default_user_email'] and re.fullmatch(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', appconfig['default_user_email']) else None,
                                     password='pbkdf2:sha256:260000$nQVWxd59E8lmkruy$13d8c4d408185ccc3549d3629be9cd57267a7d660abef389b3be70850e1bbfbf',
                                     created_date='2022-06-01 00:00:00',)
                 db.session.add(initial_user)
@@ -84,6 +85,11 @@ def pre_fork(server, worker):
                 db.session.close()
 
             # print('db done')
+
+            elif user.first().username != appconfig['default_user_username']:
+
+                user.first().username = appconfig['default_user_username']
+                db.session.commit()
 
 
 

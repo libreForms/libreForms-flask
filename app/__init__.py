@@ -53,11 +53,11 @@ from app.certification import generate_symmetric_key
 # Common Sense Checks - ensure any relevant assumptions are met before the app initializes
 ##########################
 
-if config['libreforms_user_email'] == None:
-  raise Exception("Please specify an admin email for the libreforms user in the 'libreforms_user_email' app config.")
+if config['default_user_email'] == None:
+  raise Exception("Please specify an admin email for the libreforms user in the 'default_user_email' app config.")
 
-if not re.fullmatch(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', config['libreforms_user_email']):
-    raise Exception("The email you specified in the'libreforms_user_email' app config is invalid.")
+if not re.fullmatch(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', config['default_user_email']):
+    raise Exception("The email you specified in the'default_user_email' app config is invalid.")
 
 # system breaks initially if configs are set that require SMTP, but SMTP isn't enabled.
 if not config['smtp_enabled'] and (config['enable_email_verification'] or \
@@ -161,7 +161,7 @@ if config['smtp_enabled']: # we should do something with this later on
                             password = config['smtp_password'],
                             from_address = config['smtp_from_address'])
 
-        mailer.send_mail(subject=f"{config['site_name']} online", content=f"{config['site_name']} is now online at {config['domain']}.", to_address=config['libreforms_user_email'], logfile=log)
+        mailer.send_mail(subject=f"{config['site_name']} online", content=f"{config['site_name']} is now online at {config['domain']}.", to_address=config['default_user_email'], logfile=log)
     
     except Exception as e:
         log.error(f'LIBREFORMS - unable to connect to SMTP server, outgoing mail will not be enabled. {e}')
@@ -283,19 +283,28 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
 
         # create default user if doesn't exist
         # solution from https://stackoverflow.com/a/39288652
-        if db.session.query(User).filter_by(username='libreforms').count() < 1:
+        user = db.session.query(User).filter_by(id=1)
+        if user.count() < 1:
             initial_user = User(id=1,
-                                username='libreforms', 
+                                username=config['default_user_username'], 
                                 active=1,
                                 theme='dark' if config['dark_mode'] else 'light',
                                 group=config['admin_group'],
                                 certificate=generate_symmetric_key(),
-                                email=config['libreforms_user_email'] if config['libreforms_user_email'] and re.fullmatch(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', config['libreforms_user_email']) else None,
+                                email=config['default_user_email'] if config['default_user_email'] and re.fullmatch(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', config['default_user_email']) else None,
                                 password='pbkdf2:sha256:260000$nQVWxd59E8lmkruy$13d8c4d408185ccc3549d3629be9cd57267a7d660abef389b3be70850e1bbfbf',
                                 created_date='2022-06-01 00:00:00',)
             db.session.add(initial_user)
             db.session.commit()
-            log.info('LIBREFORMS - created the libreforms user.' )
+            log.info(f'LIBREFORMS - created the default user {config["default_user_username"]}.' )
+
+        if user.first().username != config['default_user_username']:
+
+            log.info(f'LIBREFORMS - default user username `{user.first().username}` does not match admin-set default username `{config["default_user_username"]}`. Changing now.' )
+            user.first().username = config['default_user_username']
+            db.session.commit()
+            log.info(f'LIBREFORMS - modified the default user username to {config["default_user_username"]}.' )
+
 
             # from app.models import Report
             # signing_df = pd.read_sql_table(Report.__tablename__, con=db.engine.connect())
