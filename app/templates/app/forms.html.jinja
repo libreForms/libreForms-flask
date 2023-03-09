@@ -203,7 +203,7 @@
 
 <div style="padding-top: 10px;">
 	<hr/>
-	<a href="{{ url_for(type+'.download_file', filename = filename, signature=signed_url) }}">download a CSV template of this form</a>
+	<a href="{{ url_for(type+'.download_file', filename = filename, signature=signed_url) }}"><button type="button" class="btn btn-outline-success btn-sm">download a CSV template of this form</button></a>
 	<sup><span data-bs-toggle="tooltip" data-bs-placement="right" title="Click me for help"><button class="btn btn-link btn-sm" type="button" data-bs-toggle="offcanvas" data-bs-target="#templateHelp" aria-controls="templateHelp">(?)</button></span></sup>
 </div>
 

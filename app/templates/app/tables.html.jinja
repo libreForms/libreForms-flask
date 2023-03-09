@@ -24,7 +24,7 @@
         {% if filename %}
             <div style="padding-top: 10px;">
             <hr/>
-            <a href="{{ url_for(type+'.download_file', filename = filename) }}">download this data as a CSV</a>
+            <a href="{{ url_for(type+'.download_file', filename = filename) }}"><button type="button" class="btn btn-outline-success btn-sm">download this data as a CSV</button></a>
             </div>
         {%endif%}
 

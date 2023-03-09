@@ -148,7 +148,7 @@ def create_reports(form_name):
 
         return redirect(url_for('reports.view_report', report_id=str(report_id)))
 
-    msg = Markup(f"<a href = \"{url_for('reports.reports')}\">Go back to report home</a>")
+    msg = Markup(f"<a href = \"{url_for('reports.reports')}\"><button type=\"button\" class=\"btn btn-outline-success btn-sm\" style = \"margin-right: 10px;\">Go back to report home</button></a>")
 
     return render_template('reports/create_report.html.jinja', 
             name='Reports',
@@ -251,19 +251,19 @@ def view_report(report_id):
     # print(Report.__table__.columns)
 
     # this is the link to edit report
-    msg = Markup(f"<table role=\"presentation\"><tr><td><a href = \"{url_for('reports.modify_report', report_id=report_id)}\">Edit report</a></td></tr>")
+    msg = Markup(f"<table role=\"presentation\"><tr><td><a href = \"{url_for('reports.modify_report', report_id=report_id)}\"><button type=\"button\" class=\"btn btn-outline-success btn-sm\" style = \"margin-right: 10px;\">Edit report</button></a></td>")
     
     # this is the link to activate / deactivate report
     if report.active:
-        msg = msg + Markup(f"<tr><td><a href = \"{url_for('reports.deactivate_report', report_id=report_id)}\">Deactivate report</a></td></tr>")
+        msg = msg + Markup(f"<td><a href = \"{url_for('reports.deactivate_report', report_id=report_id)}\"><button type=\"button\" class=\"btn btn-outline-success btn-sm\" style = \"margin-right: 10px;\">Deactivate report</button></a></td>")
     else:
-        msg = msg + Markup(f"<tr><td><a href = \"{url_for('reports.activate_report', report_id=report_id)}\">Activate report</a></td></tr>")
+        msg = msg + Markup(f"<td><a href = \"{url_for('reports.activate_report', report_id=report_id)}\"><button type=\"button\" class=\"btn btn-outline-success btn-sm\" style = \"margin-right: 10px;\">Activate report</button></a></td>")
     
     # this is the link to send the report now
-    msg = msg + Markup(f"<tr><td><a href = \"{url_for('reports.send_report', report_id=report_id)}\">Send report now</a></td></tr>")
+    msg = msg + Markup(f"<td><a href = \"{url_for('reports.send_report', report_id=report_id)}\"><button type=\"button\" class=\"btn btn-outline-success btn-sm\" style = \"margin-right: 10px;\">Send report now</button></a></td>")
    
     # this is the link back to the report home
-    msg = msg + Markup(f"<tr><td><a href = \"{url_for('reports.reports')}\">Go back to report home</a></td></tr></table>")
+    msg = msg + Markup(f"<td><a href = \"{url_for('reports.reports')}\"><button type=\"button\" class=\"btn btn-outline-success btn-sm\" style = \"margin-right: 10px;\">Go back to report home</button></a></td></tr></table>")
 
 
     # now we render the view_report template, but pass the report object,

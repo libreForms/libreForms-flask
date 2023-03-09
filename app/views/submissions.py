@@ -659,21 +659,23 @@ def render_document(form_name, document_id):
             # is generally not intended to be visible
             record.drop(columns=[mongodb.metadata_field_names['metadata']], inplace=True)
 
-            msg = Markup(f"<table role=\"presentation\"><tr><td><a href = '{config['domain']}/submissions/{form_name}/{document_id}/history'>view document history</a></td></tr>")
+            msg = Markup(f"<table role=\"presentation\"><tr><td><a href = '{config['domain']}/submissions/{form_name}/{document_id}/history'><button type=\"button\" class=\"btn btn-outline-success btn-sm\" style = \"margin-right: 10px;\">view document history</button></a></td>")
 
             # print (current_user.username)
             # print (record[mongodb.metadata_field_names['reporter']].iloc[0])
 
             if ((not checkKey(verify_group, '_deny_write') or not current_user.group in verify_group['_deny_write'])) or current_user.username == record[mongodb.metadata_field_names['owner']].iloc[0]:
-                msg = msg + Markup(f"<tr><td><a href = '{config['domain']}/submissions/{form_name}/{document_id}/edit'>edit this document</a></td></tr>")
+                msg = msg + Markup(f"<td><a href = '{config['domain']}/submissions/{form_name}/{document_id}/edit'><button type=\"button\" class=\"btn btn-outline-success btn-sm\" style = \"margin-right: 10px;\">edit this document</button></a></td>")
 
             # if propagate_form_configs(form_name)['_form_approval'] and mongodb.metadata_field_names['approver'] in record.columns and record[mongodb.metadata_field_names['approver']].iloc[0] == getattr(current_user,config['visible_signature_field']):
             # new method for checking whether to allow approval, see https://github.com/libreForms/libreForms-flask/issues/155
             if len(aggregate_approval_count()['_id'].str.contains(document_id)) > 0:
-                msg = msg + Markup(f"<tr><td><a href = '{config['domain']}/submissions/{form_name}/{document_id}/review'>go to form approval</a></td></tr>")
+                msg = msg + Markup(f"<td><a href = '{config['domain']}/submissions/{form_name}/{document_id}/review'><button type=\"button\" class=\"btn btn-outline-success btn-sm\" style = \"margin-right: 10px;\">go to form approval</button></a></td>")
 
             if propagate_form_configs(form_name)['_allow_pdf_download']:
-                msg = msg + Markup(f"<tr><td><a href = '{config['domain']}/submissions/{form_name}/{document_id}/download'>download PDF</a></td></tr></table>")
+                msg = msg + Markup(f"<td><a href = '{config['domain']}/submissions/{form_name}/{document_id}/download'><button type=\"button\" class=\"btn btn-outline-success btn-sm\" style = \"margin-right: 10px;\">download PDF</button></a></td>")
+
+            msg = msg + Markup ("</tr></table>")
             
             return render_template('submissions/submissions.html.jinja',
                 type="submissions",
@@ -805,26 +807,28 @@ def render_document_history(form_name, document_id):
             emphasize = [x for x in t3[timestamp].keys()]
             flash(f'The following values changed in this version and are emphasized below: {", ".join(emphasize)}. ')
 
-            msg = Markup(f"<table role=\"presentation\"><tr><td><a href = '{config['domain']}/submissions/{form_name}/{document_id}'>go back to document</a></td></tr>")
+            msg = Markup(f"<table role=\"presentation\"><tr><td><a href = '{config['domain']}/submissions/{form_name}/{document_id}'><button type=\"button\" class=\"btn btn-outline-success btn-sm\" style = \"margin-right: 10px;\">go back to document</button></a></td>")
 
             # print (current_user.username)
             # print (record.transpose()[mongodb.metadata_field_names['reporter']].iloc[0])
             # print (record[mongodb.metadata_field_names['reporter']].iloc[0])
 
             if ((not checkKey(verify_group, '_deny_write') or not current_user.group in verify_group['_deny_write'])) or current_user.username == record[mongodb.metadata_field_names['owner']].iloc[0]:
-                msg = msg + Markup(f"<tr><td><a href = '{config['domain']}/submissions/{form_name}/{document_id}/edit'>edit this document</a></td></tr>")
+                msg = msg + Markup(f"<td><a href = '{config['domain']}/submissions/{form_name}/{document_id}/edit'><button type=\"button\" class=\"btn btn-outline-success btn-sm\" style = \"margin-right: 10px;\">edit this document</button></a></td>")
             
 
             # if propagate_form_configs(form_name)['_form_approval'] and mongodb.metadata_field_names['approver'] in display_data.columns and display_data[mongodb.metadata_field_names['approver']].iloc[0] == getattr(current_user,config['visible_signature_field']):
             # new method for checking whether to allow approval, see https://github.com/libreForms/libreForms-flask/issues/155
             if len(aggregate_approval_count()['_id'].str.contains(document_id)) > 0:
-                msg = msg + Markup(f"<tr><td><a href = '{config['domain']}/submissions/{form_name}/{document_id}/review'>go to form approval</a></td></tr>")
+                msg = msg + Markup(f"<td><a href = '{config['domain']}/submissions/{form_name}/{document_id}/review'><button type=\"button\" class=\"btn btn-outline-success btn-sm\" style = \"margin-right: 10px;\">go to form approval</button></a></td>")
 
             # eventually, we may wish to add support for downloading past versions 
             # of the PDF, too; not just the current form of the PDF; the logic does 
             # seem to support this, eg. sending the `display_data`
             if propagate_form_configs(form_name)['_allow_pdf_download']:
-                msg = msg + Markup(f"<tr><td><a href = '{config['domain']}/submissions/{form_name}/{document_id}/download'>download PDF</a></td></tr></table>")
+                msg = msg + Markup(f"<td><a href = '{config['domain']}/submissions/{form_name}/{document_id}/download'><button type=\"button\" class=\"btn btn-outline-success btn-sm\" style = \"margin-right: 10px;\">download PDF</button></a></td>")
+
+            msg = msg + Markup ("</tr></table>")
 
             return render_template('submissions/submissions.html.jinja',
                 type="submissions",
@@ -1158,8 +1162,8 @@ def review_document(form_name, document_id):
         record.drop(columns=[mongodb.metadata_field_names['metadata']], inplace=True)
 
 
-        msg = Markup(f"<table role=\"presentation\"><tr><td><a href = '{config['domain']}/submissions/{form_name}/{document_id}'>go back to document</a></td></tr>")
-        msg = msg + Markup(f"<tr><td><a href = '{config['domain']}/submissions/{form_name}/{document_id}/history'>view document history</a></td></tr></table>")
+        msg = Markup(f"<table role=\"presentation\"><tr><td><a href = '{config['domain']}/submissions/{form_name}/{document_id}'><button type=\"button\" class=\"btn btn-outline-success btn-sm\" style = \"margin-right: 10px;\">go back to document</button></a></td>")
+        msg = msg + Markup(f"<td><a href = '{config['domain']}/submissions/{form_name}/{document_id}/history'><button type=\"button\" class=\"btn btn-outline-success btn-sm\" style = \"margin-right: 10px;\">view document history</button></a></td></tr></table>")
 
         # print (current_user.username)
         # print (record[mongodb.metadata_field_names['reporter']].iloc[0])

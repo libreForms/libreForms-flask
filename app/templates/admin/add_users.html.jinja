@@ -18,11 +18,13 @@
     </div>
 </form>
 
-<br/>
+<div style="padding-top: 10px;">
+<hr/>
 <table role="presentation" title="download user template" >
   <tr><td>
-  <a href="{{ url_for('auth.download_bulk_user_template', filename='bulk_user_template.csv') }}">download a template</a>
+  <a href="{{ url_for('auth.download_bulk_user_template', filename='bulk_user_template.csv') }}"><button type="button" class="btn btn-outline-success btn-sm">download a template</button></a>
   </td></tr>
 </table>
+</div>
 
 {% endblock %}
