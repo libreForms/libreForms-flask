@@ -300,15 +300,13 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
 
         if user.first().username != config['default_user_username']:
 
-            log.info(f'LIBREFORMS - default user username `{user.first().username}` does not match admin-set default username `{config["default_user_username"]}`. Changing now.' )
-            user.first().username = config['default_user_username']
-            db.session.commit()
-            log.info(f'LIBREFORMS - modified the default user username to {config["default_user_username"]}.' )
+            # log.warning(f'LIBREFORMS - default user username `{user.first().username}` does not match admin-set default username `{config["default_user_username"]}`. Changing now. This breaks assumptions. ' )
+            # user.first().username = config['default_user_username']
+            # db.session.commit()
+            # log.warning(f'LIBREFORMS - modified the default user username to {config["default_user_username"]}.' )
 
+            raise Exception(f"The default user `{user.first().username}` does not match the default username set in the app config `{config['default_user_username']}`. This breaks assumptions. Please either modify the username by the `default_user_username` app config, or point the application to the correct database.")
 
-            # from app.models import Report
-            # signing_df = pd.read_sql_table(Report.__tablename__, con=db.engine.connect())
-            # print(signing_df)
 
     # if we only want to return the db instance, then we return here. To do this, you must
     # set the `db_init_only` kwarg to True in create_app(). For further discussion, see

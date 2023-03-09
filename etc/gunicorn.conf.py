@@ -88,8 +88,10 @@ def pre_fork(server, worker):
 
             elif user.first().username != appconfig['default_user_username']:
 
-                user.first().username = appconfig['default_user_username']
-                db.session.commit()
+                # user.first().username = appconfig['default_user_username']
+                # db.session.commit()
+                raise Exception(f"The default user `{user.first().username}` does not match the default username set in the app config `{config['default_user_username']}`. This breaks assumptions. Please either modify the username by the `default_user_username` app config, or point the application to the correct database.")
+
 
 
 
