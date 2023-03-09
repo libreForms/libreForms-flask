@@ -109,8 +109,9 @@ def tables(form_name):
 
 
         # drop `meta` fields from user vis
-        [ df.drop(columns=[x], inplace=True) for x in [mongodb.metadata_field_names['journal'], mongodb.metadata_field_names['metadata'], '_id'] if x in df.columns]
-        
+        # [ df.drop(columns=[x], inplace=True) for x in [mongodb.metadata_field_names['journal'], mongodb.metadata_field_names['metadata'], '_id'] if x in df.columns]
+        [ df.drop(columns=[x], inplace=True) for x in mongodb.metadata_fields(exclude_id=True, ignore_fields=['owner', 'reporter', 'timestamp',]) if x in df.columns]
+
         # here we allow the user to select fields they want to use, 
         # overriding the default view-all.
         # warning, this may be buggy
