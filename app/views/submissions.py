@@ -669,7 +669,7 @@ def render_document(form_name, document_id):
 
             # if propagate_form_configs(form_name)['_form_approval'] and mongodb.metadata_field_names['approver'] in record.columns and record[mongodb.metadata_field_names['approver']].iloc[0] == getattr(current_user,config['visible_signature_field']):
             # new method for checking whether to allow approval, see https://github.com/libreForms/libreForms-flask/issues/155
-            if len(aggregate_approval_count()['_id'].str.contains(document_id)) > 0:
+            if (aggregate_approval_count()._id.str.contains(document_id) == True).sum() > 0:
                 msg = msg + Markup(f"<td><a href = '{config['domain']}/submissions/{form_name}/{document_id}/review'><button type=\"button\" class=\"btn btn-outline-success btn-sm\" style = \"margin-right: 10px;\">go to form approval</button></a></td>")
 
             if propagate_form_configs(form_name)['_allow_pdf_download']:
@@ -732,12 +732,14 @@ def render_document_history(form_name, document_id):
         else:
 
             # if a timestamp has been selected, then we set that to the page focus
-            if request.args.get(mongodb.metadata_field_names['timestamp']):
-                timestamp = request.args.get(mongodb.metadata_field_names['timestamp'])
+            if request.args.get('Timestamp'):
+                timestamp = request.args.get('Timestamp')
+                # print(timestamp)
             # if a timestamp hasn't been passed in the get vars, then we default to the most recent
             else:
                 # timestamp = record.iloc[-1, record.columns.get_loc(mongodb.metadata_field_names['timestamp'])]
                 timestamp = record.columns[-1]
+                # print('no timestamp found', timestamp)
 
             # I'm experimenting with creating the Jinja element in the backend ...
             # it makes applying certain logic -- like deciding which element to mark
@@ -819,7 +821,8 @@ def render_document_history(form_name, document_id):
 
             # if propagate_form_configs(form_name)['_form_approval'] and mongodb.metadata_field_names['approver'] in display_data.columns and display_data[mongodb.metadata_field_names['approver']].iloc[0] == getattr(current_user,config['visible_signature_field']):
             # new method for checking whether to allow approval, see https://github.com/libreForms/libreForms-flask/issues/155
-            if len(aggregate_approval_count()['_id'].str.contains(document_id)) > 0:
+            # print((aggregate_approval_count()._id.str.contains(document_id) == True).sum())
+            if (aggregate_approval_count()._id.str.contains(document_id) == True).sum() > 0:
                 msg = msg + Markup(f"<td><a href = '{config['domain']}/submissions/{form_name}/{document_id}/review'><button type=\"button\" class=\"btn btn-outline-success btn-sm\" style = \"margin-right: 10px;\">go to form approval</button></a></td>")
 
             # eventually, we may wish to add support for downloading past versions 
@@ -1029,7 +1032,7 @@ def review_document(form_name, document_id):
         # if the approver verification doesn't check out
         # if not mongodb.metadata_field_names['approver'] in record.columns or not record[mongodb.metadata_field_names['approver']].iloc[0] or record[mongodb.metadata_field_names['approver']].iloc[0] != getattr(current_user,config['visible_signature_field']):
         # new method for checking whether to allow approval, see https://github.com/libreForms/libreForms-flask/issues/155
-        if len(aggregate_approval_count()['_id'].str.contains(document_id)) < 1:
+        if (aggregate_approval_count()._id.str.contains(document_id) == True).sum() < 1:
             return abort(404)
 
         if request.method == 'POST':
