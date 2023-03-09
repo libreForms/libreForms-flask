@@ -197,12 +197,14 @@ class MongoDB:
 
         return self.metadata_field_names
 
-    def metadata_fields(self, exclude_id=False):
+    def metadata_fields(self, exclude_id:bool=False, ignore_fields:list=[]) -> list:
+        
         # we have a number of fields that are added at various points in the 
         # submission lifecyle, but which we may wish to strip from the data. 
         # this method returns a list of those fields. By default, we do not
-        # drop the `_id` field.
-        fields = [ value for field,value in self.set_metadata_field_names().items() ]
+        # drop the `_id` field. Added ignore_fields to ignore fields by key
+        # if they are passed, for cases where we want some metadata to remain
+        fields = [ value for field,value in self.set_metadata_field_names().items() if field not in ignore_fields ]
         
         if exclude_id:
             return fields + ['_id']
