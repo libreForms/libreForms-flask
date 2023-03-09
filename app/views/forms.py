@@ -351,7 +351,7 @@ def render_form_display_name(form_name, form_config):
   elif '_title' in form_config:
     return form_config['_title']
 
-  return form_name
+  return form_name.replace('_',' ')
 
 
 # every form defined under libreforms/ contains a series of key-value pairs for fields and configs. 
