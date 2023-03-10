@@ -582,7 +582,7 @@ class MongoDB:
             return False
 
     # here we reimplement get_document() without pandas
-    def get_document_as_dict(self, collection_name, document_id):
+    def get_document_as_dict(self, collection_name, document_id, drop_fields=[]):
         with MongoClient(host=self.host, port=self.port) if not self.dbpw else MongoClient(self.connection_string) as client:
             db = client['libreforms']
 
@@ -607,7 +607,10 @@ class MongoDB:
                 x = list(collection.find({"_id": _id}))
                 assert(len(list(x)) > 0)
                 # print (list(x))
-                return x[0]
+
+                data = {key: value for key, value in x[0].items() if key not in drop_fields}
+
+                return data
 
             except:
                 return False
