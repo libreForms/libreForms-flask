@@ -29,7 +29,7 @@ from app import config, log, mailer, mongodb
 from app.models import User, db
 from app.certification import encrypt_with_symmetric_key
 from celeryd.tasks import send_mail_async
-
+from app.pdf import convert_to_string
 
 # and finally, import other packages
 import os, json
@@ -45,6 +45,7 @@ def standard_view_kwargs():
     kwargs['notifications'] = current_app.config["NOTIFICATIONS"]() if current_user.is_authenticated else None
     kwargs['user'] = current_user if current_user.is_authenticated else None
     kwargs['config'] = config
+    kwargs['stringify'] = convert_to_string
 
     return kwargs
 

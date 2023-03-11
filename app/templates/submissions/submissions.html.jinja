@@ -26,7 +26,7 @@
           <span class="badge bg-primary">{{submission[item].iloc[0].split(' ')[0]}}</span> {{' '.join(submission[item].iloc[0].split(' ')[1:])|safe()}}
           {% endif %}
         {% else %}
-          {{submission[item].iloc[0]}}
+          {{stringify(submission[item].iloc[0])}}
         {% endif %}
       </td>
     </tr>
@@ -48,7 +48,7 @@
           <span class="badge bg-primary">{{submission[item].iloc[0].split(' ')[0]}}</span> {{' '.join(submission[item].iloc[0].split(' ')[1:])|safe()}}
           {% endif %}
         {% else %}
-          {{submission[item].iloc[0]}}
+          {{stringify(submission[item].iloc[0])}}
         {% endif %}
       </td>
     </tr>
