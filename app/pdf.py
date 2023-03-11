@@ -159,6 +159,83 @@ def generate_pdf(
 
 
 
+def calculate_field_position(total_fields, current_field, page_height):
+    # Define the position of the top of the first field
+    first_field_y = page_height - 100
+
+    # Calculate the vertical distance between each field
+    field_spacing = 20
+
+    # Calculate the position of the current field
+    current_field_y = first_field_y - current_field * field_spacing
+
+    # Return the position as a tuple
+    return (100, current_field_y)
+
+
+def convert_to_string(data):
+    if isinstance(data, list):
+        # Convert each item in the list to a string and join them with commas
+        return ", ".join(str(item) for item in data)
+    elif isinstance(data, dict):
+        # Convert each key-value pair in the dictionary to a string and join them with commas
+        return ", ".join(f"{key}: {value}" for key, value in data.items())
+    # Return the input as a string
+    return str(data)
+
+def add_border(canvas):
+    """Adds a 1px black border around the current canvas"""
+    canvas.setStrokeColorRGB(0, 0, 0)
+    text_width, text_height = canvas.stringWidth(str(canvas._code)), canvas._leading
+    x, y = canvas._x, canvas._y
+    width, height = text_width + 2, text_height + 2
+    canvas.rect(x, y, width, height, stroke=1, fill=0)
+    return canvas
+
+def new_generate_pdf(   form_name:str, 
+                        data_structure:dict, 
+                        document_id:str,
+                        document_name=None):
+
+    # 64068a5d03728ef3a5f3e765
+
+    # if the user doesn't pass their own document name, create one
+    if not document_name: 
+        document_name= f'{datetime.datetime.utcnow().strftime("%Y-%m-%d")}_{form_name}_{document_id}.pdf'
+
+    # Calculate the total number of fields
+    total_fields = len(data_structure)
+
+    # Create a new PDF document
+    pdf_canvas = canvas.Canvas(document_name, pagesize=letter)
+
+    # Set the font for the document
+    pdf_canvas.setFont("Helvetica", 10)
+
+    # Total dictionary of positions
+    field_position_dict = {}
+
+    # Iterate over the form field names, and draw them on the page
+    for i, field in enumerate(data_structure.keys()):
+        response = convert_to_string(data_structure[field])
+        field_name = field[1:].replace('_', ' ') if field.startswith('_') else field.replace('_', ' ')
+        position = calculate_field_position(total_fields, i, letter[1])
+        field_position_dict[field] = position # add position to the total dictionary of positions
+        pdf_canvas.drawString(position[0], position[1], field_name)
+        pdf_canvas.drawString(position[0] + 100, position[1], response)
+
+    # print(field_position_dict)
+
+    # for response, position in zip([convert_to_string(x) for x in data_structure.values()], field_position_dict.values()):
+    #     # print(position)
+    #     pdf_canvas.drawString(position[0], position[1], response)
+    #     pdf_canvas = add_border(pdf_canvas)
+
+
+    # Save the PDF document and close the canvas
+    pdf_canvas.save()
+
+
 if __name__=="__main__":
     data = {'Description': 'This project requests approval for $3 million over seven '
                 'years to develop a turnip GMO with significantly increased '
