@@ -96,7 +96,7 @@
       {% endif %}
 
       {% if config['enable_hcaptcha'] and not edit_profile %}
-      <div style="padding-top: 15px;" title="captcha" >
+      <div style="padding-top: 25px;" title="captcha" >
         <div class="h-captcha" data-theme="{{'dark' if dark_mode else 'light'}}" data-sitekey="{{ config['hcaptcha_site_key'] }}"></div>
       </div>
       {% endif %}
