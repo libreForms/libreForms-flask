@@ -27,7 +27,7 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter, inch
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, PageBreak
 from reportlab.lib import colors
-from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 
 
 def generate_pdf(   
@@ -192,7 +192,7 @@ def add_border(canvas):
     canvas.rect(x, y, width, height, stroke=1, fill=0)
     return canvas
 
-def new_generate_pdf(   form_name:str, 
+def v2_generate_pdf(   form_name:str, 
                         data_structure:dict, 
                         document_id:str,
                         document_name=None):
@@ -234,6 +234,79 @@ def new_generate_pdf(   form_name:str,
 
     # Save the PDF document and close the canvas
     pdf_canvas.save()
+
+def v3_generate_pdf(    form_name:str, 
+                        form_data:dict,
+                        metadata:dict,
+                        document_id:str,
+                        document_name=None,
+                        **kwargs):
+    
+    # if the user doesn't pass their own document name, create one
+    if not document_name: 
+        document_name= f"{form_name}_{document_id}.pdf"
+
+
+    # Define the table data
+    data = [ [key,convert_to_string(value)] for key,value in form_data.items()]
+
+    # data = [
+    #     ["a", ""],
+    #     ["b", ""],
+    #     ["c", ""],
+    #     ["d", ""],
+    #     ["e", ""],
+    #     ["f", ""],
+    #     ["g", ""],
+    #     ["h", ""]
+    # ]
+
+    # # Define data
+    # form_name = "request"
+    # doc_id = "asjd832-aasd2"
+    # date = "10-Mar-23"
+
+    # Define the table style
+    style = TableStyle([
+        # ("BACKGROUND", (0, 0), (-1, 0), colors.white),
+        # ("TEXTCOLOR", (0, 0), (-1, 0), colors.black),
+        # ("ALIGN", (0, 0), (-1, 0), "CENTER"),
+        # ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+        # ("FONTSIZE", (0, 0), (-1, 0), 10),
+        # ("BOTTOMPADDING", (0, 0), (-1, 0), 8),
+        # # ("LEFTPADDING", (0, 0), (-1, 0), 10),
+        # ("BACKGROUND", (0, 1), (-1, -1), colors.white),
+        # ("TEXTCOLOR", (0, 1), (-1, -1), colors.black),
+        ("ALIGN", (0, 0), (0, -1), "CENTER"),
+        ("FONTNAME", (0, 0), (0, -1), "Helvetica-Bold"),
+        ("FONTSIZE", (0, 0), (0, -1), 10),
+        ("TOPPADDING", (0, 0), (-1, -1), 2),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 2),
+        ("LEFTPADDING", (0, 0), (0, -1), 10),
+        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+        ("GRID", (0, 0), (-1, -1), 1, colors.black),
+        ("BOX", (0, 0), (-1, -1), 1, colors.black)
+    ])
+
+    # Define the table dimensions, cell height and column widths
+    cell_height = 50
+    data_len = len(data)
+    table_height = data_len * cell_height
+    table_width = 8.5 * inch
+    table = Table(data, colWidths=[2.33 * inch, 4.67 * inch], rowHeights=[cell_height] * data_len, style=style, hAlign="LEFT")
+
+    # Define the header style and content
+    header_style = ParagraphStyle(name="Header", fontName="Helvetica-Bold", fontSize=14, alignment=0, leftIndent=10, textColor=colors.black)
+    form_name = Paragraph(form_name, header_style)
+
+    right_style = ParagraphStyle(name="right_style", fontSize=10, alignment=2, rightIndent=10)
+    document_id = Paragraph(f"Document ID: {document_id}", right_style)
+    date = Paragraph(f"Date: {datetime.datetime.utcnow().strftime('%Y-%m-%d')}", right_style)
+
+    # Build the document with the header and table
+    doc = SimpleDocTemplate(document_name, pagesize=letter, leftMargin=10, rightMargin=10, topMargin=0.5 * inch, bottomMargin=0.5 * inch)
+    elements = [form_name, document_id, date, Paragraph("<br/><br/>", header_style), table ]
+    doc.build(elements)
 
 
 if __name__=="__main__":
