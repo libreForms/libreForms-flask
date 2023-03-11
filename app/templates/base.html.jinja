@@ -165,7 +165,7 @@
             <div class="row" style="padding-top: 20px;">
               <hr>
               <p>
-              {% if config.warning_banner_on_every_page or homepage %}
+              {% if config.warning_banner_on_every_page or homepage or subtitle=='Login' %}
               {{ config.warning_banner }}
               {% endif %}
               {%if config['enable_privacy_policy']%}
