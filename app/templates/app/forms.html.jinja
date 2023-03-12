@@ -302,6 +302,7 @@ async function generateLookup(s, form_name, id="right_bar_content") {
 	table.setAttribute("role", "presentation");
 	table.setAttribute("title", "lookup table");
 	table.setAttribute("class", "table {{'text-dark' if not dark_mode else ''}}");
+	table.setAttribute("style", "width: 100%; table-layout: fixed; white-space: pre-line; overflow-x: auto;");
 
 	// Iterate over the JSON object and create HTML rows for each key-value pair
 	for (let [key, value] of Object.entries(result)) {
