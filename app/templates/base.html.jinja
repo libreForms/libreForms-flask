@@ -59,7 +59,7 @@
       <div role="navigation" class="row">
 
         <nav title="topbar navigation" class="navbar navbar-expand-lg {{'navbar-dark bg-dark' if dark_mode else 'navbar-light bg-light text-dark'}} border-bottom" style="padding-left: 30px;z-index:999999 !important;">
-          <a href="{% if type == 'external' %}#{% else %}{{ url_for('home') }}{% endif %}" class="navbar-brand">{{ config['site_name'] }} <small class="{{'text-muted' if dark_mode else 'text-secondary'}}">v.{{ config['version'] }}</small></a>    
+          <a href="{% if type == 'external' %}#{% else %}{{ url_for('home') }}{% endif %}" class="navbar-brand">{#{%if config['site_logo'] %}<img src="{{url_for('site_logo')}}" alt="Site Logo" style="height: 100vh; display: block; margin: 0 auto; ">{%endif%}#}{{ config['site_name'] }} <small class="{{'text-muted' if dark_mode else 'text-secondary'}}">v.{{ config['version'] }}</small></a>    
           <ul class="nav navbar-nav">
             {% if user %}
             <li class="nav-item dropdown{{' bg-light text-dark' if not dark_mode else ''}}">

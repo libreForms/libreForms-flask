@@ -34,7 +34,8 @@ import os, re, json
 import pandas as pd
 
 # Flask-specific dependencies
-from flask import Flask, render_template, current_app, jsonify, request, abort, Response
+from flask import Flask, render_template, current_app, jsonify, request, \
+                    abort, Response, send_from_directory
 from flask_login import LoginManager, current_user
 from werkzeug.middleware.proxy_fix import ProxyFix
 from celery import Celery
@@ -602,6 +603,12 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
                 subtitle='Privacy',
                 **forms.standard_view_kwargs(),
             )
+
+    # if config['site_logo']:
+    #     @app.route('/site_logo')
+    #     def site_logo():
+    #         return send_from_directory('/', config['site_logo'])
+
 
     # return the app object with the above configurations
     return app

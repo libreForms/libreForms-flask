@@ -93,9 +93,9 @@ config['privacy_policy'] = ''
 config['warning_banner_on_every_page'] = False
 config['warning_banner'] = ''
 
-# this config, once implemented, will allow organizations to set a logo for the site,
+# this config allows organizations to set a logo for the site,
 # see https://github.com/signebedi/libreForms/issues/50.
-config['image'] = "" # unused
+config['site_logo'] = None
 
 # this config sets the favicon, which can be overridden
 config['favicon'] = "default_favicon.ico" 
