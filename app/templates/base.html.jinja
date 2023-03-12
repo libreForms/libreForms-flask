@@ -27,8 +27,7 @@
     {% endif %}
     
     <!-- Remaining header data -->
-    <link rel="shortcut icon" href='{{ url_for('static', filename=config.favicon) }}' />
-    <link rel='shortcut icon' type='image/x-icon' href='{{ url_for('static', filename=config.favicon) }}' />
+    <link rel='shortcut icon' type='image/x-icon' href='{{ url_for("site_favicon") }}' />
 
     <title>{{ config['site_name'] }}{%if name%} {{name}}{%endif%}{%if subtitle%} {{subtitle}}{%endif%}</title>
     <style>
@@ -59,7 +58,7 @@
       <div role="navigation" class="row">
 
         <nav title="topbar navigation" class="navbar navbar-expand-lg {{'navbar-dark bg-dark' if dark_mode else 'navbar-light bg-light text-dark'}} border-bottom" style="padding-left: 30px;z-index:999999 !important;">
-          {%if config['site_logo'] %}<a href="{% if type == 'external' %}#{% else %}{{ url_for('home') }}{% endif %}" class="navbar-brand"><img src="{{url_for('site_logo')}}" alt="Site Logo" style="height: 80px; width:auto; display: block; margin: 0 auto;"></a>{%endif%}
+          {%if config['site_logo'] %}<a href="{% if type == 'external' %}#{% else %}{{ url_for('home') }}{% endif %}" class="navbar-brand"><img src="{{url_for('site_logo')}}" alt="Site Logo" style="height: 60px; width:auto; display: block; margin: 0 auto;"></a>{%endif%}
           <a href="{% if type == 'external' %}#{% else %}{{ url_for('home') }}{% endif %}" class="navbar-brand">{{ config['site_name'] }} <small class="{{'text-muted' if dark_mode else 'text-secondary'}}">v.{{ config['version'] }}</small></a>    
           <ul class="nav navbar-nav">
             {% if user %}

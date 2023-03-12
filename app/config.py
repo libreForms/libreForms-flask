@@ -97,8 +97,9 @@ config['warning_banner'] = ''
 # see https://github.com/signebedi/libreForms/issues/50.
 config['site_logo'] = None
 
-# this config sets the favicon, which can be overridden
-config['favicon'] = "default_favicon.ico" 
+# this config sets the favicon, which can be overridden but defaults to app/static/
+# default_favicon.ico
+config['favicon'] = None
 
 # this config allows admins to set the default organization for those registering for
 # accounts, which is useful when standardization of this field is desired.

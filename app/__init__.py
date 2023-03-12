@@ -35,7 +35,7 @@ import pandas as pd
 
 # Flask-specific dependencies
 from flask import Flask, render_template, current_app, jsonify, request, \
-                    abort, Response, send_from_directory
+                    abort, Response, send_from_directory, url_for
 from flask_login import LoginManager, current_user
 from werkzeug.middleware.proxy_fix import ProxyFix
 from celery import Celery
@@ -604,14 +604,21 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
                 **forms.standard_view_kwargs(),
             )
 
-    
+    # add a route to the favicon
+    @app.route('/favicon.ico')
+    def site_favicon():
+        if config['favicon']:
+            directory_path, file_name = os.path.split(config['favicon'])
+            return send_from_directory(directory_path, file_name)
+        return send_from_directory(app.static_folder, 'default_favicon.ico')
+
+    # add a route to the site logo
     @app.route('/site_logo')
     def site_logo():
         if config['site_logo']:
             directory_path, file_name = os.path.split(config['site_logo'])
-            return send_from_directory(directory_path, file_name)
+            return send_from_directory(directory_path, file_name, mimetype="image/vnd.microsoft.icon")
         return abort(404)
-
 
     # return the app object with the above configurations
     return app
