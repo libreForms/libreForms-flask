@@ -78,6 +78,7 @@ import os, tempfile, datetime
 from app import log
 from werkzeug.security import generate_password_hash
 from celeryd.tasks import send_mail_async, restart_app_async
+from app.pdf import convert_to_string
 
 # borrows from and extends the functionality of flask_login.login_required, see
 # https://github.com/maxcountryman/flask-login/blob/main/src/flask_login/utils.py.
@@ -142,6 +143,8 @@ def dotenv_overrides(env_file='libreforms.env',restart_app=True,**kwargs):
         # here we restart the application on config change 
         if restart_app:
             restart_app_async.delay() # will not run if celery is not running.
+
+        log.info(f'{current_user.username.upper()} - updated app dotenv configs: {convert_to_string(kwargs)}.')
 
         return True
 
