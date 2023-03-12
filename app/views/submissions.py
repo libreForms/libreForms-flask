@@ -1277,7 +1277,8 @@ def generate_pdf(form_name, document_id):
 
             import libreforms
             import datetime
-            from app.pdf import generate_pdf
+            from app.pdf import generate_pdf as make_pdf
+            from app.pdf import v3_generate_pdf
             filename = f"{form_name}_{document_id}.pdf"
 
 
@@ -1290,11 +1291,20 @@ def generate_pdf(form_name, document_id):
                 fp = os.path.join(tempfile_path, filename)
                 # document_name= f'{datetime.datetime.utcnow().strftime("%Y-%m-%d")}_{current_user.username}_{form_name}.pdf'
 
-                generate_pdf( form_name=form_name, 
+                make_pdf( form_name=form_name, 
                               data_structure=dict(record.iloc[0]), 
                               username=current_user.username,
                               document_name=fp,
                               skel=propagate_form_fields(form=form_name) )
+
+
+                # v3_generate_pdf(    form_name=form_name, 
+                #                     form_data=dict(record.iloc[0]),
+                #                     metadata=None,
+                #                     document_id=document_id,
+                #                     document_name=fp)
+                    
+
 
                 return send_from_directory(tempfile_path,
                                         filename, as_attachment=True)
