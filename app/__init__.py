@@ -604,10 +604,13 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
                 **forms.standard_view_kwargs(),
             )
 
-    # if config['site_logo']:
-    #     @app.route('/site_logo')
-    #     def site_logo():
-    #         return send_from_directory('/', config['site_logo'])
+    
+    @app.route('/site_logo')
+    def site_logo():
+        if config['site_logo']:
+            directory_path, file_name = os.path.split(config['site_logo'])
+            return send_from_directory(directory_path, file_name)
+        return abort(404)
 
 
     # return the app object with the above configurations
