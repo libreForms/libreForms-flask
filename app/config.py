@@ -94,8 +94,10 @@ config['warning_banner_on_every_page'] = False
 config['warning_banner'] = ''
 
 # this config allows organizations to set a logo for the site,
-# see https://github.com/signebedi/libreForms/issues/50.
+# see https://github.com/signebedi/libreForms/issues/50. The
+# site_logo_height config sets the height in pixels for the logo.
 config['site_logo'] = None
+config['site_logo_height'] = 20
 
 # this config sets the favicon, which can be overridden but defaults to app/static/
 # default_favicon.ico
