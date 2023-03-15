@@ -200,12 +200,12 @@ def register():
         elif config['registration_organization_required'] and not organization:
             error = 'Organization is required. '
 
-        elif not re.fullmatch(r"^\w\w\w\w+$", username) or len(username) > 36:
-            error = 'username does not formatting standards, length 4 - 36 characters, alphanumeric and underscore characters only. '
-        elif email and not re.fullmatch(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', email):
-            error = 'Invalid email. ' 
-        elif phone and not re.fullmatch(r'^[a-z0-9]{3}-[a-z0-9]{3}-[a-z0-9]{4}$', phone):
-            error = 'Invalid phone number (xxx-xxx-xxxx). ' 
+        elif not re.fullmatch(config['username_regex'], username) or len(username) > 36:
+            error = f'Invalid username. ({config["user_friendly_username_regex"]}) '
+        elif email and not re.fullmatch(config['email_regex'], email):
+            error = f'Invalid email. ({config["user_friendly_email_regex"]}) ' 
+        elif phone and not re.fullmatch(config['phone_regex'], phone):
+            error = f'Invalid phone number ({config["user_friendly_phone_regex"]}). ' 
         elif email and User.query.filter_by(email=email).first():
             error = 'Email is already registered. ' 
         elif User.query.filter_by(username=username.lower()).first():
@@ -429,8 +429,8 @@ def edit_profile():
             error = 'Phone is required. '
         elif config['registration_organization_required'] and not organization:
             error = 'Organization is required. '
-        elif phone and not re.fullmatch(r'^[a-z0-9]{3}-[a-z0-9]{3}-[a-z0-9]{4}$', phone):
-            error = 'Invalid phone number (xxx-xxx-xxxx). ' 
+        elif phone and not re.fullmatch(config['phone_regex'], phone):
+            error = f'Invalid phone number ({config["user_friendly_phone_regex"]}). ' 
         
         user = User.query.filter_by(email=current_user.email).first()
     
