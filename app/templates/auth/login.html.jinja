@@ -4,7 +4,9 @@
   <h1>{% block title %}Log In{% endblock %}</h1>
 {% endblock %}
 
+
 {% block content %}
+
 <form title="login" method="post">
   <fieldset>
     <div title="username" class="form-group">
@@ -15,6 +17,9 @@
     <label class="form-label mt-4" for="password">Password</label>
     <input class="form-control" type="password" name="password" id="password" required>
     </div>
+
+    <p style="padding-top: 10px;">{{config['pre_login_msg'] or ""}}</p>
+
     <div title="submit"  class="form-group mt-4">
     <input class="btn btn-primary" type="submit" value="Log In">
     </div>

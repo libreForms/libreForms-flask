@@ -70,6 +70,10 @@ config['last_restart'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 # you can remove the Markup designation if you don't want to render this as HTML.
 config['homepage_msg'] = Markup("<p>Welcome to <code>libreForms-flask</code>, an implementation of the <a href='https://github.com/libreForms/spec'>libreForms API</a> in Flask. Select a view from above to get started. You can view the app source at <a href='https://github.com/libreForms/libreForms-flask'>https://github.com/libreForms/libreForms-flask</a>. You can view the docs at <a href='https://libreforms.readthedocs.io/en/latest/'>https://libreforms.readthedocs.io/en/latest/</a>.</p>")
 
+# this sets the pre-login message for the website, which will be visible to users when they
+# sign into the system, see https://github.com/libreForms/libreForms-flask/issues/353
+config['pre_login_msg'] = None
+
 # sometimes, the application needs to hardcode URL endpoints; in these cases, it 
 # needs to set the application domain, which defaults to the bind address for the 
 # gunicorn application. Overrides should generally include protocol and ports, eg:
