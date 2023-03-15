@@ -71,7 +71,7 @@ def reset_password(signature):
             email = signing_df.loc[ signing_df['signature'] == signature ]['email'].iloc[0]
 
             if not password:
-                error = 'Password is required.'
+                error = 'Password is required. '
 
             else: error = None
 
@@ -113,13 +113,13 @@ def forgot_password():
         email = request.form['email']
 
         if not User.query.filter_by(email=email.lower()).first():
-            error = f'Email {email.lower()} is not registered.' 
+            error = f'Email {email.lower()} is not registered. ' 
                         
         else: error=None
         
         if config['enable_hcaptcha']:
             if not hcaptcha.verify():
-                error = 'Captcha validation error.'
+                error = 'Captcha validation error. '
 
         if error is None:
             try: 
@@ -187,32 +187,32 @@ def register():
         error = None
 
         if not username:
-            error = 'Username is required.'
+            error = 'Username is required. '
         elif not password:
-            error = 'Password is required.'
+            error = 'Password is required. '
         
         # added these per https://github.com/signebedi/libreForms/issues/122
         # to give the freedom to set these as required fields
         elif config['registration_email_required'] and not email:
-            error = 'Email is required.'
+            error = 'Email is required. '
         elif config['registration_phone_required'] and not phone:
-            error = 'Phone is required.'
+            error = 'Phone is required. '
         elif config['registration_organization_required'] and not organization:
-            error = 'Organization is required.'
+            error = 'Organization is required. '
 
         elif not re.fullmatch(r"^\w\w\w\w+$", username) or len(username) > 36:
-            error = 'username does not formatting standards, length 4 - 36 characters, alphanumeric and underscore characters only.'
+            error = 'username does not formatting standards, length 4 - 36 characters, alphanumeric and underscore characters only. '
         elif email and not re.fullmatch(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', email):
-            error = 'Invalid email.' 
+            error = 'Invalid email. ' 
         elif phone and not re.fullmatch(r'^[a-z0-9]{3}-[a-z0-9]{3}-[a-z0-9]{4}$', phone):
-            error = 'Invalid phone number (xxx-xxx-xxxx).' 
+            error = 'Invalid phone number (xxx-xxx-xxxx). ' 
         elif email and User.query.filter_by(email=email).first():
-            error = 'Email is already registered.' 
+            error = 'Email is already registered. ' 
         elif User.query.filter_by(username=username.lower()).first():
-            error = f'Username {username.lower()} is already registered.' 
+            error = f'Username {username.lower()} is already registered. ' 
         elif config['enable_hcaptcha']:
             if not hcaptcha.verify():
-                error = 'Captcha validation error.'
+                error = 'Captcha validation error. '
 
         if error is None:
             try:
@@ -240,8 +240,8 @@ def register():
                     flash(f'Successfully created user \'{username.lower()}\'.')
                 log.info(f'{username.upper()} - successfully registered with email {email}.')
             except Exception as e: 
-                error = f"User is already registered with username \'{username.lower()}\' or email \'{email}\'." if email else f"User is already registered with username \'{username}\'."
-                log.error(f'LIBREFORMS - failed to register new user {username.lower()} with email {email}.')
+                error = f"User is already registered with username \'{username.lower()}\' or email \'{email}\'." if email else f"User is already registered with username \'{username}\'. "
+                log.error(f'LIBREFORMS - failed to register new user {username.lower()} with email {email}. ')
             else:
                 # m = send_mail_async.delay(subject=f"Successfully Registered {username}", content=f"This is a notification that {username} has been successfully registered for libreforms.", to_address=email) if config['send_mail_asynchronously'] else mailer.send_mail(subject=f"Successfully Registered {username}", content=f"This is a notification that {username} has been successfully registered for libreforms.", to_address=email, logfile=log)
                 return redirect(url_for("auth.login"))
@@ -348,10 +348,10 @@ def login():
         user = User.query.filter_by(username=username.lower()).first()
 
         if not user:
-            error = 'Incorrect username.'
+            error = 'Incorrect username. '
         elif not check_password_hash(user.password, password):
             log.info(f'{username.upper()} - password failure when logging in.')
-            error = 'Incorrect password.'
+            error = 'Incorrect password. '
         elif user.active == 0:
             flash('Your user is currently inactive. If you recently registered, please check your email for a verification link. ')
             return redirect(url_for('home'))
@@ -426,11 +426,11 @@ def edit_profile():
         # added these per https://github.com/signebedi/libreForms/issues/122
         # to give the freedom to set these as required fields
         if config['registration_phone_required'] and not phone:
-            error = 'Phone is required.'
+            error = 'Phone is required. '
         elif config['registration_organization_required'] and not organization:
-            error = 'Organization is required.'
+            error = 'Organization is required. '
         elif phone and not re.fullmatch(r'^[a-z0-9]{3}-[a-z0-9]{3}-[a-z0-9]{4}$', phone):
-            error = 'Invalid phone number (xxx-xxx-xxxx).' 
+            error = 'Invalid phone number (xxx-xxx-xxxx). ' 
         
         user = User.query.filter_by(email=current_user.email).first()
     
@@ -449,7 +449,7 @@ def edit_profile():
                 return redirect(url_for('auth.profile'))
             except Exception as e: 
                 log.warning(f"LIBREFORMS - {e}")
-                error = f"There was an error in processing your request. {e}"
+                error = f"There was an error in processing your request. {e} "
             
         flash(error)
 
@@ -467,6 +467,7 @@ def profile():
     if request.method == 'POST':
         user_id = current_user.get_id()
         new_password = request.form['new_password']
+        reenter_new_password = request.form['reenter_new_password']
         current_password = request.form['current_password']
 
         error = None
@@ -474,9 +475,13 @@ def profile():
         user = User.query.filter_by(id=user_id).first()
     
         if user is None:
-            error = 'User does not exist.'
+            error = 'User does not exist. '
         elif not check_password_hash(user.password, current_password):
-            error = 'Incorrect password.'
+            error = 'Incorrect password. '
+        elif new_password != reenter_new_password:
+            error = 'Passwords do not match. '
+        elif new_password == current_password:
+            error = 'Your new password cannot be the same as your old password. Please choose a different password. '
 
         if error is None:
 
@@ -489,7 +494,7 @@ def profile():
                 return redirect(url_for('auth.profile'))
             except Exception as e: 
                 log.warning(f"LIBREFORMS - {e}")
-                error = f"There was an error in processing your request."
+                error = f"There was an error in processing your request. "
             
         flash(error)
 

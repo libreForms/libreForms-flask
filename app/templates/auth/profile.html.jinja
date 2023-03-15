@@ -17,7 +17,7 @@
 <tr title="theme" ><td><b>Theme</b></td><td style="width: 80%;"><span>{{ user.theme }}</span></td></tr>
 {% if config['user_registration_fields'] is defined %}
 {% for attribute in config['user_registration_fields'] %}
-<tr title="{{attribute}}"><td><b>{{attribute | capitalize | replace("_", " ")}}</b></td><td style="width: 80%;">{{ user[attribute] }}</td></tr>
+<tr title="{{attribute}}"><td><b>{{attribute | capitalize | replace("_", " ")}}</b></td><td style="width: 80%;">{{ stringify(user[attribute]) }}</td></tr>
 {% endfor %}
 {% endif %}
 </td></tr>
@@ -40,6 +40,11 @@
         <div title="new password" class="form-group">
             <label class="form-label mt-4" for="new_password">New Password</label>
             <input class="form-control" type="password" name="new_password" id="new_password" placeholder="Enter new password" required>            
+        </div>
+
+        <div title="re-enter new password" class="form-group">
+            <label class="form-label mt-4" for="reenter_new_password">Re-enter New Password</label>
+            <input class="form-control" type="password" name="reenter_new_password" id="reenter_new_password" placeholder="Re-enter new password" required>            
         </div>
 
         <div title="submit" class="form-group mt-4">
