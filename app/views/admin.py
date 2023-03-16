@@ -485,7 +485,7 @@ def bulk_register():
 
 
                 except Exception as e: 
-                    log.warning(f"LIBREFORMS - {e}")
+                    log.warning(f"{current_user.username.upper()} - {e}")
                     error = e
 
             if error is None:

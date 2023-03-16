@@ -14,7 +14,7 @@ __maintainer__ = "Sig Janoska-Bedi"
 __email__ = "signe@atreeus.com"
 
 
-import functools, re, datetime, tempfile, os
+import functools, re, datetime, tempfile, os, uuid
 import pandas as pd
 
 from flask import current_app, Blueprint, flash, g, redirect, render_template, request, session, url_for, send_from_directory, abort
@@ -91,8 +91,9 @@ def reset_password(signature):
                     log.info(f'{user.username.upper()} - successfully changed password.')
                     return redirect(url_for('auth.login'))
                 except Exception as e: 
-                    log.warning(f"LIBREFORMS - {e}")
-                    flash (f"There was an error in processing your request. {e}")
+                    transaction_id = str(uuid.uuid1())
+                    log.warning(f"LIBREFORMS - {e}", extra={'transaction_id': transaction_id})
+                    flash (f"There was an error in processing your request. Transaction ID: {transaction_id}. ")
                 
             else:
                 flash(error)
@@ -133,8 +134,9 @@ def forgot_password():
                 m = send_mail_async.delay(subject=f'{config["site_name"]} Password Reset', content=content, to_address=email) if config['send_mail_asynchronously'] else mailer.send_mail(subject=f'{config["site_name"]} Password Reset', content=content, to_address=email, logfile=log)
                 flash("Password reset link successfully sent.")
             except Exception as e: 
-                log.warning(f"LIBREFORMS - {e}")
-                flash(e)
+                transaction_id = str(uuid.uuid1())
+                log.warning(f"LIBREFORMS - {e}", extra={'transaction_id': transaction_id})
+                flash(f"Could not send password reset link. Transaction ID: {transaction_id}. ")
             
         else:
             flash(error)
@@ -295,8 +297,9 @@ def verify_email(signature):
             return redirect(url_for('auth.login'))
 
         except Exception as e: 
-            log.warning(f"LIBREFORMS - {e}")
-            flash (f"There was an error in processing your request. {e}")
+            transaction_id = str(uuid.uuid1())
+            log.warning(f"LIBREFORMS - {e}", extra={'transaction_id': transaction_id})
+            flash (f"There was an error in processing your request. Transaction ID: {transaction_id}. ")
         
     
     return redirect(url_for('auth.login'))
@@ -455,12 +458,14 @@ def edit_profile():
 
                 db.session.commit()
 
-                flash("Successfully updated profile. ")
+                flash(f"Successfully updated profile. ")
                 log.info(f'{user.username.upper()} - successfully updated their profile.')
                 return redirect(url_for('auth.profile'))
+                
             except Exception as e: 
-                log.warning(f"LIBREFORMS - {e}")
-                error = f"There was an error in processing your request. {e} "
+                transaction_id = str(uuid.uuid1())
+                log.warning(f"LIBREFORMS - {e}", extra={'transaction_id': transaction_id})
+                error = f"There was an error in processing your request. Transaction ID: {transaction_id}. "
             
         flash(error)
 
@@ -506,8 +511,9 @@ def profile():
                 log.info(f'{user.username.upper()} - successfully changed password.')
                 return redirect(url_for('auth.profile'))
             except Exception as e: 
-                log.warning(f"LIBREFORMS - {e}")
-                error = f"There was an error in processing your request. "
+                transaction_id = str(uuid.uuid1())
+                log.warning(f"LIBREFORMS - {e}" , extra={'transaction_id': transaction_id})
+                error = f"There was an error in processing your request. Transaction ID: {transaction_id}. "
             
         flash(error)
 

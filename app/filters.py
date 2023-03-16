@@ -476,7 +476,7 @@ def send_individual_report(report, user):
     
     except Exception as e: 
         from app import log
-        print(e)
+        # print(e)
         log.warning(f'{user.username.upper()} - {e}')
         return False
 

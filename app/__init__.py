@@ -567,9 +567,9 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
                 if all ((not form_config['_submission']['_enable_universal_form_access'],
                         current_user.username != row[mongodb.metadata_field_names['owner']] )):
                     continue
-
+                # print(row._id, index, row)
                 new_row = pd.DataFrame({    'form':[form_name], 
-                                            'id': [Markup(f"<a href=\"{config['domain']}/submissions/{form_name}/{row['_id']}\">{row['_id']}</a>")], 
+                                            'id': [Markup(f"<a href=\"{config['domain']}/submissions/{form_name}/{str(row['_id'])}\">{str(row['_id'])}</a>")], 
                                             'owner':[Markup(f"<a href=\"{config['domain']}/auth/profile/{row[mongodb.metadata_field_names['owner']]}\">{row[mongodb.metadata_field_names['owner']]}</a>")], 
                                             'timestamp':[row[mongodb.metadata_field_names['timestamp']]],})
 

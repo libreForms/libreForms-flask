@@ -158,13 +158,16 @@ def cleanup_stray_log_handlers(current_pid=None):
 
 class transactionFormatter(logging.Formatter):
     def format(self, record):
-        if not hasattr(record, 'transaction_id'):
-            transaction_id = str(uuid.uuid1())
+        extra = record.__dict__.get('extra', {})
+        transaction_id = extra.get('transaction_id', str(uuid.uuid1()))
+
+        # if not hasattr(record, 'transaction_id'):
+        #     transaction_id = str(uuid.uuid1())
         record.transaction_id = transaction_id
         return super().format(record)
 
 
-def v2_set_logger(file_path, module, pid=os.getpid(), log_level=logging.INFO):
+def v2_set_logger(file_path, module, log_level=logging.DEBUG):
 
     # we make sure the log file_path exists
     with open(file_path, "a") as logfile:
@@ -172,18 +175,21 @@ def v2_set_logger(file_path, module, pid=os.getpid(), log_level=logging.INFO):
 
     # we instantiate the logging object
     log = logging.getLogger(module)
-    
-    # Create a console handler and set its level to INFO
+
+    # define the transaction handler
+    formatter = transactionFormatter('%(asctime)s - %(levelname)s - %(message)s - %(transaction_id)s')
+
+    # Create a console handler and set its level to log_level
     stream_handler = logging.StreamHandler()
     stream_handler.setLevel(log_level)
-
-    # Set the logging format for the console handler
-    formatter = transactionFormatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s - %(transaction_id)s')
-
     stream_handler.setFormatter(formatter)
-
-    # Add the console handler to the logger
     log.addHandler(stream_handler)
+
+    # create a rotating file handler and set its level to log_level
+    log_rotation_handler = logging.handlers.RotatingFileHandler(file_path, maxBytes=10*1024*1024, backupCount=10, encoding='utf-8')
+    log_rotation_handler.setLevel(log_level)
+    log_rotation_handler.setFormatter(formatter)
+    log.addHandler(log_rotation_handler)
 
     # we return the logging object
     return log
