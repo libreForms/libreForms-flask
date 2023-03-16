@@ -96,8 +96,11 @@ __license__ = "AGPL-3.0"
 __maintainer__ = "Sig Janoska-Bedi"
 __email__ = "signe@atreeus.com"
 
-import os, re, logging, logging.handlers
-from flask import current_app
+import os, re, uuid, logging, logging.handlers
+
+#####################
+## v1 log function (DEPRECATED)
+#####################
 
 # we append the PID to the logfile 
 class PIDFileHandler(logging.handlers.WatchedFileHandler):
@@ -111,7 +114,11 @@ class PIDFileHandler(logging.handlers.WatchedFileHandler):
         path, extension = os.path.splitext(filename)
         return '{0}-{1}{2}'.format(path, pid, extension)
 
-def set_logger(file_path, module, pid=os.getpid(), log_level=logging.INFO):
+# as part of the restructure in https://github.com/libreForms/libreForms-flask/issues/356,
+# we define v1 and v2 loggers. Whereas v1 logging retains log rotation using basic config,
+# v2 adds a transaction_id that, if passed to v1, will simply do nothing. Therefore, v1 is 
+# marked for eventual deprecation. We define the logger object in the app config
+def v1_set_logger(file_path, module, pid=os.getpid(), log_level=logging.INFO):
 
     # we make sure the log file_path exists
     with open(file_path, "a") as logfile:
@@ -120,38 +127,18 @@ def set_logger(file_path, module, pid=os.getpid(), log_level=logging.INFO):
     # we instantiate the logging object
     log = logging.getLogger(module)
 
-    # we create a file handler object
-    # handler = logging.FileHandler(file_path, mode='a', encoding='utf-8')
-
-    # we set a format for the log data
-    # formatter = logging.Formatter('%(asctime)s -  %(levelname)s - %(message)s')
-    # handler.setFormatter(formatter)
-
-    # we add the handler object to the list of log handlers
-    # log.handlers=[]
-    # log.addHandler(handler)
-
-    # set log level as directed by end user
-    # log.setLevel(level=log_level)
-
-    # set a log rotator the will create up to 10 log files of 10mb (max size) each
-    # rotation_handler = logging.handlers.RotatingFileHandler(f'{file_path}a', mode='a', maxBytes=10*1024*1024, backupCount=10)
-    # rotation_handler = logging.handlers.RotatingFileHandler(f'{file_path}a', mode='a', maxBytes=10, backupCount=10)
-    # log.addHandler(rotation_handler)
-
-    # add the concurrency file handlers
-    # fh = PIDFileHandler(file_path)
-    # log.addHandler(fh)
-
     logging.basicConfig(
         handlers= [
-            logging.handlers.RotatingFileHandler(file_path, maxBytes=10*1024*1024, backupCount=10, encoding='utf-8'), 
+            logging.handlers.RotatingFileHandler(file_path, maxBytes=10*1024*1024, backupCount=10, encoding='utf-8'),
             PIDFileHandler(file_path),
+            logging.StreamHandler(),
         ],
         level=log_level,
-        format="%(asctime)s - %(levelname)s - %(message)s - "+str(pid),
+        # format="%(asctime)s - %(levelname)s - %(message)s - %(transaction_id)s - "+str(pid),
+        # format="%(asctime)s - %(levelname)s - %(message)s - "+str(pid),
+        format="%(asctime)s - %(levelname)s - %(message)s",
         datefmt='%Y-%m-%d %H:%M:%S',
-        )
+    )
 
     # we return the logging object
     return log
@@ -164,6 +151,44 @@ def cleanup_stray_log_handlers(current_pid=None):
         if re.fullmatch(r"libreforms-[0-9]+.log", log):
             if not current_pid or str(current_pid) not in log:
                 os.remove (os.path.join('log', log))
+
+#####################
+## v2 log function
+#####################
+
+class transactionFormatter(logging.Formatter):
+    def format(self, record):
+        if not hasattr(record, 'transaction_id'):
+            transaction_id = str(uuid.uuid1())
+        record.transaction_id = transaction_id
+        return super().format(record)
+
+
+def v2_set_logger(file_path, module, pid=os.getpid(), log_level=logging.INFO):
+
+    # we make sure the log file_path exists
+    with open(file_path, "a") as logfile:
+        logfile.write("")
+
+    # we instantiate the logging object
+    log = logging.getLogger(module)
+    
+    # Create a console handler and set its level to INFO
+    stream_handler = logging.StreamHandler()
+    stream_handler.setLevel(log_level)
+
+    # Set the logging format for the console handler
+    formatter = transactionFormatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s - %(transaction_id)s')
+
+    stream_handler.setFormatter(formatter)
+
+    # Add the console handler to the logger
+    log.addHandler(stream_handler)
+
+    # we return the logging object
+    return log
+
+
 
 
 # here we define a log aggregation tool that pulls lines of code as an array / list
@@ -181,7 +206,7 @@ def aggregate_log_data(keyword:str=None, file_path:str='log/libreforms.log',
             TEMP = [x for x in logfile.readlines() if keyword in x]
 
             # added this to strip out PIDs if we pass the `exclude_pid` option
-            TEMP = [" -".join(x.split(' -')[:-1]) for x in TEMP] if exclude_pid else TEMP 
+            # TEMP = [" -".join(x.split(' -')[:-1]) for x in TEMP] if exclude_pid else TEMP 
 
             if limit and len(TEMP) > limit and pull_from=='start':
                 return TEMP[:limit]
@@ -192,6 +217,7 @@ def aggregate_log_data(keyword:str=None, file_path:str='log/libreforms.log',
 
         else:
             # added this to strip out PIDs if we pass the `exclude_pid` option
-            return [" -".join(x.split(' -')[:-1]) for x in logfile.readlines()] if exclude_pid else [x for x in logfile.readlines()]
+            # return [" -".join(x.split(' -')[:-1]) for x in logfile.readlines()] if exclude_pid else [x for x in logfile.readlines()]
+            return [x for x in logfile.readlines()]
 
 
