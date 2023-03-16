@@ -84,7 +84,7 @@ else:
     log_functions.cleanup_stray_log_handlers(os.getpid())
 
 # we instantiate a log object that we'll use across the app
-log = log_functions.set_logger('log/libreforms.log',__name__)
+log = config['logger']('log/libreforms.log',__name__)
 log.info('LIBREFORMS - started libreforms web application.')
 
 
@@ -165,6 +165,7 @@ if config['smtp_enabled']: # we should do something with this later on
         mailer.send_mail(subject=f"{config['site_name']} online", content=f"{config['site_name']} is now online at {config['domain']}.", to_address=config['default_user_email'], logfile=log)
     
     except Exception as e:
+
         log.error(f'LIBREFORMS - unable to connect to SMTP server, outgoing mail will not be enabled. {e}')
         # I think we need to stop the system here if we are trying to enable SMTP but no creds have been provided
         raise Exception(f"SMTP is enabled but could not connect. This may be because no SMTP credentials have been provided. Please see the documentation at https://libreforms.readthedocs.io/en/latest/#mail for more details. {e}")

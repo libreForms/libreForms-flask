@@ -36,6 +36,8 @@ import os, secrets, dotenv
 from ast import literal_eval
 from markupsafe import Markup
 from datetime import datetime
+from app.log_functions import v1_set_logger
+# from app.log_functions import v2_set_logger
 
 # Added based on https://github.com/signebedi/libreForms/issues/148 to
 # support creating secrets and writing them to file if they don't exist.
@@ -281,6 +283,14 @@ config['number_of_forms_in_feed'] = 5
 # this config determines whether to enable the libreforms CLI interface, which is defined
 # further at https://github.com/libreForms/libreForms-flask/issues/123.
 config['enable_cli'] = True
+
+# as part of the restructure in https://github.com/libreForms/libreForms-flask/issues/356,
+# we define v1 and v2 loggers. Whereas v1 logging retains log rotation using basic config,
+# v2 adds a transaction_id that, if passed to v1, will simply do nothing. Therefore, v1 is 
+# marked for eventual deprecation.
+config['logger'] = v1_set_logger
+# config['logger'] = v2_set_logger
+
 
 ##########################
 # User Registration / Auth
