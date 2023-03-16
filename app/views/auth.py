@@ -67,11 +67,16 @@ def reset_password(signature):
 
         if request.method == 'POST':
             password = request.form['password']
+            reenter_password = request.form['reenter_new_password']
             signing_df = pd.read_sql_table("signing", con=db.engine.connect())
             email = signing_df.loc[ signing_df['signature'] == signature ]['email'].iloc[0]
 
             if not password:
                 error = 'Password is required. '
+            elif not re.fullmatch(config['password_regex'], password):
+                error = f'Invalid password. ({config["user_friendly_password_regex"]}) '
+            elif password != reenter_password:
+                error = 'Passwords do not match. '
 
             else: error = None
 
@@ -202,7 +207,7 @@ def register():
         elif config['registration_organization_required'] and not organization:
             error = 'Organization is required. '
 
-        elif not re.fullmatch(config['username_regex'], username) or len(username) > 36:
+        elif not re.fullmatch(config['username_regex'], username):
             error = f'Invalid username. ({config["user_friendly_username_regex"]}) '
         elif email and not re.fullmatch(config['email_regex'], email):
             error = f'Invalid email. ({config["user_friendly_email_regex"]}) ' 
@@ -214,6 +219,8 @@ def register():
             error = f'Username {username.lower()} is already registered. ' 
         elif password != reenter_password:
             error = 'Passwords do not match. '
+        elif not re.fullmatch(config['password_regex'], password):
+            error = f'Invalid password. ({config["user_friendly_password_regex"]}) '
         elif config['enable_hcaptcha']:
             if not hcaptcha.verify():
                 error = 'Captcha validation error. '
@@ -435,7 +442,7 @@ def edit_profile():
             error = 'Organization is required. '
         elif phone and not re.fullmatch(config['phone_regex'], phone):
             error = f'Invalid phone number ({config["user_friendly_phone_regex"]}). ' 
-        
+
         user = User.query.filter_by(email=current_user.email).first()
     
         if error is None:
@@ -486,6 +493,8 @@ def profile():
             error = 'Passwords do not match. '
         elif new_password == current_password:
             error = 'Your new password cannot be the same as your old password. Please choose a different password. '
+        elif not re.fullmatch(config['password_regex'], new_password):
+            error = f'Invalid password. ({config["user_friendly_password_regex"]}) '
 
         if error is None:
 
