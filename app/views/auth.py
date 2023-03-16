@@ -163,7 +163,9 @@ def register():
         organization = request.form['organization']
         phone = request.form['phone']
         created_date = datetime.datetime.today().strftime("%Y-%m-%d %H:%M:%S")
-        
+
+        reenter_password = request.form['reenter_password']
+
         TEMP = {}
         for item in config['user_registration_fields'].keys():
             if config['user_registration_fields'][item]['input_type'] != 'hidden':
@@ -210,6 +212,8 @@ def register():
             error = 'Email is already registered. ' 
         elif User.query.filter_by(username=username.lower()).first():
             error = f'Username {username.lower()} is already registered. ' 
+        elif password != reenter_password:
+            error = 'Passwords do not match. '
         elif config['enable_hcaptcha']:
             if not hcaptcha.verify():
                 error = 'Captcha validation error. '
@@ -233,7 +237,7 @@ def register():
                 db.session.commit()
                 if config["enable_email_verification"]:
                     key = signing.write_key_to_database(scope='email_verification', expiration=48, active=1, email=email)
-                    m = send_mail_async.delay(subject=f'{config["site_name"]} User Registered', content=f"This email serves to notify you that the user {username} has just been registered for this email address at {config['domain']}. Please verify your email by clicking the following link: {config['domain']}/auth/verify_email/{key}. Please note this link will expire after 48 hours.", to_address=email) if config['send_mail_asynchronously'] else mailer.send_mailsend_mail_async(subject=f'{config["site_name"]} User Registered', content=f"This email serves to notify you that the user {username} has just been registered for this email address at {config['domain']}. Please verify your email by clicking the following link: {config['domain']}/auth/verify_email/{key}. Please note this link will expire after 48 hours.", to_address=email, logfile=log)
+                    m = send_mail_async.delay(subject=f'{config["site_name"]} User Registered', content=f"This email serves to notify you that the user {username} has just been registered for this email address at {config['domain']}. Please verify your email by clicking the following link: {config['domain']}/auth/verify_email/{key}. Please note this link will expire after 48 hours.", to_address=email) if config['send_mail_asynchronously'] else mailer.send_mail(subject=f'{config["site_name"]} User Registered', content=f"This email serves to notify you that the user {username} has just been registered for this email address at {config['domain']}. Please verify your email by clicking the following link: {config['domain']}/auth/verify_email/{key}. Please note this link will expire after 48 hours.", to_address=email, logfile=log)
                     flash(f'Successfully created user \'{username.lower()}\'. Please check your email for an activation link. ')
                 else:
                     m = send_mail_async.delay(subject=f'{config["site_name"]} User Registered', content=f"This email serves to notify you that the user {username} has just been registered for this email address at {config['domain']}.", to_address=email) if config['send_mail_asynchronously'] else mailer.send_mail(subject=f'{config["site_name"]} User Registered', content=f"This email serves to notify you that the user {username} has just been registered for this email address at {config['domain']}.", to_address=email, logfile=log)
@@ -241,7 +245,7 @@ def register():
                 log.info(f'{username.upper()} - successfully registered with email {email}.')
             except Exception as e: 
                 error = f"User is already registered with username \'{username.lower()}\' or email \'{email}\'." if email else f"User is already registered with username \'{username}\'. "
-                log.error(f'LIBREFORMS - failed to register new user {username.lower()} with email {email}. ')
+                log.error(f'LIBREFORMS - failed to register new user {username.lower()} with email {email}. {e} ')
             else:
                 # m = send_mail_async.delay(subject=f"Successfully Registered {username}", content=f"This is a notification that {username} has been successfully registered for libreforms.", to_address=email) if config['send_mail_asynchronously'] else mailer.send_mail(subject=f"Successfully Registered {username}", content=f"This is a notification that {username} has been successfully registered for libreforms.", to_address=email, logfile=log)
                 return redirect(url_for("auth.login"))
