@@ -300,11 +300,14 @@ config['default_user_username'] = 'libreforms'
 # user registration fields like username, email, and phone, for further discussion see
 # https://github.com/libreForms/libreForms-flask/issues/348. In addition, we are
 config['username_regex'] = r"^\w\w\w\w+$"
-config['user_friendly_username_regex'] = "length 4 - 36 characters, alphanumeric and underscore characters only"
+config['user_friendly_username_regex'] = "4-36 alphanumeric characters"
 config['email_regex'] = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
 config['user_friendly_email_regex'] = "name@example.com"
 config['phone_regex'] = r'^[a-z0-9]{3}-[a-z0-9]{3}-[a-z0-9]{4}$'
 config['user_friendly_phone_regex'] = "xxx-xxx-xxxx"
+config['password_regex'] =  r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+[\]{};\'\\:"|,.<>/?])[A-Za-z\d!@#$%^&*()_+[\]{};\'\\:"|,.<>/?]{8,}$'
+config['user_friendly_password_regex'] = "8+ characters, must include uppercase, lowercase, digit, and special character"
+
 
 # these configs define the groups available for users to fall under, and the default
 # group that new users are part of; this application employs a one-to-one user:group
