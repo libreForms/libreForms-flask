@@ -84,6 +84,11 @@ config['pre_login_msg'] = None
     # https://forms.mysite.org
 config['domain'] = "0.0.0.0:8000"
 
+# this config sets the working directory for the libreforms application, which allows us
+# to decouple the application from the /opt directory, replacing it with references to 
+# this config, see https://github.com/libreForms/libreForms-flask/issues/121.
+config['working_directory'] = "/opt/libreForms"
+
 # this sets the default theme mode (dark or light) for the web application, which
 # can be overridden by the user when they modify their user profile; it is a bool,
 # and a value of True will set the theme to dark mode, for more discussion, see
