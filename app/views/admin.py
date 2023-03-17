@@ -78,7 +78,8 @@ import os, tempfile, datetime
 from app import log
 from werkzeug.security import generate_password_hash
 from celeryd.tasks import send_mail_async, restart_app_async
-from app.pdf import convert_to_string
+from app.scripts import prettify_time_diff, convert_to_string
+
 
 # borrows from and extends the functionality of flask_login.login_required, see
 # https://github.com/maxcountryman/flask-login/blob/main/src/flask_login/utils.py.
@@ -182,32 +183,6 @@ def compile_form_data(form_names=[]):
     return df
 
 
-def prettify_time_diff(time:float):
-    if time < 3600:
-        if (time / 60) < 1:
-            return "less than a minute ago"
-        elif (time / 90) < 1 <= (time / 60):
-            return "about a minute ago"
-        elif (time / 420) < 1 <= (time / 90):
-            return "a few minutes ago"
-        elif (time / 900) < 1 <= (time / 420):
-            return "about ten minutes ago"
-        elif (time / 1500) < 1 <= (time / 900):
-            return "about twenty minutes ago"
-        elif (time / 2100) < 1 <= (time / 1500):
-            return "about thirty minutes ago"
-        elif (time / 2700) < 1 <= (time / 2100):
-            return "about thirty minutes ago"
-        elif (time / 3300) < 1 <= (time / 2700):
-            return "about forty minutes ago"
-        elif (time / 3600) < 1 <= (time / 3300):
-            return "about fifty minutes ago"
-    elif 84600 > time >= 3600: # we short 86400 seconds by 1800 seconds to manage rounding issues
-        return f"about {round(time / 3600)} hour/s ago"
-    elif 84600 <= time:
-        return f"about {round(time / 86400)} day/s ago"
-    else:
-        return ""
 
 
 

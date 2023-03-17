@@ -29,7 +29,7 @@ from app import config, log, mailer, mongodb
 from app.models import User, db
 from app.certification import encrypt_with_symmetric_key
 from celeryd.tasks import send_mail_async
-from app.pdf import convert_to_string
+from app.scripts import convert_to_string
 
 # and finally, import other packages
 import os, json

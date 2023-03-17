@@ -28,7 +28,7 @@ from reportlab.lib.pagesizes import letter, inch
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, PageBreak
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-
+from app.scripts import convert_to_string
 
 def generate_pdf(   
                     form_name:str, 
@@ -173,15 +173,15 @@ def calculate_field_position(total_fields, current_field, page_height):
     return (100, current_field_y)
 
 
-def convert_to_string(data):
-    if isinstance(data, list):
-        # Convert each item in the list to a string and join them with commas
-        return ", ".join(str(item) for item in data)
-    elif isinstance(data, dict):
-        # Convert each key-value pair in the dictionary to a string and join them with commas
-        return ", ".join(f"{key}: {value}" for key, value in data.items())
-    # Return the input as a string
-    return str(data)
+# def convert_to_string(data):
+#     if isinstance(data, list):
+#         # Convert each item in the list to a string and join them with commas
+#         return ", ".join(str(item) for item in data)
+#     elif isinstance(data, dict):
+#         # Convert each key-value pair in the dictionary to a string and join them with commas
+#         return ", ".join(f"{key}: {value}" for key, value in data.items())
+#     # Return the input as a string
+#     return str(data)
 
 def add_border(canvas):
     """Adds a 1px black border around the current canvas"""
