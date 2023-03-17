@@ -38,53 +38,89 @@ import pandas as pd
 
 bp = Blueprint('api', __name__, url_prefix='/api')
 
-if config['enable_rest_api']:
 
+# here we add the api route v1
+@bp.route('/v1/<signature>/<form_name>')
+# @login_required
+def api(form_name, signature):
 
-    # here we add the api route v1
-    @bp.route('/v1/<signature>/<form_name>')
-    # @login_required
-    def api(form_name, signature):
+    # here we capture the string-ified API key passed by the user
+    signature = str(signature)
 
-        # here we capture the string-ified API key passed by the user
-        signature = str(signature)
+    if not config['enable_rest_api']:
+        return abort(404)
+        return "This feature has not been enabled by your system administrator."
 
-        if not config['enable_rest_api']:
-            return abort(404)
-            return "This feature has not been enabled by your system administrator."
+    # here we make it so that API users can only access forms that are in the
+    # current form config - eg. old forms, or forms whose name changed, will not
+    # appear ... form admins will need to manage change cautiously until further
+    # controls, see https://github.com/signebedi/libreForms/issues/130
+    if not form_name in libreforms.forms.keys():
+        return abort(404)
 
-        # here we make it so that API users can only access forms that are in the
-        # current form config - eg. old forms, or forms whose name changed, will not
-        # appear ... form admins will need to manage change cautiously until further
-        # controls, see https://github.com/signebedi/libreForms/issues/130
-        if not form_name in libreforms.forms.keys():
-            return abort(404)
+    signing.verify_signatures(signature, scope="api_key", abort_on_error=True)
 
-        signing.verify_signatures(signature, scope="api_key", abort_on_error=True)
+    signing_df = pd.read_sql_table("signing", con=db.engine.connect())
+    email = signing_df.loc[ signing_df['signature'] == signature ]['email'].iloc[0]
+    
+    try: 
 
-        signing_df = pd.read_sql_table("signing", con=db.engine.connect())
-        email = signing_df.loc[ signing_df['signature'] == signature ]['email'].iloc[0]
+        data = mongodb.read_documents_from_collection(form_name)
+        df = pd.DataFrame(list(data))
+        df.drop(columns=["_id"], inplace=True)
         
-        try: 
+        # here we allow the user to select fields they want to use, 
+        # overriding the default view-all.
+        # warning, this may be buggy
 
-            data = mongodb.read_documents_from_collection(form_name)
-            df = pd.DataFrame(list(data))
-            df.drop(columns=["_id"], inplace=True)
-            
-            # here we allow the user to select fields they want to use, 
-            # overriding the default view-all.
-            # warning, this may be buggy
+        for col in df.columns:
+            if request.args.get(col):
+                # prevent type-mismatch by casting both fields as strings
+                df = df.loc[df[col].astype("string") == str(request.args.get(col))] 
 
-            for col in df.columns:
-                if request.args.get(col):
-                    # prevent type-mismatch by casting both fields as strings
-                    df = df.loc[df[col].astype("string") == str(request.args.get(col))] 
+        log.info(f'{email} - REST API query for form \'{form_name}.\'')
+        # log.info(f'{email} {signature} - REST API query for form \'{form_name}.\'') # removed this, which potentially leaks a signing key intended for reuse
+        return json.loads(json_util.dumps(df.to_dict())) # borrowed from https://stackoverflow.com/a/18405626
 
-            log.info(f'{email} - REST API query for form \'{form_name}.\'')
-            # log.info(f'{email} {signature} - REST API query for form \'{form_name}.\'') # removed this, which potentially leaks a signing key intended for reuse
-            return json.loads(json_util.dumps(df.to_dict())) # borrowed from https://stackoverflow.com/a/18405626
+    except Exception as e: 
+        log.warning(f"LIBREFORMS - {e}")
+        return abort(404)
 
-        except Exception as e: 
-            log.warning(f"LIBREFORMS - {e}")
-            return abort(404)
 
+# Define API v2 routes for CRUD operations
+@bp.route('/v2/<form_name>', methods=['GET'])
+@login_required
+def api_v2_get(form_name):
+    # Code to retrieve data from MongoDB goes here
+    # Use request.headers.get('X-API-KEY') to retrieve API key from headers
+    pass
+
+@bp.route('/v2/<form_name>', methods=['POST'])
+@login_required
+def api_v2_post(form_name):
+    # Code to create new document in MongoDB goes here
+    # Use request.data to retrieve data from request body
+    # Use request.headers.get('X-API-KEY') to retrieve API key from headers
+    pass
+
+@bp.route('/v2/<form_name>/<id>', methods=['GET'])
+@login_required
+def api_v2_get_by_id(form_name, id):
+    # Code to retrieve specific document from MongoDB goes here
+    # Use request.headers.get('X-API-KEY') to retrieve API key from headers
+    pass
+
+@bp.route('/v2/<form_name>/<id>', methods=['PUT'])
+@login_required
+def api_v2_put(form_name, id):
+    # Code to update specific document in MongoDB goes here
+    # Use request.data to retrieve data from request body
+    # Use request.headers.get('X-API-KEY') to retrieve API key from headers
+    pass
+
+@bp.route('/v2/<form_name>/<id>', methods=['DELETE'])
+@login_required
+def api_v2_delete(form_name, id):
+    # Code to delete specific document from MongoDB goes here
+    # Use request.headers.get('X-API-KEY') to retrieve API key from headers
+    pass
