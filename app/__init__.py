@@ -32,6 +32,7 @@ __email__ = "signe@atreeus.com"
 # basic dependencies
 import os, re, json
 import pandas as pd
+import datetime
 
 # Flask-specific dependencies
 from flask import Flask, render_template, current_app, jsonify, request, \
@@ -48,6 +49,7 @@ from app.smtp import Mailer
 from app.config import config
 from app.models import db, User
 from app.certification import generate_symmetric_key
+from app.scripts import prettify_time_diff
 
 
 ##########################
@@ -561,9 +563,14 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
 
             if not isinstance(temp,pd.DataFrame):
                 continue
+            
+            current_time = datetime.datetime.now()
 
             for index,row in temp.iterrows():
-                
+
+                last_edit = datetime.datetime.strptime(row[mongodb.metadata_field_names['timestamp']], "%Y-%m-%d %H:%M:%S.%f")
+                time_since_last_edit = prettify_time_diff((current_time - last_edit).total_seconds())
+
                 if all ((not form_config['_submission']['_enable_universal_form_access'],
                         current_user.username != row[mongodb.metadata_field_names['owner']] )):
                     continue
@@ -571,7 +578,8 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
                 new_row = pd.DataFrame({    'form':[form_name], 
                                             'id': [Markup(f"<a href=\"{config['domain']}/submissions/{form_name}/{str(row['_id'])}\">{str(row['_id'])}</a>")], 
                                             'owner':[Markup(f"<a href=\"{config['domain']}/auth/profile/{row[mongodb.metadata_field_names['owner']]}\">{row[mongodb.metadata_field_names['owner']]}</a>")], 
-                                            'timestamp':[row[mongodb.metadata_field_names['timestamp']]],})
+                                            # 'timestamp':[row[mongodb.metadata_field_names['timestamp']]],})
+                                            'timestamp':[time_since_last_edit],})
 
                 df = pd.concat([df, new_row],
                         ignore_index=True)
