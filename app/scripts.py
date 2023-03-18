@@ -44,10 +44,15 @@ def prettify_time_diff(time:float):
             return "about forty minutes ago"
         elif (time / 3600) < 1 <= (time / 3300):
             return "about fifty minutes ago"
-    elif 84600 > time >= 3600: # we short 86400 seconds by 1800 seconds to manage rounding issues
-        return f"about {round(time / 3600)} hour/s ago"
-    elif 84600 <= time:
-        return f"about {round(time / 86400)} day/s ago"
+    elif 7200 > time >= 3600: 
+        return f"about an hour ago"
+    elif 84600 > time >= 7200: # we short 86400 seconds by 1800 seconds to manage rounding issues
+        return f"about {round(time / 3600)} hours ago"
+    elif 84600 <= time <= 171000: # we short 172800 seconds by 1800 seconds to manage rounding issues
+        return f"about a day ago"
+    elif 171000 <= time: # we short 172800 seconds by 1800 seconds to manage rounding issues
+        return f"about {round(time / 86400)} days ago"
     else:
         return ""
+
 
