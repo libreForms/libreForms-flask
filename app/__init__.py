@@ -546,7 +546,7 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
                 **forms.standard_view_kwargs(),
             )
 
-        df = pd.DataFrame(columns = ['form', 'id', 'owner', 'timestamp'])
+        df = pd.DataFrame(columns = ['form', 'id', 'reporter', 'timestamp'])
         import libreforms
 
         for form_name in libreforms.forms:
@@ -572,12 +572,12 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
                 time_since_last_edit = prettify_time_diff((current_time - last_edit).total_seconds())
 
                 if all ((not form_config['_submission']['_enable_universal_form_access'],
-                        current_user.username != row[mongodb.metadata_field_names['owner']] )):
+                        current_user.username != row[mongodb.metadata_field_names['reporter']] )):
                     continue
                 # print(row._id, index, row)
                 new_row = pd.DataFrame({    'form':[form_name], 
                                             'id': [Markup(f"<a href=\"{config['domain']}/submissions/{form_name}/{str(row['_id'])}\">{str(row['_id'])}</a>")], 
-                                            'owner':[Markup(f"<a href=\"{config['domain']}/auth/profile/{row[mongodb.metadata_field_names['owner']]}\">{row[mongodb.metadata_field_names['owner']]}</a>")], 
+                                            'reporter':[Markup(f"<a href=\"{config['domain']}/auth/profile/{row[mongodb.metadata_field_names['reporter']]}\">{row[mongodb.metadata_field_names['reporter']]}</a>")], 
                                             # 'timestamp':[row[mongodb.metadata_field_names['timestamp']]],})
                                             'timestamp':[time_since_last_edit],})
 
