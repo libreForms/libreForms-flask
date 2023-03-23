@@ -41,15 +41,14 @@ bp = Blueprint('api', __name__, url_prefix='/api')
 
 # here we add the api route v1
 @bp.route('/v1/<signature>/<form_name>')
-# @login_required
-def api(form_name, signature):
+def api_v1_get(form_name, signature):
 
     # here we capture the string-ified API key passed by the user
     signature = str(signature)
 
-    if not config['enable_rest_api']:
-        return abort(404)
-        return "This feature has not been enabled by your system administrator."
+    # if not config['enable_rest_api']:
+    #     return abort(404)
+    #     return "This feature has not been enabled by your system administrator."
 
     # here we make it so that API users can only access forms that are in the
     # current form config - eg. old forms, or forms whose name changed, will not
@@ -89,38 +88,66 @@ def api(form_name, signature):
 
 # Define API v2 routes for CRUD operations
 @bp.route('/v2/<form_name>', methods=['GET'])
-@login_required
 def api_v2_get(form_name):
     # Code to retrieve data from MongoDB goes here
     # Use request.headers.get('X-API-KEY') to retrieve API key from headers
-    pass
+
+    # mongodb.read_documents_from_collection(form_name)
+
+    data = {"message": "Data retrieved successfully"}
+    status_code = 200
+    headers = {'Content-Type': 'application/json'}
+    return make_response(jsonify(data), status_code, headers)
+
 
 @bp.route('/v2/<form_name>', methods=['POST'])
-@login_required
 def api_v2_post(form_name):
     # Code to create new document in MongoDB goes here
     # Use request.data to retrieve data from request body
     # Use request.headers.get('X-API-KEY') to retrieve API key from headers
-    pass
 
-@bp.route('/v2/<form_name>/<id>', methods=['GET'])
-@login_required
-def api_v2_get_by_id(form_name, id):
+    # mongodb.write_document_to_collection(...)
+
+    data = {"message": "Document created successfully"}
+    status_code = 201
+    headers = {'Content-Type': 'application/json'}
+    return make_response(jsonify(data), status_code, headers)
+
+
+@bp.route('/v2/<form_name>/<document_id>', methods=['GET'])
+def api_v2_get_by_id(form_name, document_id):
     # Code to retrieve specific document from MongoDB goes here
     # Use request.headers.get('X-API-KEY') to retrieve API key from headers
-    pass
 
-@bp.route('/v2/<form_name>/<id>', methods=['PUT'])
-@login_required
-def api_v2_put(form_name, id):
+    # mongodb.get_document_as_dict(collection_name, document_id, drop_fields=[])
+
+    data = {"message": "Document retrieved successfully"}
+    status_code = 200
+    headers = {'Content-Type': 'application/json'}
+    return make_response(jsonify(data), status_code, headers)
+
+@bp.route('/v2/<form_name>/<document_id>', methods=['PUT'])
+def api_v2_put(form_name, document_id):
     # Code to update specific document in MongoDB goes here
     # Use request.data to retrieve data from request body
     # Use request.headers.get('X-API-KEY') to retrieve API key from headers
-    pass
 
-@bp.route('/v2/<form_name>/<id>', methods=['DELETE'])
-@login_required
-def api_v2_delete(form_name, id):
+    # mongodb.write_document_to_collection(...)
+
+    data = {"message": "Document modified successfully"}
+    status_code = 200
+    headers = {'Content-Type': 'application/json'}
+    return make_response(jsonify(data), status_code, headers)
+
+
+@bp.route('/v2/<form_name>/<document_id>', methods=['DELETE'])
+def api_v2_delete(form_name, document_id):
     # Code to delete specific document from MongoDB goes here
     # Use request.headers.get('X-API-KEY') to retrieve API key from headers
-    pass
+
+    # mongodb.soft_delete_document(form_name,document_id)
+
+    data = {"message": "Document deleted successfully"}
+    status_code = 204
+    headers = {'Content-Type': 'application/json'}
+    return make_response(jsonify(data), status_code, headers)
