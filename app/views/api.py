@@ -29,12 +29,13 @@ from app import log, config, mongodb
 from app.models import Signing, db
 import app.signing as signing
 import libreforms
+from app.views.forms import propagate_form_configs, define_webarg_form_data_types
 
 # and finally, import other packages
 import os, datetime, json
 from bson import json_util
 import pandas as pd
-
+from webargs import flaskparser
 
 bp = Blueprint('api', __name__, url_prefix='/api')
 
@@ -120,32 +121,46 @@ def api_v2_get(form_name):
     # convert the data back to a dictionary
     data = df.to_dict()
 
-    # data = mongodb.read_documents_from_collection(form_name)
-    # for item in data:
-    #     item['_id'] = str(item['_id'])
-    #     for field in mongodb.metadata_field_names.values():
-    #         if field in item:
-    #             del item[field]
-
-    # data = {"message": "Data retrieved successfully"}
+    # set headers and status code
     status_code = 200
     headers = {'Content-Type': 'application/json'}
 
     # log the query here
-    log.info(f'{email} - REST API query for form \'{form_name}.\'')
+    log.info(f'{email} - REST API GET query for form \'{form_name}.\'')
 
     return make_response(jsonify(data), status_code, headers)
 
 
 @bp.route('/v2/<form_name>', methods=['POST'])
 def api_v2_post(form_name):
-    # Code to create new document in MongoDB goes here
-    # Use request.data to retrieve data from request body
     # Use request.headers.get('X-API-KEY') to retrieve API key from headers
+    signature = request.headers.get('X-API-KEY')
 
-    # mongodb.write_document_to_collection(...)
+    # here we make it so that API users can only access forms that are in the
+    # current form config - eg. old forms, or forms whose name changed, will not
+    # appear ... form admins will need to manage change cautiously until further
+    # controls, see https://github.com/signebedi/libreForms/issues/130
+    if not form_name in libreforms.forms.keys():
+        return abort(404)
 
-    data = {"message": "Document created successfully"}
+    signing.verify_signatures(signature, scope="api_key", abort_on_error=True)
+
+    # here we pull the user email
+    with db.engine.connect() as conn:
+        email = db.session.query(Signing).filter_by(signature=signature).first().email
+
+    options = propagate_form_configs(form_name)
+
+    data = request.form.to_dict()
+
+    # parsed_args = flaskparser.parser.parse(define_webarg_form_data_types(form_name, args=list(request.form)), request)
+
+    document_id = mongodb.write_document_to_collection(data, form_name, 
+                    reporter=signature, 
+                    ip_address=request.remote_addr if options['_collect_client_ip'] else None,)
+
+
+    data = {"message": "success", "document_id": document_id}
     status_code = 201
     headers = {'Content-Type': 'application/json'}
     return make_response(jsonify(data), status_code, headers)
