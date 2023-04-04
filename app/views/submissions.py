@@ -89,8 +89,11 @@ def get_record_of_submissions(form_name=None, user=None, remove_underscores=Fals
     return None
 
 
-def gen_hyperlink(row, form_name):
+def gen_hyperlink(row, form_name, content_field=None):
     # return Markup(f"<p><a href=\"{config['domain']}/submissions/{form_name}/{row._id}\">{form_name}</a></p>")
+    if content_field:
+        return Markup(f"<a href=\"{config['domain']}/submissions/{form_name}/{row._id}\">{row[content_field]}</a>")
+
     return Markup(f"<a href=\"{config['domain']}/submissions/{form_name}/{row._id}\">{config['domain']}/submissions/{form_name}/{row._id}</a>")
 
 
@@ -480,7 +483,7 @@ def submissions(form_name):
             record = record [[mongodb.metadata_field_names['timestamp'], '_id', mongodb.metadata_field_names['owner']]+propagate_form_configs(form=form_name)['_submission_view_summary_fields']]
             record['form'] = form_name
 
-            record['hyperlink'] = record.apply(lambda x: gen_hyperlink(x, form_name), axis=1)
+            record['Last Edited'] = record.apply(lambda x: gen_hyperlink(x, form_name, content_field=mongodb.metadata_field_names['timestamp']), axis=1)
 
             return render_template('submissions/submissions_form_home.html.jinja',
                 type="submissions",
