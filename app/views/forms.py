@@ -261,7 +261,7 @@ def define_webarg_form_data_types(form=False, user_group=None, args=None):
                         required=libreforms.forms[form][field]['output_data']['required'],
                         validators=libreforms.forms[form][field]['output_data']['validators'],)
         elif libreforms.forms[form][field]['output_data']['type'] == "dict":
-            FORM_ARGS[field] = fields.Dict(keys=fields.Str(), values=fields.List(),
+            FORM_ARGS[field] = fields.Dict(keys=fields.Str(), values=fields.Str(),
                         required=libreforms.forms[form][field]['output_data']['required'],
                         validators=libreforms.forms[form][field]['output_data']['validators'],)
         elif libreforms.forms[form][field]['output_data']['type'] == "int":
