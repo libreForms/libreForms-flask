@@ -21,7 +21,7 @@ __email__ = "signe@atreeus.com"
 
 
 # import flask-related packages
-from flask import current_app, Blueprint, request, abort
+from flask import current_app, Blueprint, request, abort, make_response, jsonify
 
 # import custom packages from the current repository
 from app.views.auth import login_required
@@ -89,14 +89,51 @@ def api_v1_get(form_name, signature):
 # Define API v2 routes for CRUD operations
 @bp.route('/v2/<form_name>', methods=['GET'])
 def api_v2_get(form_name):
-    # Code to retrieve data from MongoDB goes here
     # Use request.headers.get('X-API-KEY') to retrieve API key from headers
+    signature = request.headers.get('X-API-KEY')
 
-    # mongodb.read_documents_from_collection(form_name)
+    # here we make it so that API users can only access forms that are in the
+    # current form config - eg. old forms, or forms whose name changed, will not
+    # appear ... form admins will need to manage change cautiously until further
+    # controls, see https://github.com/signebedi/libreForms/issues/130
+    if not form_name in libreforms.forms.keys():
+        return abort(404)
 
-    data = {"message": "Data retrieved successfully"}
+    signing.verify_signatures(signature, scope="api_key", abort_on_error=True)
+
+    # here we pull the user email
+    with db.engine.connect() as conn:
+        email = db.session.query(Signing).filter_by(signature=signature).first().email
+
+    # pull the data
+    get_data = mongodb.read_documents_from_collection(form_name)
+
+    # write to a df
+    df = pd.DataFrame(list(get_data))
+
+    # stringify the ObjectID identifier
+    df['_id'] = df['_id'].astype(str)
+
+    # here we drop the metadata fields
+    df.drop(columns=[x for x in mongodb.metadata_field_names.values() if x in df.columns], inplace=True)
+    
+    # convert the data back to a dictionary
+    data = df.to_dict()
+
+    # data = mongodb.read_documents_from_collection(form_name)
+    # for item in data:
+    #     item['_id'] = str(item['_id'])
+    #     for field in mongodb.metadata_field_names.values():
+    #         if field in item:
+    #             del item[field]
+
+    # data = {"message": "Data retrieved successfully"}
     status_code = 200
     headers = {'Content-Type': 'application/json'}
+
+    # log the query here
+    log.info(f'{email} - REST API query for form \'{form_name}.\'')
+
     return make_response(jsonify(data), status_code, headers)
 
 

@@ -329,10 +329,10 @@ if config['enable_rest_api']:
 
     # this is a placeholder for a future method of registering API keys by non-authorized users ...
     # but for now, let's leave it disabled
-    @bp.route('/register/api/<signature>', methods=('GET', 'POST'))
-    def anonymous_generate_api_key(signature):
+    # @bp.route('/register/api/<signature>', methods=('GET', 'POST'))
+    # def anonymous_generate_api_key(signature):
 
-        return abort(404)
+    #     return abort(404)
         # flash('This feature has not been enabled by your system administrator.')
         # return redirect(url_for('home'))
 
