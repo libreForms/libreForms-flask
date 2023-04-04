@@ -168,12 +168,25 @@ def api_v2_post(form_name):
 
 @bp.route('/v2/<form_name>/<document_id>', methods=['GET'])
 def api_v2_get_by_id(form_name, document_id):
-    # Code to retrieve specific document from MongoDB goes here
     # Use request.headers.get('X-API-KEY') to retrieve API key from headers
+    signature = request.headers.get('X-API-KEY')
 
-    # mongodb.get_document_as_dict(collection_name, document_id, drop_fields=[])
+    # here we make it so that API users can only access forms that are in the
+    # current form config - eg. old forms, or forms whose name changed, will not
+    # appear ... form admins will need to manage change cautiously until further
+    # controls, see https://github.com/signebedi/libreForms/issues/130
+    if not form_name in libreforms.forms.keys():
+        return abort(404)
 
-    data = {"message": "Document retrieved successfully"}
+    signing.verify_signatures(signature, scope="api_key", abort_on_error=True)
+
+    # here we pull the user email
+    with db.engine.connect() as conn:
+        email = db.session.query(Signing).filter_by(signature=signature).first().email
+
+    data = mongodb.get_document_as_dict(form_name, document_id, drop_fields=[x for x in mongodb.metadata_field_names.values()])
+    data['_id'] = str(data['_id'])
+
     status_code = 200
     headers = {'Content-Type': 'application/json'}
     return make_response(jsonify(data), status_code, headers)
