@@ -225,12 +225,29 @@ def api_v2_put(form_name, document_id):
 
 @bp.route('/v2/<form_name>/<document_id>', methods=['DELETE'])
 def api_v2_delete(form_name, document_id):
-    # Code to delete specific document from MongoDB goes here
     # Use request.headers.get('X-API-KEY') to retrieve API key from headers
+    signature = request.headers.get('X-API-KEY')
 
-    # mongodb.soft_delete_document(form_name,document_id)
+    # here we make it so that API users can only access forms that are in the
+    # current form config - eg. old forms, or forms whose name changed, will not
+    # appear ... form admins will need to manage change cautiously until further
+    # controls, see https://github.com/signebedi/libreForms/issues/130
+    if not form_name in libreforms.forms.keys():
+        return abort(404)
 
-    data = {"message": "Document deleted successfully"}
-    status_code = 204
+    signing.verify_signatures(signature, scope="api_key", abort_on_error=True)
+
+    # here we pull the user email
+    with db.engine.connect() as conn:
+        email = db.session.query(Signing).filter_by(signature=signature).first().email
+
+    delete_document = mongodb.soft_delete_document(form_name, document_id) 
+
     headers = {'Content-Type': 'application/json'}
+
+    if not delete_document:
+        return abort(404)
+
+    data = {"message": "success"}
+    status_code = 204
     return make_response(jsonify(data), status_code, headers)
