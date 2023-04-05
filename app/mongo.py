@@ -701,6 +701,48 @@ class MongoDB:
         return self.migrate_single_document(from_collection_name, to_collection_name,document_id)
 
 
+
+    def api_modify_document(self, data, collection_name, document_id,
+                                        reporter=None,
+                                        ip_address=None):
+
+        # to solve `connection paused` errors when in a forked
+        # evironment, we connect and close after each write,
+        # see https://github.com/signebedi/libreForms/issues/128        
+        with MongoClient(host=self.host, port=self.port) if not self.dbpw else MongoClient(self.connection_string) as client:
+            db = client['libreforms']
+
+            collection = db[collection_name]
+
+            timestamp_human_readable = str(datetime.datetime.utcnow())
+
+            data[self.metadata_field_names['reporter']] = str(reporter) if reporter else None
+
+            # here we collect IP addresses if they have been provided, see 
+            # https://github.com/signebedi/libreForms/issues/175.
+            data[self.metadata_field_names['ip_address']] = ip_address
+            if not data[self.metadata_field_names['ip_address']]:
+                del data[self.metadata_field_names['ip_address']]
+
+            # setting the timestamp sooner so it's included in the Journal data, perhaps removing the
+            # need for a data copy.
+            data[self.metadata_field_names['timestamp']] = timestamp_human_readable
+
+
+            document = self.get_document_as_dict(collection_name, document_id)
+
+            # first we add the data to the document journal field
+            document[self.metadata_field_names['journal']][timestamp_human_readable] = data
+
+            for item in data:
+                document[item] = data[item]
+
+            collection.update_one({'_id': ObjectId(document_id)}, { "$set": document}, upsert=False)
+
+            # print(data)
+            return document_id
+
+
     # def get_access_roster(self, collection_name, document_id):
 
     #     # This will read the access_roster data for a given form, expecting 
