@@ -99,7 +99,7 @@ def search():
         results=results[:config['limit_search_results_length']]
 
     if len(results) < 1:
-        flash(f"No results found for search term {query}")
+        flash(f"No results found for search term {query}", "warning")
 
     return render_template('app/search.html.jinja', 
         type="home",

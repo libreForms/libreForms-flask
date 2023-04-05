@@ -56,11 +56,11 @@ def tables_home():
 def tables(form_name): 
 
     if form_name not in libreforms.forms.keys():
-        flash('This form does not exist.')
+        flash('This form does not exist.', "warning")
         return redirect(url_for('tables.tables_home'))
 
     if not checkGroup(group=current_user.group, struct=propagate_form_configs(form_name)['_table']):
-        flash(f'You do not have access to this dashboard.')
+        flash(f'You do not have access to this dashboard.', "warning")
         return redirect(url_for('tables.tables_home'))
 
 
@@ -96,7 +96,7 @@ def tables(form_name):
 
 
         if len(df.index) < 1:
-            flash('This form has not received any submissions.')
+            flash('This form has not received any submissions.', "warning")
             return redirect(url_for('tables.tables_home'))
 
         # prior to dropping the metadata fields, we generate hyperlinks to each individual
@@ -129,7 +129,7 @@ def tables(form_name):
 
     except Exception as e: 
         log.warning(f"LIBREFORMS - {e}")
-        flash(f'This form does not exist. {e}')
+        flash(f'This form does not exist. {e}', "warning")
         return redirect(url_for('tables.tables_home'))
     
     return render_template('app/tables.html.jinja',
@@ -154,11 +154,11 @@ def download_file(filename):
     form_name = filename.replace('.csv', '')
 
     if form_name not in libreforms.forms.keys():
-        flash('This form does not exist.')
+        flash('This form does not exist.', "warning")
         return redirect(url_for('tables.tables_home'))
 
     if not checkGroup(group=current_user.group, struct=propagate_form_configs(form_name)['_table']):
-        flash(f'You do not have access to this dashboard.')
+        flash(f'You do not have access to this dashboard.', "warning")
         return redirect(url_for('tables.tables_home'))
 
 
@@ -192,7 +192,7 @@ def download_file(filename):
             [ df.drop(columns=[x], inplace=True) for x in [mongodb.metadata_field_names['approval'], mongodb.metadata_field_names['approver'], mongodb.metadata_field_names['approver_comment']] if x in df.columns]
 
         if len(df.index) < 1:
-            flash('This form has not received any submissions.')
+            flash('This form has not received any submissions.', "warning")
             return redirect(url_for('tables.tables_home'))
 
 
@@ -210,7 +210,7 @@ def download_file(filename):
         df.columns = [x.replace("_", " ") for x in df.columns]
     except Exception as e: 
         log.warning(f"LIBREFORMS - {e}")
-        flash(f'This form does not exist. {e}')
+        flash(f'This form does not exist. {e}', "warning")
         return redirect(url_for('tables.tables_home'))
 
     # here we employ a context-bound temp directory to stage this file for download, see

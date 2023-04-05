@@ -294,7 +294,7 @@ def verify_signatures(      signature, # the key to validate
     if not Signing.query.filter_by(signature=signature).first():
         if abort_on_error:
             return abort(404)
-        flash(flash_msg)
+        flash(flash_msg, "warning")
         return redirect(url_for(redirect_to))
 
     # if the signing key's expiration time has passed, then set it to inactive 
@@ -306,7 +306,7 @@ def verify_signatures(      signature, # the key to validate
     if Signing.query.filter_by(signature=signature).first().active == 0:
         if abort_on_error:
             return abort(404)
-        flash(flash_msg)
+        flash(flash_msg, "warning")
         return redirect(url_for(redirect_to))
 
     # if the signing key is not scoped (that is, intended) for this purpose, then 
@@ -314,7 +314,7 @@ def verify_signatures(      signature, # the key to validate
     if not Signing.query.filter_by(signature=signature).first().scope == scope:
         if abort_on_error:
             return abort(404)
-        flash(flash_msg)
+        flash(flash_msg, "warning")
         return redirect(url_for(redirect_to))
 
     # Returning None is desirable. It means that we can run `if not verify_signatures():` 

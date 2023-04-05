@@ -82,7 +82,7 @@ def write_report_to_db(name=None, form_name=None, filters=None, frequency=None, 
         return report_id 
 
     except Exception as e:
-        flash(f'Could not create report. {e} ')
+        flash(f'Could not create report. {e} ', "warning")
         log.warning(f'{current_user.username.upper()} - failed to generate report: {e}.')
         return False
 
@@ -119,7 +119,7 @@ def create_reports(form_name):
     # checks against `_submissions` in forms.propagate_form_configs... See discussion at
     # https://github.com/libreForms/libreForms-flask/issues/215.
     if not checkGroup(group=current_user.group, struct=propagate_form_configs(form_name)):
-        flash(f'You do not have access to make requests for this form. ')
+        flash(f'You do not have access to make reports for this form. ', "warning")
         return redirect(url_for('reports.reports'))
 
 
@@ -212,7 +212,7 @@ def modify_report(report_id):
             log.info(f'{current_user.username.upper()} - successfully modified report {report.report_id}: {name}.')
 
         except Exception as e:
-            flash(f'Could not modify report. {e} ')
+            flash(f'Could not modify report. {e} ', "warning")
             log.warning(f'{current_user.username.upper()} - failed to update report {report.report_id}: {e}.')
 
         return redirect(url_for('reports.view_report', report_id=str(report_id)))

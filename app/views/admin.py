@@ -369,7 +369,7 @@ def smtp_configuration():
         smtp_enabled = request.form['smtp_enabled'].strip()
         # here we assert that, if SMTP is turned off, that none of its dependent configurations have been set
         if smtp_enabled == 'no' and (config['enable_email_verification'] or config['enable_reports'] or config['allow_password_resets'] or config['allow_anonymous_form_submissions']):
-            flash("You cannot disable SMTP if email verification, password resets, sending reports, or anonymous form submissions is enabled. ")
+            flash("You cannot disable SMTP if email verification, password resets, sending reports, or anonymous form submissions is enabled. ", "warning")
             raise Exception()
         smtp_enabled = True if smtp_enabled=='yes' else False
 
@@ -406,7 +406,7 @@ def smtp_configuration():
 def bulk_register():
 
     if not config['allow_bulk_registration']:
-        flash('This feature has not been enabled by your system administrator.')
+        flash('This feature has not been enabled by your system administrator.', "warning")
         return redirect(url_for('home'))
 
     # limit access to admin group users when the corresponding configuration is set to true,
@@ -418,7 +418,7 @@ def bulk_register():
 
         file = request.files['file']
         if file.filename == '':
-            flash("Please select a CSV to upload")
+            flash("Please select a CSV to upload", "warning")
             return redirect(url_for('auth.bulk_register')) 
 
         with tempfile.TemporaryDirectory() as tmpdirname:
@@ -471,18 +471,18 @@ def bulk_register():
                     does_email_exist =  User.query.filter_by(email=row.email.lower()).first()
 
                     if does_user_exist or does_email_exist:
-                        flash(f"Could not register {row.username.lower()} under email {row.email.lower()}. User already exists. ")
+                        flash(f"Could not register {row.username.lower()} under email {row.email.lower()}. User already exists. ", "warning")
 
                     elif not row.username:
-                        flash(f"Could not register at row {row}. Username is required. ")
+                        flash(f"Could not register at row {row}. Username is required. ", "warning")
                     elif not row.password:
-                        flash(f"Could not register {row.username.lower()}. Password is required. ")
+                        flash(f"Could not register {row.username.lower()}. Password is required. ", "warning")
                     elif config['registration_email_required'] and not row.email:
-                        flash(f"Could not register {row.username.lower()}. Email is required. ")
+                        flash(f"Could not register {row.username.lower()}. Email is required. ", "warning")
                     elif config['registration_organization_required'] and not row.organization:
-                        flash(f"Could not register {row.username.lower()}. Organization is required. ")
+                        flash(f"Could not register {row.username.lower()}. Organization is required. ", "warning")
                     elif config['registration_phone_required'] and not row.phone:
-                        flash(f"Could not register {row.username.lower()} under email {row.email.lower()}. Phone is required. ")
+                        flash(f"Could not register {row.username.lower()} under email {row.email.lower()}. Phone is required. ", "warning")
 
 
                     # set to default group if non is passed
@@ -516,24 +516,24 @@ def bulk_register():
                             if config["enable_email_verification"]:
                                 key = signing.write_key_to_database(scope='email_verification', expiration=48, active=1, email=row.email)
                                 m = send_mail_async.delay(subject=f'{config["site_name"]} User Registered', content=f"This email serves to notify you that the user {row.username} has just been registered for this email address at {config['domain']}. Please verify your email by clicking the following link: {config['domain']}/auth/verify_email/{key}. Please note this link will expire after 48 hours.", to_address=row.email) if config['send_mail_asynchronously'] else mailer.send_mail(subject=f'{config["site_name"]} User Registered', content=f"This email serves to notify you that the user {row.username} has just been registered for this email address at {config['domain']}. Please verify your email by clicking the following link: {config['domain']}/auth/verify_email/{key}. Please note this link will expire after 48 hours.", to_address=row.email, logfile=log)
-                                flash(f'Successfully created user \'{row.username.lower()}\'. They should check their email for an activation link. ')
+                                flash(f'Successfully created user \'{row.username.lower()}\'. They should check their email for an activation link. ', "success")
                             else:
                                 m = send_mail_async.delay(subject=f'{config["site_name"]} User Registered', content=f"This email serves to notify you that the user {row.username} has just been registered for this email address at {config['domain']}.", to_address=row.email) if config['send_mail_asynchronously'] else mailer.send_mail(subject=f'{config["site_name"]} User Registered', content=f"This email serves to notify you that the user {row.username} has just been registered for this email address at {config['domain']}.", to_address=row.email, logfile=log)
-                                flash(f'Successfully created user \'{row.username.lower()}\'.')
+                                flash(f'Successfully created user \'{row.username.lower()}\'.', "success")
 
                             log.info(f'{row.username.upper()} - successfully registered with email {row.email}.')
                         except Exception as e: 
                             # error = f"User is already registered with username \'{row.username.lower()}\' or email \'{row.email}\'." if row.email else f"User is already registered with username \'{row.username}\'. "
-                            flash(f"Issue registering {row.username.lower()}. {e}")
+                            flash(f"Issue registering {row.username.lower()}. {e}", "warning")
                             log.error(f'{current_user.username.upper()} - failed to register new user {row.username.lower()} with email {row.email}.')
                     # else:
                     #     flash(f'Successfully created user \'{bulk_user_df.username.lower()}\'.')
                     #     m = send_mail_async.delay(subject=f"Successfully Registered {username}", content=f"This is a notification that {username} has been successfully registered for libreforms.", to_address=email) if config['send_mail_asynchronously'] else mailer.send_mail(subject=f"Successfully Registered {username}", content=f"This is a notification that {username} has been successfully registered for libreforms.", to_address=email, logfile=log)
                     #     return redirect(url_for("auth.add_users"))
-                flash ("Finished uploading users from CSV.")
+                flash ("Finished uploading users from CSV.", "success")
 
             else:
-                flash(error)
+                flash(error, "warning")
 
 
             # return f"File saved successfully {filepath}"
@@ -582,7 +582,7 @@ def restart_now():
 
     # with open('restart.flag','w'): pass # touch the restart file.
 
-    flash('Restart has been queued. ')
+    flash('Restart has been queued. ', "success")
     log.info(f'{current_user.username.upper()} - successfully queued application restart.')
     restart_app_async.delay() # will not run if celery is not running..
     return redirect(url_for('admin.restart_application'))

@@ -77,7 +77,7 @@ if config['allow_anonymous_form_submissions']:
             return abort(404)
 
         if not checkGroup(group='anonymous', struct=propagate_form_configs(form_name)):
-            flash(f'Your system administrator has disabled this form for anonymous users.')
+            flash(f'Your system administrator has disabled this form for anonymous users.', "warning")
             return redirect(url_for('home'))
 
 
@@ -97,12 +97,12 @@ if config['allow_anonymous_form_submissions']:
                     key = signing.write_key_to_database(scope=f'external_{form_name.lower()}', expiration=48, active=1, email=email)
                     content = f"You may now submit form {form_name} at the following address: {config['domain']}/external/{form_name}/{key}. Please note this link will expire after 48 hours."
                     m = send_mail_async.delay(subject=f'{config["site_name"]} {form_name} Submission Link', content=content, to_address=email) if config['send_mail_asynchronously'] else mailer.send_mail(subject=f'{config["site_name"]} {form_name} Submission Link', content=content, to_address=email, logfile=log)
-                    flash("Form submission link successfully sent.")
+                    flash("Form submission link successfully sent.", "success")
                 except Exception as e: 
                     log.warning(f"LIBREFORMS - {e}")
-                    flash(e)
+                    flash(e, "warning")
             else:
-                flash(error)
+                flash(error, "warning")
                 
         return render_template('app/external_request.html.jinja', 
             name='Forms',
@@ -118,11 +118,11 @@ if config['allow_anonymous_form_submissions']:
     def external_forms(form_name, signature):
 
         if not config['allow_anonymous_form_submissions']:
-            flash('This feature has not been enabled by your system administrator.')
+            flash('This feature has not been enabled by your system administrator.', "warning")
             return redirect(url_for('home'))
 
         if not checkGroup(group='anonymous', struct=propagate_form_configs(form_name)):
-            flash(f'Your system administrator has disabled this form for anonymous users.')
+            flash(f'Your system administrator has disabled this form for anonymous users.', "warning")
             return redirect(url_for('home'))
 
         if not signing.verify_signatures(signature, redirect_to='home', 
@@ -150,9 +150,9 @@ if config['allow_anonymous_form_submissions']:
                     #         print(r.task_id)
                     #         time.sleep(.1)
 
-                    flash(f'{form_name} form successfully submitted, document ID {document_id}. ')
+                    flash(f'{form_name} form successfully submitted, document ID {document_id}. ', "success")
                     if config['debug']:
-                        flash(str(parsed_args))
+                        flash(str(parsed_args), "info")
 
                     # possibly exchange the section below for an actual email/name depending on the
                     # data we store in the signed_urls database.
@@ -202,7 +202,7 @@ if config['allow_anonymous_form_submissions']:
     def download_file(filename, signature):
 
         if not config['allow_anonymous_form_submissions']:
-            flash('This feature has not been enabled by your system administrator.')
+            flash('This feature has not been enabled by your system administrator.', "warning")
             return redirect(url_for('home'))
 
         if not signing.verify_signatures(signature, redirect_to='home', 

@@ -59,7 +59,7 @@ def reset_password(signature):
         return redirect(url_for('home'))
 
     if not config['allow_password_resets']:
-        flash('This feature has not been enabled by your system administrator.')
+        flash('This feature has not been enabled by your system administrator.', "warning")
         return redirect(url_for('auth.forgot_password'))
     
     if not signing.verify_signatures(signature, redirect_to='auth.forgot_password', 
@@ -87,7 +87,7 @@ def reset_password(signature):
                     db.session.commit()
 
                     signing.expire_key(signature)
-                    flash("Successfully changed password. ")
+                    flash("Successfully changed password. ", "success")
                     log.info(f'{user.username.upper()} - successfully changed password.')
                     return redirect(url_for('auth.login'))
                 except Exception as e: 
@@ -96,7 +96,7 @@ def reset_password(signature):
                     flash (f"There was an error in processing your request. Transaction ID: {transaction_id}. ")
                 
             else:
-                flash(error)
+                flash(error, "warning")
     
         return render_template('auth/forgot_password.html.jinja',
             name='User',
@@ -132,14 +132,14 @@ def forgot_password():
                 key = signing.write_key_to_database(scope='forgot_password', expiration=1, active=1, email=email)
                 content = f"A password reset request has been submitted for your account. Please follow this link to complete the reset. {config['domain']}/auth/forgot_password/{key}. Please note this link will expire after one hour."
                 m = send_mail_async.delay(subject=f'{config["site_name"]} Password Reset', content=content, to_address=email) if config['send_mail_asynchronously'] else mailer.send_mail(subject=f'{config["site_name"]} Password Reset', content=content, to_address=email, logfile=log)
-                flash("Password reset link successfully sent.")
+                flash("Password reset link successfully sent.", "success")
             except Exception as e: 
                 transaction_id = str(uuid.uuid1())
                 log.warning(f"LIBREFORMS - {e}", extra={'transaction_id': transaction_id})
-                flash(f"Could not send password reset link. Transaction ID: {transaction_id}. ")
+                flash(f"Could not send password reset link. Transaction ID: {transaction_id}. ", "warning")
             
         else:
-            flash(error)
+            flash(error, "warning")
 
     if config["smtp_enabled"]:
         return render_template('auth/forgot_password.html.jinja',
@@ -148,14 +148,14 @@ def forgot_password():
             config=config)
 
     else:
-        flash('This feature has not been enabled by your system administrator.')
+        flash('This feature has not been enabled by your system administrator.', "warning")
         return redirect(url_for('auth.login'))
 
 @bp.route('/register', methods=('GET', 'POST'))
 def register():
 
     if not config['allow_anonymous_registration']:
-        flash('This feature has not been enabled by your system administrator.')
+        flash('This feature has not been enabled by your system administrator.', "warning")
         return redirect(url_for('auth.login'))
 
     # we only make this view visible if the user isn't logged in
@@ -247,10 +247,10 @@ def register():
                 if config["enable_email_verification"]:
                     key = signing.write_key_to_database(scope='email_verification', expiration=48, active=1, email=email)
                     m = send_mail_async.delay(subject=f'{config["site_name"]} User Registered', content=f"This email serves to notify you that the user {username} has just been registered for this email address at {config['domain']}. Please verify your email by clicking the following link: {config['domain']}/auth/verify_email/{key}. Please note this link will expire after 48 hours.", to_address=email) if config['send_mail_asynchronously'] else mailer.send_mail(subject=f'{config["site_name"]} User Registered', content=f"This email serves to notify you that the user {username} has just been registered for this email address at {config['domain']}. Please verify your email by clicking the following link: {config['domain']}/auth/verify_email/{key}. Please note this link will expire after 48 hours.", to_address=email, logfile=log)
-                    flash(f'Successfully created user \'{username.lower()}\'. Please check your email for an activation link. ')
+                    flash(f'Successfully created user \'{username.lower()}\'. Please check your email for an activation link. ', "success")
                 else:
                     m = send_mail_async.delay(subject=f'{config["site_name"]} User Registered', content=f"This email serves to notify you that the user {username} has just been registered for this email address at {config['domain']}.", to_address=email) if config['send_mail_asynchronously'] else mailer.send_mail(subject=f'{config["site_name"]} User Registered', content=f"This email serves to notify you that the user {username} has just been registered for this email address at {config['domain']}.", to_address=email, logfile=log)
-                    flash(f'Successfully created user \'{username.lower()}\'.')
+                    flash(f'Successfully created user \'{username.lower()}\'.', "success")
                 log.info(f'{username.upper()} - successfully registered with email {email}.')
             except Exception as e: 
                 error = f"User is already registered with username \'{username.lower()}\' or email \'{email}\'." if email else f"User is already registered with username \'{username}\'. "
@@ -259,7 +259,7 @@ def register():
                 # m = send_mail_async.delay(subject=f"Successfully Registered {username}", content=f"This is a notification that {username} has been successfully registered for libreforms.", to_address=email) if config['send_mail_asynchronously'] else mailer.send_mail(subject=f"Successfully Registered {username}", content=f"This is a notification that {username} has been successfully registered for libreforms.", to_address=email, logfile=log)
                 return redirect(url_for("auth.login"))
 
-        flash(error)
+        flash(error, "warning")
 
     return render_template('auth/register.html.jinja',
         name='User',
@@ -274,7 +274,7 @@ def verify_email(signature):
         return redirect(url_for('home'))
 
     if not config['enable_email_verification']:
-        flash('This feature has not been enabled by your system administrator.')
+        flash('This feature has not been enabled by your system administrator.', "warning")
         return redirect(url_for('auth.login'))
 
     if not signing.verify_signatures(signature, 
@@ -292,7 +292,7 @@ def verify_email(signature):
             db.session.commit()
 
             signing.expire_key(signature)
-            flash(f"Successfully activated user {user.username}. ")
+            flash(f"Successfully activated user {user.username}. ", "success")
             log.info(f'{user.username.upper()} - successfully activated user.')
             return redirect(url_for('auth.login'))
 
@@ -318,12 +318,12 @@ if config['enable_rest_api']:
             # user, which ships by default with the application, does not have an email set - meaning that the default
             # user will not be constrained by this behavior. This can be viewed as a bug or a feature, depending on context.
             if len(signing_df.loc[(signing_df.email == current_user.email) & (signing_df.scope == 'api_key') & (signing_df.active == 1)]) >= config['limit_rest_api_keys_per_user']:
-                flash(f'This user has already registered the number of API keys they are permitted. ')
+                flash(f'This user has already registered the number of API keys they are permitted. ', "warning")
                 return redirect(url_for('auth.profile'))
 
         key = signing.write_key_to_database(scope='api_key', expiration=5640, active=1, email=current_user.email)
         m = send_mail_async.delay(subject=f'{config["site_name"]} API Key Generated', content=f"This email serves to notify you that the user {current_user.username} has just generated an API key for this email address at {config['domain']}. The API key is: {key}. Please note this key will expire after 365 days.", to_address=current_user.email) if config['send_mail_asynchronously'] else mailer.send_mail(subject=f'{config["site_name"]} API Key Generated', content=f"This email serves to notify you that the user {current_user.username} has just generated an API key for this email address at {config['domain']}. The API key is: {key}. Please note this key will expire after 365 days.", to_address=current_user.email, logfile=log)
-        flash(f'Successfully generated API key {key} for \'{current_user.username.lower()}\'. They should check their email for further instructions. ')
+        flash(f'Successfully generated API key {key} for \'{current_user.username.lower()}\'. They should check their email for further instructions. ', "success")
 
         return redirect(url_for('auth.profile'))
 
@@ -367,17 +367,17 @@ def login():
             log.info(f'{username.upper()} - password failure when logging in.')
             error = 'Incorrect password. '
         elif user.active == 0:
-            flash('Your user is currently inactive. If you recently registered, please check your email for a verification link. ')
+            flash('Your user is currently inactive. If you recently registered, please check your email for a verification link. ', "warning")
             return redirect(url_for('home'))
 
 
         if error is None:
             login_user(user, remember=remember)
-            flash(f'Successfully logged in user \'{username.lower()}\'.')
+            flash(f'Successfully logged in user \'{username.lower()}\'.', "success")
             log.info(f'{username.upper()} - successfully logged in.')
             return redirect(url_for('home'))
 
-        flash(error)
+        flash(error, "warning")
 
     return render_template('auth/login.html.jinja',
             name='User',
@@ -458,7 +458,7 @@ def edit_profile():
 
                 db.session.commit()
 
-                flash(f"Successfully updated profile. ")
+                flash(f"Successfully updated profile. ", "success")
                 log.info(f'{user.username.upper()} - successfully updated their profile.')
                 return redirect(url_for('auth.profile'))
                 
@@ -467,7 +467,7 @@ def edit_profile():
                 log.warning(f"LIBREFORMS - {e}", extra={'transaction_id': transaction_id})
                 error = f"There was an error in processing your request. Transaction ID: {transaction_id}. "
             
-        flash(error)
+        flash(error, "warning")
 
     return render_template('auth/register.html.jinja',
         edit_profile=True,
@@ -507,15 +507,15 @@ def profile():
                 user.password=generate_password_hash(new_password, method='sha256')
                 db.session.commit()
 
-                flash("Successfully changed password. ")
-                log.info(f'{user.username.upper()} - successfully changed password.')
+                flash("Successfully changed password. ", "success")
+                log.info(f'{user.username.upper()} - successfully changed password.', "success")
                 return redirect(url_for('auth.profile'))
             except Exception as e: 
                 transaction_id = str(uuid.uuid1())
                 log.warning(f"LIBREFORMS - {e}" , extra={'transaction_id': transaction_id})
                 error = f"There was an error in processing your request. Transaction ID: {transaction_id}. "
             
-        flash(error)
+        flash(error, "warning")
 
 
     return render_template('auth/profile.html.jinja', 
@@ -534,7 +534,7 @@ def other_profiles(username):
         return redirect(url_for('auth.profile'))
 
     if not config['enable_other_profile_views']:
-        flash('This feature has not been enabled by your system administrator. ')
+        flash('This feature has not been enabled by your system administrator. ', "warning")
         return redirect(url_for('auth.profile'))
 
     try:
@@ -543,7 +543,7 @@ def other_profiles(username):
         profile_user = User.query.filter_by(username=username.lower()).first()
         assert(profile_user.username) # assert that the user query has a username set
     except:
-        flash('This user does not exist. ')
+        flash('This user does not exist. ', "warning")
         return redirect(url_for('auth.profile'))
 
     return render_template('auth/other_profiles.html.jinja', 

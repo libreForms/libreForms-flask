@@ -409,7 +409,7 @@ def render_all_submissions():
                 record = record.drop(record[record['form'] == form].index)
 
         if not isinstance(record, pd.DataFrame):
-            flash('The application has not received any submissions.')
+            flash('The application has not received any submissions.', "warning")
             return redirect(url_for('submissions.submissions_home'))
     
         else:
@@ -447,7 +447,7 @@ def submissions(form_name):
 
 
     if not checkGroup(group=current_user.group, struct=propagate_form_configs(form_name)):
-            flash(f'You do not have access to this view. ')
+            flash(f'You do not have access to this view. ', "warning")
             return redirect(url_for('submissions.submissions_home'))
 
     else:
@@ -455,7 +455,7 @@ def submissions(form_name):
         try:
             verify_group = propagate_form_configs(form=form_name)['_submission']
         except Exception as e: 
-            flash('This form does not exist.')
+            flash('This form does not exist.', "warning")
             log.warning(f'{current_user.username.upper()} - {e}')
             return redirect(url_for('submissions.submissions_home'))
 
@@ -468,14 +468,14 @@ def submissions(form_name):
         #     libreforms.forms[form_name]['_enable_universal_form_access']:
         if propagate_form_configs(form=form_name)['_submission']['_enable_universal_form_access'] and not \
             (checkKey(verify_group, '_deny_read') and current_user.group in verify_group['_deny_read']):
-                flash("Note: this form permits broad view access all its submissions. ")
+                flash("Note: this form permits broad view access all its submissions. ", "info")
                 record = get_record_of_submissions(form_name=form_name)
         else:
             record = get_record_of_submissions(form_name=form_name, user=current_user.username)
 
 
         if not isinstance(record, pd.DataFrame):
-            flash(f'This form has not received any submissions.')
+            flash(f'This form has not received any submissions.', "warning")
             return redirect(url_for('submissions.submissions_home'))
     
         else:
@@ -533,7 +533,7 @@ def render_user_submissions(user):
             return abort(404)
 
         if not isinstance(record, pd.DataFrame):
-            flash('No submissions found for this user. ')
+            flash('No submissions found for this user. ', "warning")
             return redirect(url_for('auth.profile'))
 
         # we start by dropping out any entries that no longer have 
@@ -577,7 +577,7 @@ def render_user_submissions(user):
 @login_required
 def render_document(form_name, document_id):
     if not checkGroup(group=current_user.group, struct=propagate_form_configs(form_name)):
-            flash(f'You do not have access to this view. ')
+            flash(f'You do not have access to this view. ', "warning")
             return redirect(url_for('submissions.submissions_home'))
 
     else:
@@ -586,7 +586,7 @@ def render_document(form_name, document_id):
             options = propagate_form_configs(form=form_name)
             verify_group = options['_submission']
         except Exception as e: 
-            flash('This form does not exist.')
+            flash('This form does not exist.', "warning")
             log.warning(f'{current_user.username.upper()} - {e}')
             return redirect(url_for('submissions.submissions_home'))
 
@@ -600,7 +600,7 @@ def render_document(form_name, document_id):
         #     libreforms.forms[form_name]['_enable_universal_form_access']:
         if propagate_form_configs(form=form_name)['_submission']['_enable_universal_form_access'] and not \
             (checkKey(verify_group, '_deny_read') and current_user.group in verify_group['_deny_read']):
-            flash("Note: this form permits broad view access all its submissions. ")
+            flash("Note: this form permits broad view access all its submissions. ", "info")
             record = get_record_of_submissions(form_name=form_name)
 
         else:
@@ -609,7 +609,7 @@ def render_document(form_name, document_id):
 
 
         if not isinstance(record, pd.DataFrame):
-            flash('This document does not exist.')
+            flash('This document does not exist.', "warning")
             return redirect(url_for('submissions.submissions_home'))
     
         else:
@@ -697,7 +697,7 @@ def render_document(form_name, document_id):
 def render_document_history(form_name, document_id):
 
     if not checkGroup(group=current_user.group, struct=propagate_form_configs(form_name)):
-            flash(f'You do not have access to this view. ')
+            flash(f'You do not have access to this view. ', "warning")
             return redirect(url_for('submissions.submissions_home'))
 
     else:
@@ -707,7 +707,7 @@ def render_document_history(form_name, document_id):
             options = propagate_form_configs(form=form_name)
             verify_group = options['_submission']
         except Exception as e: 
-            flash('This form does not exist.')
+            flash('This form does not exist.', "warning")
             log.warning(f'{current_user.username.upper()} - {e}')
             return redirect(url_for('submissions.submissions_home'))
 
@@ -722,14 +722,14 @@ def render_document_history(form_name, document_id):
         if propagate_form_configs(form=form_name)['_submission']['_enable_universal_form_access'] and not \
             (checkKey(verify_group, '_deny_read') and current_user.group in verify_group['_deny_read']):
 
-            flash("Note: this form permits broad view access all its submissions. ")
+            flash("Note: this form permits broad view access all its submissions. ", "info")
             record = pd.DataFrame(generate_full_document_history(form_name, document_id, user=None))
         else:
             record = pd.DataFrame(generate_full_document_history(form_name, document_id, user=current_user.username))
 
 
         if not isinstance(record, pd.DataFrame) or len(record) < 1:
-            flash('This document does not exist.')
+            flash('This document does not exist.', "warning")
             return redirect(url_for('submissions.submissions_home'))
     
         else:
@@ -804,13 +804,13 @@ def render_document_history(form_name, document_id):
             t = get_record_of_submissions(form_name) 
 
             if not isinstance(t, pd.DataFrame):
-                flash(f'Could not render document history for datetime {timestamp}. ')
+                flash(f'Could not render document history for datetime {timestamp}. ', "warning")
                 return redirect(url_for('submissions.render_document_history', form_name=form_name, document_id=document_id))
 
             t2 = t.loc[t._id == document_id] 
             t3 = dict(t2[[mongodb.metadata_field_names['journal']]].iloc[0].values[0]) 
             emphasize = [x for x in t3[timestamp].keys()]
-            flash(f'The following values changed in this version and are emphasized below: {", ".join(emphasize)}. ')
+            flash(f'The following values changed in this version and are emphasized below: {", ".join(emphasize)}. ', "info")
 
             msg = Markup(f"<table role=\"presentation\"><tr><td><a href = '{config['domain']}/submissions/{form_name}/{document_id}'><button type=\"button\" class=\"btn btn-outline-success btn-sm\" style = \"margin-right: 10px;\">go back to document</button></a></td>")
 
@@ -855,7 +855,7 @@ def render_document_edit(form_name, document_id):
     try:
 
         if not checkGroup(group=current_user.group, struct=propagate_form_configs(form_name)):
-                flash(f'You do not have access to this view. ')
+                flash(f'You do not have access to this view. ', "warning")
                 return redirect(url_for('submissions.submissions_home'))
 
         else:
@@ -863,7 +863,7 @@ def render_document_edit(form_name, document_id):
             try:
                 verify_group = propagate_form_configs(form=form_name)['_submission']
             except Exception as e: 
-                flash('This form does not exist.')
+                flash('This form does not exist.', "warning")
                 log.warning(f'{current_user.username.upper()} - {e}')
                 return redirect(url_for('submissions.submissions_home'))
 
@@ -886,7 +886,7 @@ def render_document_edit(form_name, document_id):
 
 
             if not isinstance(record, pd.DataFrame):
-                flash('This document does not exist.')
+                flash('This document does not exist.', "warning")
                 return redirect(url_for('submissions.submissions_home'))
         
             else:
@@ -895,7 +895,7 @@ def render_document_edit(form_name, document_id):
                 forms = propagate_form_fields(form_name, group=current_user.group)
 
                 if not str(document_id) in record['_id'].values:
-                    flash('You do not have edit access to this form.')
+                    flash('You do not have edit access to this form.', "warning")
                     return redirect(url_for('submissions.submissions_home'))      
 
                 record = record.loc[record['_id'] == str(document_id)]
@@ -915,7 +915,7 @@ def render_document_edit(form_name, document_id):
                         password = request.form['_password']
                     
                         if not check_password_hash(current_user.password, password):
-                            flash('Incorrect password.')
+                            flash('Incorrect password.', "warning")
                             return redirect(url_for('submissions.render_document_edit', form_name=form_name, document_id=document_id))
 
                     
@@ -948,9 +948,9 @@ def render_document_edit(form_name, document_id):
                     #         print(r.task_id)
                     #         time.sleep(.1)
 
-                    flash(f'{form_name} form successfully submitted, document ID {document_id}. ')
+                    flash(f'{form_name} form successfully submitted, document ID {document_id}. ', "success")
                     if config['debug']:
-                        flash(str(parsed_args))
+                        flash(str(parsed_args), "info")
 
 
                     # log the update
@@ -995,7 +995,7 @@ def render_document_edit(form_name, document_id):
 
     except Exception as e: 
         log.warning(f"LIBREFORMS - {e}")
-        flash(f'This form does not exist. {e}')
+        flash(f'This form does not exist. {e}', "warning")
         return redirect(url_for('submissions.submissions_home'))
 
 # this is a replica of render_document() above, just modified to check for 
@@ -1014,7 +1014,7 @@ def review_document(form_name, document_id):
             # return redirect(url_for('submissions.render_document', form_name=form_name,document_id=document_id))
 
     except Exception as e: 
-        flash('This form does not exist.')
+        flash('This form does not exist.', "warning")
         log.warning(f'{current_user.username.upper()} - {e}')
         return redirect(url_for('submissions.submissions_home'))
 
@@ -1022,7 +1022,7 @@ def review_document(form_name, document_id):
     record = get_record_of_submissions(form_name=form_name)
 
     if not isinstance(record, pd.DataFrame):
-        flash('This document does not exist.')
+        flash('This document does not exist.', "warning")
         return redirect(url_for('submissions.submissions_home'))
 
     else:
@@ -1046,7 +1046,7 @@ def review_document(form_name, document_id):
                 password = request.form['_password']
             
                 if not check_password_hash(current_user.password, password):
-                    flash('Incorrect password.')
+                    flash('Incorrect password.', "warning")
                     return redirect(url_for('submissions.review_document', form_name=form_name, document_id=document_id))
 
 
@@ -1070,25 +1070,25 @@ def review_document(form_name, document_id):
             #     flash('You have added comments to this form. ')
 
             if approve == 'yes':
-                flash('You have approved this form. ')
+                flash('You have approved this form. ', "success")
                 digital_signature = encrypt_with_symmetric_key(current_user.certificate, config['approval_key']) if '_form_approval' in options else None
             elif approve == 'no':
-                flash('You disapproved this form. ')
+                flash('You disapproved this form. ', "success")
                 digital_signature = encrypt_with_symmetric_key(current_user.certificate, config['disapproval_key']) if '_form_approval' in options else None
             elif approve == 'pushback':
-                flash('You returned this form without approval. ')
+                flash('You returned this form without approval. ', "success")
                 digital_signature = None
 
             else:
-                flash('You have not approved this form. ')
+                flash('You have not approved this form. ', "success")
                 digital_signature = None
 
             if comment == '':
                 # set comment to None if the arrived empty
                 comment = None
-                flash('You have not added any comments to this form. ')
+                flash('You have not added any comments to this form. ', "warning")
             else:
-                flash('You have added comments to this form. ')
+                flash('You have added comments to this form. ', "warning")
  
 
             # here we pull the default values to assess the POSTed values against
@@ -1200,17 +1200,17 @@ def generate_pdf(form_name, document_id):
         test_the_form_options = propagate_form_configs(form=form_name)
 
     except Exception as e: 
-        flash('This form does not exist.')
+        flash('This form does not exist.', "warning")
         log.warning(f'{current_user.username.upper()} - {e}')
         return redirect(url_for('submissions.render_document', form_name=form_name,document_id=document_id))
 
     if not test_the_form_options['_allow_pdf_download']:
-        flash(f'This form does not have downloads enabled. ')
+        flash(f'This form does not have downloads enabled. ', "warning")
         return redirect(url_for('submissions.render_document', form_name=form_name, document_id=document_id))
 
 
     if not checkGroup(group=current_user.group, struct=test_the_form_options):
-        flash(f'You do not have access to this view. ')
+        flash(f'You do not have access to this view. ', "warning")
         return redirect(url_for('submissions.render_document', form_name=form_name, document_id=document_id))
 
     else:
@@ -1227,7 +1227,7 @@ def generate_pdf(form_name, document_id):
 
 
         if not isinstance(record, pd.DataFrame):
-            flash('This document does not exist.')
+            flash('This document does not exist.', "warning")
             return redirect(url_for('submissions.render_document', form_name=form_name, document_id=document_id))
     
         else:

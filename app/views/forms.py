@@ -534,7 +534,7 @@ def forms(form_name):
 
 
     if not checkGroup(group=current_user.group, struct=propagate_form_configs(form_name)):
-        flash(f'You do not have access to this dashboard.')
+        flash(f'You do not have access to this form.', "warning")
         return redirect(url_for('forms.forms_home'))
 
     else:
@@ -553,7 +553,7 @@ def forms(form_name):
                     password = request.form['_password']
                 
                     if not check_password_hash(current_user.password, password):
-                        flash('Incorrect password.')
+                        flash('Incorrect password.', "warning")
                         return redirect(url_for('forms.forms', form_name=form_name))
 
 
@@ -630,9 +630,9 @@ def forms(form_name):
                 #                 ip_address=request.remote_addr if options['_collect_client_ip'] else None,)
 
 
-                flash(f'{form_name} form successfully submitted, document ID {document_id}. ')
+                flash(f'{form_name} form successfully submitted, document ID {document_id}. ', "success")
                 if config['debug']:
-                    flash(str(parsed_args))
+                    flash(str(parsed_args), "info")
 
 
                 log.info(f'{current_user.username.upper()} - submitted \'{form_name}\' form, document no. {document_id}.')
@@ -674,7 +674,7 @@ def forms(form_name):
 
         except Exception as e: 
             log.warning(f"LIBREFORMS - {e}")
-            flash(f'This form does not exist. {e}')
+            flash(f'This form does not exist. {e}', "warning")
             return redirect(url_for('forms.forms_home'))
 
 

@@ -56,15 +56,15 @@ def dashboards_home():
 def dashboards(form_name):
 
     if form_name not in libreforms.forms.keys():
-        flash('This form does not exist.')
+        flash('This form does not exist.', "warning")
         return redirect(url_for('dashboards.dashboards_home'))
 
     if not checkGroup(group=current_user.group, struct=propagate_form_configs(form_name)['_dashboard']):
-        flash(f'You do not have access to this dashboard.')
+        flash(f'You do not have access to this dashboard.', "warning")
         return redirect(url_for('dashboards.dashboards_home'))
 
     if propagate_form_configs(form=form_name)["_dashboard"] == False:
-        flash('Your system administrator has not enabled any dashboards for this form.')
+        flash('Your system administrator has not enabled any dashboards for this form.', "warning")
         return redirect(url_for('dashboards.dashboards_home'))
 
     try:
@@ -82,7 +82,7 @@ def dashboards(form_name):
 
 
         if len(df.index) < 1:
-            flash('This form has not received any submissions.')
+            flash('This form has not received any submissions.', "warning")
             return redirect(url_for('dashboards.dashboards_home'))
 
         theme = 'plotly_dark' if (config['dark_mode'] and \
@@ -141,7 +141,7 @@ def dashboards(form_name):
         
         log.warning(f"LIBREFORMS - {e}")
         
-        flash('This dashboard does not exist.')
+        flash('This dashboard does not exist.', "warning")
         return redirect(url_for('dashboards.dashboards_home'))
 
 
