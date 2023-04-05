@@ -193,13 +193,31 @@ def api_v2_get_by_id(form_name, document_id):
 
 @bp.route('/v2/<form_name>/<document_id>', methods=['PUT'])
 def api_v2_put(form_name, document_id):
-    # Code to update specific document in MongoDB goes here
-    # Use request.data to retrieve data from request body
     # Use request.headers.get('X-API-KEY') to retrieve API key from headers
+    signature = request.headers.get('X-API-KEY')
 
-    # mongodb.write_document_to_collection(...)
+    # here we make it so that API users can only access forms that are in the
+    # current form config - eg. old forms, or forms whose name changed, will not
+    # appear ... form admins will need to manage change cautiously until further
+    # controls, see https://github.com/signebedi/libreForms/issues/130
+    if not form_name in libreforms.forms.keys():
+        return abort(404)
 
-    data = {"message": "Document modified successfully"}
+    signing.verify_signatures(signature, scope="api_key", abort_on_error=True)
+
+    # here we pull the user email
+    with db.engine.connect() as conn:
+        email = db.session.query(Signing).filter_by(signature=signature).first().email
+
+    options = propagate_form_configs(form_name)
+
+    data = request.form.to_dict()
+
+    document_id = mongodb.api_modify_document(data, form_name, document_id,
+                    reporter=signature, 
+                    ip_address=request.remote_addr if options['_collect_client_ip'] else None,)
+
+    data = {"message": "success", "document_id": document_id}
     status_code = 200
     headers = {'Content-Type': 'application/json'}
     return make_response(jsonify(data), status_code, headers)
