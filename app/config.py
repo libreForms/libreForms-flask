@@ -132,10 +132,8 @@ config['debug'] = False
 ##########################
 
 # these configurations determine whether to enable / disable additional 
-# (technically) optional features like SMTP and LDAP.
+# (technically) optional features like SMTP 
 config['smtp_enabled'] = True
-config['ldap_enabled'] = False
-
 
 # these configurations are used to capture the SMTP credentials for the 
 # application's outgoing mail server. There are two ways that these creds
@@ -309,6 +307,20 @@ config['user_registration_fields'] = {}
 # administrators to set a unique email for the `libreforms` default user.
 config['default_user_email'] = None
 config['default_user_username'] = 'libreforms'
+
+
+# these configs allow admins to configure SAML authentication, see 
+# https://github.com/libreForms/libreForms-flask/issues/7
+config['saml_enabled'] = False
+config['idp_entity_id'] = None
+config['idp_sso_url'] = None
+config['idp_slo_url'] = None
+config['idp_x509_cert'] = None
+config['strict'] = True
+config['debug'] = False
+config['name_id_format'] = "urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified"
+config['sp_x509_cert'] = ""
+config['sp_private_key'] = ""
 
 
 # these configs set the system-wide regular expressions that will be used to validate
