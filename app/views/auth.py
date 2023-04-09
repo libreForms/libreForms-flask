@@ -8,7 +8,7 @@ auth.py: implementation of auth views and underlying logic
 __name__ = "app.views.auth"
 __author__ = "Sig Janoska-Bedi"
 __credits__ = ["Sig Janoska-Bedi"]
-__version__ = "1.8.0"
+__version__ = "1.9.0"
 __license__ = "AGPL-3.0"
 __maintainer__ = "Sig Janoska-Bedi"
 __email__ = "signe@atreeus.com"
@@ -594,7 +594,7 @@ def download_bulk_user_template(filename='bulk_user_template.csv'):
 if config['saml_enabled']:
 
 
-    def load_user_by_email(email, username=None):
+    def load_user_by_email(email, username=None, group=None):
         user = User.query.filter_by(email=email).first()
         # create the user if none exists
         if not user:
@@ -611,7 +611,7 @@ if config['saml_enabled']:
             user = User(email=email,
                         username=new_username,
                         active=1,
-                        group=config['default_group'],
+                        group=group if group else config['default_group'],
                         theme='dark' if config['dark_mode'] else 'light', 
                         created_date=datetime.datetime.today().strftime("%Y-%m-%d %H:%M:%S"),
             )
@@ -657,10 +657,11 @@ if config['saml_enabled']:
 
             attributes = saml_auth.get_attributes()
             email = attributes.get('email', [None])[0]
-            # username = attributes.get('username', [None])[0]
+            username = attributes.get('username', [None])[0]
+            group = attributes.get('group', [None])[0]
 
             if email:
-                user = load_user_by_email(email)#, username)
+                user = load_user_by_email(email, username, group)
                 login_user(user)
                 return redirect(url_for('home'))
             else:
