@@ -372,7 +372,7 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
 
     # import any context-bound libraries
     from app.action_needed import standardard_total_notifications
-    from app.saml import generate_saml_config
+    from app.saml import generate_saml_config, verify_metadata
 
     # this might be a little hackish, but we define a callable in app 
     # config so we can easily figure out how many notifications a given
@@ -384,7 +384,7 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
     # here we generate a SAML config, if SAML auth has been enabled in 
     # the app config
     if config['saml_enabled']:
-        app.config['SAML_AUTH'] = generate_saml_config(
+        app.config['SAML_AUTH'], errors = verify_metadata( generate_saml_config(
             domain=config['domain'], 
             idp_entity_id=config['idp_entity_id'], 
             idp_sso_url=config['idp_sso_url'], 
@@ -395,7 +395,15 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
             name_id_format=config['name_id_format'],
             sp_x509_cert=config['sp_x509_cert'], 
             sp_private_key=config['sp_private_key'],
-        )
+        ))
+
+        if len(errors) == 0:
+            log.info("LIBREFORMS - successfully loaded SAML config")
+
+        else:
+            print("Error(s) found in metadata:")
+            for error in errors:
+                log.warning(f"LIBREFORMS - SAML config error: {error}")
 
     # initialize hCaptcha object defined outside the app context, 
     # but only if hCaptcha is enabled in the app config
