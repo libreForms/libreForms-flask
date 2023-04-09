@@ -16,37 +16,6 @@ __email__ = "signe@atreeus.com"
 from onelogin.saml2.settings import OneLogin_Saml2_Settings
 from app.config import config 
 
-EXAMPLE_SAML_AUTH = {
-    "strict": True,
-    "debug": False,
-    "sp": {
-        "entityId": f"{config['domain']}/auth/metadata",
-        "assertionConsumerService": {
-            "url": f"{config['domain']}/auth/acs",
-            "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
-        },
-        "singleLogoutService": {
-            "url": f"{config['domain']}/auth/sls",
-            "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
-        },
-        "NameIDFormat": "urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified",
-        "x509cert": "",
-        "privateKey": ""
-    },
-    "idp": {
-        "entityId": "https://idp.okta.com/metadata",
-        "singleSignOnService": {
-            "url": "https://idp.okta.com/sso",
-            "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
-        },
-        "singleLogoutService": {
-            "url": "https://idp.okta.com/slo",
-            "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
-        },
-        "x509cert": "-----BEGIN CERTIFICATE----- ... -----END CERTIFICATE-----"
-    }
-}
-
 def generate_saml_config(domain, idp_entity_id, idp_sso_url, idp_slo_url, idp_x509_cert,
                          strict=True, debug=False, name_id_format="urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified",
                          sp_x509_cert="", sp_private_key=""):

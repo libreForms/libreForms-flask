@@ -14,7 +14,7 @@ __maintainer__ = "Sig Janoska-Bedi"
 __email__ = "signe@atreeus.com"
 
 
-import functools, re, datetime, tempfile, os, uuid
+import functools, re, datetime, tempfile, os, uuid, random
 import pandas as pd
 from urllib.parse import urlparse
 
@@ -594,12 +594,22 @@ def download_bulk_user_template(filename='bulk_user_template.csv'):
 if config['saml_enabled']:
 
 
-    def load_user_by_email(email, username):
+    def load_user_by_email(email, username=None):
         user = User.query.filter_by(email=email).first()
         # create the user if none exists
         if not user:
+
+            # here we verify that the username doesn't exist in the database; 
+            # if it does, we append a random digit to the end until we have a 
+            # unique username
+            base_username = username if username else email.split('@')[0]
+            new_username = base_username
+            while User.query.filter_by(username=new_username).first() is not None:
+                random_digit = random.randint(0, 9)
+                new_username = f"{base_username}{random_digit}"
+        
             user = User(email=email,
-                        username=username,
+                        username=new_username,
                         active=1,
                         group=config['default_group'],
                         theme='dark' if config['dark_mode'] else 'light', 
@@ -647,10 +657,10 @@ if config['saml_enabled']:
 
             attributes = saml_auth.get_attributes()
             email = attributes.get('email', [None])[0]
-            username = attributes.get('username', [None])[0]
+            # username = attributes.get('username', [None])[0]
 
             if email:
-                user = load_user_by_email(email, username)
+                user = load_user_by_email(email)#, username)
                 login_user(user)
                 return redirect(url_for('home'))
             else:
