@@ -384,7 +384,7 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
     # here we generate a SAML config, if SAML auth has been enabled in 
     # the app config
     if config['saml_enabled']:
-        app.config['SAML_AUTH'], errors = verify_metadata( generate_saml_config(
+        app.config['SAML_AUTH'] = generate_saml_config(
             domain=config['domain'], 
             idp_entity_id=config['idp_entity_id'], 
             idp_sso_url=config['idp_sso_url'], 
@@ -395,7 +395,10 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
             name_id_format=config['name_id_format'],
             sp_x509_cert=config['sp_x509_cert'], 
             sp_private_key=config['sp_private_key'],
-        ))
+        )
+
+        # here we pull for any errors to help with logging
+        metadata, errors = verify_metadata(app.config['SAML_AUTH'])
 
         if len(errors) == 0:
             log.info("LIBREFORMS - successfully loaded SAML config")
