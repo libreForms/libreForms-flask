@@ -318,7 +318,7 @@ config['idp_slo_url'] = None
 config['idp_x509_cert'] = None
 config['strict'] = True
 config['debug'] = False
-config['name_id_format'] = "urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified"
+config['name_id_format'] = "urn:oasis:names:tc:SAML:2.0:nameid-format:unspecified"
 config['sp_x509_cert'] = ""
 config['sp_private_key'] = ""
 

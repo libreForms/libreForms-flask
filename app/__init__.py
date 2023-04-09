@@ -372,7 +372,7 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
 
     # import any context-bound libraries
     from app.action_needed import standardard_total_notifications
-
+    from app.saml import generate_saml_config
 
     # this might be a little hackish, but we define a callable in app 
     # config so we can easily figure out how many notifications a given
@@ -380,6 +380,22 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
     # better way to call a context-bound function from the current_app. 
     app.config['NOTIFICATIONS'] = standardard_total_notifications
 
+
+    # here we generate a SAML config, if SAML auth has been enabled in 
+    # the app config
+    if config['saml_enabled']:
+        app.config['SAML_AUTH'] = generate_saml_config(
+            domain=config['domain'], 
+            idp_entity_id=config['idp_entity_id'], 
+            idp_sso_url=config['idp_sso_url'], 
+            idp_slo_url=config['idp_slo_url'], 
+            idp_x509_cert=config['idp_x509_cert'],
+            strict=config['strict'], 
+            debug=config['debug'], 
+            name_id_format=config['name_id_format'],
+            sp_x509_cert=config['sp_x509_cert'], 
+            sp_private_key=config['sp_private_key'],
+        )
 
     # initialize hCaptcha object defined outside the app context, 
     # but only if hCaptcha is enabled in the app config

@@ -16,15 +16,18 @@ __email__ = "signe@atreeus.com"
 
 import functools, re, datetime, tempfile, os, uuid
 import pandas as pd
+from urllib.parse import urlparse
 
-from flask import current_app, Blueprint, flash, g, redirect, render_template, request, session, url_for, send_from_directory, abort
+from flask import current_app, Blueprint, flash, g, redirect, render_template, request, session, url_for, send_from_directory, abort, make_response
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
+from flask_login import LoginManager, login_required, login_user, logout_user, current_user
+from onelogin.saml2.auth import OneLogin_Saml2_Auth
+from onelogin.saml2.utils import OneLogin_Saml2_Utils
 
 from app import config, log, mailer
 import app.signing as signing
 from app.models import User, Signing, db
-from flask_login import login_required, current_user, login_user
 from app.log_functions import aggregate_log_data
 from app.certification import generate_symmetric_key
 from celeryd.tasks import send_mail_async
@@ -555,10 +558,6 @@ def other_profiles(username):
     )
 
 
-
-
-
-
 # this is the download link for files in the temp directory
 @bp.route('/download/<path:filename>')
 @login_required
@@ -584,3 +583,114 @@ def download_bulk_user_template(filename='bulk_user_template.csv'):
 
         return send_from_directory(tempfile_path,
                                 filename, as_attachment=True)
+
+
+
+#####################
+# SAML-related routes
+#####################
+
+
+if config['saml_enabled']:
+
+
+    def load_user_by_email(email, username):
+        user = User.query.filter_by(email=email).first()
+        # create the user if none exists
+        if not user:
+            user = User(email=email,
+                        username=username,
+                        active=1,
+                        group=config['default_group'],
+                        theme='dark' if config['dark_mode'] else 'light', 
+                        created_date=datetime.datetime.today().strftime("%Y-%m-%d %H:%M:%S"),
+            )
+            db.session.add(user)
+            db.session.commit()
+        return user
+
+
+    def prepare_saml_request(request):
+
+        parsed_url = urlparse(config['domain'])
+        host = parsed_url.netloc + parsed_url.path
+
+        return {
+            'https': 'on' if config['domain'].startswith('https://') else 'off',
+            'http_host': host,
+            'server_port': None,
+            'script_name': request.path,
+            'get_data': request.args.copy(),
+            'post_data': request.form.copy(),
+            'query_string': request.query_string
+        }
+
+    # this route is used to initiate SSO login FROM THE SP / CURRENT APPLICATION
+    @bp.route('/sso', methods=['GET', 'POST'])
+    def sso():
+        req_data = prepare_saml_request(request)
+        saml_auth = OneLogin_Saml2_Auth(req_data, current_app.config['SAML_AUTH'])
+        return redirect(saml_auth.login())
+
+
+    @bp.route('/acs', methods=['GET', 'POST'])
+    def acs():
+        req_data = prepare_saml_request(request)
+        saml_auth = OneLogin_Saml2_Auth(req_data, current_app.config['SAML_AUTH'])
+        saml_auth.process_response()
+
+        errors = saml_auth.get_errors()
+        if len(errors) == 0:
+            if not saml_auth.is_authenticated():
+                flash('SAML authentication failed.', 'warning')
+                return redirect(url_for('auth.login'))
+
+            attributes = saml_auth.get_attributes()
+            email = attributes.get('email', [None])[0]
+            username = attributes.get('username', [None])[0]
+
+            if email:
+                user = load_user_by_email(email, username)
+                login_user(user)
+                return redirect(url_for('home'))
+            else:
+                flash("SAML response doesn't contain an email attribute.", 'warning')
+                return redirect(url_for('auth.login'))
+        else:
+            saml_response = saml_auth.get_last_response_xml()
+            flash(f'SAML authentication error: {saml_auth.get_last_error_reason()}. SAML response: {saml_response}', 'warning')
+            return redirect(url_for('auth.login'))
+
+
+    @bp.route('/metadata', methods=['GET'])
+    def metadata():
+        req_data = prepare_saml_request(request)
+        saml_auth = OneLogin_Saml2_Auth(req_data, current_app.config['SAML_AUTH'])
+        metadata = saml_auth.get_settings().get_sp_metadata()
+        errors = saml_auth.get_errors()
+        if not errors:
+            response = make_response(metadata, 200)
+            response.headers['Content-Type'] = 'text/xml'
+            return response
+        else:
+            return 'An error occurred while generating the metadata'
+
+
+    @bp.route('/sls', methods=['GET', 'POST'])
+    def sls():
+        req_data = prepare_saml_request(request)
+        saml_auth = OneLogin_Saml2_Auth(req_data, current_app.config['SAML_AUTH'])
+        saml_auth.process_slo()
+
+        errors = saml_auth.get_errors()
+        if len(errors) == 0:
+            if saml_auth.is_authenticated():
+                # If the user is still authenticated, log them out locally.
+                session.clear()
+
+            # Redirect the user to the login page after successful logout
+            return redirect(url_for('home'))
+        else:
+            saml_response = saml_auth.get_last_response_xml()
+            flash(f'SAML authentication error: {saml_auth.get_last_error_reason()}. SAML response: {saml_response}', 'warning')
+            return redirect(url_for('auth.login'))

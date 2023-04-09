@@ -30,6 +30,9 @@
 <div style="padding-top: 10px;">
 	<hr/>
   <a href="{{ url_for('auth.forgot_password') }}"><button type="button" class="btn btn-outline-success btn-sm">Forgot Password</button></a>
+  {% if config['saml_enabled'] %}
+  <a style="padding-left: 10px;" href="{{ url_for('auth.sso') }}"><button type="button" class="btn btn-outline-success btn-sm">Login with SSO</button></a>
+  {% endif %} 
 </div>
 
 
