@@ -135,6 +135,7 @@ config_overrides.py
 form_config.py
 libreforms.env
 app/static/*.mp3
+app/static/docs/*
 
 # celery boilerplate
 celerybeat-schedule
