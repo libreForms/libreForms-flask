@@ -22,8 +22,7 @@ from flask import current_app, Blueprint, flash, g, redirect, render_template, r
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 from flask_login import LoginManager, login_required, login_user, logout_user, current_user
-from onelogin.saml2.auth import OneLogin_Saml2_Auth
-from onelogin.saml2.utils import OneLogin_Saml2_Utils
+
 
 from app import config, log, mailer
 import app.signing as signing
@@ -593,6 +592,9 @@ def download_bulk_user_template(filename='bulk_user_template.csv'):
 
 if config['saml_enabled']:
 
+    # import saml dependencies 
+    from onelogin.saml2.auth import OneLogin_Saml2_Auth
+    from onelogin.saml2.utils import OneLogin_Saml2_Utils
 
     def load_user_by_email(email, username=None, group=None):
         user = User.query.filter_by(email=email).first()
