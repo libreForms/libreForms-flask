@@ -273,10 +273,13 @@ config['enable_form_processing'] = True
 # them by default. In addition, if `require_login_for_docs` is set to True, then only logged in users
 # will be able to see the documentation. The `docs_body` field stores the information that will be
 # presented to end users on the docs page. For further discussion of this feature, see 
-# https://github.com/libreForms/libreForms-flask/issues/197.
+# https://github.com/libreForms/libreForms-flask/issues/197. Note that the `allow_pdf_download` config 
+# requires you to install pdf-specific requirements by running `pip install -r requirements/pdf.txt`. 
+# See https://github.com/libreForms/libreForms-flask/issues/368 further discussion.
 config['enable_docs'] = False
 config['docs_body'] = Markup("<h4>Sample Documentation</h4><br/><hr/><p>If you are seeing this, that means that your system administrators have enabled documentation views for the web application, but have not written their own docs. It's highly recommended that they do so!</p>")
 config['require_login_for_docs'] = True
+config['allow_pdf_download'] = False
 
 # this config determines whether to show the five most recent forms visible to the 
 # current user, see https://github.com/libreForms/libreForms-flask/issues/199.
