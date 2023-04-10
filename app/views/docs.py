@@ -46,7 +46,7 @@ def docs_home():
 @conditional_decorator(login_required, config['require_login_for_docs'])
 def docs_download():
 
-    if not config['allow_pdf_download']:
+    if not config['allow_docs_pdf_download']:
         return abort(404)
 
     # here we employ a context-bound temp directory to stage this file for download, see
@@ -63,7 +63,7 @@ def docs_download():
         if pisa_status.err:
             flash("An error occurred while generating the PDF.", "warning")
             return redirect(url_for("docs.docs_home"))
-        else:
-            flash("PDF successfully generated.", "success")
-            return send_from_directory(tempfile_path,
-                                    filename, as_attachment=True)
+
+        # flash("PDF successfully generated.", "success")
+        return send_from_directory(tempfile_path,
+                                filename, as_attachment=True)
