@@ -372,7 +372,6 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
 
     # import any context-bound libraries
     from app.action_needed import standardard_total_notifications
-    from app.saml import generate_saml_config, verify_metadata
 
     # this might be a little hackish, but we define a callable in app 
     # config so we can easily figure out how many notifications a given
@@ -384,6 +383,10 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
     # here we generate a SAML config, if SAML auth has been enabled in 
     # the app config
     if config['saml_enabled']:
+
+        # import context-bound saml library
+        from app.saml import generate_saml_config, verify_metadata
+        
         app.config['SAML_AUTH'] = generate_saml_config(
             domain=config['domain'], 
             idp_entity_id=config['idp_entity_id'], 
