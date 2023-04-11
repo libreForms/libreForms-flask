@@ -29,9 +29,6 @@ import os, datetime, json
 from bson import json_util
 import pandas as pd
 
-###############
-# v1 API Routes
-###############
 
 bp = Blueprint('v1_api', __name__, url_prefix='/api/v1')
 

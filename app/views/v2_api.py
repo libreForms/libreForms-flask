@@ -22,6 +22,7 @@ from app import log, config
 from app.models import Signing, db
 from app.mongo import mongodb
 import app.signing as signing
+import libreforms
 
 # and finally, import other packages
 import os, datetime, json
