@@ -29,15 +29,24 @@ from app.views.external import conditional_decorator
 from app.views.forms import standard_view_kwargs
 
 def replace_img_links(html_snippet, use_actual_file_path=False):
-    lines = html_snippet.splitlines()
-    for i, line in enumerate(lines):
-        if '<img' in line:
-            src_index = line.index('src="') + 5
-            end_index = line.index('"', src_index)
-            img_filename = line[src_index:end_index]
-            new_src = 'app/static/docs/'+img_filename if use_actual_file_path else url_for("docs.docs_img", filename=img_filename)
-            lines[i] = line.replace(img_filename, new_src)
-    return '\n'.join(lines)
+
+    # lines = html_snippet.splitlines()
+    # for i, line in enumerate(lines):
+    #     if '<img' in line:
+    #         src_index = line.index('src="') + 5
+    #         end_index = line.index('"', src_index)
+    #         img_filename = line[src_index:end_index]
+    #         new_src = 'app/static/docs/'+img_filename if use_actual_file_path else url_for("docs.docs_img", filename=img_filename)
+    #         lines[i] = line.replace(img_filename, new_src)
+    # return '\n'.join(lines)
+    from bs4 import BeautifulSoup
+
+    soup = BeautifulSoup(html_snippet, 'html.parser')
+    img_tags = soup.find_all('img')
+    for img_tag in img_tags:
+        img_filename = img_tag['src']
+        img_tag['src'] = 'app/static/docs/'+img_filename if use_actual_file_path else url_for("docs.docs_img", filename=img_filename)
+    return str(soup)
 
 
 bp = Blueprint('docs', __name__, url_prefix='/docs')
