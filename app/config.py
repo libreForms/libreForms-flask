@@ -275,11 +275,15 @@ config['enable_form_processing'] = True
 # presented to end users on the docs page. For further discussion of this feature, see 
 # https://github.com/libreForms/libreForms-flask/issues/197. Note that the `allow_docs_pdf_download` config 
 # requires you to install pdf-specific requirements by running `pip install -r requirements/pdf.txt`. 
-# See https://github.com/libreForms/libreForms-flask/issues/368 further discussion.
+# See https://github.com/libreForms/libreForms-flask/issues/368 further discussion. We added the app config
+# for `add_assets_to_user_docs`, which will essentially post-process image links in user docs and point them to 
+# the static/docs/ directory.
+
 config['enable_docs'] = False
 config['docs_body'] = Markup("<h4>Sample Documentation</h4><br/><hr/><p>If you are seeing this, that means that your system administrators have enabled documentation views for the web application, but have not written their own docs. It's highly recommended that they do so!</p>")
 config['require_login_for_docs'] = True
 config['allow_docs_pdf_download'] = False
+config['add_assets_to_user_docs'] = True
 
 # this config determines whether to show the five most recent forms visible to the 
 # current user, see https://github.com/libreForms/libreForms-flask/issues/199.

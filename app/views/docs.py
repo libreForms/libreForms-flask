@@ -28,19 +28,39 @@ from app import config, log, mongodb, db
 from app.views.external import conditional_decorator
 from app.views.forms import standard_view_kwargs
 
+def replace_img_links(html_snippet, use_actual_file_path=False):
+    lines = html_snippet.splitlines()
+    for i, line in enumerate(lines):
+        if '<img' in line:
+            src_index = line.index('src="') + 5
+            end_index = line.index('"', src_index)
+            img_filename = line[src_index:end_index]
+            new_src = 'app/static/docs/'+img_filename if use_actual_file_path else url_for("docs.docs_img", filename=img_filename)
+            lines[i] = line.replace(img_filename, new_src)
+    return '\n'.join(lines)
+
 
 bp = Blueprint('docs', __name__, url_prefix='/docs')
 
 @bp.route(f'/')
 @conditional_decorator(login_required, config['require_login_for_docs'])
 def docs_home():
+
+    
     return render_template('docs/documentation.html.jinja', 
             name='Documentation',
-            documentation = config['docs_body'],
+            documentation = replace_img_links(config['docs_body']) if config['add_assets_to_user_docs'] else config['docs_body'],
             subtitle="Home",
             type="docs",
             **standard_view_kwargs(),
         ) 
+
+@bp.route('/images/<filename>')
+@conditional_decorator(login_required, config['require_login_for_docs'])
+def docs_img(filename):
+    if config['add_assets_to_user_docs']:
+        return send_from_directory('static/docs', filename)
+    return abort(404)
 
 @bp.route(f'/download')
 @conditional_decorator(login_required, config['require_login_for_docs'])
@@ -54,11 +74,13 @@ def docs_download():
     from app.tmpfiles import temporary_directory
     with temporary_directory() as tempfile_path:
 
+        HTML = replace_img_links(config['docs_body'], use_actual_file_path=True) if config['add_assets_to_user_docs'] else config['docs_body']
+
         filename = "docs.pdf"
         fp = os.path.join(tempfile_path, filename)
         # Convert the HTML string to a PDF file
         with open(fp, "wb") as output_file:
-            pisa_status = pisa.CreatePDF(config['docs_body'], dest=output_file)
+            pisa_status = pisa.CreatePDF(HTML, dest=output_file)
 
         if pisa_status.err:
             flash("An error occurred while generating the PDF.", "warning")
@@ -67,3 +89,5 @@ def docs_download():
         # flash("PDF successfully generated.", "success")
         return send_from_directory(tempfile_path,
                                 filename, as_attachment=True)
+
+

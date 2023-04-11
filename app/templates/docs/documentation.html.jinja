@@ -1,17 +1,17 @@
 {% extends 'base.html.jinja' %}
 {% block content %}
 
-{% if config['allow_docs_pdf_download'] %}
+    {% if config['allow_docs_pdf_download'] %}
 
-<div class="position-relative">
-    <div title="download as PDF" class="position-absolute top-0 end-0">
-        <a class="justify-content-end" href="{{url_for('docs.docs_download')}}"><button type="button" class="btn btn-outline-success btn-sm">Download as PDF</button></a>
-    </div>
-</div>
+        <div class="position-relative">
+            <div title="download as PDF" class="position-absolute top-0 end-0">
+                <a class="justify-content-end" href="{{url_for('docs.docs_download')}}"><button type="button" class="btn btn-outline-success btn-sm">Download as PDF</button></a>
+            </div>
+        </div>
 
-{% endif %}
+    {% endif %}
 
-{{documentation}}
+    {{documentation}}
 
 
 {% endblock %}
