@@ -277,8 +277,7 @@ config['enable_form_processing'] = True
 # requires you to install pdf-specific requirements by running `pip install -r requirements/pdf.txt`. 
 # See https://github.com/libreForms/libreForms-flask/issues/368 further discussion. We added the app config
 # for `add_assets_to_user_docs`, which will essentially post-process image links in user docs and point them to 
-# the static/docs/ directory.
-
+# the static/docs/ directory, see https://github.com/libreForms/libreForms-flask/issues/369.
 config['enable_docs'] = False
 config['docs_body'] = Markup("<h4>Sample Documentation</h4><br/><hr/><p>If you are seeing this, that means that your system administrators have enabled documentation views for the web application, but have not written their own docs. It's highly recommended that they do so!</p>")
 config['require_login_for_docs'] = True

@@ -116,7 +116,7 @@ def api_v2_get(form_name):
     df['_id'] = df['_id'].astype(str)
 
     # here we drop the metadata fields
-    df.drop(columns=[x for x in mongodb.metadata_field_names.values() if x in df.columns], inplace=True)
+    df.drop(columns=[x for x in mongodb.metadata_field_names.values() if x in df.columns and x not in [mongodb.metadata_field_names['reporter'], mongodb.metadata_field_names['owner'], mongodb.metadata_field_names['timestamp']]], inplace=True)
     
     # convert the data back to a dictionary
     data = df.to_dict()
