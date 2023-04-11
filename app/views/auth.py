@@ -306,7 +306,7 @@ def verify_email(signature):
     
     return redirect(url_for('auth.login'))
 
-if config['enable_rest_api']:
+if config['enable_v1_rest_api'] or config['enable_v2_rest_api']:
 
     @bp.route('/register/api', methods=('GET', 'POST'))
     @login_required 

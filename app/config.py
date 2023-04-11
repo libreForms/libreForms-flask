@@ -176,9 +176,13 @@ config['hcaptcha_secret_key'] = False
 
 # these configurations determine whether RESTful API access is enabled
 # for the application, see https://github.com/signebedi/libreForms/issues/75
-# and https://github.com/signebedi/libreForms/issues/72. You can also set an
-# integer to determine how many RESTful API keys each user can create.
-config['enable_rest_api'] = False
+# and https://github.com/signebedi/libreForms/issues/72. After adding the v2
+# API, we created two configs to enable v1 and v2 separately, see discussion
+# of tradeoffs at https://github.com/libreForms/libreForms-flask/issues/371.
+# You can also set `limit_rest_api_keys_per_user` as an integer to determine 
+# how many RESTful API keys each user can create.
+config['enable_v1_rest_api'] = False
+config['enable_v2_rest_api'] = False
 config['limit_rest_api_keys_per_user'] = False
 
 # this config determines whether users will see their logs aggregated in

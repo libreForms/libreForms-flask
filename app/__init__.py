@@ -521,10 +521,17 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
     from .views import tables
     app.register_blueprint(tables.bp)
 
-    # import the `api` blueprint for RESTful API support
-    if config['enable_rest_api']:
-        from .views import api
-        app.register_blueprint(api.bp)
+    # import the v1 `api` blueprint for RESTful API support
+    if config['enable_v1_rest_api']:
+        from .views import v1_api
+        app.register_blueprint(v1_api.bp)
+
+    # import the v2 `api` blueprint for RESTful API support
+    if config['enable_v2_rest_api']:
+        from .views import v2_api
+        app.register_blueprint(v2_api.bp)
+
+
 
     # if administrators have enabled anonymous / external form submission, then we
     # import the `external` blueprint to create the external access endpoint
