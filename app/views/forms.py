@@ -653,7 +653,7 @@ def forms(form_name):
                 if config['enable_form_processing']:
                     current_app.config['FORM_PROCESSING'].onCreation(document_id=document_id, form_name=form_name)
 
-                return redirect(url_for('submissions.render_document', form_name=form_name, document_id=document_id))
+                return redirect(url_for('submissions.render_document', form_name=form_name, document_id=document_id, ignore_menu=True))
 
 
             return render_template('app/forms.html.jinja', 

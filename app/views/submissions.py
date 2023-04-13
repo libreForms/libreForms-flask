@@ -575,7 +575,7 @@ def render_user_submissions(user):
 
 @bp.route('/<form_name>/<document_id>')
 @login_required
-def render_document(form_name, document_id):
+def render_document(form_name, document_id, ignore_menu=False):
     if not checkGroup(group=current_user.group, struct=propagate_form_configs(form_name)):
             flash(f'You do not have access to this view. ', "warning")
             return redirect(url_for('submissions.submissions_home'))
@@ -680,13 +680,17 @@ def render_document(form_name, document_id):
 
             msg = msg + Markup ("</tr></table>")
             
+            # if set to True, this will suppress the left-bar nav, see
+            # https://github.com/libreForms/libreForms-flask/issues/375
+            ignore_menu = request.args.get('ignore_menu', False)
+
             return render_template('submissions/submissions.html.jinja',
                 type="submissions",
                 name='Submissions',
                 subtitle=form_name,
                 submission=record,
                 msg=msg,
-                menu=form_menu(checkFormGroup),
+                menu=None if ignore_menu else form_menu(checkFormGroup),
                 badge_list=generate_username_badge_list(form_name),
                 **standard_view_kwargs(),
             )
@@ -970,7 +974,7 @@ def render_document_edit(form_name, document_id):
 
 
                     # and then we redirect to the forms view page
-                    return redirect(url_for('submissions.render_document', form_name=form_name, document_id=document_id))
+                    return redirect(url_for('submissions.render_document', form_name=form_name, document_id=document_id, ignore_menu=True))
 
                 
 
