@@ -16,9 +16,9 @@ __email__ = "signe@atreeus.com"
 from onelogin.saml2.settings import OneLogin_Saml2_Settings
 from app.config import config 
 
-def generate_saml_config(domain, idp_entity_id, idp_sso_url, idp_slo_url, idp_x509_cert,
-                         strict=True, debug=False, name_id_format="urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified",
-                         sp_x509_cert="", sp_private_key=""):
+def generate_saml_config(domain, saml_idp_entity_id, saml_idp_sso_url, saml_idp_slo_url, saml_idp_x509_cert,
+                         strict=True, debug=False, saml_name_id_format="urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified",
+                         saml_sp_x509_cert="", saml_sp_private_key=""):
 
     saml_auth = {
         "strict": strict,
@@ -33,21 +33,21 @@ def generate_saml_config(domain, idp_entity_id, idp_sso_url, idp_slo_url, idp_x5
                 "url": f"{domain}/auth/sls",
                 "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
             },
-            "NameIDFormat": name_id_format,
-            "x509cert": sp_x509_cert,
-            "privateKey": sp_private_key
+            "NameIDFormat": saml_name_id_format,
+            "x509cert": saml_sp_x509_cert,
+            "privateKey": saml_sp_private_key
         },
         "idp": {
-            "entityId": idp_entity_id,
+            "entityId": saml_idp_entity_id,
             "singleSignOnService": {
-                "url": idp_sso_url,
+                "url": saml_idp_sso_url,
                 "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
             },
             "singleLogoutService": {
-                "url": idp_slo_url,
+                "url": saml_idp_slo_url,
                 "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
             },
-            "x509cert": idp_x509_cert
+            "x509cert": saml_idp_x509_cert
         }
     }
     return saml_auth
@@ -62,15 +62,15 @@ def generate_metadata_file(output_file:str="config/metadata.xml"):
 
     metadata, errors = verify_metadata(generate_saml_config(
         domain=config['domain'], 
-        idp_entity_id=config['idp_entity_id'], 
-        idp_sso_url=config['idp_sso_url'], 
-        idp_slo_url=config['idp_slo_url'], 
-        idp_x509_cert=config['idp_x509_cert'],
-        strict=config['strict'], 
-        debug=config['debug'], 
-        name_id_format=config['name_id_format'],
-        sp_x509_cert=config['sp_x509_cert'], 
-        sp_private_key=config['sp_private_key'],
+        saml_idp_entity_id=config['saml_idp_entity_id'], 
+        saml_idp_sso_url=config['saml_idp_sso_url'], 
+        saml_idp_slo_url=config['saml_idp_slo_url'], 
+        saml_idp_x509_cert=config['saml_idp_x509_cert'],
+        strict=config['saml_strict'], 
+        debug=config['saml_debug'], 
+        saml_name_id_format=config['saml_name_id_format'],
+        saml_sp_x509_cert=config['saml_sp_x509_cert'], 
+        saml_sp_private_key=config['saml_sp_private_key'],
     ))
     
     if len(errors) == 0:

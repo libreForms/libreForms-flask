@@ -29,8 +29,6 @@ import os, datetime, json
 from bson import json_util
 import pandas as pd
 from webargs import flaskparser
-from pymongo import MongoClient
-
 
 bp = Blueprint('v2_api', __name__, url_prefix='/api/v2')
 

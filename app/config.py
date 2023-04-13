@@ -322,15 +322,15 @@ config['default_user_username'] = 'libreforms'
 # these configs allow admins to configure SAML authentication, see 
 # https://github.com/libreForms/libreForms-flask/issues/7
 config['saml_enabled'] = False
-config['idp_entity_id'] = None
-config['idp_sso_url'] = None
-config['idp_slo_url'] = None
-config['idp_x509_cert'] = None
-config['strict'] = True
-config['debug'] = False
-config['name_id_format'] = "urn:oasis:names:tc:SAML:2.0:nameid-format:unspecified"
-config['sp_x509_cert'] = ""
-config['sp_private_key'] = ""
+config['saml_idp_entity_id'] = None
+config['saml_idp_sso_url'] = None
+config['saml_idp_slo_url'] = None
+config['saml_idp_x509_cert'] = None
+config['saml_strict'] = True
+config['saml_debug'] = False
+config['saml_name_id_format'] = "urn:oasis:names:tc:SAML:2.0:nameid-format:unspecified"
+config['saml_sp_x509_cert'] = ""
+config['saml_sp_private_key'] = ""
 
 
 # these configs set the system-wide regular expressions that will be used to validate

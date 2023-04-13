@@ -389,15 +389,15 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
         
         app.config['SAML_AUTH'] = generate_saml_config(
             domain=config['domain'], 
-            idp_entity_id=config['idp_entity_id'], 
-            idp_sso_url=config['idp_sso_url'], 
-            idp_slo_url=config['idp_slo_url'], 
-            idp_x509_cert=config['idp_x509_cert'],
-            strict=config['strict'], 
-            debug=config['debug'], 
-            name_id_format=config['name_id_format'],
-            sp_x509_cert=config['sp_x509_cert'], 
-            sp_private_key=config['sp_private_key'],
+            saml_idp_entity_id=config['saml_idp_entity_id'], 
+            saml_idp_sso_url=config['saml_idp_sso_url'], 
+            saml_idp_slo_url=config['saml_idp_slo_url'], 
+            saml_idp_x509_cert=config['saml_idp_x509_cert'],
+            strict=config['saml_strict'], 
+            debug=config['saml_debug'], 
+            saml_name_id_format=config['saml_name_id_format'],
+            saml_sp_x509_cert=config['saml_sp_x509_cert'], 
+            saml_sp_private_key=config['saml_sp_private_key'],
         )
 
         # here we pull for any errors to help with logging
@@ -530,8 +530,6 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
     if config['enable_v2_rest_api']:
         from .views import v2_api
         app.register_blueprint(v2_api.bp)
-
-
 
     # if administrators have enabled anonymous / external form submission, then we
     # import the `external` blueprint to create the external access endpoint
