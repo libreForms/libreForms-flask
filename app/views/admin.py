@@ -401,6 +401,64 @@ def smtp_configuration():
         **standard_view_kwargs(),
         )
 
+
+@bp.route('/saml', methods=('GET', 'POST'))
+@is_admin
+def saml_configuration():
+    pass
+#     try:
+#         smtp_enabled = request.form['smtp_enabled'].strip()
+#         # here we assert that, if SMTP is turned off, that none of its dependent configurations have been set
+#         if smtp_enabled == 'no' and (config['enable_email_verification'] or config['enable_reports'] or config['allow_password_resets'] or config['allow_anonymous_form_submissions']):
+#             flash("You cannot disable SMTP if email verification, password resets, sending reports, or anonymous form submissions is enabled. ", "warning")
+#             raise Exception()
+#         smtp_enabled = True if smtp_enabled=='yes' else False
+
+#         smtp_mail_server = request.form['smtp_mail_server'].strip()
+#         smtp_port = request.form['smtp_port'].strip()
+#         smtp_username = request.form['smtp_username'].strip()
+#         smtp_password = request.form['smtp_password'].strip()
+#         smtp_from_address = request.form['smtp_from_address'].strip()
+#         send_mail_asynchronously = request.form['send_mail_asynchronously'].strip()
+#         send_mail_asynchronously = True if send_mail_asynchronously=='yes' else False
+
+#         # write all of these to the overrides file
+#         dotenv_overrides(   smtp_enabled=smtp_enabled,
+#                             smtp_mail_server=smtp_mail_server,
+#                             smtp_port=smtp_port,
+#                             smtp_username=smtp_username,
+#                             smtp_password=smtp_password,
+#                             smtp_from_address=smtp_from_address,
+#                             send_mail_asynchronously=send_mail_asynchronously,)
+
+
+
+# config['saml_enabled'] = False
+# config['saml_idp_entity_id'] = None
+# config['saml_idp_sso_url'] = None
+# config['saml_idp_slo_url'] = None
+# config['saml_idp_x509_cert'] = None
+# config['saml_strict'] = True
+# config['saml_debug'] = False
+# config['saml_name_id_format'] = "urn:oasis:names:tc:SAML:2.0:nameid-format:unspecified"
+# config['saml_sp_x509_cert'] = ""
+# config['saml_sp_private_key'] = ""
+
+#     except:
+#         pass
+
+#     return render_template('admin/smtp_configuration.html.jinja',
+#         name='Admin',
+#         subtitle='SMTP',
+#         type="admin",
+#         menu=compile_admin_views_for_menu(),
+#         **standard_view_kwargs(),
+#         )
+
+
+
+
+
 @bp.route('/register/bulk', methods=('GET', 'POST'))
 @is_admin
 def bulk_register():
