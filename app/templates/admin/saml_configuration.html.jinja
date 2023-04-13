@@ -1,0 +1,71 @@
+{% extends 'base.html.jinja' %}
+{% block content %}
+
+<form action="" method="post">
+<div title="saml enabled" class="form-group">
+    <label class="form-label mt-4 required" for="saml_enabled" data-bs-toggle="tooltip" data-bs-placement="right" title="Select whether you'd like to enable SAML">Enable SAML</label>
+    <select name="saml_enabled" onChange="this.form.submit()" class="form-select" required>
+        <option value="yes" id="yes" name="yes" {%if config['saml_enabled'] %} selected="selected" {%endif%}>Yes</option>
+        <option value="no" id="no" name="no" {%if not config['saml_enabled'] %} selected="selected" {%endif%}>No</option>
+    </select>
+</div>
+
+<!-- Add the remaining SAML configuration input fields here -->
+
+<div title="saml idp entity id" class="form-group">
+    <label class="form-label mt-4 required" for="saml_idp_entity_id" data-bs-toggle="tooltip" data-bs-placement="right" title="Please identify the Identity Provider Entity ID">IDP Entity ID</label>
+    <input value="{{config['saml_idp_entity_id'] if config['saml_idp_entity_id'] else ''}}"  type="text" name="saml_idp_entity_id" onChange="this.form.submit()" class="form-control"/>
+</div>
+
+<div title="saml idp sso url" class="form-group">
+    <label class="form-label mt-4 required" for="saml_idp_sso_url" data-bs-toggle="tooltip" data-bs-placement="right" title="Please provide the Identity Provider Single Sign-On URL">IDP SSO URL</label>
+    <input value="{{config['saml_idp_sso_url'] if config['saml_idp_sso_url'] else ''}}" type="text" name="saml_idp_sso_url" onChange="this.form.submit()" class="form-control"/>
+</div>
+
+<div title="saml idp slo url" class="form-group">
+    <label class="form-label mt-4 required" for="saml_idp_slo_url" data-bs-toggle="tooltip" data-bs-placement="right" title="Please provide the Identity Provider Single Log-Out URL">IDP SLO URL</label>
+    <input value="{{config['saml_idp_slo_url'] if config['saml_idp_slo_url'] else ''}}" type="text" name="saml_idp_slo_url" onChange="this.form.submit()" class="form-control"/>
+</div>
+
+<div title="saml idp x509 cert" class="form-group">
+    <label class="form-label mt-4 required" for="saml_idp_x509_cert" data-bs-toggle="tooltip" data-bs-placement="right" title="Please provide the Identity Provider X.509 Certificate">IDP X.509 Certificate</label>
+    <textarea name="saml_idp_x509_cert" onChange="this.form.submit()" class="form-control" rows="5">{{config['saml_idp_x509_cert'] if config['saml_idp_x509_cert'] else ''}}</textarea>
+</div>
+
+<div title="saml strict" class="form-group">
+    <label class="form-label mt-4 required" for="saml_strict" data-bs-toggle="tooltip" data-bs-placement="right" title="Select whether you'd like to enable strict mode for SAML">Enable Strict Mode</label>
+    <select name="saml_strict" onChange="this.form.submit()" class="form-select" required>
+        <option value="yes" id="yes" name="yes" {%if config['saml_strict'] %} selected="selected" {%endif%}>Yes</option>
+        <option value="no" id="no" name="no" {%if not config['saml_strict'] %} selected="selected" {%endif%}>No</option>
+    </select>
+</div>
+
+<div title="saml debug" class="form-group">
+    <label class="form-label mt-4 required" for="saml_debug" data-bs-toggle="tooltip" data-bs-placement="right" title="Select whether you'd like to enable debug mode for SAML">Enable Debug Mode</label>
+    <select name="saml_debug" onChange="this.form.submit()" class="form-select" required>
+        <option value="yes" id="yes" name="yes" {%if config['saml_debug'] %} selected="selected" {%endif%}>Yes</option>
+        <option value="no" id="no" name="no" {%if not config['saml_debug'] %} selected="selected" {%endif%}>No</option>
+    </select>
+</div>
+
+<div title="saml name id format" class="form-group">
+    <label class="form-label mt-4 required" for="saml_name_id_format" data-bs-toggle="tooltip" data-bs-placement="right" title="Please provide the NameID format to be used in SAML">NameID Format</label>
+    <input value="{{config['saml_name_id_format'] if config['saml_name_id_format'] else ''}}" type="text" name="saml_name_id_format" onChange="this.form.submit()" class="form-control"/>
+</div>
+
+
+<div title="saml sp x509 cert" class="form-group">
+    <label class="form-label mt-4 required" for="saml_sp_x509_cert" data-bs-toggle="tooltip" data-bs-placement="right" title="Please provide the Service Provider X.509 Certificate">SP X.509 Certificate (Optional)</label>
+    <textarea name="saml_sp_x509_cert" onChange="this.form.submit()" class="form-control" rows="5">{{config['saml_sp_x509_cert'] if config['saml_sp_x509_cert'] else ''}}</textarea>
+</div>
+
+<div title="saml sp private key" class="form-group">
+    <label class="form-label mt-4 required" for="saml_sp_private_key" data-bs-toggle="tooltip" data-bs-placement="right" title="Please provide the Service Provider Private Key">SP Private Key (Optional)</label>
+    <textarea name="saml_sp_private_key" onChange="this.form.submit()" class="form-control" rows="5">{{config['saml_sp_private_key'] if config['saml_sp_private_key'] else ''}}</textarea>
+</div>
+
+
+
+</form>
+
+{% endblock %}

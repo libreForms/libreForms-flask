@@ -1316,7 +1316,6 @@ def generate_pdf(form_name, document_id):
                 soup = BeautifulSoup(html_content, 'html.parser')
                 content_table = str(soup.find(id='content-table'))
 
-
                 with open(fp, "wb") as output_file:
                     pisa_status = pisa.CreatePDF(content_table, dest=output_file)
 
