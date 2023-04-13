@@ -55,12 +55,12 @@
 
 
 <div title="saml sp x509 cert" class="form-group">
-    <label class="form-label mt-4 required" for="saml_sp_x509_cert" data-bs-toggle="tooltip" data-bs-placement="right" title="Please provide the Service Provider X.509 Certificate">SP X.509 Certificate (Optional)</label>
+    <label class="form-label mt-4" for="saml_sp_x509_cert" data-bs-toggle="tooltip" data-bs-placement="right" title="Please provide the Service Provider X.509 Certificate">SP X.509 Certificate</label>
     <textarea name="saml_sp_x509_cert" onChange="this.form.submit()" class="form-control" rows="5">{{config['saml_sp_x509_cert'] if config['saml_sp_x509_cert'] else ''}}</textarea>
 </div>
 
 <div title="saml sp private key" class="form-group">
-    <label class="form-label mt-4 required" for="saml_sp_private_key" data-bs-toggle="tooltip" data-bs-placement="right" title="Please provide the Service Provider Private Key">SP Private Key (Optional)</label>
+    <label class="form-label mt-4" for="saml_sp_private_key" data-bs-toggle="tooltip" data-bs-placement="right" title="Please provide the Service Provider Private Key">SP Private Key</label>
     <textarea name="saml_sp_private_key" onChange="this.form.submit()" class="form-control" rows="5">{{config['saml_sp_private_key'] if config['saml_sp_private_key'] else ''}}</textarea>
 </div>
 
