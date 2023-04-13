@@ -203,6 +203,7 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
 
     # add some app configurations
     app.config.from_mapping(
+        # SERVER_NAME=config['domain'],
         SECRET_KEY=config['secret_key'],
         # getting started on allowing other SQL databases than SQLite, but defaulting to that. 
         SQLALCHEMY_DATABASE_URI = f'{db_driver}://{db_host}:{db_pw}@{db_host}:{str(db_port)}/' if config['custom_sql_db'] == True else f'sqlite:///{os.path.join(app.instance_path, "app.sqlite")}',

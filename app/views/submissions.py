@@ -1294,12 +1294,11 @@ def generate_pdf(form_name, document_id):
                 fp = os.path.join(tempfile_path, filename)
                 # document_name= f'{datetime.datetime.utcnow().strftime("%Y-%m-%d")}_{current_user.username}_{form_name}.pdf'
 
-                make_pdf( form_name=form_name, 
-                              data_structure=dict(record.iloc[0]), 
-                              username=current_user.username,
-                              document_name=fp,
-                              skel=propagate_form_fields(form=form_name) )
-
+                # make_pdf( form_name=form_name, 
+                #               data_structure=dict(record.iloc[0]), 
+                #               username=current_user.username,
+                #               document_name=fp,
+                #               skel=propagate_form_fields(form=form_name) )
 
                 # v3_generate_pdf(    form_name=form_name, 
                 #                     form_data=dict(record.iloc[0]),
@@ -1307,6 +1306,23 @@ def generate_pdf(form_name, document_id):
                 #                     document_id=document_id,
                 #                     document_name=fp)
                     
+                # Convert the HTML string to a PDF file
+
+                from bs4 import BeautifulSoup
+                from xhtml2pdf import pisa
+
+
+                html_content = render_document(form_name=form_name, document_id=document_id)
+                soup = BeautifulSoup(html_content, 'html.parser')
+                content_table = str(soup.find(id='content-table'))
+
+
+                with open(fp, "wb") as output_file:
+                    pisa_status = pisa.CreatePDF(content_table, dest=output_file)
+
+                if pisa_status.err:
+                    flash("An error occurred while generating the PDF.", "warning")
+                    return redirect(url_for('submissions.render_document', form_name=form_name,document_id=document_id))
 
 
                 return send_from_directory(tempfile_path,
