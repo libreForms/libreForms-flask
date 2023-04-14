@@ -63,10 +63,11 @@
           <ul class="nav navbar-nav">
             {% if user %}
             <li class="nav-item dropdown{{' bg-light text-dark' if not dark_mode else ''}}">
-              <a class="nav-link dropdown-toggle{{' bg-light text-dark' if not dark_mode else ''}}" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Forms</a>
-              <div class="dropdown-menu{{' bg-light text-dark' if not dark_mode else ''}}">
+              <a class="nav-link dropdown-toggle{{' bg-light text-dark' if not dark_mode else ''}}" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Forms{%if notifications%} <span style="font-size: 0.75em;" class="badge bg-primary">{{notifications}}</sup> {%endif%}</a>
+              <div class="dropdown-menu{{' bg-light text-dark' if not dark_mode else ''}}" style="min-width: 200px">
                 <a class="dropdown-item{{' bg-light text-dark' if not dark_mode else ''}}" href="{{ url_for( 'forms.forms_home' ) }}">Submit Forms</a>
                 <a class="dropdown-item{{' bg-light text-dark' if not dark_mode else ''}}" href="{{ url_for( 'submissions.submissions_home' ) }}">View Submissions</a>
+                <a class="dropdown-item{{' bg-light text-dark' if not dark_mode else ''}}" href="{{ url_for( 'submissions.render_user_review', user=user.username ) }}">Document Review{%if notifications%} <span class="badge bg-primary float-end">{{notifications}}</span>{%endif%}</a>
               </div>
             </li>
             <li class="nav-item dropdown{{' bg-light text-dark' if not dark_mode else ''}}">
@@ -79,9 +80,9 @@
             </li>
 
             <li class="nav-item dropdown{{' bg-light text-dark' if not dark_mode else ''}}">
-              <a class="nav-link dropdown-toggle{{' bg-light text-dark' if not dark_mode else ''}}" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">User{%if notifications%} <span style="font-size: 0.75em;" class="badge bg-primary">{{notifications}}</sup> {%endif%}</a>
+              <a class="nav-link dropdown-toggle{{' bg-light text-dark' if not dark_mode else ''}}" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">User</a>
               <div class="dropdown-menu{{' bg-light text-dark' if not dark_mode else ''}}">
-                <a class="dropdown-item{{' bg-light text-dark' if not dark_mode else ''}}" href="{{ url_for( 'auth.profile' ) }}">Profile{%if notifications%} <span class="badge bg-primary float-end">{{notifications}}</span>{%endif%}</a>
+                <a class="dropdown-item{{' bg-light text-dark' if not dark_mode else ''}}" href="{{ url_for( 'auth.profile' ) }}">Profile</a>
                 <a class="dropdown-item{{' bg-light text-dark' if not dark_mode else ''}}" href="{{ url_for( 'auth.logout' ) }}">Logout</a>
               </div>
             </li>
