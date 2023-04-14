@@ -248,7 +248,11 @@ def modify_user(username=None, **kwargs):
         # we ignore attributes that have not been set here
         if not value:
             continue
-    
+
+        # here we hash the password field, if it has been passed
+        if attribute == 'password':
+            value = generate_password_hash(value, method='sha256'),
+
         setattr(user, attribute, value)
 
     db.session.commit()
