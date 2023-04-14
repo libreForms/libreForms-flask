@@ -251,7 +251,7 @@ def modify_user(username=None, **kwargs):
 
         # here we hash the password field, if it has been passed
         if attribute == 'password':
-            value = generate_password_hash(value, method='sha256'),
+            value = generate_password_hash(value, method='sha256')
 
         setattr(user, attribute, value)
 
