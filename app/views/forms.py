@@ -19,9 +19,11 @@ from fileinput import filename
 from flask import Blueprint, flash, render_template, request, send_from_directory, \
                         send_file, redirect, url_for, current_app, abort, Response
 from werkzeug.security import check_password_hash        
+from werkzeug.utils import secure_filename
 from webargs import fields, flaskparser
 from flask_login import current_user, login_required
 from sqlalchemy.sql import text
+from markupsafe import Markup
 
 # import custom packages from the current repository
 import libreforms
@@ -34,6 +36,7 @@ from app.scripts import convert_to_string
 # and finally, import other packages
 import os, json
 import pandas as pd
+import tempfile
 
 # The kwargs we are passing to view function rendered jinja is getting out-
 # of-hand. We can easily replace this with the following method as **kwargs, 
@@ -108,7 +111,7 @@ def rationalize_routing_list(form_name):
     # of custom logic defined in routing_list['target'] will return a list of emails, so we
     # pass those values here directly to the send_mail directive
     elif routing_list['type'] == 'custom':
-        return routing_list['target']
+        return routing_list['taTemporaryDirectoryrget']
 
     # default to returning an empty list to fail gracefully
     else:
@@ -677,7 +680,93 @@ def forms(form_name):
             flash(f'This form does not exist. {e}', "warning")
             return redirect(url_for('forms.forms_home'))
 
+# this is the upload route for submitting forms via CSV, see
+# https://github.com/libreForms/libreForms-flask/issues/184
+@bp.route(f'/<form_name>/upload', methods=['GET', 'POST'])
+@login_required
+def upload_forms(form_name):
+    # if request.method == 'POST':
 
+    if not checkGroup(group=current_user.group, struct=propagate_form_configs(form_name)):
+        flash(f'You do not have access to this form.', "warning")
+        return redirect(url_for('forms.forms_home'))
+
+    try:
+        options = propagate_form_configs(form_name)
+        forms = propagate_form_fields(form_name, group=current_user.group)
+        assert options['_allow_csv_uploads']
+
+    except Exception as e:
+        print(e)
+        return redirect(url_for('forms.forms', form_name=form_name))
+
+    if request.method == 'POST':
+
+
+        try:
+            
+            # collect the file name
+            file = request.files['file']
+
+            print(file.filename)
+            # assert we've passed a file name
+            assert file.filename != '', "Please select a CSV to upload"
+
+            with tempfile.TemporaryDirectory() as tmpdirname:
+
+                filepath = secure_filename(file.filename) # first remove any banned chars
+                filepath = os.path.join(tmpdirname, file.filename)
+
+                file.save(filepath)
+
+                assert file.filename.lower().endswith(".csv",), 'Please upload a CSV file.'
+
+                df = pd.read_csv(filepath)
+                print(df)
+
+                for x in forms.keys(): # a minimalist common sense check
+                    assert x in df.columns, f"{x} not in columns"
+                    
+
+        except Exception as e: 
+            log.warning(f"{current_user.username.upper()} - {str(e)}")
+            flash(str(e), 'warning')
+            return redirect(url_for('forms.upload_forms', form_name=form_name))
+
+
+        for index, row in df.iterrows():
+            print(row)
+        
+            try:
+                ### eventually add content validators for each cell here
+
+                # drop any stray columns
+                row.drop(labels=[x for x in row.index if x not in forms.keys()], inplace=True)
+
+                # construct a dictionary payload
+                data = row.to_dict()
+
+                # write to database
+                document_id = mongodb.write_document_to_collection(data, form_name, 
+                                reporter=current_user.username, 
+                                ip_address=request.remote_addr if options['_collect_client_ip'] else None,)
+
+                URL = f"{config['domain']}/submissions/{form_name}/{document_id}"
+                flash(Markup(f"Successfully created new form, which can be accessed at <a href=\"{URL}\">{URL}</a>"), 'info')
+
+            except Exception as e: 
+                log.warning(f"{current_user.username.upper()} - {str(e)}")
+                flash(str(e), 'warning')
+
+    return render_template('app/upload_form.html.jinja', 
+        name='Forms',
+        subtitle=form_name,
+        menu=form_menu(checkFormGroup),
+        type="forms",       
+        filename = f'{form_name.lower().replace(" ","")}.csv' if options['_allow_csv_templates'] else False,
+        user_list = collect_list_of_users() if config['allow_forms_access_to_user_list'] else [],
+        **standard_view_kwargs(),
+        )
 
 @bp.route(f'/lookup', methods=['GET', 'POST'])
 @login_required
