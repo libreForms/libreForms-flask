@@ -726,10 +726,23 @@ def upload_forms(form_name):
                 file.save(filepath)
 
                 if file.filename.lower().endswith('.xlsx'):
-                    df = pd.read_excel(filepath,engine='openpyxl')
+                    excel_file = pd.ExcelFile(filepath, engine='openpyxl')
+
+                    # ensure the excel document only has one sheet
+                    assert len(excel_file.sheet_names) == 1, "Your submitted Excel file has too many sheets. To avoid breaking assumptions, please only submit Excel files with a single sheet."
+
+                    # Read a specific sheet as a DataFrame
+                    df = excel_file.parse()
 
                 elif file.filename.lower().endswith('.xls'):
-                    df = pd.read_excel(filepath,engine='xlrd')
+                    excel_file = pd.ExcelFile(filepath, engine='xlrd')
+
+                    # ensure the excel document only has one sheet
+                    assert len(excel_file.sheet_names) == 1, "Your submitted Excel file has too many sheets. To avoid breaking assumptions, please only submit Excel files with a single sheet."
+
+                    # Read a specific sheet as a DataFrame
+                    df = excel_file.parse()
+
 
                 else:
                     print('csv')
