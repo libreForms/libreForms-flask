@@ -244,8 +244,8 @@
 
 {% block addons %}
 
-<div class="offcanvas offcanvas-bottom"  style="z-index:999998 !important;" tabindex="-1" id="templateHelp" aria-labelledby="templateHelpLabel">
-	<div class="offcanvas-header">
+<div class="offcanvas offcanvas-bottom {% if dark_mode %}bg-dark{% else %}bg-light{% endif %}" style="z-index:999998 !important;" tabindex="-1" id="templateHelp" aria-labelledby="templateHelpLabel">
+	<div class="offcanvas-header {% if dark_mode %}bg-dark{% else %}bg-light{% endif %}">
 		<h5 class="offcanvas-title" id="templateHelpLabel">Using CSV Templates</h5>
 		<button title="dismiss" type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
 	</div>
