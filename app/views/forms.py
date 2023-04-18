@@ -701,20 +701,40 @@ def upload_forms(form_name):
             # collect the file name
             file = request.files['file']
 
-            print(file.filename)
+            # get file size and assert
+            file_size = len(file.read())
+            assert config['max_form_upload_size'] >= file_size, f"File upload size is too large. Max file size is {config['max_form_upload_size']} bytes."
+
+            # Reset the file pointer to the beginning of the file
+            file.seek(0)
+
+            # print(file.filename)
             # assert we've passed a file name
-            assert file.filename != '', "Please select a CSV to upload"
+            assert file.filename != '', "Please select a file to upload"
 
             with tempfile.TemporaryDirectory() as tmpdirname:
 
                 filepath = secure_filename(file.filename) # first remove any banned chars
                 filepath = os.path.join(tmpdirname, file.filename)
 
+                if not config['allow_form_uploads_as_excel']:
+                    assert file.filename.lower().endswith(".csv",), 'Please upload a CSV file.'
+                else:
+                    assert file.filename.lower().endswith(('.csv', '.xlsx', '.xls')), 'Please upload a CSV or Excel file.'
+
+                # Save a local copy of the file
                 file.save(filepath)
 
-                assert file.filename.lower().endswith(".csv",), 'Please upload a CSV file.'
+                if file.filename.lower().endswith('.xlsx'):
+                    df = pd.read_excel(filepath,engine='openpyxl')
 
-                df = pd.read_csv(filepath)
+                elif file.filename.lower().endswith('.xls'):
+                    df = pd.read_excel(filepath,engine='xlrd')
+
+                else:
+                    print('csv')
+                    df = pd.read_csv(filepath)
+                    
                 print(df)
 
                 for x in forms.keys(): # a minimalist common sense check

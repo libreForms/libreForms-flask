@@ -228,6 +228,12 @@ config['allowed_extensions'] = ['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif']
 config['upload_folder'] = 'uploads/'
 config['max_upload_size'] = 16 * 1000 * 1000
 
+# these configs define the application behavior when dealing with ephemeral csv and 
+# excel uploads, see https://github.com/libreForms/libreForms-flask/issues/184
+# and https://github.com/libreForms/libreForms-flask/issues/378.
+config['allow_form_uploads_as_excel'] = False
+config['max_form_upload_size'] = 50 * 1000 
+
 # this config sets the relative path to the config folder, which will be used
 # to store instance-specific configurations, see additional discussion at
 # https://github.com/signebedi/libreForms/issues/173

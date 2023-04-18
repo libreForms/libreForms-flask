@@ -253,6 +253,10 @@
 		<div>
 			<p>By clicking this link, your browser should download a CSV file with columns names corresponding to the fields in this form.</p>
 			<p>You can populate multiple rows of this CSV, each row corresponding to a different, unique submission of this form.</p>
+			{% if config['allow_form_uploads_as_excel'] %}
+			<p>You can also upload files as an Excel (.xlsx or .xls) document.</p>
+			{% endif %}
+			<p>Note: the maximum file upload size defined by your organization is {{ config['max_form_upload_size'] }} bytes.</p>
 		</div>
 	</div>
 </div>
