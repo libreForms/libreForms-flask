@@ -187,17 +187,22 @@ def compile_depends_on_data(form=None, user_group=None):
 
     return None
 
-def collect_list_of_users(**kwargs): # we'll use the kwargs later to override default user fields
-    query = f'SELECT username,email FROM {User.__tablename__}'
-    # query = f'SELECT username FROM user'
-    with db.engine.connect() as conn:
-    # running the query
-        # user_list = []
-        # for x,y in conn.execute(query).fetchall():
-        #     user_list.append(x,y)
-        # return [x[0] for x in conn.execute(query).fetchall()]
-        return [f"{x[0]} ({x[1]})" for x in conn.execute(query).fetchall()]
+def collect_list_of_users(**kwargs):
+    # Define a default list of columns to be selected
+    default_columns = ["username", "email"]
+    # Override the columns with the provided kwargs, if any
+    selected_columns = kwargs.get("columns", default_columns)
 
+    # Create the SELECT query
+    columns = ", ".join(selected_columns)
+    query = f'SELECT {columns} FROM {User.__tablename__}'
+
+    # Execute the query and format the results
+    with db.engine.connect() as conn:
+        results = conn.execute(query).fetchall()
+        formatted_results = [f"{row[0]} ({row[1]})" for row in results]
+
+    return formatted_results
 
 def generate_list_of_users(db=db):
     col = User.query.with_entities(User.username, User.email).distinct()
