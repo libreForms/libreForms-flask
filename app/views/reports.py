@@ -294,13 +294,13 @@ def activate_report(report_id):
     report = reports[0]
     
     if report.active == True:
-        flash (f'Report is already active. ')
+        flash (f'Report is already active. ', 'info')
         return redirect(url_for('reports.view_report', report_id=str(report_id)))
 
     report.active = 1 
     db.session.commit()
 
-    flash (f'Report successfully activated. ')
+    flash (f'Report successfully activated. ', 'info')
     return redirect(url_for('reports.view_report', report_id=str(report_id)))
 
 
@@ -320,13 +320,13 @@ def deactivate_report(report_id):
     report = reports[0]
     
     if report.active == False:
-        flash (f'Report is already inactive. ')
+        flash (f'Report is already inactive. ', 'info')
         return redirect(url_for('reports.view_report', report_id=str(report_id)))
 
     report.active = 0 
     db.session.commit()
 
-    flash (f'Report successfully deactivated. ')
+    flash (f'Report successfully deactivated. ', 'info')
     return redirect(url_for('reports.view_report', report_id=str(report_id)))
 
 @bp.route(f'/<report_id>/send', methods=['GET', 'POST'])
@@ -348,9 +348,9 @@ def send_report(report_id):
     send_now = send_individual_report(report, current_user)
 
     if send_now:
-        flash (f'Report successfully sent. ')
+        flash (f'Report successfully sent. ', 'info')
     else:
-        flash (f'Could not send report. ')
+        flash (f'Could not send report. ', 'warning')
     
     return redirect(url_for('reports.view_report', report_id=str(report_id)))
 

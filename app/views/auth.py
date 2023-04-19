@@ -301,7 +301,7 @@ def verify_email(signature):
         except Exception as e: 
             transaction_id = str(uuid.uuid1())
             log.warning(f"LIBREFORMS - {e}", extra={'transaction_id': transaction_id})
-            flash (f"There was an error in processing your request. Transaction ID: {transaction_id}. ")
+            flash (f"There was an error in processing your request. Transaction ID: {transaction_id}. ", 'warning')
         
     
     return redirect(url_for('auth.login'))
