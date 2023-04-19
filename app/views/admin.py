@@ -110,7 +110,7 @@ def compile_admin_views_for_menu():
     views = []
 
     # here we build a list of admin views, excluding some
-    for view in [key for key in current_app.view_functions if key.startswith('admin') and not key in ['admin.restart_now']]:
+    for view in [key for key in current_app.view_functions if key.startswith('admin') and not key in ['admin.restart_now', 'admin.toggle_user_active_status']]:
         v = view.replace('admin_','')
         v = v.replace('admin.','')
         v = v.replace('_',' ')
@@ -634,4 +634,31 @@ def restart_now():
     log.info(f'{current_user.username.upper()} - successfully queued application restart.')
     restart_app_async.delay() # will not run if celery is not running..
     return redirect(url_for('admin.restart_application'))
+
+
+
+
+
+@bp.route(f'/toggle/<username>', methods=['GET', 'POST'])
+@is_admin
+def toggle_user_active_status(username):
+
+    user = User.query.filter_by(username=username.lower()).first()
+
+    if not user:
+        flash (f'User {username} does not exist.', 'warning')
+        return redirect(url_for('admin.user_management'))
+
+    if user.active == 0:
+        user.active = 1 
+        db.session.commit()
+        flash (f'Activated user {username}. ', 'info')
+        return redirect(url_for('admin.user_management'))
+
+    else:
+        user.active = 0
+        db.session.commit()
+        flash (f'Deactivated user {username}. ', 'info')
+        return redirect(url_for('admin.user_management'))
+
 
