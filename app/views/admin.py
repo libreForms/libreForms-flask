@@ -109,7 +109,11 @@ def compile_admin_views_for_menu():
     views = []
 
     # here we build a list of admin views, excluding some
-    for view in [key for key in current_app.view_functions if key.startswith('admin') and not key in ['admin.restart_now', 'admin.toggle_user_active_status', 'admin.generate_random_password']]:
+    for view in [key for key in current_app.view_functions if key.startswith('admin') and not key in [  'admin.restart_now', 
+                                                                                                        'admin.toggle_user_active_status', 
+                                                                                                        'admin.generate_random_password',
+                                                                                                        'admin.toggle_signature_active_status',
+                                                                                                        ]]:
         v = view.replace('admin_','')
         v = v.replace('admin.','')
         v = v.replace('_',' ')
@@ -662,7 +666,30 @@ def restart_now():
     return redirect(url_for('admin.restart_application'))
 
 
+@bp.route(f'/toggle/s/<signature>', methods=['GET', 'POST'])
+@is_admin
+def toggle_signature_active_status(signature):
 
+    s = Signing.query.filter_by(signature=signature).first()
+
+    if not s:
+        flash (f'Signature {signature} does not exist.', 'warning')
+        return redirect(url_for('admin.signature_management'))
+
+
+    if s.active == 0:
+        s.active = 1 
+        db.session.commit()
+        flash (f'Activated signature {signature}. ', 'info')
+        log.info(f'{current_user.username.upper()} - activated {signature} signature.')
+
+    else:
+        s.active = 0
+        db.session.commit()
+        flash (f'Deactivated signature {signature}. ', 'info')
+        log.info(f'{current_user.username.upper()} - deactivated {signature} signature.')
+
+    return redirect(url_for('admin.signature_management'))
 
 
 @bp.route(f'/toggle/<username>', methods=['GET', 'POST'])
@@ -683,13 +710,15 @@ def toggle_user_active_status(username):
         user.active = 1 
         db.session.commit()
         flash (f'Activated user {username}. ', 'info')
-        return redirect(url_for('admin.user_management'))
+        log.info(f'{current_user.username.upper()} - activated {user.username} user.')
 
     else:
         user.active = 0
         db.session.commit()
         flash (f'Deactivated user {username}. ', 'info')
-        return redirect(url_for('admin.user_management'))
+        log.info(f'{current_user.username.upper()} - deactivated {user.username} user.')
+
+    return redirect(url_for('admin.user_management'))
 
 
 
@@ -713,6 +742,7 @@ def generate_random_password(username):
     db.session.commit()
 
     flash(f'Successfully modified \'{user.username}\' user password to: {new_password}', "success")
+    log.info(f'{current_user.username.upper()} - updated {user.username} user\'s password.')
     return redirect(url_for('admin.user_management'))
 
     # Placeholder for email notifications
