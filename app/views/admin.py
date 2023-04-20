@@ -182,9 +182,11 @@ def compile_form_data(form_names=[]):
     return df
 
 
-# this is a password generation script that takes a password 
-# length and regex, returning a password string
-def generate_password(regex, length):
+# this is a password generation script that takes a password length
+# and regex, returning a password string. It also takes a alphanumeric_percentage
+# parameter, between 0 and 1, which scopes the percentage of alphanumeric
+# chars that will be used in the password generated
+def percentage_alphanumeric_generate_password(regex:str, length:int, alphanumeric_percentage:float):
     def random_char_from_class(class_name):
         if class_name == '\\d':
             return random.choice(string.digits)
@@ -195,42 +197,8 @@ def generate_password(regex, length):
         else:
             return random.choice(string.printable)
 
-    pattern = re.compile(regex)
-    while True:
-        password = ''.join(random_char_from_class(c) if c in ('\\d', '\\w', '\\s') else c for c in random.choices(regex, k=length))
-        if pattern.fullmatch(password):
-            return password
-
-
-def weight_alphanumeric_generate_password(regex, length):
-    def random_char_from_class(class_name):
-        if class_name == '\\d':
-            return random.choice(string.digits)
-        elif class_name == '\\w':
-            return random.choice(string.ascii_letters + string.digits)
-        elif class_name == '\\s':
-            return random.choice(string.whitespace)
-        else:
-            return random.choice(string.printable)
-
-    pattern = re.compile(regex)
-    weights = [10 if c in ('\\d', '\\w') else 1 for c in regex]
-
-    while True:
-        password = ''.join(random_char_from_class(c) if c in ('\\d', '\\w', '\\s') else c for c in random.choices(regex, weights=weights, k=length))
-        if pattern.fullmatch(password):
-            return password
-
-def percentage_alphanumeric_generate_password(regex, length, alphanumeric_percentage):
-    def random_char_from_class(class_name):
-        if class_name == '\\d':
-            return random.choice(string.digits)
-        elif class_name == '\\w':
-            return random.choice(string.ascii_letters + string.digits)
-        elif class_name == '\\s':
-            return random.choice(string.whitespace)
-        else:
-            return random.choice(string.printable)
+    # here we validate that `alphanumeric_percentage` is a float between 0 and 1
+    assert 0 <= alphanumeric_percentage <= 1
 
     pattern = re.compile(regex)
 
