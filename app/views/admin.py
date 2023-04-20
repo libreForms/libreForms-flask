@@ -109,7 +109,7 @@ def compile_admin_views_for_menu():
     views = []
 
     # here we build a list of admin views, excluding some
-    for view in [key for key in current_app.view_functions if key.startswith('admin') and not key in ['admin.restart_now', 'admin.toggle_user_active_status']]:
+    for view in [key for key in current_app.view_functions if key.startswith('admin') and not key in ['admin.restart_now', 'admin.toggle_user_active_status', 'admin.generate_random_password']]:
         v = view.replace('admin_','')
         v = v.replace('admin.','')
         v = v.replace('_',' ')
@@ -201,6 +201,48 @@ def generate_password(regex, length):
         if pattern.fullmatch(password):
             return password
 
+
+def weight_alphanumeric_generate_password(regex, length):
+    def random_char_from_class(class_name):
+        if class_name == '\\d':
+            return random.choice(string.digits)
+        elif class_name == '\\w':
+            return random.choice(string.ascii_letters + string.digits)
+        elif class_name == '\\s':
+            return random.choice(string.whitespace)
+        else:
+            return random.choice(string.printable)
+
+    pattern = re.compile(regex)
+    weights = [10 if c in ('\\d', '\\w') else 1 for c in regex]
+
+    while True:
+        password = ''.join(random_char_from_class(c) if c in ('\\d', '\\w', '\\s') else c for c in random.choices(regex, weights=weights, k=length))
+        if pattern.fullmatch(password):
+            return password
+
+def percentage_alphanumeric_generate_password(regex, length, alphanumeric_percentage):
+    def random_char_from_class(class_name):
+        if class_name == '\\d':
+            return random.choice(string.digits)
+        elif class_name == '\\w':
+            return random.choice(string.ascii_letters + string.digits)
+        elif class_name == '\\s':
+            return random.choice(string.whitespace)
+        else:
+            return random.choice(string.printable)
+
+    pattern = re.compile(regex)
+
+    alphanumeric_count = int(length * alphanumeric_percentage)
+    non_alphanumeric_count = length - alphanumeric_count
+
+    while True:
+        alphanumeric_part = [random_char_from_class('\\w') for _ in range(alphanumeric_count)]
+        non_alphanumeric_part = [random_char_from_class(c) if c in ('\\d', '\\w', '\\s') else c for c in random.choices(regex, k=non_alphanumeric_count)]
+        password = ''.join(random.sample(alphanumeric_part + non_alphanumeric_part, length))
+        if pattern.fullmatch(password):
+            return password
 
 bp = Blueprint('admin', __name__, url_prefix='/admin')
 
@@ -683,10 +725,33 @@ def toggle_user_active_status(username):
 
 
 
-@bp.route(f'/password/generate', methods=['GET', 'POST'])
+@bp.route(f'/password/<username>', methods=['GET', 'POST'])
 @is_admin
-def generate_random_password():
-    flash (generate_password(config['password_regex'], 16), 'info')
+def generate_random_password(username):
+    # flash(percentage_alphanumeric_generate_password(config['password_regex'], 16, .65), 'info')
+    # return redirect(url_for('admin.user_management'))
+
+    user = User.query.filter_by(username=username.lower()).first()
+
+    if not user:
+        flash (f'User {username} does not exist.', 'warning')
+        return redirect(url_for('admin.user_management'))
+
+    # generate and hash the new password
+    new_password = percentage_alphanumeric_generate_password(config['password_regex'], 16, .65)
+    hashed_password = generate_password_hash(new_password, method='sha256')
+
+    user.password = hashed_password
+    db.session.commit()
+
+    flash(f'Successfully modified \'{user.username}\' user password to: {new_password}', "success")
     return redirect(url_for('admin.user_management'))
 
+    # Placeholder for email notifications
+    # if config["enable_email_verification"]:
+    #     m = send_mail_async.delay(subject=f'{config["site_name"]} User Registered', content=f"This email serves to notify you that the user {row.username} has just been registered for this email address at {config['domain']}. Please verify your email by clicking the following link: {config['domain']}/auth/verify_email/{key}. Please note this link will expire after 48 hours.", to_address=row.email) if config['send_mail_asynchronously'] else mailer.send_mail(subject=f'{config["site_name"]} User Registered', content=f"This email serves to notify you that the user {row.username} has just been registered for this email address at {config['domain']}. Please verify your email by clicking the following link: {config['domain']}/auth/verify_email/{key}. Please note this link will expire after 48 hours.", to_address=row.email, logfile=log)
+    #     flash(f'Successfully created user \'{row.username.lower()}\'. They should check their email for an activation link. ', "success")
+    # else:
+    #     m = send_mail_async.delay(subject=f'{config["site_name"]} User Registered', content=f"This email serves to notify you that the user {row.username} has just been registered for this email address at {config['domain']}.", to_address=row.email) if config['send_mail_asynchronously'] else mailer.send_mail(subject=f'{config["site_name"]} User Registered', content=f"This email serves to notify you that the user {row.username} has just been registered for this email address at {config['domain']}.", to_address=row.email, logfile=log)
+    #     flash(f'Successfully created user \'{row.username.lower()}\'.', "success")
 
