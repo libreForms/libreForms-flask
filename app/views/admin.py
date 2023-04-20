@@ -74,12 +74,11 @@ from app.certification import generate_symmetric_key
 import app.signing as signing
 from werkzeug.utils import secure_filename
 import pandas as pd
-import os, tempfile, datetime
+import os, tempfile, datetime, re, random, string
 from app import log
 from werkzeug.security import generate_password_hash
 from celeryd.tasks import send_mail_async, restart_app_async
 from app.scripts import prettify_time_diff, convert_to_string
-
 
 # borrows from and extends the functionality of flask_login.login_required, see
 # https://github.com/maxcountryman/flask-login/blob/main/src/flask_login/utils.py.
@@ -183,7 +182,24 @@ def compile_form_data(form_names=[]):
     return df
 
 
+# this is a password generation script that takes a password 
+# length and regex, returning a password string
+def generate_password(regex, length):
+    def random_char_from_class(class_name):
+        if class_name == '\\d':
+            return random.choice(string.digits)
+        elif class_name == '\\w':
+            return random.choice(string.ascii_letters + string.digits)
+        elif class_name == '\\s':
+            return random.choice(string.whitespace)
+        else:
+            return random.choice(string.printable)
 
+    pattern = re.compile(regex)
+    while True:
+        password = ''.join(random_char_from_class(c) if c in ('\\d', '\\w', '\\s') else c for c in random.choices(regex, k=length))
+        if pattern.fullmatch(password):
+            return password
 
 
 bp = Blueprint('admin', __name__, url_prefix='/admin')
@@ -664,5 +680,13 @@ def toggle_user_active_status(username):
         db.session.commit()
         flash (f'Deactivated user {username}. ', 'info')
         return redirect(url_for('admin.user_management'))
+
+
+
+@bp.route(f'/password/generate', methods=['GET', 'POST'])
+@is_admin
+def generate_random_password():
+    flash (generate_password(config['password_regex'], 16), 'info')
+    return redirect(url_for('admin.user_management'))
 
 
