@@ -649,6 +649,10 @@ def toggle_user_active_status(username):
         flash (f'User {username} does not exist.', 'warning')
         return redirect(url_for('admin.user_management'))
 
+    if current_user.id == user.id:
+        flash (f'You cannot deactivate the user you are currently logged in as.', 'warning')
+        return redirect(url_for('admin.user_management'))
+
     if user.active == 0:
         user.active = 1 
         db.session.commit()
