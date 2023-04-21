@@ -255,25 +255,25 @@ def define_webarg_form_data_types(form=False, user_group=None, args=None):
         # adding this due to problems parsing checkboxes and (presumably) other
         # input types that permit multiple values
         if libreforms.forms[form][field]['input_field']['type'] == "checkbox":
-            FORM_ARGS[field] = fields.List(fields.String(), required=libreforms.forms[form][field]['output_data']['required'])
+            FORM_ARGS[field] = fields.List(fields.String(), required=libreforms.forms[form][field]['output_data']['required'], validate=validators)
 
         elif libreforms.forms[form][field]['output_data']['type'] == "str":
-            FORM_ARGS[field] = fields.Str(required=libreforms.forms[form][field]['output_data']['required'])
+            FORM_ARGS[field] = fields.Str(required=libreforms.forms[form][field]['output_data']['required'], validate=validators)
         elif libreforms.forms[form][field]['output_data']['type'] == "float":
-            FORM_ARGS[field] = fields.Float(required=libreforms.forms[form][field]['output_data']['required'])
+            FORM_ARGS[field] = fields.Float(required=libreforms.forms[form][field]['output_data']['required'], validate=validators)
         elif libreforms.forms[form][field]['output_data']['type'] == "list":
-            FORM_ARGS[field] = fields.List(fields.String(), required=libreforms.forms[form][field]['output_data']['required'])
+            FORM_ARGS[field] = fields.List(fields.String(), required=libreforms.forms[form][field]['output_data']['required'], validate=validators)
         # elif libreforms.forms[form][field]['output_data']['type'] == "dict":
             # FORM_ARGS[field] = fields.Dict(keys=fields.Str(), values=fields.Str(),
             # FORM_ARGS[field] = fields.Dict(
-            #             required=libreforms.forms[form][field]['output_data']['required'],
+            #             required=libreforms.forms[form][field]['output_data']['required'], validate=validators,
             #             validators=validators)
         elif libreforms.forms[form][field]['output_data']['type'] == "int":
-            FORM_ARGS[field] = fields.Int(required=libreforms.forms[form][field]['output_data']['required'])
+            FORM_ARGS[field] = fields.Int(required=libreforms.forms[form][field]['output_data']['required'], validate=validators)
         elif libreforms.forms[form][field]['output_data']['type'] == "date":
-            FORM_ARGS[field] = fields.Date(required=libreforms.forms[form][field]['output_data']['required'])
+            FORM_ARGS[field] = fields.Date(required=libreforms.forms[form][field]['output_data']['required'], validate=validators)
         else:
-            FORM_ARGS[field] = fields.Str(required=libreforms.forms[form][field]['output_data']['required'])
+            FORM_ARGS[field] = fields.Str(required=libreforms.forms[form][field]['output_data']['required'], validate=validators)
 
 
     return FORM_ARGS
