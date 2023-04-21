@@ -225,8 +225,9 @@ def define_webarg_form_data_types(form=False, user_group=None, args=None):
         if args and field not in args:
             continue
         
-        elif field.startswith("_"):
+        if field.startswith("_"):
             continue
+
 
         # here we ignore fields if the user's group has either been explicitly excluded from the field,
         # or if they are simply not included in the `allow` field and the we don't allow access by default.
@@ -235,20 +236,33 @@ def define_webarg_form_data_types(form=False, user_group=None, args=None):
         #         and config['allow_all_groups_default'] == False:
         #     pass
 
-        elif not checkGroup(user_group, libreforms.forms[form][field]):            
+        if not checkGroup(user_group, libreforms.forms[form][field]):            
             continue
         
+        # here we pull and unpack the validators for a given form field
+        v = libreforms.forms[form][field]['output_data']['validators'] if 'validators' in libreforms.forms[form][field]['output_data'] else []
+
+        validators = [x[0] if type(x) == tuple else x for x in v]
+
+        # validators = []        
+        # for item in v:
+        #     if type(item) == type(lambda x: x):
+        #         validators.append(item)
+        #     elif type(item) == tuple:
+        #         validators.append(item[0])
+
+
         # adding this due to problems parsing checkboxes and (presumably) other
         # input types that permit multiple values
-        elif libreforms.forms[form][field]['input_field']['type'] == "checkbox":
-            FORM_ARGS[field] = fields.List(fields.String(),required=libreforms.forms[form][field]['output_data']['required'],)
+        if libreforms.forms[form][field]['input_field']['type'] == "checkbox":
+            FORM_ARGS[field] = fields.List(fields.String(), required=libreforms.forms[form][field]['output_data']['required'])
 
         elif libreforms.forms[form][field]['output_data']['type'] == "str":
             FORM_ARGS[field] = fields.Str(required=libreforms.forms[form][field]['output_data']['required'])
         elif libreforms.forms[form][field]['output_data']['type'] == "float":
             FORM_ARGS[field] = fields.Float(required=libreforms.forms[form][field]['output_data']['required'])
         elif libreforms.forms[form][field]['output_data']['type'] == "list":
-            FORM_ARGS[field] = fields.List(fields.String(),required=libreforms.forms[form][field]['output_data']['required'])
+            FORM_ARGS[field] = fields.List(fields.String(), required=libreforms.forms[form][field]['output_data']['required'])
         # elif libreforms.forms[form][field]['output_data']['type'] == "dict":
             # FORM_ARGS[field] = fields.Dict(keys=fields.Str(), values=fields.Str(),
             # FORM_ARGS[field] = fields.Dict(
@@ -658,7 +672,7 @@ def forms(form_name):
 
         except Exception as e: 
             log.warning(f"LIBREFORMS - {e}")
-            flash(f'This form does not exist. {e}', "warning")
+            flash(f'There was an issue processing your request. {e}', "warning")
             return redirect(url_for('forms.forms_home'))
 
 # this is the upload route for submitting forms via CSV, see
