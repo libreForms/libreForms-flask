@@ -161,8 +161,8 @@
 			<audio id="audio_{{subtitle}}_{{field}}" src="{{url_for (config['path_to_accessibility_audio'], filename=subtitle+'_'+field+'.mp3') }}"></audio>
 			{%endif%}
 			<textarea class="form-control" onchange="validateFields('{{subtitle}}', '{{field}}', this.value, this.id);" rows="3" style="resize: vertical;" maxlength="{{context[field].input_field.maxlength if context[field].input_field.maxlength}}" value="{{ default_value }}" id="{{ field }}" name="{{ field }}"></textarea>
-			<div class="valid-feedback">This field is valid!</div>
-			<div class="invalid-feedback">This field is invalid!</div>    
+			<div class="valid-feedback" id="{{field}}-is-valid">This field is valid!</div>
+			<div class="invalid-feedback" id="{{field}}-is-invalid">This field is invalid!</div>    
 
 		</div>
 
@@ -176,8 +176,8 @@
 			<audio id="audio_{{subtitle}}_{{field}}" src="{{url_for (config['path_to_accessibility_audio'], filename=subtitle+'_'+field+'.mp3') }}"></audio>
 			{%endif%}
 			<input class="form-control" onchange="validateFields('{{subtitle}}', '{{field}}', this.value, this.id);" type="{{ input_type }}" value="{{ default_value }}" id="{{ field }}" name="{{ field }}"/>
-			<div class="valid-feedback">This field is valid!</div>
-			<div class="invalid-feedback">This field is invalid!</div>    
+			<div class="valid-feedback" id="{{field}}-is-valid">This field is valid!</div>
+			<div class="invalid-feedback" id="{{field}}-is-invalid">This field is invalid!</div>    
 
 		</div>
 
@@ -376,6 +376,7 @@ async function validateFields(fo, fi, val, id) {
     submit.classList.remove("disabled")
 
   } else {
+    document.getElementById(fi+"-is-invalid").innerHTML = "This field is invalid! " + result['msg']
     foo.classList.add("is-invalid")
     foo.classList.remove("is-valid")
     submit.classList.add("disabled")

@@ -811,15 +811,25 @@ def lint_field():
     def validate_option(form, field, value):
 
         # here we set the validators field, if it exists
-        validators = libreforms.forms[form][field]['output_data']['validators'] if 'validators' in libreforms.forms[form][field]['output_data'] else []
+        validators = libreforms.forms[form][field]['output_data']['validators'].copy() if 'validators' in libreforms.forms[form][field]['output_data'] else []
 
         for validator in validators:
+
+            # admins can pass validators as tuples where the second value is the error msg. 
+            # Here, we unpack if they are tuples.
+            if type(validator) == tuple:
+                (validator, error_msg) = validator
+
+            else:
+                error_msg = f"{field} failed validation." 
+
+
             # print(str(validator))
             try:
-                assert validator(value), f"{field} failed validation {str(validator)}" 
+                assert validator(value), error_msg
 
-            except:
-                return False
+            except Exception as e:
+                return str(e)
 
         return True
 
@@ -833,11 +843,12 @@ def lint_field():
 
         # print(string)
 
+        v = validate_option(form, field, value)
 
-        if validate_option(form, field, value):
+        if type(v) == bool:
             return Response(json.dumps({'status':'success'}), status=config['success_code'], mimetype='application/json')
 
-        return Response(json.dumps({'status':'failure'}), status=config['error_code'], mimetype='application/json')
+        return Response(json.dumps({'status':'failure', 'msg': v}), status=config['error_code'], mimetype='application/json')
 
     return abort(404)
 
