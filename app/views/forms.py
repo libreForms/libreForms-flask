@@ -37,6 +37,7 @@ from app.scripts import convert_to_string
 import os, json
 import pandas as pd
 import tempfile
+import inspect
 
 # The kwargs we are passing to view function rendered jinja is getting out-
 # of-hand. We can easily replace this with the following method as **kwargs, 
@@ -203,7 +204,7 @@ def generate_list_of_users(db=db):
 # to avoid bloat, if this feature can be replicated, see discussion at
 # https://github.com/signebedi/libreForms/issues/30.
 def define_webarg_form_data_types(form=False, user_group=None, args=None):
-
+    
     FORM_ARGS = {}  
 
     # options = propagate_form_configs[form]
@@ -222,10 +223,10 @@ def define_webarg_form_data_types(form=False, user_group=None, args=None):
         # instead, we start with the original form, and only proceed with
         # each field in the original form if it was passed as an arg. 
         if args and field not in args:
-            pass
+            continue
         
         elif field.startswith("_"):
-            pass
+            continue
 
         # here we ignore fields if the user's group has either been explicitly excluded from the field,
         # or if they are simply not included in the `allow` field and the we don't allow access by default.
@@ -235,44 +236,31 @@ def define_webarg_form_data_types(form=False, user_group=None, args=None):
         #     pass
 
         elif not checkGroup(user_group, libreforms.forms[form][field]):            
-            pass
+            continue
         
         # adding this due to problems parsing checkboxes and (presumably) other
         # input types that permit multiple values
         elif libreforms.forms[form][field]['input_field']['type'] == "checkbox":
-            FORM_ARGS[field] = fields.List(fields.String(),
-                        required=libreforms.forms[form][field]['output_data']['required'],
-                        validators=libreforms.forms[form][field]['output_data']['validators'],)
+            FORM_ARGS[field] = fields.List(fields.String(),required=libreforms.forms[form][field]['output_data']['required'],)
 
         elif libreforms.forms[form][field]['output_data']['type'] == "str":
-            FORM_ARGS[field] = fields.Str(
-                        required=libreforms.forms[form][field]['output_data']['required'],
-                        validators=libreforms.forms[form][field]['output_data']['validators'],)
+            FORM_ARGS[field] = fields.Str(required=libreforms.forms[form][field]['output_data']['required'])
         elif libreforms.forms[form][field]['output_data']['type'] == "float":
-            FORM_ARGS[field] = fields.Float(
-                        required=libreforms.forms[form][field]['output_data']['required'],
-                        validators=libreforms.forms[form][field]['output_data']['validators'],)
+            FORM_ARGS[field] = fields.Float(required=libreforms.forms[form][field]['output_data']['required'])
         elif libreforms.forms[form][field]['output_data']['type'] == "list":
-            FORM_ARGS[field] = fields.List(fields.String(),
-                        required=libreforms.forms[form][field]['output_data']['required'],
-                        validators=libreforms.forms[form][field]['output_data']['validators'],)
+            FORM_ARGS[field] = fields.List(fields.String(),required=libreforms.forms[form][field]['output_data']['required'])
         # elif libreforms.forms[form][field]['output_data']['type'] == "dict":
             # FORM_ARGS[field] = fields.Dict(keys=fields.Str(), values=fields.Str(),
             # FORM_ARGS[field] = fields.Dict(
             #             required=libreforms.forms[form][field]['output_data']['required'],
-            #             validators=libreforms.forms[form][field]['output_data']['validators'],)
+            #             validators=validators)
         elif libreforms.forms[form][field]['output_data']['type'] == "int":
-            FORM_ARGS[field] = fields.Int(
-                        required=libreforms.forms[form][field]['output_data']['required'],
-                        validators=libreforms.forms[form][field]['output_data']['validators'],)
+            FORM_ARGS[field] = fields.Int(required=libreforms.forms[form][field]['output_data']['required'])
         elif libreforms.forms[form][field]['output_data']['type'] == "date":
-            FORM_ARGS[field] = fields.Date(
-                        required=libreforms.forms[form][field]['output_data']['required'],
-                        validators=libreforms.forms[form][field]['output_data']['validators'],)
+            FORM_ARGS[field] = fields.Date(required=libreforms.forms[form][field]['output_data']['required'])
         else:
-            FORM_ARGS[field] = fields.Str(
-                        required=libreforms.forms[form][field]['output_data']['required'],
-                        validators=libreforms.forms[form][field]['output_data']['validators'],)
+            FORM_ARGS[field] = fields.Str(required=libreforms.forms[form][field]['output_data']['required'])
+
 
     return FORM_ARGS
 
@@ -815,6 +803,43 @@ def generate_lookup():
 
     return abort(404)
 
+@bp.route(f'/lint', methods=['GET', 'POST'])
+@login_required
+def lint_field():
+
+
+    def validate_option(form, field, value):
+
+        # here we set the validators field, if it exists
+        validators = libreforms.forms[form][field]['output_data']['validators'] if 'validators' in libreforms.forms[form][field]['output_data'] else []
+
+        for validator in validators:
+            # print(str(validator))
+            try:
+                assert validator(value), f"{field} failed validation {str(validator)}" 
+
+            except:
+                return False
+
+        return True
+
+    if request.method == 'POST':
+        # print(request)
+
+        # string = request.json['string']
+        form = request.json['form'] 
+        field = request.json['field']
+        value = request.json['value']
+
+        # print(string)
+
+
+        if validate_option(form, field, value):
+            return Response(json.dumps({'status':'success'}), status=config['success_code'], mimetype='application/json')
+
+        return Response(json.dumps({'status':'failure'}), status=config['error_code'], mimetype='application/json')
+
+    return abort(404)
 
 
 # this is the download link for files in the temp directory

@@ -172,7 +172,10 @@
 			{# <img src="{{ url_for( 'static', filename='audio_dark.png' if dark_mode else 'audio_light.png' ) }}" alt="audio accessibility {{subtitle}} {{field}}" style="padding-left:2px; max-width:1.5%; height: auto;" class="{{subtitle}}_{{field}}" onClick="play( 'audio_{{subtitle}}_{{field}}' )">  #}
 			<audio id="audio_{{subtitle}}_{{field}}" src="{{url_for (config['path_to_accessibility_audio'], filename=subtitle+'_'+field+'.mp3') }}"></audio>
 			{%endif%}
-			<input class="form-control" type="{{ input_type }}" value="{{ default_value }}" id="{{ field }}" name="{{ field }}"/>
+			<input class="form-control" onchange="validateFields('{{subtitle}}', '{{field}}', this.value, this.id);" type="{{ input_type }}" value="{{ default_value }}" id="{{ field }}" name="{{ field }}"/>
+			<div class="valid-feedback">This field is valid!</div>
+			<div class="invalid-feedback">This field is invalid!</div>    
+
 		</div>
 
 		{% endif %}
@@ -197,7 +200,7 @@
 		{% endif %}
 
 		<div title="submit" class="form-group">
-			<input class="btn btn-primary mt-4" type=submit value="Submit">
+			<input class="btn btn-primary mt-4" id="form-button-submit" type=submit value="Submit">
 		</div>
 
 	</fieldset>
@@ -340,5 +343,41 @@ async function generateLookup(s, form_name, id="right_bar_content") {
     // foo.innerHTML = JSON.stringify(result)
   }
 }
+
+
+
+async function validateFields(fo, fi, val, id) {
+
+  const foo = document.getElementById(id)
+
+  let payload = {
+    form: fo,
+    field: fi,
+    value: val
+  };
+
+  let response = await fetch('{{ url_for ('forms.lint_field') }}', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json;charset=utf-8'
+    },
+    body: JSON.stringify(payload)
+  });
+  
+  let result = await response.json();
+  var submit = document.getElementById("form-button-submit");
+
+  if (result['status'] == 'success') {
+    foo.classList.remove("is-invalid")
+    foo.classList.add("is-valid")
+    submit.classList.remove("disabled")
+
+  } else {
+    foo.classList.add("is-invalid")
+    foo.classList.remove("is-valid")
+    submit.classList.add("disabled")
+  }
+}
+
 
 {% endblock %}
