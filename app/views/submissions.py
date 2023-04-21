@@ -682,10 +682,8 @@ def render_document(form_name, document_id, ignore_menu=False):
             # https://github.com/libreForms/libreForms-flask/issues/375
             ignore_menu = request.args.get('ignore_menu', False)
 
-            # if ignore_menu is set to true, then that means we've just submitted a form... 
-            # so, let's invite the user to submit another
-            if ignore_menu:
-                msg = msg + Markup(f"<td><a href = '{config['domain']}/forms/{form_name}'><button type=\"button\" class=\"btn btn-outline-success btn-sm\" style = \"margin-right: 10px;\">submit another form</button></a></td>")
+            # let's invite the user to submit another form
+            msg = msg + Markup(f"<td><a href = '{config['domain']}/forms/{form_name}'><button type=\"button\" class=\"btn btn-outline-success btn-sm\" style = \"margin-right: 10px;\">submit another form</button></a></td>")
 
             msg = msg + Markup ("</tr></table>")
             
