@@ -692,7 +692,7 @@ def toggle_signature_active_status(signature):
     return redirect(url_for('admin.signature_management'))
 
 
-@bp.route(f'/toggle/<username>', methods=['GET', 'POST'])
+@bp.route(f'/toggle/u/<username>', methods=['GET', 'POST'])
 @is_admin
 def toggle_user_active_status(username):
 
