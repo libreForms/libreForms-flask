@@ -307,8 +307,8 @@ config['enable_cli'] = True
 # we define v1 and v2 loggers. Whereas v1 logging retains log rotation using basic config,
 # v2 adds a transaction_id that, if passed to v1, will simply do nothing. Therefore, v1 is 
 # marked for eventual deprecation.
-config['logger'] = v1_set_logger
-# config['logger'] = v2_set_logger
+# config['logger'] = v1_set_logger
+config['logger'] = v2_set_logger
 
 
 ##########################
