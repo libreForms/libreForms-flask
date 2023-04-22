@@ -602,8 +602,10 @@ def bulk_register():
                             log.info(f'{row.username.upper()} - successfully registered with email {row.email}.')
                         except Exception as e: 
                             # error = f"User is already registered with username \'{row.username.lower()}\' or email \'{row.email}\'." if row.email else f"User is already registered with username \'{row.username}\'. "
-                            flash(f"Issue registering {row.username.lower()}. {e}", "warning")
-                            log.error(f'{current_user.username.upper()} - failed to register new user {row.username.lower()} with email {row.email}.')
+                            transaction_id = str(uuid.uuid1())
+                            log.error(f'{current_user.username.upper()} - failed to register new user {row.username.lower()} with email {row.email}. {e}',extra={'transaction_id': transaction_id})
+                            flash(f"Issue registering {row.username.lower()}. Transaction ID: {transaction_id}.", "warning")
+
                     # else:
                     #     flash(f'Successfully created user \'{bulk_user_df.username.lower()}\'.')
                     #     m = send_mail_async.delay(subject=f"Successfully Registered {username}", content=f"This is a notification that {username} has been successfully registered for libreforms.", to_address=email) if config['send_mail_asynchronously'] else mailer.send_mail(subject=f"Successfully Registered {username}", content=f"This is a notification that {username} has been successfully registered for libreforms.", to_address=email, logfile=log)
