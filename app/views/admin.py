@@ -67,6 +67,7 @@ from app.mongo import mongodb
 from markupsafe import Markup
 import dotenv
 import libreforms
+import uuid
 
 # requirements for bulk email management
 from app.models import User, Signing, db
@@ -154,7 +155,8 @@ def dotenv_overrides(env_file='libreforms.env',restart_app=True,**kwargs):
 
     except Exception as e:
         # print(e)
-        log.error (f'{current_user.username.upper()} - {e}')
+        log.error (f'{current_user.username.upper()} - {e}', extra={'transaction_id': transaction_id})
+        flash (f"There was an error in processing your request. Transaction ID: {transaction_id}. ", 'warning')
         return False
 
 
@@ -497,7 +499,7 @@ def bulk_register():
         file = request.files['file']
         if file.filename == '':
             flash("Please select a CSV to upload", "warning")
-            return redirect(url_for('auth.bulk_register')) 
+            return redirect(url_for('admin.bulk_register')) 
 
         with tempfile.TemporaryDirectory() as tmpdirname:
             # print('created temporary directory', tmpdirname)
@@ -508,6 +510,7 @@ def bulk_register():
             file.save(filepath)
 
             error = None
+            transaction_id = str(uuid.uuid1())
 
             if not file.filename.lower().endswith(".csv",):
                 error = 'Please upload a CSV file.'
@@ -538,8 +541,8 @@ def bulk_register():
 
 
                 except Exception as e: 
-                    log.warning(f"{current_user.username.upper()} - {e}")
                     error = e
+                    log.warning(f"{current_user.username.upper()} - {e}", extra={'transaction_id': transaction_id})
 
             if error is None:
                 created_date=datetime.datetime.today().strftime("%Y-%m-%d %H:%M:%S")
@@ -575,6 +578,12 @@ def bulk_register():
                                 TEMP[item] = str(row[item]) if config['user_registration_fields'][item]['type'] == str else float(row[item])
 
                         try: 
+
+                            user_check = User.query.filter_by(username=row.username.lower()).first()
+                            email_check = User.query.filter_by(email=row.email).first()
+
+                            assert not user_check and not email_check
+
                             new_user = User(
                                         email=row.email if row.email else "", 
                                         username=row.username.lower(), 
@@ -602,7 +611,6 @@ def bulk_register():
                             log.info(f'{row.username.upper()} - successfully registered with email {row.email}.')
                         except Exception as e: 
                             # error = f"User is already registered with username \'{row.username.lower()}\' or email \'{row.email}\'." if row.email else f"User is already registered with username \'{row.username}\'. "
-                            transaction_id = str(uuid.uuid1())
                             log.error(f'{current_user.username.upper()} - failed to register new user {row.username.lower()} with email {row.email}. {e}',extra={'transaction_id': transaction_id})
                             flash(f"Issue registering {row.username.lower()}. Transaction ID: {transaction_id}.", "warning")
 
@@ -613,7 +621,7 @@ def bulk_register():
                 flash ("Finished uploading users from CSV.", "success")
 
             else:
-                flash(error, "warning")
+                flash (f"There was an error in processing your request. Transaction ID: {transaction_id}. ", 'warning')
 
 
             # return f"File saved successfully {filepath}"

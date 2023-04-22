@@ -196,6 +196,7 @@ def register():
             email = None
 
         error = None
+        transaction_id = str(uuid.uuid1()) # if there is an error, this ID will link it in the logs
 
         if not username:
             error = 'Username is required. '
@@ -256,12 +257,13 @@ def register():
                 log.info(f'{username.upper()} - successfully registered with email {email}.')
             except Exception as e: 
                 error = f"User is already registered with username \'{username.lower()}\' or email \'{email}\'." if email else f"User is already registered with username \'{username}\'. "
-                log.error(f'LIBREFORMS - failed to register new user {username.lower()} with email {email}. {e} ')
+                log.error(f'LIBREFORMS - failed to register new user {username.lower()} with email {email}. {e}', extra={'transaction_id': transaction_id})
             else:
                 # m = send_mail_async.delay(subject=f"Successfully Registered {username}", content=f"This is a notification that {username} has been successfully registered for libreforms.", to_address=email) if config['send_mail_asynchronously'] else mailer.send_mail(subject=f"Successfully Registered {username}", content=f"This is a notification that {username} has been successfully registered for libreforms.", to_address=email, logfile=log)
                 return redirect(url_for("auth.login"))
 
-        flash(error, "warning")
+        flash (f"There was an error in processing your request. Transaction ID: {transaction_id}. ", 'warning')
+
 
     return render_template('auth/register.html.jinja',
         name='User',
