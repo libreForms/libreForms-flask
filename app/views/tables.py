@@ -128,8 +128,12 @@ def tables(form_name):
         df.columns = [x.replace("_", " ") for x in df.columns]
 
     except Exception as e: 
-        log.warning(f"LIBREFORMS - {e}")
-        flash(f'This form does not exist. {e}', "warning")
+        # log.warning(f"LIBREFORMS - {e}")
+        # flash(f'This form does not exist. {e}', "warning")
+        transaction_id = str(uuid.uuid1())
+        log.warning(f"{current_user.username.upper()} - {e}", extra={'transaction_id': transaction_id})
+        flash (f"There was an error in processing your request. Transaction ID: {transaction_id}. ", 'warning')
+
         return redirect(url_for('tables.tables_home'))
     
     return render_template('app/tables.html.jinja',
@@ -209,8 +213,12 @@ def download_file(filename):
 
         df.columns = [x.replace("_", " ") for x in df.columns]
     except Exception as e: 
-        log.warning(f"LIBREFORMS - {e}")
-        flash(f'This form does not exist. {e}', "warning")
+        # log.warning(f"LIBREFORMS - {e}")
+        # flash(f'This form does not exist. {e}', "warning")
+        transaction_id = str(uuid.uuid1())
+        log.warning(f"{current_user.username.upper()} - {e}", extra={'transaction_id': transaction_id})
+        flash (f"There was an error in processing your request. Transaction ID: {transaction_id}. ", 'warning')
+
         return redirect(url_for('tables.tables_home'))
 
     # here we employ a context-bound temp directory to stage this file for download, see

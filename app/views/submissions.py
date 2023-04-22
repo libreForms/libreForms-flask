@@ -586,8 +586,12 @@ def render_document(form_name, document_id, ignore_menu=False):
             options = propagate_form_configs(form=form_name)
             verify_group = options['_submission']
         except Exception as e: 
-            flash('This form does not exist.', "warning")
-            log.warning(f'{current_user.username.upper()} - {e}')
+            transaction_id = str(uuid.uuid1())
+            log.warning(f"{current_user.username.upper()} - {e}", extra={'transaction_id': transaction_id})
+            flash (f"There was an error in processing your request. Transaction ID: {transaction_id}. ", 'warning')
+
+            # flash('This form does not exist.', "warning")
+            # log.warning(f'{current_user.username.upper()} - {e}')
             return redirect(url_for('submissions.submissions_home'))
 
         # if checkKey(verify_group, '_deny_read') and current_user.group in verify_group['_deny_read']:
@@ -715,8 +719,12 @@ def render_document_history(form_name, document_id):
             options = propagate_form_configs(form=form_name)
             verify_group = options['_submission']
         except Exception as e: 
-            flash('This form does not exist.', "warning")
-            log.warning(f'{current_user.username.upper()} - {e}')
+            # flash('This form does not exist.', "warning")
+            # log.warning(f'{current_user.username.upper()} - {e}')
+
+            transaction_id = str(uuid.uuid1())
+            log.warning(f"{current_user.username.upper()} - {e}", extra={'transaction_id': transaction_id})
+            flash (f"There was an error in processing your request. Transaction ID: {transaction_id}. ", 'warning')
             return redirect(url_for('submissions.submissions_home'))
 
         # if checkKey(verify_group, '_deny_read') and current_user.group in verify_group['_deny_read']:
@@ -871,8 +879,12 @@ def render_document_edit(form_name, document_id):
             try:
                 verify_group = propagate_form_configs(form=form_name)['_submission']
             except Exception as e: 
-                flash('This form does not exist.', "warning")
-                log.warning(f'{current_user.username.upper()} - {e}')
+                # flash('This form does not exist.', "warning")
+                # log.warning(f'{current_user.username.upper()} - {e}')
+                transaction_id = str(uuid.uuid1())
+                log.warning(f"{current_user.username.upper()} - {e}", extra={'transaction_id': transaction_id})
+                flash (f"There was an error in processing your request. Transaction ID: {transaction_id}. ", 'warning')
+
                 return redirect(url_for('submissions.submissions_home'))
 
             # if checkKey(verify_group, '_deny_write') and current_user.group in verify_group['_deny_write']:
@@ -1002,8 +1014,11 @@ def render_document_edit(form_name, document_id):
                     )
 
     except Exception as e: 
-        log.warning(f"LIBREFORMS - {e}")
-        flash(f'This form does not exist. {e}', "warning")
+        # log.warning(f"LIBREFORMS - {e}")
+        # flash(f'This form does not exist. {e}', "warning")
+        transaction_id = str(uuid.uuid1())
+        log.warning(f"{current_user.username.upper()} - {e}", extra={'transaction_id': transaction_id})
+        flash (f"There was an error in processing your request. Transaction ID: {transaction_id}. ", 'warning')
         return redirect(url_for('submissions.submissions_home'))
 
 # this is a replica of render_document() above, just modified to check for 
@@ -1022,8 +1037,12 @@ def review_document(form_name, document_id):
             # return redirect(url_for('submissions.render_document', form_name=form_name,document_id=document_id))
 
     except Exception as e: 
-        flash('This form does not exist.', "warning")
-        log.warning(f'{current_user.username.upper()} - {e}')
+        # flash('This form does not exist.', "warning")
+        # log.warning(f'{current_user.username.upper()} - {e}')
+        transaction_id = str(uuid.uuid1())
+        log.warning(f"{current_user.username.upper()} - {e}", extra={'transaction_id': transaction_id})
+        flash (f"There was an error in processing your request. Transaction ID: {transaction_id}. ", 'warning')
+
         return redirect(url_for('submissions.submissions_home'))
 
 
@@ -1208,8 +1227,12 @@ def generate_pdf(form_name, document_id):
         test_the_form_options = propagate_form_configs(form=form_name)
 
     except Exception as e: 
-        flash('This form does not exist.', "warning")
-        log.warning(f'{current_user.username.upper()} - {e}')
+        # flash('This form does not exist.', "warning")
+        # log.warning(f'{current_user.username.upper()} - {e}')
+        transaction_id = str(uuid.uuid1())
+        log.warning(f"{current_user.username.upper()} - {e}", extra={'transaction_id': transaction_id})
+        flash (f"There was an error in processing your request. Transaction ID: {transaction_id}. ", 'warning')
+
         return redirect(url_for('submissions.render_document', form_name=form_name,document_id=document_id))
 
     if not test_the_form_options['_allow_pdf_download']:

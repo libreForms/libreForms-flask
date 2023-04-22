@@ -139,9 +139,10 @@ def dashboards(form_name):
         )
     except Exception as e: 
         
-        log.warning(f"LIBREFORMS - {e}")
+        transaction_id = str(uuid.uuid1())
+        log.warning(f"LIBREFORMS - {e}", extra={'transaction_id': transaction_id})
+        flash (f"There was an error in processing your request. Transaction ID: {transaction_id}. ", 'warning')
         
-        flash('This dashboard does not exist.', "warning")
         return redirect(url_for('dashboards.dashboards_home'))
 
 

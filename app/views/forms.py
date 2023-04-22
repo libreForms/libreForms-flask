@@ -671,8 +671,13 @@ def forms(form_name):
                 )
 
         except Exception as e: 
-            log.warning(f"LIBREFORMS - {e}")
-            flash(f'There was an issue processing your request. {e}', "warning")
+
+            transaction_id = str(uuid.uuid1())
+            log.warning(f"LIBREFORMS - {e}", extra={'transaction_id': transaction_id})
+            flash (f"There was an error in processing your request. Transaction ID: {transaction_id}. ", 'warning')
+
+            # log.warning(f"LIBREFORMS - {e}")
+            # flash(f'There was an issue processing your request. {e}', "warning")
             return redirect(url_for('forms.forms_home'))
 
 # this is the upload route for submitting forms via CSV, see
@@ -757,8 +762,13 @@ def upload_forms(form_name):
                     
 
         except Exception as e: 
-            log.warning(f"{current_user.username.upper()} - {str(e)}")
-            flash(str(e), 'warning')
+            # log.warning(f"{current_user.username.upper()} - {str(e)}")
+            # flash(str(e), 'warning')
+
+            transaction_id = str(uuid.uuid1())
+            log.warning(f"{current_user.username.upper()} - {e}", extra={'transaction_id': transaction_id})
+            flash (f"There was an error in processing your request. Transaction ID: {transaction_id}. ", 'warning')
+
             return redirect(url_for('forms.upload_forms', form_name=form_name))
 
 
@@ -783,8 +793,13 @@ def upload_forms(form_name):
                 flash(Markup(f"Successfully created new form, which can be accessed at <a href=\"{URL}\">{URL}</a>"), 'info')
 
             except Exception as e: 
-                log.warning(f"{current_user.username.upper()} - {str(e)}")
-                flash(str(e), 'warning')
+
+                transaction_id = str(uuid.uuid1())
+                log.warning(f"{current_user.username.upper()} - {e}", extra={'transaction_id': transaction_id})
+                flash (f"There was an error in processing your request. Transaction ID: {transaction_id}. ", 'warning')
+
+                # log.warning(f"{current_user.username.upper()} - {str(e)}")
+                # flash(str(e), 'warning')
 
     return render_template('app/upload_form.html.jinja', 
         name='Forms',

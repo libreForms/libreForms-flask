@@ -73,7 +73,9 @@ if config['allow_anonymous_form_submissions']:
         try:
             forms = propagate_form_configs(form_name)
         except Exception as e: 
-            log.warning(f"LIBREFORMS - {e}")
+            transaction_id = str(uuid.uuid1())
+            log.warning(f"LIBREFORMS - {e}", extra={'transaction_id': transaction_id})
+            flash (f"There was an error in processing your request. Transaction ID: {transaction_id}. ", 'warning')
             return abort(404)
 
         if not checkGroup(group='anonymous', struct=propagate_form_configs(form_name)):
@@ -99,8 +101,9 @@ if config['allow_anonymous_form_submissions']:
                     m = send_mail_async.delay(subject=f'{config["site_name"]} {form_name} Submission Link', content=content, to_address=email) if config['send_mail_asynchronously'] else mailer.send_mail(subject=f'{config["site_name"]} {form_name} Submission Link', content=content, to_address=email, logfile=log)
                     flash("Form submission link successfully sent.", "success")
                 except Exception as e: 
-                    log.warning(f"LIBREFORMS - {e}")
-                    flash(e, "warning")
+                    transaction_id = str(uuid.uuid1())
+                    log.warning(f"LIBREFORMS - {e}", extra={'transaction_id': transaction_id})
+                    flash (f"There was an error in processing your request. Transaction ID: {transaction_id}. ", 'warning')
             else:
                 flash(error, "warning")
                 
@@ -186,9 +189,10 @@ if config['allow_anonymous_form_submissions']:
                     )
 
             except Exception as e: 
-                log.warning(f"LIBREFORMS - {e}")
+                transaction_id = str(uuid.uuid1())
+                log.warning(f"LIBREFORMS - {e}", extra={'transaction_id': transaction_id})
+                flash (f"There was an error in processing your request. Transaction ID: {transaction_id}. ", 'warning')
                 return abort(404)
-                return None
 
         else:
             return abort(404)

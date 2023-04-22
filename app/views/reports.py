@@ -82,8 +82,12 @@ def write_report_to_db(name=None, form_name=None, filters=None, frequency=None, 
         return report_id 
 
     except Exception as e:
-        flash(f'Could not create report. {e} ', "warning")
-        log.warning(f'{current_user.username.upper()} - failed to generate report: {e}.')
+        # flash(f'Could not create report. {e} ', "warning")
+        # log.warning(f'{current_user.username.upper()} - failed to generate report: {e}.')
+        transaction_id = str(uuid.uuid1())
+        log.warning(f"{current_user.username.upper()} - {e}", extra={'transaction_id': transaction_id})
+        flash (f"There was an error in processing your request. Transaction ID: {transaction_id}. ", 'warning')
+
         return False
 
 
@@ -212,8 +216,12 @@ def modify_report(report_id):
             log.info(f'{current_user.username.upper()} - successfully modified report {report.report_id}: {name}.')
 
         except Exception as e:
-            flash(f'Could not modify report. {e} ', "warning")
-            log.warning(f'{current_user.username.upper()} - failed to update report {report.report_id}: {e}.')
+            # flash(f'Could not modify report. {e} ', "warning")
+            # log.warning(f'{current_user.username.upper()} - failed to update report {report.report_id}: {e}.')
+            transaction_id = str(uuid.uuid1())
+            log.warning(f"{current_user.username.upper()} - {e}", extra={'transaction_id': transaction_id})
+            flash (f"There was an error in processing your request. Transaction ID: {transaction_id}. ", 'warning')
+
 
         return redirect(url_for('reports.view_report', report_id=str(report_id)))
 
