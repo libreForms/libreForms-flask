@@ -82,7 +82,7 @@ def get_record_of_submissions(form_name=None, user=None, remove_underscores=Fals
 
             return df
         except Exception as e: 
-            log.warning(f"LIBREFORMS - {e}")
+            # log.warning(f"LIBREFORMS - {e}")
             return None
 
 
