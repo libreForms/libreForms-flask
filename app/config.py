@@ -36,7 +36,7 @@ import os, secrets, dotenv
 from ast import literal_eval
 from markupsafe import Markup
 from datetime import datetime
-from app.log_functions import v1_set_logger
+from app.log_functions import v1_set_logger, v2_set_logger
 # from app.log_functions import v2_set_logger
 
 # Added based on https://github.com/signebedi/libreForms/issues/148 to
