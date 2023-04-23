@@ -175,6 +175,8 @@ def v2_set_logger(file_path, module, log_level=logging.DEBUG):
 
     # we instantiate the logging object
     log = logging.getLogger(module)
+    log.setLevel(log_level)
+    log.propagate = False  
 
     # define the transaction handler
     formatter = transactionFormatter('%(asctime)s - %(levelname)s - %(message)s - %(transaction_id)s')
