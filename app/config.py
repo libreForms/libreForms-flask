@@ -446,8 +446,9 @@ config['parse_usernames_as_badges'] = True
 
 
 # this configuration determines whether to send an email notification when administrators change
-# their passwords, see https://github.com/libreForms/libreForms-flask/issues/379.
-config['notify_on_password_change'] = False
+# their passwords, disable their accounts, or disable signing keys associated with their emails,
+# see https://github.com/libreForms/libreForms-flask/issues/379.
+config['notify_users_on_admin_action'] = True
 
 
 # here we overwrite the defaults above with any user-specified 

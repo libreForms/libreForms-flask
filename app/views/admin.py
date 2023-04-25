@@ -76,7 +76,7 @@ import app.signing as signing
 from werkzeug.utils import secure_filename
 import pandas as pd
 import os, tempfile, datetime, re, random, string
-from app import log
+from app import log, mailer
 from werkzeug.security import generate_password_hash
 from celeryd.tasks import send_mail_async, restart_app_async
 from app.scripts import prettify_time_diff, convert_to_string
@@ -698,6 +698,12 @@ def toggle_signature_active_status(signature):
         db.session.commit()
         flash (f'Deactivated signature {signature}. ', 'info')
         log.info(f'{current_user.username.upper()} - deactivated {signature} signature.')
+
+    if config['notify_users_on_admin_action']:
+        action_taken = "Deactivated" if s.active == 0 else "Activated"
+        subject = f'{config["site_name"]} Signing Key {action_taken}'
+        content = f"This email serves to notify you that an administrator has just {action_taken.lower()} a signing key associated with your email at {config['domain']}. Please contact your system administrator if you believe this was a mistake."
+        m = send_mail_async.delay(subject=subject, content=content, to_address=s.email) if config['send_mail_asynchronously'] else mailer.send_mail(subject=subject, content=content, to_address=s.email)
 
     return redirect(url_for('admin.signature_management'))
 
