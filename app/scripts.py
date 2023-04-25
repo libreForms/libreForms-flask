@@ -56,3 +56,11 @@ def prettify_time_diff(time:float):
         return ""
 
 
+# here we add a mask function that we can use to obfuscate a potentially sensitive string, 
+# like a signing key, see https://github.com/libreForms/libreForms-flask/issues/384.
+def mask_string(string, show_chars:int=4, obfsc_char='*', override=False):
+    if len(string) > show_chars and not override:
+        return obfsc_char * (len(string)-show_chars) + string[-show_chars:]
+    return string
+
+
