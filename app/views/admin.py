@@ -737,7 +737,7 @@ def toggle_user_active_status(username):
     if config['notify_users_on_admin_action']:
         action_taken = "Deactivated" if user.active == 0 else "Activated"
         subject = f'{config["site_name"]} User {action_taken}'
-        content = f"This email serves to notify you that an administrator has just {action_taken.lower()} the user {user.username}, which is associated with your email at {config['domain']}. Please contact your system administrator if you believe this was a mistake."
+        content = f"This email serves to notify you that an administrator has just {action_taken.lower()} the user '{user.username}', which is associated with your email at {config['domain']}. Please contact your system administrator if you believe this was a mistake."
         m = send_mail_async.delay(subject=subject, content=content, to_address=user.email) if config['send_mail_asynchronously'] else mailer.send_mail(subject=subject, content=content, to_address=user.email)
 
 
@@ -766,6 +766,13 @@ def generate_random_password(username):
 
     flash(f'Successfully modified \'{user.username}\' user password to: {new_password}', "success")
     log.info(f'{current_user.username.upper()} - updated {user.username} user\'s password.')
+
+    if config['notify_users_on_admin_action']:
+        subject = f'{config["site_name"]} Password Changed'
+        content = f"This email serves to notify you that an administrator has just changed the password for user '{user.username}', which is associated with your email at {config['domain']}. Your new password is: {new_password}\nPlease contact your system administrator if you believe this was a mistake."
+        m = send_mail_async.delay(subject=subject, content=content, to_address=user.email) if config['send_mail_asynchronously'] else mailer.send_mail(subject=subject, content=content, to_address=user.email)
+
+
     return redirect(url_for('admin.user_management'))
 
     # Placeholder for email notifications
