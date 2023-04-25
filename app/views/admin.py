@@ -79,7 +79,7 @@ import os, tempfile, datetime, re, random, string
 from app import log, mailer
 from werkzeug.security import generate_password_hash
 from celeryd.tasks import send_mail_async, restart_app_async
-from app.scripts import prettify_time_diff, convert_to_string
+from app.scripts import prettify_time_diff, convert_to_string, mask_string
 
 # borrows from and extends the functionality of flask_login.login_required, see
 # https://github.com/maxcountryman/flask-login/blob/main/src/flask_login/utils.py.
@@ -691,18 +691,18 @@ def toggle_signature_active_status(signature):
         s.active = 1 
         db.session.commit()
         flash (f'Activated signature {signature}. ', 'info')
-        log.info(f'{current_user.username.upper()} - activated {signature} signature.')
+        log.info(f'{current_user.username.upper()} - activated {mask_string(signature)} signature.')
 
     else:
         s.active = 0
         db.session.commit()
         flash (f'Deactivated signature {signature}. ', 'info')
-        log.info(f'{current_user.username.upper()} - deactivated {signature} signature.')
+        log.info(f'{current_user.username.upper()} - deactivated {mask_string(signature)} signature.')
 
     if config['notify_users_on_admin_action']:
         action_taken = "Deactivated" if s.active == 0 else "Activated"
         subject = f'{config["site_name"]} Signing Key {action_taken}'
-        content = f"This email serves to notify you that an administrator has just {action_taken.lower()} a signing key associated with your email at {config['domain']}. Please contact your system administrator if you believe this was a mistake."
+        content = f"This email serves to notify you that an administrator has just {action_taken.lower()} a signing key {mask_string(signature)}, which is associated with your email at {config['domain']}. Please contact your system administrator if you believe this was a mistake."
         m = send_mail_async.delay(subject=subject, content=content, to_address=s.email) if config['send_mail_asynchronously'] else mailer.send_mail(subject=subject, content=content, to_address=s.email)
 
     return redirect(url_for('admin.signature_management'))
