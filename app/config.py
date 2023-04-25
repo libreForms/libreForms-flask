@@ -444,6 +444,12 @@ config['enable_other_profile_views'] = False
 config['parse_usernames_as_badges'] = True
 
 
+
+# this configuration determines whether to send an email notification when administrators change
+# their passwords, see https://github.com/libreForms/libreForms-flask/issues/379.
+config['notify_on_password_change'] = False
+
+
 # here we overwrite the defaults above with any user-specified 
 # configurations in app.config_overrides, if it exists.
 if os.path.exists ("app/config_overrides.py"):
