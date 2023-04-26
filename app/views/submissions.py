@@ -1352,7 +1352,7 @@ def generate_pdf(form_name, document_id):
 
                 for cell in content_table.find_all(['td', 'th']):
                     # Add black borders and set the width to 35%
-                    cell['style'] = 'border: 1px solid black; width: 50%; text-align: left; padding-left: 3px; padding-top: 3px;'
+                    cell['style'] = 'border: 1px solid black; width: 50%; vertical-align: top; text-align: left; padding: 3px;'
 
                     # # Remove any <center> tags within the cell, keeping their contents
                     # for center in cell.find_all('center'):
