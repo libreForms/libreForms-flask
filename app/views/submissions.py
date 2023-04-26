@@ -1345,10 +1345,40 @@ def generate_pdf(form_name, document_id):
 
                 html_content = render_document(form_name=form_name, document_id=document_id)
                 soup = BeautifulSoup(html_content, 'html.parser')
-                content_table = str(soup.find(id='content-table'))
+                content_table = soup.find(id='content-table')
+
+                # # Add top and left padding of 15px to the content_table <table>
+                # content_table['style'] = 'padding-top: 15px; padding-left: 15px;'
+
+                for cell in content_table.find_all(['td', 'th']):
+                    # Add black borders and set the width to 35%
+                    cell['style'] = 'border: 1px solid black; width: 50%; text-align: left; padding-left: 3px; padding-top: 3px;'
+
+                    # # Remove any <center> tags within the cell, keeping their contents
+                    # for center in cell.find_all('center'):
+                    #     center.unwrap()
+
+
+                # Prepend rows with document_id and date
+                new_row1 = soup.new_tag('tr')
+                new_cell1 = soup.new_tag('td', colspan=len(content_table.find('tr').find_all('td')))
+                new_cell1.string = f'Document ID: {document_id}'
+                new_row1.insert(0, new_cell1)
+
+                new_row2 = soup.new_tag('tr')
+                new_cell2 = soup.new_tag('td', colspan=len(content_table.find('tr').find_all('td')))
+                new_cell2.string = f'Download Date: {datetime.datetime.utcnow().strftime("%Y-%m-%d")}'
+                new_row2.insert(0, new_cell2)
+
+                content_table.insert(0, new_row2)
+                content_table.insert(0, new_row1)
+
+                # Convert the modified content_table back to a string
+                content_table_str = str(content_table)
+                print(content_table_str)
 
                 with open(fp, "wb") as output_file:
-                    pisa_status = pisa.CreatePDF(content_table, dest=output_file)
+                    pisa_status = pisa.CreatePDF(content_table_str, dest=output_file)
 
                 if pisa_status.err:
                     flash("An error occurred while generating the PDF.", "warning")
