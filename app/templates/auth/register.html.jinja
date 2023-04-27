@@ -8,24 +8,24 @@
 
       <div title="username" class="form-group">
         <label class="form-label mt-4 required" for="username">Username</label>
-        <input class="form-control" name="username" id="username" placeholder="Enter a unique username"{%if edit_profile%} value="{{user.username}}" disabled=""{%endif%} required>
+        <input class="form-control" name="username" id="username" placeholder="Enter a unique username"{%if edit_profile%} value="{{user_data.username}}" disabled=""{%endif%} required>
       </div>
 
       <div title="email" class="form-group">
         <label class="form-label mt-4{%if config['registration_email_required'] %} required{%endif%}" for="email">Email</label>
         <!-- <input type="email" name="email" id="email"> -->
-        <input class="form-control" name="email" id="email" placeholder="Enter a unique email"{%if edit_profile%} value="{{user.email}}" disabled=""{%endif%}{%if config['registration_email_required'] %} required{%endif%}>  
+        <input class="form-control" name="email" id="email" placeholder="Enter a unique email"{%if edit_profile%} value="{{user_data.email}}" disabled=""{%endif%}{%if config['registration_email_required'] %} required{%endif%}>  
       </div>
 
       <div title="organization" class="form-group">
         <label class="form-label mt-4{%if config['registration_organization_required'] %} required{%endif%}" for="organization">Organization</label>
-        <input class="form-control" name="organization" {% if config.default_org != ""  %} value="{{ config.default_org }}" {% else %} placeholder="Enter your organization" {% endif %}id="organization"{%if edit_profile%} value="{{user.organization}}"{%endif%}{%if config['registration_organization_required'] %} required{%endif%}>  
+        <input class="form-control" name="organization" {%if edit_profile%} value="{{user_data.organization}}"{%else%}{% if config.default_org != ""  %} value="{{ config.default_org }}" {% else %} placeholder="Enter your organization" {% endif %}{%endif%}id="organization"{%if config['registration_organization_required'] %} required{%endif%}>  
       </div>
       
       <div title="phone" class="form-group">
         <label class="form-label mt-4{%if config['registration_phone_required'] %} required{%endif%}" for="phone">Phone</label>
         <!-- <input type="tel" name="phone" id="phone" pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}"> -->
-        <input class="form-control" name="phone" id="phone" placeholder="Enter your phone number"{%if edit_profile%} value="{{user.phone}}"{%endif%}{%if config['registration_phone_required'] %} required{%endif%}>  
+        <input class="form-control" name="phone" id="phone" placeholder="Enter your phone number"{%if edit_profile%} value="{{user_data.phone}}"{%endif%}{%if config['registration_phone_required'] %} required{%endif%}>  
       </div>
 
       {% if config['user_registration_fields'] is defined %}
@@ -94,8 +94,8 @@
       <div title="theme" class="form-group">
         <label class="form-label mt-4 required" for="theme" data-bs-toggle="tooltip" data-bs-placement="right" title="Select a theme to view this application">Theme</label>
         <select name="theme" class="form-select" required>
-            <option value="light" id="theme light" name="light" {%if edit_profile and user.theme == 'light' %} selected="selected" {%endif%}>Light</option>
-            <option value="dark" id="theme dark" name="dark" {%if edit_profile and user.theme == 'dark' %} selected="selected" {%endif%}>Dark</option>
+            <option value="light" id="theme light" name="light" {%if edit_profile and user_data.theme == 'light' %} selected="selected" {%endif%}>Light</option>
+            <option value="dark" id="theme dark" name="dark" {%if edit_profile and user_data.theme == 'dark' %} selected="selected" {%endif%}>Dark</option>
         </select>
       </div>
       {% endif %}

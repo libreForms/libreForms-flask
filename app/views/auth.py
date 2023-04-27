@@ -477,6 +477,7 @@ def edit_profile():
         edit_profile=True,
         name='User',
         subtitle='Edit Profile',
+        user_data=current_user, # this is the data that populates the user fields
         **standard_view_kwargs(),
         )
 
