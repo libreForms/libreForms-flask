@@ -19,7 +19,7 @@ config = {
 
 Please note that config_overrides.py must be created in order for the 
 web application to function. In addition, it must include a field for
-`default_user_email` to set the email for the default `libreforms` 
+`default_user_` to set the email for the default `libreforms` 
 user, otherwise the application will fail.
 
 """
@@ -350,6 +350,8 @@ config['phone_regex'] = r'^[a-z0-9]{3}-[a-z0-9]{3}-[a-z0-9]{4}$'
 config['user_friendly_phone_regex'] = "xxx-xxx-xxxx"
 config['password_regex'] =  r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+[\]{};\'\\:"|,.<>/?])[A-Za-z\d!@#$%^&*()_+[\]{};\'\\:"|,.<>/?]{8,}$'
 config['user_friendly_password_regex'] = "8+ characters, must include uppercase, lowercase, digit, and special character"
+config['organization_regex'] =  r".*"
+config['user_friendly_organization_regex'] = ""
 
 
 # these configs define the groups available for users to fall under, and the default
