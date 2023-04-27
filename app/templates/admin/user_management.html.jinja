@@ -27,9 +27,10 @@
                     <a class="dropdown-toggle" data-bs-toggle="dropdown" data-bs-placement="right" role="button" aria-haspopup="true" aria-expanded="false" href="#">{{ row.username }}</a>
                     <div class="dropdown-menu">
                         <a class="dropdown-item" href="{{url_for('auth.other_profiles',username=row.username)}}">View User</a>
+                        <a class="dropdown-item" href="{{url_for('admin.edit_profile',username=row.username)}}">Edit User Profile</a>
                         <a class="dropdown-item" href="{{url_for('admin.toggle_user_active_status', username=row.username)}}">{{"Deactivate" if row.active else "Activate"}} User</a>
                         <a class="dropdown-item" href="{{url_for('admin.generate_random_password', username=row.username)}}">Reset Password</a>
-                    </div>
+                    </div> 
                 </td>
                 <td>{{ row.group }}</td>
                 <td>{{ row.organization }}</td>
