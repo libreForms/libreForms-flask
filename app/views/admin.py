@@ -114,6 +114,7 @@ def compile_admin_views_for_menu():
                                                                                                         'admin.toggle_user_active_status', 
                                                                                                         'admin.generate_random_password',
                                                                                                         'admin.toggle_signature_active_status',
+                                                                                                        'admin.edit_profile',
                                                                                                         ]]:
         v = view.replace('admin_','')
         v = v.replace('admin.','')
@@ -783,3 +784,82 @@ def generate_random_password(username):
     #     m = send_mail_async.delay(subject=f'{config["site_name"]} User Registered', content=f"This email serves to notify you that the user {row.username} has just been registered for this email address at {config['domain']}.", to_address=row.email) if config['send_mail_asynchronously'] else mailer.send_mail(subject=f'{config["site_name"]} User Registered', content=f"This email serves to notify you that the user {row.username} has just been registered for this email address at {config['domain']}.", to_address=row.email, logfile=log)
     #     flash(f'Successfully created user \'{row.username.lower()}\'.', "success")
 
+
+
+
+@bp.route('/edit/<username>', methods=('GET', 'POST'))
+@is_admin
+def edit_profile(username):
+
+    user = User.query.filter_by(username=username).first()
+
+    if not user:
+        flash (f'User {username} does not exist.', 'warning')
+        return redirect(url_for('admin.user_management'))
+
+    if request.method == 'POST':
+
+        organization = request.form['organization'] or None
+        phone = request.form['phone'] or None
+        theme = request.form['theme'] or None
+        
+        TEMP = {}
+        for item in config['user_registration_fields'].keys():
+            if config['user_registration_fields'][item]['input_type'] != 'hidden':
+
+                if config['user_registration_fields'][item]['input_type'] == 'checkbox':
+                    
+                    TEMP[item] = str(request.form.getlist(item))
+
+                else:
+
+                    TEMP[item] = str(request.form[item]) if config['user_registration_fields'][item]['type'] == str else None
+
+        if phone == "" or phone == None or phone == "None":
+            phone = None
+        
+        if organization == "" or phone == None or phone == "None":
+            email = None
+        
+        if theme not in ['light', 'dark']:
+            theme = 'dark'
+
+        error = None
+
+        # added these per https://github.com/signebedi/libreForms/issues/122
+        # to give the freedom to set these as required fields
+        if config['registration_phone_required'] and not phone:
+            error = 'Phone is required. '
+        elif config['registration_organization_required'] and not organization:
+            error = 'Organization is required. '
+        elif phone and not re.fullmatch(config['phone_regex'], phone):
+            error = f'Invalid phone number ({config["user_friendly_phone_regex"]}). ' 
+    
+        if error is None:
+            try:
+                user.organization = organization 
+                user.phone = phone 
+                user.theme = theme 
+                for item in TEMP:
+                    setattr(user, item, TEMP[item])
+
+                db.session.commit()
+
+                flash(f"Successfully updated profile for user {username}.", "success")
+                log.info(f'{current_user.username.upper()} - Successfully updated profile for user {username}.')
+                return redirect(url_for('admin.user_management'))
+
+            except Exception as e: 
+                transaction_id = str(uuid.uuid1())
+                log.warning(f"{current_user.username.upper()} - failed to update profile for user {username}. {e}", extra={'transaction_id': transaction_id})
+                error = f"There was an error in processing your request. Transaction ID: {transaction_id}. "
+            
+        flash(error, "warning")
+
+    return render_template('auth/register.html.jinja',
+        edit_profile=True,
+        name='User',
+        subtitle='Edit Profile',
+        user_data=user, # this is the data that populates the user fields
+        **standard_view_kwargs(),
+        )

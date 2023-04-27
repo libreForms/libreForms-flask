@@ -430,10 +430,10 @@ def edit_profile():
 
                     TEMP[item] = str(request.form[item]) if config['user_registration_fields'][item]['type'] == str else None
 
-        if phone == "" or None or "None":
+        if phone == "" or phone == None or phone == "None":
             phone = None
         
-        if organization == "" or None or "None":
+        if organization == "" or phone == None or phone == "None":
             email = None
         
         if theme not in ['light', 'dark']:
