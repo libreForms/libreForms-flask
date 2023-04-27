@@ -791,6 +791,11 @@ def generate_random_password(username):
 @is_admin
 def edit_profile(username):
 
+    # if the current authenticated user is trying to edit their own profile, 
+    # then redirect to the that route
+    if username == current_user.username:
+        return redirect(url_for('auth.edit_profile'))
+
     user = User.query.filter_by(username=username).first()
 
     if not user:
@@ -858,7 +863,7 @@ def edit_profile(username):
 
     return render_template('auth/register.html.jinja',
         edit_profile=True,
-        name='User',
+        name=username,
         subtitle='Edit Profile',
         user_data=user, # this is the data that populates the user fields
         **standard_view_kwargs(),
