@@ -592,11 +592,9 @@ def download_bulk_user_template(filename='bulk_user_template.csv'):
 ############################
 
 @bp.route(f'/lint', methods=['GET', 'POST'])
-@login_required
 def lint_user_field():
 
     def validate_option(field, value):
-
 
         if field in ['username','email', 'organization', 'phone', 'password']:
             regex = config[f'{field}_regex']
@@ -619,11 +617,19 @@ def lint_user_field():
         else:
             return "This field cannot be verified"
 
-        print()
+        # print(regex)
 
         validator = lambda x: bool(re.compile(regex).match(str(x)))
 
         try:
+            if field == 'username':
+                user = User.query.filter_by(username=value).first()
+                assert not user, "An account is already registered to this username."
+
+            elif field == 'email':
+                email = User.query.filter_by(email=value).first()
+                assert not email, "An account is already registered to this email addresss."
+
             assert validator(value), error_msg
 
         except Exception as e:
@@ -638,7 +644,7 @@ def lint_user_field():
         field = request.json['field']
         value = request.json['value']
 
-        # print(string)
+        # print(field, value)
 
         v = validate_option(field, value)
 

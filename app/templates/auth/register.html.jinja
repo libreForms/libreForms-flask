@@ -152,7 +152,7 @@ async function validateFields(fi, val, id) {
     value: val
   };
 
-  let response = await fetch('{{ url_for ('auth.lint_user_field') }}', {
+  let response = await fetch('{{ url_for('auth.lint_user_field') }}', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json;charset=utf-8'
