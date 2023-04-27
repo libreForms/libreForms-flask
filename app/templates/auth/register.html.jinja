@@ -108,7 +108,10 @@
 
       <div title="re-enter password" class="form-group">
           <label class="form-label mt-4" for="reenter_new_password">Re-enter Password</label>
-          <input class="form-control" type="password" name="reenter_password" id="reenter_password" placeholder="Re-enter password" required>            
+          <input class="form-control" onchange="validatePassword();" type="password" name="reenter_password" id="reenter_password" placeholder="Re-enter password" required>    
+          <div class="valid-feedback" id="reenter_password-is-valid">Passwords match!</div>
+          <div class="invalid-feedback" id="reenter_password-is-invalid">Passwords do not match!</div>    
+
       </div>
 
       {% else %}
@@ -176,5 +179,25 @@ async function validateFields(fi, val, id) {
   }
 }
 
+
+function validatePassword() {
+    const password1 = document.getElementById('password');
+    const password2 = document.getElementById('reenter_password');
+
+  var submit = document.getElementById("form-button-submit");
+
+  if (password1.value === password2.value) {
+    password2.classList.remove("is-invalid")
+    password2.classList.add("is-valid")
+    submit.classList.remove("disabled")
+
+  } else {
+    password2.classList.add("is-invalid")
+    password2.classList.remove("is-valid")
+    submit.classList.add("disabled")
+  }
+
+
+}
 
 {% endblock %}
