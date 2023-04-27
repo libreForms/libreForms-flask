@@ -14,11 +14,11 @@ __maintainer__ = "Sig Janoska-Bedi"
 __email__ = "signe@atreeus.com"
 
 
-import functools, re, datetime, tempfile, os, uuid, random
+import functools, re, datetime, tempfile, os, uuid, random, json
 import pandas as pd
 from urllib.parse import urlparse
 
-from flask import current_app, Blueprint, flash, g, redirect, render_template, request, session, url_for, send_from_directory, abort, make_response
+from flask import current_app, Blueprint, flash, g, redirect, render_template, request, session, url_for, send_from_directory, abort, make_response, Response
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 from flask_login import LoginManager, login_required, login_user, logout_user, current_user
@@ -598,13 +598,13 @@ def lint_user_field():
     def validate_option(field, value):
 
 
-        if field in ['username','email', 'organization', 'phone']:
-            validator = config[f'{field}_regex']
+        if field in ['username','email', 'organization', 'phone', 'password']:
+            regex = config[f'{field}_regex']
             error_msg = config[f'user_friendly_{field}_regex']
 
         elif field in config['user_registration_fields']:
             if "regex" in config['user_registration_fields'][field]:
-                validator = config['user_registration_fields'][field]["regex"]
+                regex = config['user_registration_fields'][field]["regex"]
             
                 if "user_friendly_regex" in config['user_registration_fields'][field]:
                     error_msg = config['user_registration_fields'][field]['user_friendly_regex']
@@ -619,9 +619,12 @@ def lint_user_field():
         else:
             return "This field cannot be verified"
 
+        print()
+
+        validator = lambda x: bool(re.compile(regex).match(str(x)))
 
         try:
-            assert lambda x: bool(re.compile(r'^\d+$').match(str(x))), error_msg
+            assert validator(value), error_msg
 
         except Exception as e:
             return str(e)
