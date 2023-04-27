@@ -346,7 +346,7 @@ config['username_regex'] = r"^\w\w\w\w+$"
 config['user_friendly_username_regex'] = "4-36 alphanumeric characters"
 config['email_regex'] = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
 config['user_friendly_email_regex'] = "name@example.com"
-config['phone_regex'] = r'^[a-z0-9]{3}-[a-z0-9]{3}-[a-z0-9]{4}$'
+config['phone_regex'] = r'^[0-9]{3}-[0-9]{3}-[0-9]{4}$'
 config['user_friendly_phone_regex'] = "xxx-xxx-xxxx"
 config['password_regex'] =  r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+[\]{};\'\\:"|,.<>/?])[A-Za-z\d!@#$%^&*()_+[\]{};\'\\:"|,.<>/?]{8,}$'
 config['user_friendly_password_regex'] = "8+ characters, must include uppercase, lowercase, digit, and special character"
