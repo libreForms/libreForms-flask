@@ -587,6 +587,65 @@ def download_bulk_user_template(filename='bulk_user_template.csv'):
                                 filename, as_attachment=True)
 
 
+############################
+# Front-end field validation
+############################
+
+@bp.route(f'/lint', methods=['GET', 'POST'])
+@login_required
+def lint_user_field():
+
+    def validate_option(field, value):
+
+
+        if field in ['username','email', 'organization', 'phone']:
+            validator = config[f'{field}_regex']
+            error_msg = config[f'user_friendly_{field}_regex']
+
+        elif field in config['user_registration_fields']:
+            if "regex" in config['user_registration_fields'][field]:
+                validator = config['user_registration_fields'][field]["regex"]
+            
+                if "user_friendly_regex" in config['user_registration_fields'][field]:
+                    error_msg = config['user_registration_fields'][field]['user_friendly_regex']
+                else:
+                    error_msg = f"Provided value does not meet validation requirements set by your system administrator."
+            
+            # if no regex has been passed, we must assume that the end user has not
+            # set any restrictions on acceptable inputs
+            else:
+                return True
+
+        else:
+            return "This field cannot be verified"
+
+
+        try:
+            assert lambda x: bool(re.compile(r'^\d+$').match(str(x))), error_msg
+
+        except Exception as e:
+            return str(e)
+
+        return True
+
+    if request.method == 'POST':
+        # print(request)
+
+        # string = request.json['string']
+        field = request.json['field']
+        value = request.json['value']
+
+        # print(string)
+
+        v = validate_option(field, value)
+
+        if type(v) == bool:
+            return Response(json.dumps({'status':'success'}), status=config['success_code'], mimetype='application/json')
+
+        return Response(json.dumps({'status':'failure', 'msg': v}), status=config['error_code'], mimetype='application/json')
+
+    return abort(404)
+
 
 #####################
 # SAML-related routes
