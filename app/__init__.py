@@ -66,9 +66,10 @@ if not re.fullmatch(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', conf
 if not config['smtp_enabled'] and (config['enable_email_verification'] or \
             config['enable_reports'] or config['allow_password_resets'] or \
             config['allow_anonymous_form_submissions'] or \
+            config['notify_users_on_admin_action'] or \
             config['enable_email_login_mfa']):
 
-  raise Exception("Please enable SMTP if you'd like to enable email verification, allow password resets, enable email MFA, send reports, or allow anonymous form submissions.")
+  raise Exception("Please enable SMTP if you'd like to enable email verification, allow password resets, enable email MFA, notifications for admin action, send reports, or allow anonymous form submissions.")
 
 
 
