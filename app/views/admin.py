@@ -888,7 +888,7 @@ def generate_api_key(username):
         # user, which ships by default with the application, does not have an email set - meaning that the default
         # user will not be constrained by this behavior. This can be viewed as a bug or a feature, depending on context.
         if len(signing_df.loc[(signing_df.email == user.email) & (signing_df.scope == 'api_key') & (signing_df.active == 1)]) >= config['limit_rest_api_keys_per_user']:
-            flash(f'This user has already registered the number of API keys they are permitted. ', "warning")
+            flash(f'This user has already registered the maximum number of API keys they are permitted. ', "warning")
             return redirect(url_for('admin.user_management'))
 
     key = signing.write_key_to_database(scope='api_key', expiration=5640, active=1, email=user.email)

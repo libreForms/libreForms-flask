@@ -28,7 +28,7 @@
 <tr title="user reports"><td><b>Reports</b></td><td style="width: 80%;"><a href="{{config['domain']}}/reports">view here</a></td></tr>
 {% endif %}
 {% if config['enable_user_profile_api_key_aggregation'] %}
-<tr title="api keys"><td><b>API Keys</b></td><td style="width: 80%;"> {% for key in api_keys %} {{ key }}<br/>{% endfor %}</td></tr>
+<tr title="api keys"><td><b>API Keys</b></td><td style="width: 100%;">{% for key in api_keys %}{{ key }}<br/><br/>{% endfor %}</td></tr>
 {% endif %}
 </table>
 
