@@ -527,6 +527,7 @@ def profile():
         type="profile",
         name='User',
         subtitle='Profile',
+        api_keys=[x.signature for x in Signing.query.filter_by(email=current_user.email).all()] if config['enable_user_profile_api_key_aggregation'] else None,
         log_data=aggregate_log_data(keyword=f'- {current_user.username.upper()} -', limit=1000, pull_from='end') if config['enable_user_profile_log_aggregation'] else None,
         **standard_view_kwargs(),
     )

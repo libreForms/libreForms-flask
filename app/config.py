@@ -190,7 +190,7 @@ config['enable_v1_rest_api'] = False
 config['enable_v2_rest_api'] = False
 config['limit_rest_api_keys_per_user'] = False
 config['allow_user_api_key_generation'] = False
-config['enable_user_profile_api_key_aggregation'] = True
+config['enable_user_profile_api_key_aggregation'] = False
 
 
 # this config determines whether users will see their logs aggregated in
