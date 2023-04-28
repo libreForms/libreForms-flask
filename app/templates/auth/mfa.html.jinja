@@ -1,0 +1,24 @@
+{% extends 'base.html.jinja' %}
+
+{% block header %}
+  <h1>{% block title %}Enter your MFA token{% endblock %}</h1>
+{% endblock %}
+
+
+{% block content %}
+<p>Check your email for your MFA token.</p>
+<form title="mfa token" method="post">
+  <fieldset>
+    <div title="signature" class="form-group">
+      <label class="form-label mt-4" for="signature">Token</label>
+      <input class="form-control" name="signature" id="signature" required>
+    </div>
+
+    <div title="submit"  class="form-group mt-4">
+    <input class="btn btn-primary" type="submit" value="Log In">
+    </div>
+  </fieldset>
+</form>
+
+{% endblock %}
+

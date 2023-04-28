@@ -356,15 +356,29 @@ def mfa():
     if request.method == 'POST':
 
         # get MFA token from POST vars
-        # validate mFA token
-        # flash error, log error, & return redirect to self if wrong
+        signature = request.form['signature']
 
-        # if right, expire MFA token and create user session
+        # validate MFA token and, if right, expire MFA token and create user session
+        if not signing.verify_signatures(signature, redirect_to='auth.mfa', 
+                                        scope="mfa"):
 
-        login_user(user, remember=remember)
-        flash(f'Successfully logged in user \'{username.lower()}\'.', "success")
-        log.info(f'{username.upper()} - successfully logged in.')
-        return redirect(url_for('home'))
+            signing_df = pd.read_sql_table("signing", con=db.engine.connect())
+            email = signing_df.loc[ signing_df['signature'] == signature ]['email'].iloc[0]
+            user = User.query.filter_by(email=str(email)).first() ## get email from Signing table & collate to User table 
+
+            # we probably need to add additional checks here to verify this is the user in question, to invalidate other past 
+            # MFA tokens for this user, etc.
+
+            login_user(user)
+            flash(f'Successfully logged in user \'{current_user.username.lower()}\'.', "success")
+            log.info(f'{current_user.username.upper()} - successfully logged in.')
+            signing.expire_key(signature)
+            return redirect(url_for('home'))
+
+    return render_template('auth/mfa.html.jinja',
+            name='User',
+            subtitle='Verify MFA',
+            config=config,)
 
 
 
@@ -399,10 +413,22 @@ def login():
         if error is None:
 
             if config['enable_email_login_mfa']:
-                # gen MFA token
-                # send email
-                # redirect to MFA route
-                pass
+                try: 
+                    email = user.email
+
+                    ## we should also check for existing MFA tokens for this user, and expire them if they are not already expired.
+                    key = signing.write_key_to_database(scope='mfa', expiration=1, active=1, email=email)
+                    subject = f'{config["site_name"]} Login MFA token'
+                    content = f"A login attempt has just been made for this account at {config['domain']}. Use the following key to complete the login process:\n\n{key}\n\nPlease note this link will expire after one hour. If you believe this email was sent by mistake, please contact your system administrator."
+                    m = send_mail_async.delay(subject=subject, content=content, to_address=email) if config['send_mail_asynchronously'] else mailer.send_mail(subject=subject, content=content, to_address=email, logfile=log)
+                    flash("An MFA token has been sent to the email associated with your user account.", "success")
+                    return redirect(url_for('auth.mfa'))
+
+                except Exception as e: 
+                    transaction_id = str(uuid.uuid1())
+                    log.warning(f"LIBREFORMS - {e}", extra={'transaction_id': transaction_id})
+                    flash(f"Could not send MFA token email. Transaction ID: {transaction_id}. ", "warning")
+                    return redirect(url_for('auth.login'))
 
             login_user(user, remember=remember)
             flash(f'Successfully logged in user \'{username.lower()}\'.', "success")
