@@ -115,6 +115,7 @@ def compile_admin_views_for_menu():
                                                                                                         'admin.generate_random_password',
                                                                                                         'admin.toggle_signature_active_status',
                                                                                                         'admin.edit_profile',
+                                                                                                        'admin.generate_api_key',
                                                                                                         ]]:
         v = view.replace('admin_','')
         v = v.replace('admin.','')
@@ -868,3 +869,30 @@ def edit_profile(username):
         user_data=user, # this is the data that populates the user fields
         **standard_view_kwargs(),
         )
+
+@bp.route('/api/<username>', methods=('GET', 'POST'))
+@is_admin 
+def generate_api_key(username):
+
+    user = User.query.filter_by(username=username).first()
+
+    if not user:
+        flash (f'User {username} does not exist.', 'warning')
+        return redirect(url_for('admin.user_management'))
+
+    if config['limit_rest_api_keys_per_user']:
+        signing_df = pd.read_sql_table("signing", con=db.engine.connect())
+
+        # note that this behavior will not apply when an email has not been specified for a given key, which
+        # shouldn't be the case as long as emails are required fields at user registration; however, the `libreforms`
+        # user, which ships by default with the application, does not have an email set - meaning that the default
+        # user will not be constrained by this behavior. This can be viewed as a bug or a feature, depending on context.
+        if len(signing_df.loc[(signing_df.email == user.email) & (signing_df.scope == 'api_key') & (signing_df.active == 1)]) >= config['limit_rest_api_keys_per_user']:
+            flash(f'This user has already registered the number of API keys they are permitted. ', "warning")
+            return redirect(url_for('admin.user_management'))
+
+    key = signing.write_key_to_database(scope='api_key', expiration=5640, active=1, email=user.email)
+    m = send_mail_async.delay(subject=f'{config["site_name"]} API Key Generated', content=f"This email serves to notify you that the user {user.username} has just generated an API key for this email address at {config['domain']}. The API key is: {key}. Please note this key will expire after 365 days.", to_address=current_user.email) if config['send_mail_asynchronously'] else mailer.send_mail(subject=f'{config["site_name"]} API Key Generated', content=f"This email serves to notify you that the user {current_user.username} has just generated an API key for this email address at {config['domain']}. The API key is: {key}. Please note this key will expire after 365 days.", to_address=current_user.email, logfile=log)
+    flash(f'Successfully generated API key {key} for \'{user.username.lower()}\'. They should check their email for further instructions. ', "success")
+
+    return redirect(url_for('admin.user_management'))

@@ -308,7 +308,7 @@ def verify_email(signature):
     
     return redirect(url_for('auth.login'))
 
-if config['enable_v1_rest_api'] or config['enable_v2_rest_api']:
+if (config['enable_v1_rest_api'] or config['enable_v2_rest_api']) and config['allow_user_api_key_generation']:
 
     @bp.route('/register/api', methods=('GET', 'POST'))
     @login_required 
@@ -322,7 +322,7 @@ if config['enable_v1_rest_api'] or config['enable_v2_rest_api']:
             # user, which ships by default with the application, does not have an email set - meaning that the default
             # user will not be constrained by this behavior. This can be viewed as a bug or a feature, depending on context.
             if len(signing_df.loc[(signing_df.email == current_user.email) & (signing_df.scope == 'api_key') & (signing_df.active == 1)]) >= config['limit_rest_api_keys_per_user']:
-                flash(f'This user has already registered the number of API keys they are permitted. ', "warning")
+                flash(f'This user has already registered the maximum number of API keys they are permitted. ', "warning")
                 return redirect(url_for('auth.profile'))
 
         key = signing.write_key_to_database(scope='api_key', expiration=5640, active=1, email=current_user.email)
