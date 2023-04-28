@@ -408,6 +408,12 @@ config['require_password_for_electronic_signatures'] = True
 # or when auth is externalized eg. using LDAP, see https://github.com/signebedi/libreForms/issues/7.
 config['allow_anonymous_registration'] = True
 
+
+# this config determines whether users will be sent MFA tokens in their email to enable them to
+# login to the web app. It requires the `smtp_enabled` to be set to True. For further discussion,
+# see https://github.com/libreForms/libreForms-flask/issues/328.
+config['enable_email_login_mfa'] = True
+
 # this config determines whether users can reset their passwords anonymously, using the 
 # auth/forgot_password route; administrator password resets, as well as password resets
 # through the user profile while authenticated, will still be supported.
