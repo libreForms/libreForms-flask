@@ -351,7 +351,10 @@ def mfa():
 
     # we only make this view visible if the user isn't logged in
     if current_user.is_authenticated:
-        return redirect(request.referrer or url_for('home'))
+        return redirect(request.referrer or url_for('auth.login'))
+
+    if not session.get('valid_credentials') or not session.get('user_email'):
+        return redirect(url_for('auth.mfa'))
 
     if request.method == 'POST':
 
@@ -366,9 +369,14 @@ def mfa():
             email = signing_df.loc[ signing_df['signature'] == signature ]['email'].iloc[0]
             user = User.query.filter_by(email=str(email)).first() ## get email from Signing table & collate to User table 
 
-            # we probably need to add additional checks here to verify this is the user in question, to invalidate other past 
-            # MFA tokens for this user, etc.
+            # we check to verify this is the user in question and clear the old session before fully logging user in
+            session_email = session.get('user_email')
+            if not email == session_email:
+                flash(f'Invalid request key. Key not eligible for account associated with {session_email}.', "warning")
+                return redirect(url_for('auth.mfa'))
+            session.clear()
 
+            # log the user in
             login_user(user)
             flash(f'Successfully logged in user \'{current_user.username.lower()}\'.', "success")
             log.info(f'{current_user.username.upper()} - successfully logged in.')
@@ -429,6 +437,10 @@ def login():
                     content = f"A login attempt has just been made for this account at {config['domain']}. Use the following key to complete the login process:\n\n{key}\n\nPlease note this link will expire after one hour. If you believe this email was sent by mistake, please contact your system administrator."
                     m = send_mail_async.delay(subject=subject, content=content, to_address=email) if config['send_mail_asynchronously'] else mailer.send_mail(subject=subject, content=content, to_address=email, logfile=log)
                     flash("An MFA token has been sent to the email associated with your user account.", "success")
+
+                    session['valid_credentials'] = True
+                    session['user_email'] = email
+                    
                     return redirect(url_for('auth.mfa'))
 
                 except Exception as e: 
