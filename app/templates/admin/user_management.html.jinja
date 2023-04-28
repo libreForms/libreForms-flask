@@ -30,6 +30,7 @@
                         <a class="dropdown-item" href="{{url_for('admin.edit_profile',username=row.username)}}">Edit User Profile</a>
                         <a class="dropdown-item" href="{{url_for('admin.toggle_user_active_status', username=row.username)}}">{{"Deactivate" if row.active else "Activate"}} User</a>
                         <a class="dropdown-item" href="{{url_for('admin.generate_random_password', username=row.username)}}">Reset Password</a>
+                        <a class="dropdown-item" href="{{url_for('admin.generate_api_key', username=row.username)}}">Generate API key</a>
                     </div> 
                 </td>
                 <td>{{ row.group }}</td>
