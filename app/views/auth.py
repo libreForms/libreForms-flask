@@ -346,6 +346,27 @@ if (config['enable_v1_rest_api'] or config['enable_v2_rest_api']) and config['al
 
         # return redirect(url_for('auth.profile'))
 
+@bp.route('/mfa', methods=('GET', 'POST'))
+def mfa():
+
+    # we only make this view visible if the user isn't logged in
+    if current_user.is_authenticated:
+        return redirect(request.referrer or url_for('home'))
+
+    if request.method == 'POST':
+
+        # get MFA token from POST vars
+        # validate mFA token
+        # flash error, log error, & return redirect to self if wrong
+
+        # if right, expire MFA token and create user session
+
+        login_user(user, remember=remember)
+        flash(f'Successfully logged in user \'{username.lower()}\'.', "success")
+        log.info(f'{username.upper()} - successfully logged in.')
+        return redirect(url_for('home'))
+
+
 
 @bp.route('/login', methods=('GET', 'POST'))
 def login():
@@ -376,6 +397,13 @@ def login():
 
 
         if error is None:
+
+            if config['enable_email_login_mfa']:
+                # gen MFA token
+                # send email
+                # redirect to MFA route
+                pass
+
             login_user(user, remember=remember)
             flash(f'Successfully logged in user \'{username.lower()}\'.', "success")
             log.info(f'{username.upper()} - successfully logged in.')
