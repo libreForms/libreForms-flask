@@ -416,7 +416,14 @@ def login():
                 try: 
                     email = user.email
 
-                    ## we should also check for existing MFA tokens for this user, and expire them if they are not already expired.
+                    # we also check for existing MFA tokens for this user, and expire them if they are not already expired.
+                    signatures = Signing.query.filter_by(email=email, scope="mfa", active=1).all()
+                    if len(signatures) > 0:
+                        for signature in signatures:
+                            signature.active = 0
+                        db.session.commit()
+
+                    # then we create and distribute the MFA token
                     key = signing.write_key_to_database(scope='mfa', expiration=1, active=1, email=email)
                     subject = f'{config["site_name"]} Login MFA token'
                     content = f"A login attempt has just been made for this account at {config['domain']}. Use the following key to complete the login process:\n\n{key}\n\nPlease note this link will expire after one hour. If you believe this email was sent by mistake, please contact your system administrator."
