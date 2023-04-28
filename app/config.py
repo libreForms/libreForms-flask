@@ -180,10 +180,14 @@ config['hcaptcha_secret_key'] = False
 # API, we created two configs to enable v1 and v2 separately, see discussion
 # of tradeoffs at https://github.com/libreForms/libreForms-flask/issues/371.
 # You can also set `limit_rest_api_keys_per_user` as an integer to determine 
-# how many RESTful API keys each user can create.
+# how many RESTful API keys each user can create. You can also set the 
+# `allow_user_api_key_generation` config to allow users to generate API keys,
+# see https://github.com/libreForms/libreForms-flask/issues/359.
 config['enable_v1_rest_api'] = False
 config['enable_v2_rest_api'] = False
 config['limit_rest_api_keys_per_user'] = False
+config['allow_user_api_key_generation'] = False
+
 
 # this config determines whether users will see their logs aggregated in
 # their user profiles, see https://github.com/signebedi/libreForms/issues/35.
