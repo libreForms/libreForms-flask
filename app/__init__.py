@@ -36,7 +36,7 @@ import datetime
 
 # Flask-specific dependencies
 from flask import Flask, render_template, current_app, jsonify, request, \
-                    abort, Response, send_from_directory, url_for
+                    abort, Response, send_from_directory, url_for, session
 from flask_login import LoginManager, current_user
 from werkzeug.middleware.proxy_fix import ProxyFix
 from celery import Celery
@@ -568,6 +568,11 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
         from .views import cli
         app.register_blueprint(cli.bp, cli_group='libreforms')
         # app.cli.groups['libreforms'].help = 'libreforms command group help text'
+
+    @app.before_request
+    def make_session_permanent():
+        session.permanent = True
+        app.permanent_session_lifetime = config['session_length']
 
 
     # define a home route

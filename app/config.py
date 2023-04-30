@@ -35,7 +35,7 @@ __email__ = "signe@atreeus.com"
 import os, secrets, dotenv
 from ast import literal_eval
 from markupsafe import Markup
-from datetime import datetime
+from datetime import datetime, timedelta
 from app.log_functions import v1_set_logger, v2_set_logger
 # from app.log_functions import v2_set_logger
 
@@ -318,6 +318,11 @@ config['enable_cli'] = True
 # config['logger'] = v1_set_logger
 config['logger'] = v2_set_logger
 
+
+# this config sets the max session length as a datetime timedelta object,
+# see https://github.com/libreForms/libreForms-flask/issues/395. By default,
+# we set a one-hour max inactivity time before the session is cleared.
+config['session_length'] = timedelta(hours=1)
 
 ##########################
 # User Registration / Auth
