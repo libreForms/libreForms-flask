@@ -91,6 +91,7 @@ __email__ = "signe@atreeus.com"
 from flask import current_app
 from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
 
 db = SQLAlchemy()
 
@@ -107,7 +108,9 @@ class User(UserMixin, db.Model):
     certificate = db.Column(db.LargeBinary())
     theme = db.Column(db.String(100))
     active = db.Column(db.Integer)
-    created_date = db.Column(db.String(1000))
+    created_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    last_login = db.Column(db.DateTime, nullable=True, default=datetime.utcnow)
+    last_password_change = db.Column(db.DateTime, nullable=True, default=datetime.utcnow)
 
 
 class Signing(db.Model):

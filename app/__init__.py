@@ -300,7 +300,8 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
                                 certificate=generate_symmetric_key(),
                                 email=config['default_user_email'] if config['default_user_email'] and re.fullmatch(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', config['default_user_email']) else None,
                                 password='pbkdf2:sha256:260000$nQVWxd59E8lmkruy$13d8c4d408185ccc3549d3629be9cd57267a7d660abef389b3be70850e1bbfbf',
-                                created_date='2022-06-01 00:00:00',)
+                                # created_date='2022-06-01 00:00:00','
+                                )
             db.session.add(initial_user)
             db.session.commit()
             log.info(f'LIBREFORMS - created the default user {config["default_user_username"]}.' )

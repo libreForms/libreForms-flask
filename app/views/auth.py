@@ -171,7 +171,7 @@ def register():
         email = request.form['email']
         organization = request.form['organization']
         phone = request.form['phone']
-        created_date = datetime.datetime.today().strftime("%Y-%m-%d %H:%M:%S")
+        # created_date = datetime.datetime.today().strftime("%Y-%m-%d %H:%M:%S")
 
         reenter_password = request.form['reenter_password']
 
@@ -241,7 +241,7 @@ def register():
                             certificate=generate_symmetric_key(),
                             phone=phone,
                             theme='dark' if config['dark_mode'] else 'light', # we default to the application default
-                            created_date=created_date,
+                            # created_date=created_date,
                             active=0 if config["enable_email_verification"] else 1,
                             **TEMP, # https://stackoverflow.com/a/5710402
                         ) 
@@ -760,7 +760,7 @@ if config['saml_enabled']:
                         active=1,
                         group=group if group else config['default_group'],
                         theme='dark' if config['dark_mode'] else 'light', 
-                        created_date=datetime.datetime.today().strftime("%Y-%m-%d %H:%M:%S"),
+                        # created_date=datetime.datetime.today().strftime("%Y-%m-%d %H:%M:%S"),
             )
             db.session.add(user)
             db.session.commit()

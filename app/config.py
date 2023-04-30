@@ -319,10 +319,6 @@ config['enable_cli'] = True
 config['logger'] = v2_set_logger
 
 
-# this config sets the max session length as a datetime timedelta object,
-# see https://github.com/libreForms/libreForms-flask/issues/395. By default,
-# we set a one-hour max inactivity time before the session is cleared.
-config['session_length'] = timedelta(hours=1)
 
 ##########################
 # User Registration / Auth
@@ -365,6 +361,12 @@ config['password_regex'] =  r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+[
 config['user_friendly_password_regex'] = "8+ characters, must include uppercase, lowercase, digit, and special character"
 config['organization_regex'] =  r".*"
 config['user_friendly_organization_regex'] = ""
+
+
+# this config sets the max session length as a datetime timedelta object,
+# see https://github.com/libreForms/libreForms-flask/issues/395. By default,
+# we set a one-hour max inactivity time before the session is cleared.
+config['session_length'] = timedelta(hours=1)
 
 
 # these configs define the groups available for users to fall under, and the default

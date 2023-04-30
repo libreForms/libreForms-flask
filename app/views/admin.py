@@ -547,7 +547,7 @@ def bulk_register():
                     log.warning(f"{current_user.username.upper()} - {e}", extra={'transaction_id': transaction_id})
 
             if error is None:
-                created_date=datetime.datetime.today().strftime("%Y-%m-%d %H:%M:%S")
+                # created_date=datetime.datetime.today().strftime("%Y-%m-%d %H:%M:%S")
                 
                 for index, row in bulk_user_df.iterrows():
                     does_user_exist = User.query.filter_by(username=row.username.lower()).first()
@@ -593,7 +593,7 @@ def bulk_register():
                                         organization=row.organization if row.organization else "",
                                         phone=row.phone if row.phone else "",
                                         theme=row.theme if row.theme in ['light', 'dark'] else 'dark',
-                                        created_date=created_date,
+                                        # created_date=created_date,
                                         group = row.group,
                                         certificate=generate_symmetric_key(),
                                         active=0 if config["enable_email_verification"] else 1,
