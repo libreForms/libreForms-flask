@@ -109,6 +109,9 @@ class User(UserMixin, db.Model):
     theme = db.Column(db.String(100))
     active = db.Column(db.Integer)
     created_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    last_login = db.Column(db.DateTime, nullable=True, default=datetime.utcnow)
+    last_password_change = db.Column(db.DateTime, nullable=True, default=datetime.utcnow)
+
 
 class Signing(db.Model):
     __tablename__ = 'signing'
