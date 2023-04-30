@@ -368,6 +368,19 @@ config['user_friendly_organization_regex'] = ""
 # we set a one-hour max inactivity time before the session is cleared.
 config['session_length'] = timedelta(hours=1)
 
+# these configs implement security controls generally related to local password
+# based authentication. For futher discussion of max password age policies, see
+# https://github.com/libreForms/libreForms-flask/issues/388. For setting max 
+# password attemps, see https://github.com/libreForms/libreForms-flask/issues/396.
+# For password reuse, see https://github.com/libreForms/libreForms-flask/issues/389.
+config['max_password_age'] = False # set to an int like 365
+config['max_login_attempts'] = False # set to an int like 3
+config['disable_password_reuse'] = False #
+
+# this config allows admins to set a max period of inactivity (eg. time passing between
+# logins) until account disabled, see https://github.com/libreForms/libreForms-flask/issues/408.
+config['max_account_inactivity'] = False # set to an int like 30
+
 
 # these configs define the groups available for users to fall under, and the default
 # group that new users are part of; this application employs a one-to-one user:group
