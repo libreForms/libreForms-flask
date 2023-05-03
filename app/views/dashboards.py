@@ -63,9 +63,9 @@ def dashboards(form_name):
         flash('Your system administrator has not enabled any dashboards for this form.', "info")
         return redirect(url_for('dashboards.dashboards_home'))
 
-    if not checkGroup(group=current_user.group, struct=propagate_form_configs(form_name)['_dashboard']):
-        flash(f'You do not have access to this dashboard.', "info")
-        return redirect(url_for('dashboards.dashboards_home'))
+    # if not checkGroup(group=current_user.group, struct=propagate_form_configs(form_name)['_dashboard']):
+    #     flash(f'You do not have access to this dashboard.', "info")
+    #     return redirect(url_for('dashboards.dashboards_home'))
 
     if propagate_form_configs(form=form_name)["_dashboard"] == False:
         flash('Your system administrator has not enabled any dashboards for this form.', "info")
@@ -75,62 +75,75 @@ def dashboards(form_name):
 
         data = mongodb.read_documents_from_collection(form_name)
         df = pd.DataFrame(list(data))
-        ref = libreforms.forms[form_name]["_dashboard"]['fields']
 
-        # here we allow the user to specify the field they want to use, 
-        # overriding the default y-axis field defined in libreforms/forms.
-        # warning, this may be buggy
+        graphJSON = [] # here we create the list of figures we'll pass to the jinja template later
+        all_dashboard_data = ref = libreforms.forms[form_name]["_dashboard"]
 
-        # if request.args.get("y") and request.args.get("y") in form.keys(): # alternative if we want to verify the field exists
-        y_context = request.args.get("y") if request.args.get("y") else ref['y']
+        # list-ify the dashboard passed, if it just a single dict, per 
+        # https://github.com/libreForms/libreForms-flask/issues/409
+        if isinstance(all_dashboard_data, dict):
+            all_dashboard_data = [all_dashboard_data]
 
+        for dashboard_data in all_dashboard_data:
 
-        if len(df.index) < 1:
-            flash('This form has not received any submissions.', "warning")
-            return redirect(url_for('dashboards.dashboards_home'))
-
-        theme = 'plotly_dark' if (config['dark_mode'] and \
-            not current_user.theme == 'light') or current_user.theme == 'dark' else 'plotly_white'
-
-        graphJSON = []
-
-        viz_type = libreforms.forms[form_name]["_dashboard"]['type']
-        if viz_type == "scatter":
-            fig = px.scatter(df, 
-                        x=ref['x'], 
-                        y=y_context, 
-                        color=ref['color'],
-                        template=theme)
-            graphJSON.append(json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder))
-
-        elif viz_type == "bar":
-            fig = px.histogram(df, 
-                        x=ref['x'], 
-                        y=y_context, 
-                        barmode='group',
-                        color=ref['color'],
-                        template='plotly_dark')
-            graphJSON.append(json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder))
-
-        elif viz_type == "histogram":
-            fig = px.histogram(df, 
-                        x=ref['x'], 
-                        y=y_context, 
-                        color=ref['color'],
-                        template='plotly_dark')
-            graphJSON.append(json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder))
+            if not checkGroup(group=current_user.group, struct=dashboard_data):
+                continue
 
 
-        elif viz_type == "table":
-            pass
+            ref = dashboard_data['fields']
 
-        else: # default to line graph
-            fig = px.line(df, 
-                        x=ref['x'], 
-                        y=y_context, 
-                        color=ref['color'],
-                        template='plotly_dark')
-            graphJSON.append(json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder))
+            # here we allow the user to specify the field they want to use, 
+            # overriding the default y-axis field defined in libreforms/forms.
+            # warning, this may be buggy
+
+            # if request.args.get("y") and request.args.get("y") in form.keys(): # alternative if we want to verify the field exists
+            y_context = request.args.get("y") if request.args.get("y") else ref['y']
+
+
+            if len(df.index) < 1:
+                flash('This form has not received any submissions.', "warning")
+                return redirect(url_for('dashboards.dashboards_home'))
+
+            theme = 'plotly_dark' if (config['dark_mode'] and \
+                not current_user.theme == 'light') or current_user.theme == 'dark' else 'plotly_white'
+
+            viz_type = dashboard_data['type']
+            if viz_type == "scatter":
+                fig = px.scatter(df, 
+                            x=ref['x'], 
+                            y=y_context, 
+                            color=ref['color'],
+                            template=theme)
+                graphJSON.append(json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder))
+
+            elif viz_type == "bar":
+                fig = px.histogram(df, 
+                            x=ref['x'], 
+                            y=y_context, 
+                            barmode='group',
+                            color=ref['color'],
+                            template='plotly_dark')
+                graphJSON.append(json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder))
+
+            elif viz_type == "histogram":
+                fig = px.histogram(df, 
+                            x=ref['x'], 
+                            y=y_context, 
+                            color=ref['color'],
+                            template='plotly_dark')
+                graphJSON.append(json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder))
+
+
+            elif viz_type == "table":
+                pass
+
+            else: # default to line graph
+                fig = px.line(df, 
+                            x=ref['x'], 
+                            y=y_context, 
+                            color=ref['color'],
+                            template='plotly_dark')
+                graphJSON.append(json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder))
 
 
         return render_template('app/dashboards.html.jinja', 

@@ -147,9 +147,9 @@ def checkTableGroup(form, group):
 
 # using propagate_form_configs to clean up some values here
 def checkDashboardGroup(form, group):
-    return False if checkKey(propagate_form_configs(form)['_dashboard'], '_deny_groups') and group \
-        in propagate_form_configs(form)['_dashboard']['_deny_groups'] else True
-
+    # return False if checkKey(propagate_form_configs(form)['_dashboard'], '_deny_groups') and group \
+    #     in propagate_form_configs(form)['_dashboard']['_deny_groups'] else True
+    return True # temporarily need to just return True for this
 
 # this function just compiles 'depends_on' data for each form
 # to build a useful data tree that can be parsed by the jinja / javascript

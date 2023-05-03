@@ -5,24 +5,26 @@
 
 			{% if homepage %}
 			  {{ config.homepage_msg }}
-		    {% endif %}
 
-		    {% if form_not_found %}
+		    {% elif form_not_found %}
 			    <p>Go <a href="{{ url_for( 'home' ) }}">home</a>.</p>
-		    {% endif %}
-	    	{% if graphJSON %}
-			  <div title="visualization" id='chart' class='chart'”></div>
+
+	    	{% else %}
+			{% for graph in graphJSON %}
+			<div title="visualization {{loop.index}}" id='chart-{{loop.index}}' class='chart'”></div>
+			<div style="padding: 10px;"></div>
+			{% endfor %}	  
 			{% endif %}
 			
 {% endblock %}
 
 
 {% block addons %}
-{% if graphJSON %}
-<script type='text/javascript'>
+{% if not homepage and not form_not_found %} 
 {% for graph in graphJSON %}
-    Plotly.plot('chart',{{graph | safe}},{});
-{% endfor %}
+<script type='text/javascript'>
+    Plotly.plot('chart-{{loop.index}}',{{graph | safe}},{});
 </script>
+{% endfor %}
 {% endif %}
 {% endblock %}
