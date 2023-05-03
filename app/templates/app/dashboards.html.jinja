@@ -20,8 +20,9 @@
 {% block addons %}
 {% if graphJSON %}
 <script type='text/javascript'>
-    var graphs = {{graphJSON | safe}};
-    Plotly.plot('chart',graphs,{});
+{% for graph in graphJSON %}
+    Plotly.plot('chart',{{graph | safe}},{});
+{% endfor %}
 </script>
 {% endif %}
 {% endblock %}

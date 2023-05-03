@@ -27,7 +27,7 @@ from app.models import db
 
 
 # and finally, import other packages
-import os, json
+import os, json, uuid
 import plotly
 import plotly.express as px
 import pandas as pd
@@ -59,12 +59,16 @@ def dashboards(form_name):
         flash('This form does not exist.', "warning")
         return redirect(url_for('dashboards.dashboards_home'))
 
+    if '_dashboard' not in libreforms.forms[form_name].keys():
+        flash('Your system administrator has not enabled any dashboards for this form.', "info")
+        return redirect(url_for('dashboards.dashboards_home'))
+
     if not checkGroup(group=current_user.group, struct=propagate_form_configs(form_name)['_dashboard']):
-        flash(f'You do not have access to this dashboard.', "warning")
+        flash(f'You do not have access to this dashboard.', "info")
         return redirect(url_for('dashboards.dashboards_home'))
 
     if propagate_form_configs(form=form_name)["_dashboard"] == False:
-        flash('Your system administrator has not enabled any dashboards for this form.', "warning")
+        flash('Your system administrator has not enabled any dashboards for this form.', "info")
         return redirect(url_for('dashboards.dashboards_home'))
 
     try:
@@ -88,6 +92,7 @@ def dashboards(form_name):
         theme = 'plotly_dark' if (config['dark_mode'] and \
             not current_user.theme == 'light') or current_user.theme == 'dark' else 'plotly_white'
 
+        graphJSON = []
 
         viz_type = libreforms.forms[form_name]["_dashboard"]['type']
         if viz_type == "scatter":
@@ -96,7 +101,7 @@ def dashboards(form_name):
                         y=y_context, 
                         color=ref['color'],
                         template=theme)
-            graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+            graphJSON.append(json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder))
 
         elif viz_type == "bar":
             fig = px.histogram(df, 
@@ -105,7 +110,7 @@ def dashboards(form_name):
                         barmode='group',
                         color=ref['color'],
                         template='plotly_dark')
-            graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+            graphJSON.append(json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder))
 
         elif viz_type == "histogram":
             fig = px.histogram(df, 
@@ -113,7 +118,7 @@ def dashboards(form_name):
                         y=y_context, 
                         color=ref['color'],
                         template='plotly_dark')
-            graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+            graphJSON.append(json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder))
 
 
         elif viz_type == "table":
@@ -125,7 +130,7 @@ def dashboards(form_name):
                         y=y_context, 
                         color=ref['color'],
                         template='plotly_dark')
-            graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+            graphJSON.append(json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder))
 
 
         return render_template('app/dashboards.html.jinja', 
