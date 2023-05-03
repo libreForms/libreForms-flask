@@ -27,7 +27,7 @@ from app.models import db
 
 
 # and finally, import other packages
-import os, json, uuid
+import os, json, uuid, types
 import plotly
 import plotly.express as px
 import pandas as pd
@@ -91,13 +91,22 @@ def dashboards(form_name):
 
 
             ref = dashboard_data['fields']
+            viz_type = dashboard_data['type']
 
             # here we allow the user to specify the field they want to use, 
             # overriding the default y-axis field defined in libreforms/forms.
             # warning, this may be buggy
 
             # if request.args.get("y") and request.args.get("y") in form.keys(): # alternative if we want to verify the field exists
-            y_context = request.args.get("y") if request.args.get("y") else ref['y']
+            # y_context = request.args.get("y") if request.args.get("y") else ref['y']
+
+            if request.args.get("y") and viz_type != "bootstrap":
+                y_context = request.args.get("y")
+            # elif not isinstance(ref, types.FunctionType):
+            elif viz_type == "bootstrap":
+                pass
+            else:
+                y_context = ref['y']
 
 
             if len(df.index) < 1:
@@ -107,7 +116,6 @@ def dashboards(form_name):
             theme = 'plotly_dark' if (config['dark_mode'] and \
                 not current_user.theme == 'light') or current_user.theme == 'dark' else 'plotly_white'
 
-            viz_type = dashboard_data['type']
             if viz_type == "scatter":
                 fig = px.scatter(df, 
                             x=ref['x'], 
@@ -132,10 +140,13 @@ def dashboards(form_name):
                             color=ref['color'],
                             template='plotly_dark')
                 graphJSON.append(json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder))
-
+            elif viz_type == "bootstrap":
+                # we expect the `fields` sub-field (which is referenced as `ref` above) to store a callable that
+                # returns a plotly object as json, see https://github.com/libreForms/libreForms-flask/issues/410
+                graphJSON.append(ref(df)) 
 
             elif viz_type == "table":
-                pass
+                passref
 
             else: # default to line graph
                 fig = px.line(df, 
@@ -155,6 +166,7 @@ def dashboards(form_name):
             options=propagate_form_configs(form=form_name),
             **standard_view_kwargs(),
         )
+
     except Exception as e: 
         
         transaction_id = str(uuid.uuid1())
@@ -162,5 +174,3 @@ def dashboards(form_name):
         flash (f"There was an error in processing your request. Transaction ID: {transaction_id}. ", 'warning')
         
         return redirect(url_for('dashboards.dashboards_home'))
-
-
