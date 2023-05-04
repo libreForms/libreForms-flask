@@ -22,6 +22,7 @@
 {% endif %}
 </td></tr>
 <tr title="created date"><td><b>Created</b></td><td style="width: 80%;">{{ user.created_date }}</td></tr>
+<tr title="created date"><td><b>Last Login</b></td><td style="width: 80%;">{{ user.last_login }}</td></tr>
 <tr title="user submissions"><td><b>Submissions</b></td><td style="width: 80%;"><a href="{{config['domain']}}/submissions/user/{{ user.username }}">view here</a></td></tr>
 <tr title="user documents_for_review"><td><b>Review</b></td><td style="width: 80%;"><a href="{{config['domain']}}/submissions/review/{{ user.username }}">view here</a> {%if notifications%} <span class="badge bg-primary">{{notifications}}{%endif%}</span></td></tr>
 {% if config['enable_reports'] %}
