@@ -67,7 +67,7 @@ def mask_string(string, show_chars:int=4, obfsc_char='*', override=False):
 
 
 # check if the user has exceeded their max_inactive days
-def validate_inactivity_time(last_active:datetime, max_inactive:Union[int, float]) -> bool:
+def validate_inactivity_time(last_active:datetime, max_inactive:Union[bool, int, float]) -> bool:
     """
     Check if a user has exceeded their maximum allowed inactive days.
 
@@ -75,6 +75,10 @@ def validate_inactivity_time(last_active:datetime, max_inactive:Union[int, float
     :param max_inactive: An integer or float value representing the maximum allowed inactive days.
     :return: A boolean value indicating if the user has been active within the allowed inactive days.
     """
+
+    # if `max_inactive` is false, then there is no set inactivation, so we return true
+    if isinstance(max_inactive, bool) and not max_inactive:
+        return True
 
     if max_inactive < 0:
         raise ValueError("max_inactive must be a positive value")

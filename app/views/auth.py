@@ -31,7 +31,7 @@ from app.log_functions import aggregate_log_data
 from app.certification import generate_symmetric_key
 from celeryd.tasks import send_mail_async
 from app.views.forms import standard_view_kwargs
-
+from app.scripts import validate_inactivity_time
 
 if config['enable_hcaptcha']:
     from app import hcaptcha
@@ -376,6 +376,15 @@ def mfa():
                 return redirect(url_for('auth.mfa'))
             session.clear()
 
+
+            # if the max account inactivity period is set, and the user has exceeded it, then we disable the user
+            # account and flash an error, see https://github.com/libreForms/libreForms-flask/issues/408.
+            if not validate_inactivity_time(user.last_login, config['max_account_inactivity']):
+                user.active = 0
+                db.session.commit()
+                flash('Your user is currently inactive. If you recently registered, please check your email for a verification link. ', "warning")
+                return redirect(url_for('auth.login'))
+
             # log the user in
             login_user(user)
 
@@ -420,7 +429,7 @@ def login():
             error = 'Incorrect password. '
         elif user.active == 0:
             flash('Your user is currently inactive. If you recently registered, please check your email for a verification link. ', "warning")
-            return redirect(url_for('home'))
+            return redirect(url_for('auth.login'))
 
 
         if error is None:
@@ -453,6 +462,16 @@ def login():
                     log.warning(f"LIBREFORMS - {e}", extra={'transaction_id': transaction_id})
                     flash(f"Could not send MFA token email. Transaction ID: {transaction_id}. ", "warning")
                     return redirect(url_for('auth.login'))
+
+
+            # if the max account inactivity period is set, and the user has exceeded it, then we disable the user
+            # account and flash an error, see https://github.com/libreForms/libreForms-flask/issues/408.
+            if not validate_inactivity_time(user.last_login, config['max_account_inactivity']):
+                user.active = 0
+                db.session.commit()
+                flash('Your user is currently inactive. If you recently registered, please check your email for a verification link. ', "warning")
+                return redirect(url_for('auth.login'))
+
 
             login_user(user, remember=remember)
 
@@ -820,6 +839,14 @@ if config['saml_enabled']:
             if email:
                 user = load_user_by_email(email, username, group)
                 login_user(user)
+
+                # if the max account inactivity period is set, and the user has exceeded it, then we disable the user
+                # account and flash an error, see https://github.com/libreForms/libreForms-flask/issues/408.
+                if not validate_inactivity_time(user.last_login, config['max_account_inactivity']):
+                    user.active = 0
+                    db.session.commit()
+                    flash('Your user is currently inactive. If you recently registered, please check your email for a verification link. ', "warning")
+                    return redirect(url_for('auth.login'))
 
                 # update last_login time, see https://github.com/libreForms/libreForms-flask/issues/408
                 user.last_login = datetime.datetime.now()
