@@ -147,7 +147,7 @@ def create_user(username, email, password, organization, phone, active, theme, g
 # def create_user(**kwargs):
     """Add USERNAME to the libreforms user table."""
 
-    created_date = datetime.datetime.today().strftime("%Y-%m-%d %H:%M:%S")
+    # created_date = datetime.datetime.today().strftime("%Y-%m-%d %H:%M:%S")
 
     if phone == "":
         phone = None
@@ -196,7 +196,7 @@ def create_user(username, email, password, organization, phone, active, theme, g
         certificate=generate_symmetric_key(),
         phone=phone,
         theme='dark' if config['dark_mode'] else 'light', # we default to the application default
-        created_date=created_date,
+        # created_date=created_date,
         active=0 if config["enable_email_verification"] else 1,
         **kwargs, # https://stackoverflow.com/a/5710402
     ) 

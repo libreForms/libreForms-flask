@@ -378,6 +378,11 @@ def mfa():
 
             # log the user in
             login_user(user)
+
+            # update last_login time, see https://github.com/libreForms/libreForms-flask/issues/408
+            user.last_login = datetime.datetime.now()
+            db.session.commit()
+
             flash(f'Successfully logged in user \'{current_user.username.lower()}\'.', "success")
             log.info(f'{current_user.username.upper()} - successfully logged in.')
             signing.expire_key(signature)
@@ -450,6 +455,11 @@ def login():
                     return redirect(url_for('auth.login'))
 
             login_user(user, remember=remember)
+
+            # update last_login time, see https://github.com/libreForms/libreForms-flask/issues/408
+            user.last_login = datetime.datetime.now()
+            db.session.commit()
+
             flash(f'Successfully logged in user \'{username.lower()}\'.', "success")
             log.info(f'{username.upper()} - successfully logged in.')
             return redirect(url_for('home'))
@@ -810,6 +820,11 @@ if config['saml_enabled']:
             if email:
                 user = load_user_by_email(email, username, group)
                 login_user(user)
+
+                # update last_login time, see https://github.com/libreForms/libreForms-flask/issues/408
+                user.last_login = datetime.datetime.now()
+                db.session.commit()
+
                 return redirect(url_for('home'))
             else:
                 flash("SAML response doesn't contain an email attribute.", 'warning')
