@@ -25,12 +25,13 @@ from collections import OrderedDict
 # import flask-related packages
 from flask import Blueprint
 from flask.cli import with_appcontext
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 import click
 
 # libreforms dependencies
 from app import log
-from app.models import db, User
+from app.models import db, User, OldPassword
+from app.views.auth import get_recent_old_passwords
 from app.config import config
 from app.certification import generate_symmetric_key
 
@@ -249,8 +250,20 @@ def modify_user(username=None, **kwargs):
         if not value:
             continue
 
-        # here we hash the password field, if it has been passed
+        
         if attribute == 'password':
+            # validate that password is not being reused
+            old_passwords = get_recent_old_passwords(user, days=True)
+            if any(check_password_hash(old_password.password, value) for old_password in old_passwords):
+                click.echo(f"Error: The new password is the same as one of the user's old passwords. Please choose a different password.")
+                log.warning(f"LIBREFORMS - failed to modify user {username} password via CLI: new password matches an old password.")
+                sys.exit(2)
+
+            # Save the old password to the OldPassword table before updating the user's password
+            old_password_entry = OldPassword(user_id=user.id, password=user.password, timestamp=datetime.datetime.utcnow())
+            db.session.add(old_password_entry)
+
+            # here we hash the password field, if it has been passed
             value = generate_password_hash(value, method='sha256')
 
         setattr(user, attribute, value)

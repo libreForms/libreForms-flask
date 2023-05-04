@@ -634,7 +634,7 @@ def profile():
             error = f'Invalid password. ({config["user_friendly_password_regex"]}) '
 
         # Check if the new password matches any of the user's recent old passwords
-        recent_old_passwords = get_recent_old_passwords(user)
+        recent_old_passwords = get_recent_old_passwords(user, config['disable_password_reuse'])
         if any(check_password_hash(old_password.password, new_password) for old_password in recent_old_passwords):
             error = 'Your new password cannot be the same as any of your recent old passwords. Please choose a different password.'
         else:
