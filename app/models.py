@@ -111,6 +111,7 @@ class User(UserMixin, db.Model):
     created_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     last_login = db.Column(db.DateTime, nullable=True, default=datetime.utcnow)
     last_password_change = db.Column(db.DateTime, nullable=True, default=datetime.utcnow)
+    failed_login_attempts = db.Column(db.Integer, default=0)
 
 
 class OldPassword(db.Model):
