@@ -377,7 +377,7 @@ config['session_length'] = timedelta(hours=1)
 # days old, else set it to True to always prevent password reuse. 
 config['max_password_age'] = False # set to an int like 365
 config['max_login_attempts'] = False # set to an int like 3
-config['disable_password_reuse'] = False # set to an int like 90 or True
+config['disable_password_reuse'] = True # set to an int like 90 or True
 
 # this config allows admins to set a max period of inactivity (eg. time passing between
 # logins) until account disabled, see https://github.com/libreForms/libreForms-flask/issues/408.

@@ -633,9 +633,20 @@ def profile():
         elif not re.fullmatch(config['password_regex'], new_password):
             error = f'Invalid password. ({config["user_friendly_password_regex"]}) '
 
+        # Check if the new password matches any of the user's recent old passwords
+        recent_old_passwords = get_recent_old_passwords(user)
+        if any(check_password_hash(old_password.password, new_password) for old_password in recent_old_passwords):
+            error = 'Your new password cannot be the same as any of your recent old passwords. Please choose a different password.'
+        else:
+            # Save the old password to the OldPassword table
+            old_password_entry = OldPassword(user_id=user.id, password=user.password, timestamp=datetime.datetime.utcnow())
+            db.session.add(old_password_entry)
+
+
         if error is None:
 
             try:
+    
                 user.password=generate_password_hash(new_password, method='sha256')
                 db.session.commit()
 
