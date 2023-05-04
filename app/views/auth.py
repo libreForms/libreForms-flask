@@ -451,6 +451,15 @@ def login():
             error = 'Incorrect username. '
         elif not check_password_hash(user.password, password):
             log.info(f'{username.upper()} - password failure when logging in.')
+
+            if config['max_login_attempts']:
+                user.failed_login_attempts += 1
+                print("Failed login no. ", user.failed_login_attempts)
+                if user.failed_login_attempts >= config['max_login_attempts']:
+                    user.active = 0
+                    flash('Account is locked due to too many failed login attempts. Contact your system administrator.', 'danger')
+                db.session.commit()
+
             error = 'Incorrect password. '
         elif user.active == 0:
             flash('Your user is currently inactive. If you recently registered, please check your email for a verification link. ', "warning")
