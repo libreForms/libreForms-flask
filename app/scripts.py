@@ -12,6 +12,8 @@ __license__ = "AGPL-3.0"
 __maintainer__ = "Sig Janoska-Bedi"
 __email__ = "signe@atreeus.com"
 
+from datetime import datetime, timedelta
+from typing import Union
 
 def convert_to_string(data):
     if isinstance(data, list):
@@ -63,4 +65,21 @@ def mask_string(string, show_chars:int=4, obfsc_char='*', override=False):
         return obfsc_char * (len(string)-show_chars) + string[-show_chars:]
     return string
 
+
+# check if the user has exceeded their max_inactive days
+def validate_inactivity_time(last_active:datetime, max_inactive:Union[int, float]) -> bool:
+    """
+    Check if a user has exceeded their maximum allowed inactive days.
+
+    :param last_active: A datetime object representing the user's last active date and time.
+    :param max_inactive: An integer or float value representing the maximum allowed inactive days.
+    :return: A boolean value indicating if the user has been active within the allowed inactive days.
+    """
+
+    if max_inactive < 0:
+        raise ValueError("max_inactive must be a positive value")
+
+    # Get today's date, calculate the date `max_inactive` days ago, can
+    # compare the dates and return true if the user has been active recently enough
+    return datetime.now() - timedelta(days=max_inactive) < last_active
 
