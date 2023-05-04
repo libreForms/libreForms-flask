@@ -17,6 +17,7 @@ __email__ = "signe@atreeus.com"
 import functools, re, datetime, tempfile, os, uuid, random, json
 import pandas as pd
 from urllib.parse import urlparse
+from typing import List, Union
 
 from flask import current_app, Blueprint, flash, g, redirect, render_template, request, session, url_for, send_from_directory, abort, make_response, Response
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -26,7 +27,7 @@ from flask_login import LoginManager, login_required, login_user, logout_user, c
 
 from app import config, log, mailer
 import app.signing as signing
-from app.models import User, Signing, db
+from app.models import User, Signing, OldPassword, db
 from app.log_functions import aggregate_log_data
 from app.certification import generate_symmetric_key
 from celeryd.tasks import send_mail_async
@@ -37,6 +38,30 @@ if config['enable_hcaptcha']:
     from app import hcaptcha
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
+
+
+def get_recent_old_passwords(user: User, days: Union[int, bool] = True) -> List[OldPassword]:
+    """
+    Get old passwords for a given user ID that were changed more recently than a specific number of days.
+    If days is set to True, return all old passwords for the user.
+
+    :param user: The user object for which to retrieve old passwords.
+    :param days: The number of days for the time frame, or True to return all old passwords.
+    :return: A list of OldPassword instances for the given user and time frame, or an empty list if no old passwords
+             are found that match the criteria.
+    """
+
+    if user:
+        if days is True:
+            return user.old_passwords
+        else:
+            days_ago = datetime.datetime.utcnow() - datetime.timedelta(days=days)
+            recent_passwords = [old_password for old_password in user.old_passwords if old_password.timestamp > days_ago]
+
+            return recent_passwords
+    else:
+        return []
+
 
 # failsafe code in case we need to pivot away from using Flask-hCaptcha
 def hcaptcha_verify(SECRET_KEY=config['hcaptcha_secret_key'], VERIFY_URL = "https://hcaptcha.com/siteverify"):
