@@ -546,7 +546,7 @@ def user_register():
                 new_user = User(
                             email=email, 
                             username=username.lower(), 
-                            password=generate_password_hash(password, method='sha256'),
+                            password=generate_password_hash(password, method='scrypt'),
                             organization=organization,
                             group=group,
                             certificate=generate_symmetric_key(),
@@ -692,7 +692,7 @@ def bulk_register():
                             new_user = User(
                                         email=row.email if row.email else "", 
                                         username=row.username.lower(), 
-                                        password=generate_password_hash(row.password, method='sha256'),
+                                        password=generate_password_hash(row.password, method='scrypt'),
                                         organization=row.organization if row.organization else "",
                                         phone=row.phone if row.phone else "",
                                         theme=row.theme if row.theme in ['light', 'dark'] else 'dark',
@@ -864,7 +864,7 @@ def generate_random_password(username):
 
     # generate and hash the new password
     new_password = percentage_alphanumeric_generate_password(config['password_regex'], 16, .65)
-    hashed_password = generate_password_hash(new_password, method='sha256')
+    hashed_password = generate_password_hash(new_password, method='scrypt')
 
     user.password = hashed_password
     db.session.commit()
