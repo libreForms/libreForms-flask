@@ -34,7 +34,7 @@ from app.certification import generate_symmetric_key
 from celeryd.tasks import send_mail_async
 from app.views.forms import standard_view_kwargs
 from app.scripts import validate_inactivity_time
-from app.decorators import required_login_and_password_reset
+from app.decorators import required_login_and_password_reset, needs_password_reset
 
 if config['enable_hcaptcha']:
     from app import hcaptcha
@@ -485,6 +485,11 @@ def mfa():
             flash(f'Successfully logged in user \'{current_user.username.lower()}\'.', "success")
             log.info(f'{current_user.username.upper()} - successfully logged in.')
             signing.expire_key(signature)
+
+            if needs_password_reset(current_user, config['max_password_age']):
+                flash('Your password has expired. Please reset your password.', 'warning')
+                return redirect(url_for('auth.change_password'))
+
             return redirect(url_for('home'))
 
     return render_template('auth/mfa.html.jinja',
@@ -580,6 +585,11 @@ def login():
 
             flash(f'Successfully logged in user \'{username.lower()}\'.', "success")
             log.info(f'{username.upper()} - successfully logged in.')
+
+            if needs_password_reset(current_user, config['max_password_age']):
+                flash('Your password has expired. Please reset your password.', 'warning')
+                return redirect(url_for('auth.change_password'))
+
             return redirect(url_for('home'))
 
         flash(error, "warning")
