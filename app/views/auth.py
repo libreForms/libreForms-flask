@@ -18,6 +18,7 @@ import functools, re, datetime, tempfile, os, uuid, random, json, requests
 import pandas as pd
 from urllib.parse import urlparse
 from typing import List, Union
+from functools import wraps
 
 from flask import current_app, Blueprint, flash, g, redirect, render_template, request, session, url_for, send_from_directory, abort, make_response, Response
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -33,6 +34,7 @@ from app.certification import generate_symmetric_key
 from celeryd.tasks import send_mail_async
 from app.views.forms import standard_view_kwargs
 from app.scripts import validate_inactivity_time
+from app.decorators import required_login_and_password_reset
 
 if config['enable_hcaptcha']:
     from app import hcaptcha
@@ -62,25 +64,6 @@ def get_recent_old_passwords(user: User, days: Union[int, bool] = True) -> List[
     else:
         return []
 
-def needs_password_reset(user: User, max_age: Union[int, bool]) -> bool:
-    """
-    Determine if a user needs a password reset based on the max_age parameter.
-
-    Args:
-        user (User): A User object containing the user's information.
-        max_age (Union[int, bool]): Maximum password age in days or False to disable password aging.
-
-    Returns:
-        bool: True if the user needs a password reset, otherwise False.
-    """
-    if max_age is False:
-        return False
-
-    max_password_age = datetime.timedelta(days=max_age)
-    if datetime.datetime.now() - user.last_password_change > max_password_age:
-        return True
-    
-    return False
 
 
 # failsafe code in case we need to pivot away from using Flask-hCaptcha
@@ -418,7 +401,7 @@ def verify_email(signature):
 if (config['enable_v1_rest_api'] or config['enable_v2_rest_api']) and config['allow_user_api_key_generation']:
 
     @bp.route('/register/api', methods=('GET', 'POST'))
-    @login_required 
+    @required_login_and_password_reset 
     def generate_api_key():
 
         if config['limit_rest_api_keys_per_user']:
@@ -622,7 +605,7 @@ def logout():
     return redirect(url_for('home'))
 
 @bp.route('/profile/edit', methods=('GET', 'POST'))
-@login_required
+@required_login_and_password_reset
 def edit_profile():
 
     if request.method == 'POST':
@@ -700,7 +683,7 @@ def edit_profile():
         )
 
 @bp.route('/profile', methods=('GET', 'POST'))
-@login_required
+@required_login_and_password_reset
 def profile():
 
     if request.method == 'POST':
@@ -763,7 +746,7 @@ def profile():
     )
 
 @bp.route('/profile/<username>')
-@login_required
+@required_login_and_password_reset
 def other_profiles(username):
 
     if username == current_user.username:
@@ -793,7 +776,7 @@ def other_profiles(username):
 
 # this is the download link for files in the temp directory
 @bp.route('/download/<path:filename>')
-@login_required
+@required_login_and_password_reset
 def download_bulk_user_template(filename='bulk_user_template.csv'):
 
     # this is our first stab at building templates, without accounting for nesting or repetition

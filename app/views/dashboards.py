@@ -23,7 +23,7 @@ from app.views.auth import login_required
 from app.views.forms import propagate_form_configs, checkGroup, checkDashboardGroup, form_menu, standard_view_kwargs
 from app import config, log, mongodb
 from app.models import db
-
+from app.decorators import required_login_and_password_reset
 
 
 # and finally, import other packages
@@ -38,7 +38,7 @@ bp = Blueprint('dashboards', __name__, url_prefix='/dashboards')
 
 # define a home route
 @bp.route('/')
-@login_required
+@required_login_and_password_reset
 def dashboards_home():
     return render_template('app/dashboards.html.jinja', 
             msg="Select a dashboard from the left-hand menu.",
@@ -52,7 +52,7 @@ def dashboards_home():
 
 # this creates the route to each of the dashboards
 @bp.route(f'/<form_name>')
-@login_required
+@required_login_and_password_reset
 def dashboards(form_name):
 
     if form_name not in libreforms.forms.keys():

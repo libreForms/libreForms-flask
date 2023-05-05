@@ -393,7 +393,7 @@ config['max_account_inactivity'] = False # set to an int like 30
 # registration, see https://github.com/signebedi/libreForms/issues/170.
 config['default_group'] = 'default'
 config['admin_group'] = 'admin'
-config['groups'] = ['admin', 'default']
+config['groups'] = ['admin', 'default', 'manager']
 
 # these configs define the admin console behavior. The `enable_admin_console` config
 # creates the route to the admin view, which by default is limited to users in the

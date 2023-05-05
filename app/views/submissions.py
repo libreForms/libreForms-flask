@@ -33,7 +33,7 @@ from app.views.forms import form_menu, checkGroup, checkFormGroup, \
     checkKey, propagate_form_configs, propagate_form_fields, define_webarg_form_data_types, \
     collect_list_of_users, compile_depends_on_data, rationalize_routing_list, standard_view_kwargs
 from celeryd.tasks import send_mail_async
-
+from app.decorators import required_login_and_password_reset
 
 # and finally, import other packages
 import os
@@ -378,7 +378,7 @@ bp = Blueprint('submissions', __name__, url_prefix='/submissions')
 
 
 @bp.route('/all')
-@login_required
+@required_login_and_password_reset
 def render_all_submissions():
 
         record = aggregate_form_data(user=None)
@@ -427,7 +427,7 @@ def render_all_submissions():
 
 # define a home route
 @bp.route('/')
-@login_required
+@required_login_and_password_reset
 def submissions_home():
     return render_template('submissions/submissions.html.jinja', 
             msg="Select a form from the left-hand menu to view past submissions.",
@@ -442,7 +442,7 @@ def submissions_home():
 
 # this is kind of like the home page for a given form
 @bp.route('/<form_name>')
-@login_required
+@required_login_and_password_reset
 def submissions(form_name):
 
 
@@ -496,7 +496,7 @@ def submissions(form_name):
 
 # this view shows the forms that are requiring current_user review
 @bp.route('/review/<user>')
-@login_required
+@required_login_and_password_reset
 def render_user_review(user):
 
         record = aggregate_approval_count(select_on=getattr(current_user,config['visible_signature_field']))
@@ -523,7 +523,7 @@ def render_user_review(user):
 # this is the user by user view; it allows any authenticated user to view, 
 # but only shows form for which their group has not been denied read access
 @bp.route('/user/<user>')
-@login_required
+@required_login_and_password_reset
 def render_user_submissions(user):
         try:
             record = aggregate_form_data(user=user)
@@ -574,7 +574,7 @@ def render_user_submissions(user):
 
 
 @bp.route('/<form_name>/<document_id>')
-@login_required
+@required_login_and_password_reset
 def render_document(form_name, document_id, ignore_menu=False):
     if not checkGroup(group=current_user.group, struct=propagate_form_configs(form_name)):
             flash(f'You do not have access to this view. ', "warning")
@@ -705,7 +705,7 @@ def render_document(form_name, document_id, ignore_menu=False):
 
 
 @bp.route('/<form_name>/<document_id>/history', methods=('GET', 'POST'))
-@login_required
+@required_login_and_password_reset
 def render_document_history(form_name, document_id):
 
     if not checkGroup(group=current_user.group, struct=propagate_form_configs(form_name)):
@@ -866,7 +866,7 @@ def render_document_history(form_name, document_id):
 
 
 @bp.route('/<form_name>/<document_id>/edit', methods=('GET', 'POST'))
-@login_required
+@required_login_and_password_reset
 def render_document_edit(form_name, document_id):
     try:
 
@@ -1026,7 +1026,7 @@ def render_document_edit(form_name, document_id):
 # is the form approver, otherwise abort. See https://github.com/signebedi/libreForms/issues/8.
 
 @bp.route('/<form_name>/<document_id>/review', methods=['GET', 'POST'])
-@login_required
+@required_login_and_password_reset
 def review_document(form_name, document_id):
     
     try:
@@ -1220,7 +1220,7 @@ def review_document(form_name, document_id):
 
 # this generates PDFs
 @bp.route('/<form_name>/<document_id>/download')
-@login_required
+@required_login_and_password_reset
 def generate_pdf(form_name, document_id):
 
     try:

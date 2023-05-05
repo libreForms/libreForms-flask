@@ -32,6 +32,7 @@ from app.models import User, db
 from app.certification import encrypt_with_symmetric_key
 from celeryd.tasks import send_mail_async
 from app.scripts import convert_to_string
+from app.decorators import required_login_and_password_reset
 
 # and finally, import other packages
 import os, json
@@ -510,7 +511,7 @@ def verify_form_approval(form_name):
 bp = Blueprint('forms', __name__, url_prefix='/forms')
 
 @bp.route(f'/')
-@login_required
+@required_login_and_password_reset
 def forms_home():
 
     # print(generate_list_of_users()) 
@@ -526,7 +527,7 @@ def forms_home():
 
 # this creates the route to each of the forms
 @bp.route(f'/<form_name>', methods=['GET', 'POST'])
-@login_required
+@required_login_and_password_reset
 # @flaskparser.use_args(define_webarg_form_data_types(form=form_name), location='form')
 def forms(form_name):
 
@@ -683,7 +684,7 @@ def forms(form_name):
 # this is the upload route for submitting forms via CSV, see
 # https://github.com/libreForms/libreForms-flask/issues/184
 @bp.route(f'/<form_name>/upload', methods=['GET', 'POST'])
-@login_required
+@required_login_and_password_reset
 def upload_forms(form_name):
     # if request.method == 'POST':
 
@@ -812,7 +813,7 @@ def upload_forms(form_name):
         )
 
 @bp.route(f'/lookup', methods=['GET', 'POST'])
-@login_required
+@required_login_and_password_reset
 def generate_lookup():
 
     if request.method == 'POST':
@@ -833,7 +834,7 @@ def generate_lookup():
     return abort(404)
 
 @bp.route(f'/lint', methods=['GET', 'POST'])
-@login_required
+@required_login_and_password_reset
 def lint_field():
 
 
@@ -884,7 +885,7 @@ def lint_field():
 
 # this is the download link for files in the temp directory
 @bp.route('/download/<path:filename>')
-@login_required
+@required_login_and_password_reset
 def download_file(filename):
 
     # this is our first stab at building templates, without accounting for nesting or repetition

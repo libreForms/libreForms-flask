@@ -26,7 +26,7 @@ from app.views.forms import propagate_form_configs, checkGroup, checkTableGroup,
 from app.views.submissions import set_digital_signature
 from app.models import User
 from app import config, log, mongodb, db
-
+from app.decorators import required_login_and_password_reset
 
 
 # and finally, import other packages
@@ -39,7 +39,7 @@ bp = Blueprint('tables', __name__, url_prefix='/tables')
 
 
 @bp.route(f'/')
-@login_required
+@required_login_and_password_reset
 def tables_home():
     return render_template('app/tables.html.jinja', 
             msg="Select a table from the left-hand menu.",
@@ -52,7 +52,7 @@ def tables_home():
 
 # this creates the route to each of the tables
 @bp.route(f'/<form_name>', methods=['GET', 'POST'])
-@login_required
+@required_login_and_password_reset
 def tables(form_name): 
 
     if form_name not in libreforms.forms.keys():
@@ -152,7 +152,7 @@ def tables(form_name):
 
 # this is the download link for files in the temp directory
 @bp.route('/download/<path:filename>')
-@login_required
+@required_login_and_password_reset
 def download_file(filename):
 
     form_name = filename.replace('.csv', '')

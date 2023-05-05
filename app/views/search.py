@@ -23,11 +23,11 @@ from app.mongo import mongodb
 from app.form_access import test_access_single_group
 from app.views.auth import login_required
 from app.views.forms import standard_view_kwargs
-
+from app.decorators import required_login_and_password_reset
 
 bp = Blueprint('search', __name__, url_prefix='/search')
 
-@login_required
+@required_login_and_password_reset
 @bp.route('/', methods=['GET'])
 def search():
 

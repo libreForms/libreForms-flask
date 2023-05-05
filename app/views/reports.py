@@ -25,6 +25,7 @@ from app.signing import generate_key
 from app.models import Report
 from app import config, log, mongodb, mailer, config, db
 from app.filters import lint_filters, send_individual_report
+from app.decorators import required_login_and_password_reset
 
 # and finally, import other packages
 import os
@@ -95,7 +96,7 @@ bp = Blueprint('reports', __name__, url_prefix='/reports')
 
 # show list of current reports, and interface to create new ones
 @bp.route(f'/', methods=['GET', 'POST'])
-@login_required
+@required_login_and_password_reset
 def reports():
 
     # generate a list of reports, and render a list of links to these here. 
@@ -113,7 +114,7 @@ def reports():
 
 
 @bp.route(f'/<form_name>/create', methods=['GET', 'POST'])
-@login_required
+@required_login_and_password_reset
 def create_reports(form_name):
 
     if form_name not in libreforms.forms.keys():
@@ -167,7 +168,7 @@ def create_reports(form_name):
 
 
 @bp.route(f'/modify/<report_id>', methods=['GET', 'POST'])
-@login_required
+@required_login_and_password_reset
 def modify_report(report_id):
 
     # here we collect the user's reports but introduce the kwarg report_id to 
@@ -241,7 +242,7 @@ def modify_report(report_id):
 
 
 @bp.route(f'/view/<report_id>', methods=['GET', 'POST'])
-@login_required
+@required_login_and_password_reset
 def view_report(report_id):
 
     # here we collect the user's reports but introduce the kwarg report_id to 
@@ -287,7 +288,7 @@ def view_report(report_id):
         ) 
 
 @bp.route(f'/activate/<report_id>', methods=['GET', 'POST'])
-@login_required
+@required_login_and_password_reset
 def activate_report(report_id):
     # here we collect the user's reports but introduce the kwarg report_id to 
     # ensure we are only querying for the current report_id
@@ -313,7 +314,7 @@ def activate_report(report_id):
 
 
 @bp.route(f'/deactivate/<report_id>', methods=['GET', 'POST'])
-@login_required
+@required_login_and_password_reset
 def deactivate_report(report_id):
     # here we collect the user's reports but introduce the kwarg report_id to 
     # ensure we are only querying for the current report_id
@@ -338,7 +339,7 @@ def deactivate_report(report_id):
     return redirect(url_for('reports.view_report', report_id=str(report_id)))
 
 @bp.route(f'/<report_id>/send', methods=['GET', 'POST'])
-@login_required
+@required_login_and_password_reset
 def send_report(report_id):
     # here we collect the user's reports but introduce the kwarg report_id to 
     # ensure we are only querying for the current report_id
@@ -364,7 +365,7 @@ def send_report(report_id):
 
 
 @bp.route(f'/lint', methods=['GET', 'POST'])
-@login_required
+@required_login_and_password_reset
 def view_lint_filters():
 
     if request.method == 'POST':
