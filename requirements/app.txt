@@ -2,7 +2,7 @@ celery==5.2.7
 cryptography>=39.0.1
 python-dotenv==0.21.1
 python-dotenv==0.21.1
-Flask==2.2.2
+Flask==2.3.2
 Flask-Login==0.6.2
 Flask-SQLAlchemy==3.0.2
 gunicorn==20.1.0
