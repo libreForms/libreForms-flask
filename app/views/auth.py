@@ -62,6 +62,26 @@ def get_recent_old_passwords(user: User, days: Union[int, bool] = True) -> List[
     else:
         return []
 
+def needs_password_reset(user: User, max_age: Union[int, bool]) -> bool:
+    """
+    Determine if a user needs a password reset based on the max_age parameter.
+
+    Args:
+        user (User): A User object containing the user's information.
+        max_age (Union[int, bool]): Maximum password age in days or False to disable password aging.
+
+    Returns:
+        bool: True if the user needs a password reset, otherwise False.
+    """
+    if max_age is False:
+        return False
+
+    max_password_age = timedelta(days=max_age)
+    if datetime.now() - user.last_password_change > max_password_age:
+        return True
+    
+    return False
+
 
 # failsafe code in case we need to pivot away from using Flask-hCaptcha
 def hcaptcha_verify(SECRET_KEY=config['hcaptcha_secret_key'], VERIFY_URL = "https://hcaptcha.com/siteverify"):
