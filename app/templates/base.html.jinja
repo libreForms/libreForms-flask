@@ -83,6 +83,7 @@
               <a class="nav-link dropdown-toggle{{' bg-light text-dark' if not dark_mode else ''}}" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">User</a>
               <div class="dropdown-menu{{' bg-light text-dark' if not dark_mode else ''}}">
                 <a class="dropdown-item{{' bg-light text-dark' if not dark_mode else ''}}" href="{{ url_for( 'auth.profile' ) }}">Profile</a>
+                <a class="dropdown-item{{' bg-light text-dark' if not dark_mode else ''}}" href="{{ url_for( 'auth.change_password' ) }}">Change Password</a>
                 <a class="dropdown-item{{' bg-light text-dark' if not dark_mode else ''}}" href="{{ url_for( 'auth.logout' ) }}">Logout</a>
               </div>
             </li>
