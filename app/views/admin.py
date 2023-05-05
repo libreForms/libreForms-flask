@@ -480,6 +480,109 @@ def saml_configuration():
         **standard_view_kwargs(),
         )
 
+@bp.route('/register/user', methods=('GET', 'POST'))
+@is_admin
+def user_register():
+
+    if request.method == 'POST':
+        username = request.form['username']
+        email = request.form['email']
+        organization = request.form['organization']
+        phone = request.form['phone']
+        group = request.form['group']
+
+
+        TEMP = {}
+        for item in config['user_registration_fields'].keys():
+            if config['user_registration_fields'][item]['input_type'] != 'hidden':
+
+                if config['user_registration_fields'][item]['input_type'] == 'checkbox':
+                    
+                    TEMP[item] = str(request.form.getlist(item))
+
+                else:
+                    TEMP[item] = str(request.form[item]) if config['user_registration_fields'][item]['type'] == str else float(request.form[item])
+
+        if phone == "":
+            phone = None
+        
+        if email == "":
+            email = None
+
+        if organization == "":
+            email = None
+
+        error = None
+        transaction_id = str(uuid.uuid1()) # if there is an error, this ID will link it in the logs
+
+        if not username:
+            error = 'Username is required. '
+        
+        # added these per https://github.com/signebedi/libreForms/issues/122
+        # to give the freedom to set these as required fields
+        elif config['registration_email_required'] and not email:
+            error = 'Email is required. '
+        elif config['registration_phone_required'] and not phone:
+            error = 'Phone is required. '
+        elif config['registration_organization_required'] and not organization:
+            error = 'Organization is required. '
+
+        elif not re.fullmatch(config['username_regex'], username):
+            error = f'Invalid username. ({config["user_friendly_username_regex"]}) '
+        elif email and not re.fullmatch(config['email_regex'], email):
+            error = f'Invalid email. ({config["user_friendly_email_regex"]}) ' 
+        elif phone and not re.fullmatch(config['phone_regex'], phone):
+            error = f'Invalid phone number ({config["user_friendly_phone_regex"]}). ' 
+        elif email and User.query.filter_by(email=email).first():
+            error = 'Email is already registered. ' 
+        elif User.query.filter_by(username=username.lower()).first():
+            error = f'Username {username.lower()} is already registered. ' 
+
+        if error is None:
+            try:
+                # we generate a password here
+                password = percentage_alphanumeric_generate_password(config['password_regex'], 16, .65)
+
+                new_user = User(
+                            email=email, 
+                            username=username.lower(), 
+                            password=generate_password_hash(password, method='sha256'),
+                            organization=organization,
+                            group=group,
+                            certificate=generate_symmetric_key(),
+                            phone=phone,
+                            theme='dark' if config['dark_mode'] else 'light', # we default to the application default
+                            # created_date=created_date,
+                            active=0 if config["enable_email_verification"] else 1,
+                            **TEMP, # https://stackoverflow.com/a/5710402
+                        ) 
+                db.session.add(new_user)
+                db.session.commit()
+
+                if config["enable_email_verification"]:
+                    key = signing.write_key_to_database(scope='email_verification', expiration=48, active=1, email=email)
+                    m = send_mail_async.delay(subject=f'{config["site_name"]} User Registered', content=f"This email serves to notify you that the user {username} has just been registered for this email address at {config['domain']}. Please verify your email by clicking the following link: {config['domain']}/auth/verify_email/{key}. Please note this link will expire after 48 hours.", to_address=email) if config['send_mail_asynchronously'] else mailer.send_mail(subject=f'{config["site_name"]} User Registered', content=f"This email serves to notify you that the user {username} has just been registered for this email address at {config['domain']}. Please verify your email by clicking the following link: {config['domain']}/auth/verify_email/{key}. Please note this link will expire after 48 hours.", to_address=email, logfile=log)
+                    flash(f'Successfully created user \'{username.lower()}\'. They should check their email for an activation link. Their password is: {password}', "success")
+                else:
+                    m = send_mail_async.delay(subject=f'{config["site_name"]} User Registered', content=f"This email serves to notify you that the user {username} has just been registered for this email address at {config['domain']}.", to_address=email) if config['send_mail_asynchronously'] else mailer.send_mail(subject=f'{config["site_name"]} User Registered', content=f"This email serves to notify you that the user {username} has just been registered for this email address at {config['domain']}.", to_address=email, logfile=log)
+                    flash(f'Successfully created user \'{username.lower()}\'. Their password is: {password}', "success")
+
+                m = send_mail_async.delay(subject=f'{config["site_name"]} Initial Password', content=f"This email serves to notify you that the user {username} has just been registered for this email address at {config['domain']}. Your new password is: {password}", to_address=email) if config['send_mail_asynchronously'] else mailer.send_mail(subject=f'{config["site_name"]} Initial Password', content=f"This email serves to notify you that the user {username} has just been registered for this email address at {config['domain']}. Your new password is: {password}", to_address=email, logfile=log)
+                log.info(f'{current_user.username.upper()} - successfully registered with email {email}.')
+            except Exception as e: 
+                log.error(f'{current_user.username.upper()} - failed to register new user {username.lower()} with email {email}. {e}', extra={'transaction_id': transaction_id})
+                flash (f"There was an error in processing your request. Transaction ID: {transaction_id}. ", 'warning')
+
+
+    return render_template('admin/create_user.html.jinja',
+        name='Admin',
+        subtitle='Register User',
+        type="admin",
+        menu=compile_admin_views_for_menu(),
+        **standard_view_kwargs(),
+        )
+
+
 
 
 

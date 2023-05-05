@@ -1,0 +1,150 @@
+{% extends 'base.html.jinja' %}
+
+
+
+{% block content %}
+
+<h4>Create New User</h4>
+<p>Create a new user using this interface. Passwords will be automatically generated upon creation.</p>
+
+<form method="post">
+  <fieldset>
+
+    <div title="username" class="form-group">
+      <label class="form-label mt-4 required" for="username">Username</label>
+      <input class="form-control" name="username" {% if not edit_profile %}onchange="validateFields('username', this.value, this.id);"{% endif %} id="username" placeholder="Enter a unique username"{%if edit_profile%} value="{{user_data.username}}" disabled=""{%endif%} required>
+      <div class="valid-feedback" id="username-is-valid">This field is valid!</div>
+      <div class="invalid-feedback" id="username-is-invalid">This field is invalid!</div>    
+
+    </div>
+
+    <div title="email" class="form-group">
+      <label class="form-label mt-4{%if config['registration_email_required'] %} required{%endif%}" for="email">Email</label>
+      <!-- <input type="email" name="email" id="email"> -->
+      <input class="form-control" name="email" {% if not edit_profile %}onchange="validateFields('email', this.value, this.id);"{% endif %} id="email" placeholder="Enter a unique email"{%if edit_profile%} value="{{user_data.email}}" disabled=""{%endif%}{%if config['registration_email_required'] %} required{%endif%}>  
+      <div class="valid-feedback" id="email-is-valid">This field is valid!</div>
+      <div class="invalid-feedback" id="email-is-invalid">This field is invalid!</div>    
+    </div>
+
+
+    <div title="organization" class="form-group">
+      <label class="form-label mt-4{%if config['registration_organization_required'] %} required{%endif%}" for="organization">Organization</label>
+
+      <input class="form-control" name="organization" onchange="validateFields('organization', this.value, this.id);" {%if edit_profile%} value="{{user_data.organization}}"{%else%}{% if config.default_org != ""  %} value="{{ config.default_org }}" {% else %} placeholder="Enter your organization" {% endif %}{%endif%}id="organization"{%if config['registration_organization_required'] %} required{%endif%}>  
+      <div class="valid-feedback" id="organization-is-valid">This field is valid!</div>
+      <div class="invalid-feedback" id="organization-is-invalid">This field is invalid!</div>    
+
+
+    </div>
+    
+    <div title="phone" class="form-group">
+      <label class="form-label mt-4{%if config['registration_phone_required'] %} required{%endif%}" for="phone">Phone</label>
+      <!-- <input type="tel" name="phone" id="phone" pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}"> -->
+      <input class="form-control" name="phone"  id="phone" placeholder="Enter your phone number"{%if edit_profile%} value="{{user_data.phone}}"{%endif%} onchange="validateFields('phone', this.value, this.id);" {%if config['registration_phone_required'] %} required{%endif%}>  
+      <div class="valid-feedback" id="phone-is-valid">This field is valid!</div>
+      <div class="invalid-feedback" id="phone-is-invalid">This field is invalid!</div>    
+
+    </div>
+
+    {% if config['user_registration_fields'] is defined %}
+
+    {% for attribute in config['user_registration_fields'].keys() %}
+
+    {% if config['user_registration_fields'][attribute].input_type == "hidden" %}
+
+
+
+    {% elif config['user_registration_fields'][attribute].input_type == "select" %}
+    <div title="{{attribute}}" class="form-group">
+      <label class="form-label mt-4{% if config['user_registration_fields'][attribute].required==true %} required{% endif %}" for="{{ attribute }}" {% if config['user_registration_fields'][attribute].description %}data-bs-toggle="tooltip" data-bs-placement="right" title="{{config['user_registration_fields'][attribute].description}}"{% endif %}>{{ attribute | replace('_', ' ') | capitalize}}</label>
+      <select name="{{ attribute }}" class="form-select" {% if config['user_registration_fields'][attribute].required==true %}required{% endif %}>
+      {% for item in config['user_registration_fields'][attribute].content %}
+          <option value="{{ item }}" id="{{ field }} {{ item }}" name="{{ attribute }}"{%if edit_profile and user[attribute] and item in user[attribute]%} selected="selected" {%endif%}>{{ item }}</option>
+      {% endfor %}
+      </select>
+    </div>
+    {% elif config['user_registration_fields'][attribute].input_type == "radio" or config['user_registration_fields'][attribute].input_type == "checkbox" %}
+    <div title="{{attribute}}" class="form-group">
+      <label class="form-label mt-4{% if config['user_registration_fields'][attribute].required==true %} required{% endif %}" for="" {% if config['user_registration_fields'][attribute].description %}data-bs-toggle="tooltip" data-bs-placement="right" title="{{config['user_registration_fields'][attribute].description}}"{% endif %}>{{ attribute | replace('_', ' ') | capitalize}}</label>
+      {% for item in config['user_registration_fields'][attribute].content %}
+      <div class="form-check">
+        <label class='form-check-label' for="{{ attribute }} {{ item }}">{{ item }}
+          <input class="form-check-input" style="{{'border: 1px solid;' if not dark_mode else ''}}" type="{{ config['user_registration_fields'][attribute].input_type }}" value="{{ item }}" id="{{ attribute }} {{ item }}" name="{{ attribute }}" {%if edit_profile and user[attribute] and item in user[attribute]%} checked="checked" {%endif%}/>
+        </label>
+      </div>
+      {% endfor %}
+    </div>
+
+    {% else %}
+    <div title="{{attribute}}" class="form-group">
+      <label class="form-label mt-4 {% if config['user_registration_fields'][attribute].required==true %} required{% endif %}" for="{{attribute}}">{{attribute | capitalize}}</label>
+      <input class="form-control" name="{{attribute}}" onchange="validateFields('{{attribute}}', this.value, this.id);" value="{%if edit_profile%}{{user|attr(attribute)}}{%endif%}" id="{{attribute}}">  
+      <div class="valid-feedback" id="{{attribute}}-is-valid">This field is valid!</div>
+      <div class="invalid-feedback" id="{{attribute}}-is-invalid">This field is invalid!</div>    
+
+    </div>
+    {% endif %}
+    {% endfor %}
+    {% endif %}
+
+    <div title="group" class="form-group">
+      <label class="form-label mt-4 required" for="group">Group</label>
+      <select class="form-control" name="group" id="group" required>  
+      {% for item in config['groups'] %}
+          <option value="{{ item }}" id="group {{ item }}" name="{{ item }}">{{ item }}</option>
+      {% endfor %}
+    </div>
+    <div style="padding-top: 10px;"></div>
+
+    <div title="submit" class="form-group mt-4">
+      <input class="btn btn-primary" id="form-button-submit" type="submit" value="Submit">
+    </div>
+  
+  </fieldset>
+</form>
+{% endblock %}
+
+
+
+{% block js %}
+
+
+async function validateFields(fi, val, id) {
+
+  const foo = document.getElementById(id)
+
+  let payload = {
+    field: fi,
+    value: val
+  };
+
+  let response = await fetch('{{ url_for('auth.lint_user_field') }}', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json;charset=utf-8'
+    },
+    body: JSON.stringify(payload)
+  });
+  
+  let result = await response.json();
+  var submit = document.getElementById("form-button-submit");
+
+  if (result['status'] == 'success') {
+    foo.classList.remove("is-invalid")
+    foo.classList.add("is-valid")
+    submit.classList.remove("disabled")
+
+  } else {
+    document.getElementById(fi+"-is-invalid").innerHTML = "This field is invalid! " + result['msg']
+    foo.classList.add("is-invalid")
+    foo.classList.remove("is-valid")
+
+    if (foo.required) {
+      submit.classList.add("disabled")
+    }
+  }
+}
+
+
+
+{% endblock %}
