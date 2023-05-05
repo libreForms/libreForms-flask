@@ -14,7 +14,7 @@ __maintainer__ = "Sig Janoska-Bedi"
 __email__ = "signe@atreeus.com"
 
 
-import functools, re, datetime, tempfile, os, uuid, random, json
+import functools, re, datetime, tempfile, os, uuid, random, json, requests
 import pandas as pd
 from urllib.parse import urlparse
 from typing import List, Union
@@ -76,8 +76,8 @@ def needs_password_reset(user: User, max_age: Union[int, bool]) -> bool:
     if max_age is False:
         return False
 
-    max_password_age = timedelta(days=max_age)
-    if datetime.now() - user.last_password_change > max_password_age:
+    max_password_age = datetime.timedelta(days=max_age)
+    if datetime.datetime.now() - user.last_password_change > max_password_age:
         return True
     
     return False
@@ -85,7 +85,6 @@ def needs_password_reset(user: User, max_age: Union[int, bool]) -> bool:
 
 # failsafe code in case we need to pivot away from using Flask-hCaptcha
 def hcaptcha_verify(SECRET_KEY=config['hcaptcha_secret_key'], VERIFY_URL = "https://hcaptcha.com/siteverify"):
-    import json, requests
     # Retrieve token from post data with key 'h-captcha-response'.
     token =  request.form.get('h-captcha-response')
 
@@ -98,6 +97,69 @@ def hcaptcha_verify(SECRET_KEY=config['hcaptcha_secret_key'], VERIFY_URL = "http
     # Parse JSON from response. Check for success or error codes.
     response_json = json.parse(response.content)
     return response_json["success"] if response_json.status_code == 200 else False
+
+
+
+@bp.route('/change_password', methods=('GET', 'POST'))
+@login_required
+def change_password():
+
+    if request.method == 'POST':
+        new_password = request.form['new_password']
+        reenter_new_password = request.form['reenter_new_password']
+        current_password = request.form['current_password']
+
+        error = None
+
+        user = User.query.get(current_user.id)
+
+        if user is None:
+            error = 'User does not exist. '
+        elif not check_password_hash(user.password, current_password):
+            error = 'Incorrect password. '
+        elif new_password != reenter_new_password:
+            error = 'Passwords do not match. '
+        elif new_password == current_password:
+            error = 'Your new password cannot be the same as your old password. Please choose a different password. '
+        elif not re.fullmatch(config['password_regex'], new_password):
+            error = f'Invalid password. ({config["user_friendly_password_regex"]}) '
+
+        # Check if the new password matches any of the user's recent old passwords
+        recent_old_passwords = get_recent_old_passwords(user, config['disable_password_reuse'])
+        if any(check_password_hash(old_password.password, new_password) for old_password in recent_old_passwords):
+            error = 'Your new password cannot be the same as any of your recent old passwords. Please choose a different password.'
+        else:
+            # Save the old password to the OldPassword table
+            old_password_entry = OldPassword(user_id=user.id, password=user.password, timestamp=datetime.datetime.utcnow())
+            db.session.add(old_password_entry)
+
+
+        if error is None:
+
+            try:
+    
+                user.password=generate_password_hash(new_password, method='sha256')
+                user.last_password_change = datetime.datetime.utcnow()
+                db.session.commit()
+
+                flash("Successfully changed password. ", "success")
+                log.info(f'{user.username.upper()} - successfully changed password.', "success")
+                return redirect(url_for('home'))
+            except Exception as e: 
+                transaction_id = str(uuid.uuid1())
+                log.warning(f"LIBREFORMS - {e}" , extra={'transaction_id': transaction_id})
+                error = f"There was an error in processing your request. Transaction ID: {transaction_id}. "
+            
+        flash(error, "warning")
+
+
+    return render_template('auth/change_password.html.jinja',
+        name='User',
+        subtitle='Change Password',
+        **standard_view_kwargs(),
+        )
+
+
 
 @bp.route('/forgot_password/<signature>', methods=('GET', 'POST'))
 def reset_password(signature):
@@ -677,6 +739,7 @@ def profile():
             try:
     
                 user.password=generate_password_hash(new_password, method='sha256')
+                user.last_password_change = datetime.datetime.utcnow()
                 db.session.commit()
 
                 flash("Successfully changed password. ", "success")

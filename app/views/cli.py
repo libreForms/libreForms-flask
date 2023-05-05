@@ -262,6 +262,7 @@ def modify_user(username=None, **kwargs):
             # Save the old password to the OldPassword table before updating the user's password
             old_password_entry = OldPassword(user_id=user.id, password=user.password, timestamp=datetime.datetime.utcnow())
             db.session.add(old_password_entry)
+            user.last_password_change = datetime.datetime.utcnow()
 
             # here we hash the password field, if it has been passed
             value = generate_password_hash(value, method='sha256')
