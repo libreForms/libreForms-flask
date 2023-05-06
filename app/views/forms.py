@@ -25,6 +25,7 @@ from flask_login import current_user, login_required
 from sqlalchemy.sql import text
 from markupsafe import Markup
 
+
 # import custom packages from the current repository
 import libreforms
 from app import config, log, mailer, mongodb
@@ -44,6 +45,7 @@ import os, json
 import pandas as pd
 import tempfile
 import inspect
+from typing import List, Type
 
 # The kwargs we are passing to view function rendered jinja is getting out-
 # of-hand. We can easily replace this with the following method as **kwargs, 
