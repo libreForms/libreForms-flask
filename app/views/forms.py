@@ -34,6 +34,11 @@ from celeryd.tasks import send_mail_async
 from app.scripts import convert_to_string
 from app.decorators import required_login_and_password_reset
 
+# wtf forms requirements
+from flask_wtf import FlaskForm
+from wtforms import StringField, IntegerField, BooleanField, FloatField, SubmitField, FieldList, DateField
+from wtforms.validators import DataRequired, Optional
+
 # and finally, import other packages
 import os, json
 import pandas as pd
@@ -197,6 +202,60 @@ def collect_list_of_users(**kwargs): # we'll use the kwargs later to override de
 def generate_list_of_users(db=db):
     col = User.query.with_entities(User.username, User.email).distinct()
     return [(row.email, row.username) for row in col.all()]
+
+
+# We have known for some time that we would need to re-write the form management tools to use
+# flask-wtf instead of webargs - it will help with dependency management and more seamless 
+# integration with other flask features. Initially, we used webargs because it was more 
+# straightforward to define arbitrary form structures, but this approach may help bridge that
+# gap, see discussion at https://github.com/libreForms/libreForms-flask/issues/30.
+def create_dynamic_form(    form: str, 
+                            user_group: str, 
+                            args: List[str]) -> Type[FlaskForm]:
+    """
+    Create a dynamic Flask-WTF form based on the provided form definition, user group, and arguments.
+
+    :param form: The form name to create.
+    :param user_group: The user group to filter form fields.
+    :param args: A list of form field names to include in the dynamic form.
+    :return: A FlaskForm class with dynamically generated fields.
+    """
+
+    field_types = {
+        'str': StringField,
+        'integer': IntegerField,
+        'boolean': BooleanField,
+        'float': FloatField,
+        'list': FieldList,
+        'date': DateField
+    }
+
+    class DynamicForm(FlaskForm):
+        pass
+
+    for field in libreforms.forms[form].keys():
+        if args and field not in args:
+            continue
+
+        if field.startswith("_"):
+            continue
+
+        if not checkGroup(user_group, libreforms.forms[form][field]):
+            continue
+
+        v = libreforms.forms[form][field]['output_data']['validators'] if 'validators' in libreforms.forms[form][field]['output_data'] else []
+        validators = [x[0] if type(x) == tuple else x for x in v]
+
+        field_type = libreforms.forms[form][field]['output_data']['type']
+        required = libreforms.forms[form][field]['output_data']['required']
+
+        if field_type in field_types:
+            if required:
+                setattr(DynamicForm, field, field_types[field_type](field, validators=[DataRequired()] + validators))
+            else:
+                setattr(DynamicForm, field, field_types[field_type](field, validators=[Optional()] + validators))
+
+    return DynamicForm()
 
 
 # webargs allows us to dynamically define form fields and assign them 
