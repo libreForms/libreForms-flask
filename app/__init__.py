@@ -41,7 +41,7 @@ from flask_login import LoginManager, current_user
 from werkzeug.middleware.proxy_fix import ProxyFix
 from celery import Celery
 from markupsafe import Markup
-
+from sqlalchemy import JSON
 
 # application-specific dependencies
 from app import mongo, log_functions
@@ -273,12 +273,16 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
 
         # might eventually be worth adding support for unique fields...
         if value['type'] == str and not hasattr(User, key):
-            setattr(User, key, db.Column(db.String(1000)))
+            setattr(User, key, db.Column(db.String(1000), nullable=True))
             # print(key,value)
 
         elif value['type'] == int and not hasattr(User, key):
-            setattr(User, key, db.Column(db.Integer))
+            setattr(User, key, db.Column(db.Integer, nullable=True))
             # print(key,value)
+        elif value['type'] == list and not hasattr(User, key):
+            setattr(User, key, db.Column(JSON, nullable=True))
+            # print(key,value)
+
 
 
     # create the database if it doesn't exist; this, like many other
