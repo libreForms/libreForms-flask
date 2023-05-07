@@ -45,7 +45,7 @@ import tempfile
 import inspect
 from cmath import e
 from fileinput import filename
-from typing import List, Type
+from typing import List, Type, Dict, Any, Optional, Union
 
 # The kwargs we are passing to view function rendered jinja is getting out-
 # of-hand. We can easily replace this with the following method as **kwargs, 
@@ -211,55 +211,55 @@ def generate_list_of_users(db=db):
 # integration with other flask features. Initially, we used webargs because it was more 
 # straightforward to define arbitrary form structures, but this approach may help bridge that
 # gap, see discussion at https://github.com/libreForms/libreForms-flask/issues/30.
-def create_dynamic_form(    form: str, 
-                            user_group: str, 
-                            args: List[str] = None) -> Type[FlaskForm]:
+def create_dynamic_form(form_name: str, user_group: str, form_data: Optional[Dict[str, Any]] = None) -> Union[Type[FlaskForm], Dict[str, Any]]:
     """
-    Create a dynamic Flask-WTF form based on the provided form definition, user group, and arguments.
+    Create a dynamic FlaskForm based on the given form_name and user_group.
+    Optionally, process the form data if provided.
 
-    :param form: The form name to create.
-    :param user_group: The user group to filter form fields.
-    :param args: A list of form field names to include in the dynamic form.
-    :return: A FlaskForm class with dynamically generated fields.
+    :param form_name: The name of the form.
+    :param user_group: The user group for which the form is being generated.
+    :param form_data: Optional dictionary containing form data to process.
+    :return: Returns the DynamicForm class if form_data is not provided, otherwise returns the processed form data as a dictionary.
     """
+    # Get the form fields and validators
+    form_fields = propagate_form_fields(form_name, user_group)
+    # form_validators = define_webarg_form_data_types(form_name, user_group)
 
+    # Create the DynamicForm class
+    class DynamicForm(FlaskForm):
+        pass
+
+    # Add fields to the DynamicForm class
     field_types = {
         'str': StringField,
-        'integer': IntegerField,
-        'boolean': BooleanField,
+        'int': IntegerField,
+        'bool': BooleanField,
         'float': FloatField,
         'list': FieldList,
         'date': DateField
     }
 
-    class DynamicForm(FlaskForm):
-        pass
-
-    for field in libreforms.forms[form].keys():
-        if args and field not in args:
-            continue
-
-        if field.startswith("_"):
-            continue
-
-        if not checkGroup(user_group, libreforms.forms[form][field]):
-            continue
-
-        v = libreforms.forms[form][field]['output_data']['validators'] if 'validators' in libreforms.forms[form][field]['output_data'] else []
-        validators = [x[0] if type(x) == tuple else x for x in v]
-
-        field_type = libreforms.forms[form][field]['output_data']['type']
-        required = libreforms.forms[form][field]['output_data']['required']
+    for field_name, field_info in form_fields.items():
+        field_type = field_info["output_data"]["type"]
+        # field_validators = form_validators[field_name]['output_data'].validators if field_name in form_validators else []
 
         if field_type in field_types:
-            if required:
-                setattr(DynamicForm, field, field_types[field_type](field, validators=[DataRequired()] + validators))
-            else:
-                setattr(DynamicForm, field, field_types[field_type](field, validators=[Optional()] + validators))
+            field_class = field_types[field_type]
+            # setattr(DynamicForm, field_name, field_class(field_info["label"], validators=field_validators))
+            setattr(DynamicForm, field_name, field_class(form_data[field_name]))
 
-    return DynamicForm()
+    # Process the form data, validate and store the values in a dictionary
+    if form_data:
+        form_instance = DynamicForm(data=form_data)
+        if form_instance.validate():
+            processed_data = {field_name: getattr(form_instance, field_name).data for field_name in form_fields.keys()}
+            return processed_data
+        else:
+            # Handle validation errors as needed
+            pass
 
-
+    return DynamicForm
+    
 # webargs allows us to dynamically define form fields and assign them 
 # data types with ease - this was one of the reasons we opted initially
 # to use webargs, though we've been considering a pivot back to WTForms
@@ -620,7 +620,10 @@ def forms(form_name):
                 if config['enable_test_features']:
 
                     # Generate the dynamic form class
-                    FormClass = create_dynamic_form(form_name, current_user.group, form_data=list(request.form))
+                    # FormClass = create_dynamic_form(form_name, current_user.group, form_data=list(request.form))
+                    f_data = request.form.to_dict()
+                    print(f_data)
+                    FormClass = create_dynamic_form(form_name, current_user.group, form_data=f_data)
 
                     # Create an instance of the dynamic form class
                     form_instance = FormClass()
@@ -629,10 +632,10 @@ def forms(form_name):
                     form_instance.process(request.form)
 
                     # Validate the form data
-                    if form_instance.validate():
-                        parsed_args = form_instance.data
-                        # Proceed with form processing
-                        ...
+                    # if form_instance.validate():
+
+                    parsed_args = form_instance.data
+                    # Proceed with form processing
 
                 else:
 
