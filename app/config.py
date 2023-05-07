@@ -371,8 +371,10 @@ config['user_friendly_organization_regex'] = ""
 
 # this config sets the max session length as a datetime timedelta object,
 # see https://github.com/libreForms/libreForms-flask/issues/395. By default,
-# we set a one-hour max inactivity time before the session is cleared.
-config['session_length'] = timedelta(hours=1)
+# we set a six-hour max inactivity time before the session is cleared. You
+# can also set this value to False (or, really, any non-timedelta type) and
+# the application will not set a max session time.
+config['session_length'] = timedelta(hours=6)
 
 # these configs implement security controls generally related to local password
 # based authentication. For futher discussion of max password age policies, see

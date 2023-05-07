@@ -577,7 +577,8 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
     @app.before_request
     def make_session_permanent():
         session.permanent = True
-        app.permanent_session_lifetime = config['session_length']
+        if isinstance(config['session_length'], datetime.timedelta):
+            app.permanent_session_lifetime = config['session_length']
 
 
     # define a home route
