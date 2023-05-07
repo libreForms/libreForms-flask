@@ -14,8 +14,6 @@ __maintainer__ = "Sig Janoska-Bedi"
 __email__ = "signe@atreeus.com"
 
 # import flask-related packages
-from cmath import e
-from fileinput import filename
 from flask import Blueprint, flash, render_template, request, send_from_directory, \
                         send_file, redirect, url_for, current_app, abort, Response
 from werkzeug.security import check_password_hash        
@@ -41,10 +39,12 @@ from wtforms import StringField, IntegerField, BooleanField, FloatField, SubmitF
 from wtforms.validators import DataRequired, Optional
 
 # and finally, import other packages
-import os, json
+import os, json, uuid
 import pandas as pd
 import tempfile
 import inspect
+from cmath import e
+from fileinput import filename
 from typing import List, Type
 
 # The kwargs we are passing to view function rendered jinja is getting out-
@@ -213,7 +213,7 @@ def generate_list_of_users(db=db):
 # gap, see discussion at https://github.com/libreForms/libreForms-flask/issues/30.
 def create_dynamic_form(    form: str, 
                             user_group: str, 
-                            args: List[str]) -> Type[FlaskForm]:
+                            args: List[str] = None) -> Type[FlaskForm]:
     """
     Create a dynamic Flask-WTF form based on the provided form definition, user group, and arguments.
 
@@ -617,11 +617,26 @@ def forms(form_name):
                         return redirect(url_for('forms.forms', form_name=form_name))
 
 
-                # print([x for x in list(request.form)])
-                # for x in list(request.form):
-                #     print(x)
-                parsed_args = flaskparser.parser.parse(define_webarg_form_data_types(form_name, user_group=current_user.group, args=list(request.form)), request, location="form")
+                if config['enable_test_features']:
 
+                    # Generate the dynamic form class
+                    FormClass = create_dynamic_form(form_name, current_user.group, form_data=list(request.form))
+
+                    # Create an instance of the dynamic form class
+                    form_instance = FormClass()
+
+                    # Populate the form instance with submitted data
+                    form_instance.process(request.form)
+
+                    # Validate the form data
+                    if form_instance.validate():
+                        parsed_args = form_instance.data
+                        # Proceed with form processing
+                        ...
+
+                else:
+
+                    parsed_args = flaskparser.parser.parse(define_webarg_form_data_types(form_name, user_group=current_user.group, args=list(request.form)), request, location="form")
 
                 # here we remove the _password field from the parsed args so it's not written to the database,
                 # see https://github.com/signebedi/libreForms/issues/167. 
