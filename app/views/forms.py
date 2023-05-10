@@ -22,7 +22,7 @@ from webargs import fields, flaskparser
 from flask_login import current_user, login_required
 from sqlalchemy.sql import text
 from markupsafe import Markup
-
+from werkzeug.datastructures import ImmutableMultiDict
 
 # import custom packages from the current repository
 import libreforms
@@ -35,7 +35,7 @@ from app.decorators import required_login_and_password_reset
 
 # wtf forms requirements
 from flask_wtf import FlaskForm
-from wtforms import StringField, IntegerField, BooleanField, FloatField, SubmitField, FieldList, DateField
+from wtforms import StringField, IntegerField, BooleanField, FloatField, SubmitField, FieldList, DateField, FormField
 from wtforms.validators import DataRequired, Optional
 
 # and finally, import other packages
@@ -46,6 +46,7 @@ import inspect
 from cmath import e
 from fileinput import filename
 from typing import List, Type, Dict, Any, Optional, Union
+# from collections import defaultdict
 
 # The kwargs we are passing to view function rendered jinja is getting out-
 # of-hand. We can easily replace this with the following method as **kwargs, 
@@ -211,7 +212,7 @@ def generate_list_of_users(db=db):
 # integration with other flask features. Initially, we used webargs because it was more 
 # straightforward to define arbitrary form structures, but this approach may help bridge that
 # gap, see discussion at https://github.com/libreForms/libreForms-flask/issues/30.
-def create_dynamic_form(form_name: str, user_group: str, form_data: Optional[Dict[str, Any]] = None) -> Union[Type[FlaskForm], Dict[str, Any]]:
+def create_dynamic_form(form_name: str, user_group: str, form_data: Optional[ImmutableMultiDict] = None) -> Union[Type[FlaskForm], Dict[str, Any]]:
     """
     Create a dynamic FlaskForm based on the given form_name and user_group.
     Optionally, process the form data if provided.
@@ -224,6 +225,27 @@ def create_dynamic_form(form_name: str, user_group: str, form_data: Optional[Dic
     # Get the form fields and validators
     form_fields = propagate_form_fields(form_name, user_group)
     # form_validators = define_webarg_form_data_types(form_name, user_group)
+
+    print(form_data)
+
+    def unpack_form(form_data):
+        parsed_data = {key:[] for key, value in form_data.items()}
+
+        for key, value in form_data.items():
+            print(key, value)
+            parsed_data[key].append(value)
+        
+        print(parsed_data)
+
+        for key, value in parsed_data.items():
+            if len(value) == 1:
+                parsed_data[key] = value[0]
+
+        return parsed_data
+
+    form_data = unpack_form(form_data)
+
+    print(form_data)
 
     # Create the DynamicForm class
     class DynamicForm(FlaskForm):
@@ -241,12 +263,23 @@ def create_dynamic_form(form_name: str, user_group: str, form_data: Optional[Dic
 
     for field_name, field_info in form_fields.items():
         field_type = field_info["output_data"]["type"]
+        # print(field_type)
         # field_validators = form_validators[field_name]['output_data'].validators if field_name in form_validators else []
 
-        if field_type in field_types:
+        if field_type in field_types and field_name in form_data:
             field_class = field_types[field_type]
+
+            if field_type == "list":
+                # unbound_field = field_class.field_class(validators=validators)
+                field_instance = field_class(FormField(StringField), form_data[field_name])
+
+            else:
+                field_instance = field_class(form_data[field_name])
+
+            # setattr(DynamicForm, field_name, field_class(form_data[field_name]))
+
             # setattr(DynamicForm, field_name, field_class(field_info["label"], validators=field_validators))
-            setattr(DynamicForm, field_name, field_class(form_data[field_name]))
+            setattr(DynamicForm, field_name, field_instance)
 
     # Process the form data, validate and store the values in a dictionary
     if form_data:
@@ -599,166 +632,168 @@ def forms(form_name):
 
     else:
 
-        try:
-            options = propagate_form_configs(form_name)
-            forms = propagate_form_fields(form_name, group=current_user.group)
+        # try:
+        options = propagate_form_configs(form_name)
+        forms = propagate_form_fields(form_name, group=current_user.group)
 
 
-            if request.method == 'POST':
-                
+        if request.method == 'POST':
+            
 
-                # here we conduct a passworde check if digital signatures are enabled and password
-                # protected, see  https://github.com/signebedi/libreForms/issues/167
-                if config['require_password_for_electronic_signatures'] and options['_digitally_sign']:
-                    password = request.form['_password']
-                
-                    if not check_password_hash(current_user.password, password):
-                        flash('Incorrect password.', "warning")
-                        return redirect(url_for('forms.forms', form_name=form_name))
-
-
-                if config['enable_test_features']:
-
-                    # Generate the dynamic form class
-                    # FormClass = create_dynamic_form(form_name, current_user.group, form_data=list(request.form))
-                    f_data = request.form.to_dict()
-                    print(f_data)
-                    FormClass = create_dynamic_form(form_name, current_user.group, form_data=f_data)
-
-                    # Create an instance of the dynamic form class
-                    form_instance = FormClass()
-
-                    # Populate the form instance with submitted data
-                    form_instance.process(request.form)
-
-                    # Validate the form data
-                    # if form_instance.validate():
-
-                    parsed_args = form_instance.data
-                    # Proceed with form processing
-
-                else:
-
-                    parsed_args = flaskparser.parser.parse(define_webarg_form_data_types(form_name, user_group=current_user.group, args=list(request.form)), request, location="form")
-
-                # here we remove the _password field from the parsed args so it's not written to the database,
-                # see https://github.com/signebedi/libreForms/issues/167. 
-                if '_password' in parsed_args:
-                    del parsed_args['_password']
-                # print(parsed_args)                
-                
-                # parsed_args = {}
-
-                # for item in libreforms.forms[form_name].keys():
-                #     print(item)
+            # here we conduct a passworde check if digital signatures are enabled and password
+            # protected, see  https://github.com/signebedi/libreForms/issues/167
+            if config['require_password_for_electronic_signatures'] and options['_digitally_sign']:
+                password = request.form['_password']
+            
+                if not check_password_hash(current_user.password, password):
+                    flash('Incorrect password.', "warning")
+                    return redirect(url_for('forms.forms', form_name=form_name))
 
 
-                #     try: 
-                #         if libreforms.forms[form_name][item]['input_field']['type'] == 'checkbox':
-                                
-                #             parsed_args[item] = str(request.form.getlist(item))
+            if config['enable_test_features']:
+
+                # Generate the dynamic form class
+                # FormClass = create_dynamic_form(form_name, current_user.group, form_data=list(request.form))
+                # f_data = request.form.to_dict()
+                # print(request.form)
+
+ 
+                FormClass = create_dynamic_form(form_name, current_user.group, form_data=request.form)
+
+                # Create an instance of the dynamic form class
+                form_instance = FormClass()
+
+                # Populate the form instance with submitted data
+                form_instance.process(request.form)
+
+                # Validate the form data
+                # if form_instance.validate():
+
+                parsed_args = form_instance.data
+                # Proceed with form processing
+
+            else:
+
+                parsed_args = flaskparser.parser.parse(define_webarg_form_data_types(form_name, user_group=current_user.group, args=list(request.form)), request, location="form")
+
+            # here we remove the _password field from the parsed args so it's not written to the database,
+            # see https://github.com/signebedi/libreForms/issues/167. 
+            if '_password' in parsed_args:
+                del parsed_args['_password']
+            # print(parsed_args)                
+            
+            # parsed_args = {}
+
+            # for item in libreforms.forms[form_name].keys():
+            #     print(item)
+
+
+            #     try: 
+            #         if libreforms.forms[form_name][item]['input_field']['type'] == 'checkbox':
                             
+            #             parsed_args[item] = str(request.form.getlist(item))
+                        
 
-                #         else:
-                #             parsed_args[item] = str(request.form[item]) if libreforms.forms[form_name][item]['output_data']['type'] == 'str' else float(request.form[item])
+            #         else:
+            #             parsed_args[item] = str(request.form[item]) if libreforms.forms[form_name][item]['output_data']['type'] == 'str' else float(request.form[item])
 
-                #     except Exception as e: 
-                #         log.warning(f"LIBREFORMS - {e}")
-                #         pass
+            #     except Exception as e: 
+            #         log.warning(f"LIBREFORMS - {e}")
+            #         pass
 
-                #     print(parsed_args[item])
-                # print(parsed_args)
+            #     print(parsed_args[item])
+            # print(parsed_args)
 
-                digital_signature = encrypt_with_symmetric_key(current_user.certificate, config['signature_key']) if options['_digitally_sign'] else None
-                
-                approver = verify_form_approval(form_name)
-                # print(approver)
-
-
-                document_id = mongodb.write_document_to_collection(parsed_args, form_name, 
-                                reporter=current_user.username, 
-                                digital_signature=digital_signature,
-                                approver=getattr(approver, config['visible_signature_field']) if approver else None,
-                                ip_address=request.remote_addr if options['_collect_client_ip'] else None,)
+            digital_signature = encrypt_with_symmetric_key(current_user.certificate, config['signature_key']) if options['_digitally_sign'] else None
+            
+            approver = verify_form_approval(form_name)
+            # print(approver)
 
 
-
-                ## here we're trying out some logic to async submit forms, see 
-                ## https://github.com/libreForms/libreForms-flask/issues/180
-                # if config['write_documents_asynchronously']:
-                #     import time, requests
-                #     r = current_app.config['MONGODB_WRITER'].apply_async(kwargs={
-                #                 'data':parsed_args, 
-                #                 'collection_name':form_name, 
-                #                 'reporter':current_user.username, 
-                #                 'digital_signature':digital_signature,
-                #                 'approver':getattr(approver, config['visible_signature_field']) if approver else None,
-                #                 'ip_address':request.remote_addr if options['_collect_client_ip'] else None,})
-                #     while True:
-                #         a = requests.get(url_for('taskstatus', task_id=document_id.task_id))
-                #         print(r.task_id)
-                #         if a == 'COMPLETE': break
-                #         time.sleep(.1)
-                # else:
-                #     # here we insert the value and store the return value as the document ID
-                #     document_id = mongodb.write_document_to_collection(parsed_args, form_name, 
-                #                 reporter=current_user.username, 
-                #                 digital_signature=digital_signature,
-                #                 approver=getattr(approver, config['visible_signature_field']) if approver else None,
-                #                 ip_address=request.remote_addr if options['_collect_client_ip'] else None,)
+            document_id = mongodb.write_document_to_collection(parsed_args, form_name, 
+                            reporter=current_user.username, 
+                            digital_signature=digital_signature,
+                            approver=getattr(approver, config['visible_signature_field']) if approver else None,
+                            ip_address=request.remote_addr if options['_collect_client_ip'] else None,)
 
 
-                flash(f'{form_name} form successfully submitted, document ID {document_id}. ', "success")
-                if config['debug']:
-                    flash(str(parsed_args), "info")
+
+            ## here we're trying out some logic to async submit forms, see 
+            ## https://github.com/libreForms/libreForms-flask/issues/180
+            # if config['write_documents_asynchronously']:
+            #     import time, requests
+            #     r = current_app.config['MONGODB_WRITER'].apply_async(kwargs={
+            #                 'data':parsed_args, 
+            #                 'collection_name':form_name, 
+            #                 'reporter':current_user.username, 
+            #                 'digital_signature':digital_signature,
+            #                 'approver':getattr(approver, config['visible_signature_field']) if approver else None,
+            #                 'ip_address':request.remote_addr if options['_collect_client_ip'] else None,})
+            #     while True:
+            #         a = requests.get(url_for('taskstatus', task_id=document_id.task_id))
+            #         print(r.task_id)
+            #         if a == 'COMPLETE': break
+            #         time.sleep(.1)
+            # else:
+            #     # here we insert the value and store the return value as the document ID
+            #     document_id = mongodb.write_document_to_collection(parsed_args, form_name, 
+            #                 reporter=current_user.username, 
+            #                 digital_signature=digital_signature,
+            #                 approver=getattr(approver, config['visible_signature_field']) if approver else None,
+            #                 ip_address=request.remote_addr if options['_collect_client_ip'] else None,)
 
 
-                log.info(f'{current_user.username.upper()} - submitted \'{form_name}\' form, document no. {document_id}.')
-                
-                # here we build our message and subject
-                subject = f'{config["site_name"]} {form_name} Submitted ({document_id})'
-                content = f"This email serves to verify that {current_user.username} ({current_user.email}) has just submitted the {form_name} form, which you can view at {config['domain']}/submissions/{form_name}/{document_id}. {'; '.join(key + ': ' + str(value) for key, value in parsed_args.items() if key != mongodb.metadata_field_names['journal']) if options['_send_form_with_email_notification'] else ''}"
-                                
-                # and then we send our message
-                m = send_mail_async.delay(subject=subject, content=content, to_address=current_user.email, cc_address_list=rationalize_routing_list(form_name)) if config['send_mail_asynchronously'] else mailer.send_mail(subject=subject, content=content, to_address=current_user.email, cc_address_list=rationalize_routing_list(form_name), logfile=log)
-
-                if approver:
-                    subject = f'{config["site_name"]} {form_name} Requires Approval ({document_id})'
-                    content = f"This email serves to notify that {current_user.username} ({current_user.email}) has just submitted the {form_name} form for your review, which you can view at {config['domain']}/submissions/{form_name}/{document_id}/review."
-                    m = send_mail_async.delay(subject=subject, content=content, to_address=approver.email, cc_address_list=rationalize_routing_list(form_name)) if config['send_mail_asynchronously'] else mailer.send_mail(subject=subject, content=content, to_address=approver.email, cc_address_list=rationalize_routing_list(form_name), logfile=log)
-
-                # form processing trigger, see https://github.com/libreForms/libreForms-flask/issues/201
-                if config['enable_form_processing']:
-                    current_app.config['FORM_PROCESSING'].onCreation(document_id=document_id, form_name=form_name)
-
-                return redirect(url_for('submissions.render_document', form_name=form_name, document_id=document_id, ignore_menu=True))
+            flash(f'{form_name} form successfully submitted, document ID {document_id}. ', "success")
+            if config['debug']:
+                flash(str(parsed_args), "info")
 
 
-            return render_template('app/forms.html.jinja', 
-                context=forms,                                          # this passes the form fields as the primary 'context' variable
-                name='Forms',
-                subtitle=form_name,
-                menu=form_menu(checkFormGroup),              # this returns the forms in libreform/forms to display in the lefthand menu
-                type="forms",       
-                options=options, 
-                filename = f'{form_name.lower().replace(" ","")}.csv' if options['_allow_csv_templates'] else False,
-                depends_on=compile_depends_on_data(form_name, user_group=current_user.group),
-                user_list = collect_list_of_users() if config['allow_forms_access_to_user_list'] else [],
-                # here we tell the jinja to include password re-entry for form signatures, if configured,
-                # see https://github.com/signebedi/libreForms/issues/167.
-                require_password=True if config['require_password_for_electronic_signatures'] and options['_digitally_sign'] else False,
-                **standard_view_kwargs(),
-                )
+            log.info(f'{current_user.username.upper()} - submitted \'{form_name}\' form, document no. {document_id}.')
+            
+            # here we build our message and subject
+            subject = f'{config["site_name"]} {form_name} Submitted ({document_id})'
+            content = f"This email serves to verify that {current_user.username} ({current_user.email}) has just submitted the {form_name} form, which you can view at {config['domain']}/submissions/{form_name}/{document_id}. {'; '.join(key + ': ' + str(value) for key, value in parsed_args.items() if key != mongodb.metadata_field_names['journal']) if options['_send_form_with_email_notification'] else ''}"
+                            
+            # and then we send our message
+            m = send_mail_async.delay(subject=subject, content=content, to_address=current_user.email, cc_address_list=rationalize_routing_list(form_name)) if config['send_mail_asynchronously'] else mailer.send_mail(subject=subject, content=content, to_address=current_user.email, cc_address_list=rationalize_routing_list(form_name), logfile=log)
 
-        except Exception as e: 
+            if approver:
+                subject = f'{config["site_name"]} {form_name} Requires Approval ({document_id})'
+                content = f"This email serves to notify that {current_user.username} ({current_user.email}) has just submitted the {form_name} form for your review, which you can view at {config['domain']}/submissions/{form_name}/{document_id}/review."
+                m = send_mail_async.delay(subject=subject, content=content, to_address=approver.email, cc_address_list=rationalize_routing_list(form_name)) if config['send_mail_asynchronously'] else mailer.send_mail(subject=subject, content=content, to_address=approver.email, cc_address_list=rationalize_routing_list(form_name), logfile=log)
 
-            transaction_id = str(uuid.uuid1())
-            log.warning(f"LIBREFORMS - {e}", extra={'transaction_id': transaction_id})
-            flash (f"There was an error in processing your request. Transaction ID: {transaction_id}. ", 'warning')
+            # form processing trigger, see https://github.com/libreForms/libreForms-flask/issues/201
+            if config['enable_form_processing']:
+                current_app.config['FORM_PROCESSING'].onCreation(document_id=document_id, form_name=form_name)
 
-            # log.warning(f"LIBREFORMS - {e}")
-            # flash(f'There was an issue processing your request. {e}', "warning")
-            return redirect(url_for('forms.forms_home'))
+            return redirect(url_for('submissions.render_document', form_name=form_name, document_id=document_id, ignore_menu=True))
+
+
+        return render_template('app/forms.html.jinja', 
+            context=forms,                                          # this passes the form fields as the primary 'context' variable
+            name='Forms',
+            subtitle=form_name,
+            menu=form_menu(checkFormGroup),              # this returns the forms in libreform/forms to display in the lefthand menu
+            type="forms",       
+            options=options, 
+            filename = f'{form_name.lower().replace(" ","")}.csv' if options['_allow_csv_templates'] else False,
+            depends_on=compile_depends_on_data(form_name, user_group=current_user.group),
+            user_list = collect_list_of_users() if config['allow_forms_access_to_user_list'] else [],
+            # here we tell the jinja to include password re-entry for form signatures, if configured,
+            # see https://github.com/signebedi/libreForms/issues/167.
+            require_password=True if config['require_password_for_electronic_signatures'] and options['_digitally_sign'] else False,
+            **standard_view_kwargs(),
+            )
+
+        # except Exception as e: 
+
+        #     transaction_id = str(uuid.uuid1())
+        #     log.warning(f"LIBREFORMS - {e}", extra={'transaction_id': transaction_id})
+        #     flash (f"There was an error in processing your request. Transaction ID: {transaction_id}. ", 'warning')
+
+        #     # log.warning(f"LIBREFORMS - {e}")
+        #     # flash(f'There was an issue processing your request. {e}', "warning")
+        #     return redirect(url_for('forms.forms_home'))
 
 # this is the upload route for submitting forms via CSV, see
 # https://github.com/libreForms/libreForms-flask/issues/184

@@ -40,7 +40,7 @@ import os
 import pandas as pd
 import numpy as np
 import json
-
+import uuid
 
 def get_record_of_submissions(form_name=None, user=None, remove_underscores=False):
     if form_name:
@@ -943,9 +943,9 @@ def render_document_edit(form_name, document_id):
 
                         # Generate the dynamic form class
                         # FormClass = create_dynamic_form(form_name, current_user.group, form_data=list(request.form))
-                        f_data = request.form.to_dict()
-                        print(f_data)
-                        FormClass = create_dynamic_form(form_name, current_user.group, form_data=f_data)
+                        # f_data = request.form.to_dict()
+                        # print(f_data)
+                        FormClass = create_dynamic_form(form_name, current_user.group, form_data=request.form)
 
                         # Create an instance of the dynamic form class
                         form_instance = FormClass()
