@@ -29,7 +29,7 @@ from app.models import User, db
 from app.form_access import list_of_forms_approved_by_this_group
 from app.views.auth import login_required, session
 from app.certification import encrypt_with_symmetric_key, verify_symmetric_key
-from app.views.forms import form_menu, checkGroup, checkFormGroup, \
+from app.views.forms import form_menu, checkGroup, checkFormGroup, create_dynamic_form, \
     checkKey, propagate_form_configs, propagate_form_fields, define_webarg_form_data_types, \
     collect_list_of_users, compile_depends_on_data, rationalize_routing_list, standard_view_kwargs
 from celeryd.tasks import send_mail_async
@@ -938,8 +938,33 @@ def render_document_edit(form_name, document_id):
                             flash('Incorrect password.', "warning")
                             return redirect(url_for('submissions.render_document_edit', form_name=form_name, document_id=document_id))
 
-                    
-                    parsed_args = flaskparser.parser.parse(define_webarg_form_data_types(form_name, user_group=current_user.group, args=list(request.form)), request, location="form")
+
+                    if config['enable_test_features']:
+
+                        # Generate the dynamic form class
+                        # FormClass = create_dynamic_form(form_name, current_user.group, form_data=list(request.form))
+                        f_data = request.form.to_dict()
+                        print(f_data)
+                        FormClass = create_dynamic_form(form_name, current_user.group, form_data=f_data)
+
+                        # Create an instance of the dynamic form class
+                        form_instance = FormClass()
+
+                        # Populate the form instance with submitted data
+                        form_instance.process(request.form)
+
+                        # Validate the form data
+                        # if form_instance.validate():
+
+                        parsed_args = form_instance.data
+                        # Proceed with form processing
+
+                    else:
+
+                        parsed_args = flaskparser.parser.parse(define_webarg_form_data_types(form_name, user_group=current_user.group, args=list(request.form)), request, location="form")
+
+
+                    # parsed_args = flaskparser.parser.parse(define_webarg_form_data_types(form_name, user_group=current_user.group, args=list(request.form)), request, location="form")
                     
                     # here we remove the _password field from the parsed args so it's not written to the database,
                     # see https://github.com/signebedi/libreForms/issues/167. 
