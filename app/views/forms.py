@@ -229,23 +229,21 @@ def create_dynamic_form(form_name: str, user_group: str, form_data: Optional[Imm
     print(form_data)
 
     def unpack_form(form_data):
-        parsed_data = {key:[] for key, value in form_data.items()}
 
-        for key, value in form_data.items():
-            print(key, value)
-            parsed_data[key].append(value)
+        # here we restructure the ImmutableMultiDict
+        parsed_data = {key:form_data.getlist(key) for key, value in form_data.items()}
         
-        print(parsed_data)
-
-        for key, value in parsed_data.items():
-            if len(value) == 1:
-                parsed_data[key] = value[0]
-
+        # here we unpack single-value lists 
+        parsed_data = {key:value[0] if len(value) == 1 else value for key, value in parsed_data.items()}
+        
         return parsed_data
 
     form_data = unpack_form(form_data)
 
     print(form_data)
+
+    class NestedForm(FlaskForm):
+        nested_field = StringField()
 
     # Create the DynamicForm class
     class DynamicForm(FlaskForm):
@@ -270,8 +268,12 @@ def create_dynamic_form(form_name: str, user_group: str, form_data: Optional[Imm
             field_class = field_types[field_type]
 
             if field_type == "list":
-                # unbound_field = field_class.field_class(validators=validators)
-                field_instance = field_class(FormField(StringField), form_data[field_name])
+                class NestedForm(FlaskForm):
+                    nested_field = StringField()
+
+                field_instance = field_class(FormField(NestedForm), min_entries=1, max_entries=len(form_data[field_name]))
+                for data in form_data[field_name]:
+                    field_instance.append_entry(data)
 
             else:
                 field_instance = field_class(form_data[field_name])
