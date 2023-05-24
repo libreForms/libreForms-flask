@@ -35,7 +35,7 @@ from app.decorators import required_login_and_password_reset
 
 # wtf forms requirements
 from flask_wtf import FlaskForm
-from wtforms import StringField, IntegerField, BooleanField, FloatField, SubmitField, FieldList, DateField, FormField
+from wtforms import Form, StringField, IntegerField, BooleanField, FloatField, SubmitField, FieldList, DateField, FormField
 from wtforms.validators import DataRequired, Optional
 
 # and finally, import other packages
@@ -222,79 +222,46 @@ def create_dynamic_form(form_name: str, user_group: str, form_data: Optional[Imm
     :param form_data: Optional dictionary containing form data to process.
     :return: Returns the DynamicForm class if form_data is not provided, otherwise returns the processed form data as a dictionary.
     """
-    # Get the form fields and validators
-    form_fields = propagate_form_fields(form_name, user_group)
-    # form_validators = define_webarg_form_data_types(form_name, user_group)
+    def unpack_form_data(form_data: ImmutableMultiDict) -> Dict[str, Any]:
+        """
+        Unpack the ImmutableMultiDict form data to a simple dictionary, correctly handling list data types.
 
-    print(form_data)
-
-    def unpack_form(form_data):
-
-        # here we restructure the ImmutableMultiDict
-        parsed_data = {key:form_data.getlist(key) for key, value in form_data.items()}
+        :param form_data: ImmutableMultiDict containing form data.
+        :return: A dictionary containing the unpacked form data.
+        """
+        # Restructure the ImmutableMultiDict
+        parsed_data = {key: form_data.getlist(key) for key in form_data.keys()}
         
-        # here we unpack single-value lists 
-        parsed_data = {key:value[0] if len(value) == 1 else value for key, value in parsed_data.items()}
-        
+        # Unpack single-value lists
+        parsed_data = {key: value[0] if len(value) == 1 else value for key, value in parsed_data.items()}
+
         return parsed_data
 
-    form_data = unpack_form(form_data)
+    form_data = unpack_form_data(form_data) if form_data else {}
 
-    print(form_data)
-
-    class NestedForm(FlaskForm):
-        nested_field = StringField()
-
-    # Create the DynamicForm class
-    class DynamicForm(FlaskForm):
+    # Create the SimpleForm class
+    class SimpleForm(FlaskForm):
         pass
 
-    # Add fields to the DynamicForm class
-    field_types = {
-        'str': StringField,
-        'int': IntegerField,
-        'bool': BooleanField,
-        'float': FloatField,
-        'list': FieldList,
-        'date': DateField
-    }
+    class SimpleStringForm(Form):
+        field = StringField()
 
-    for field_name, field_info in form_fields.items():
-        field_type = field_info["output_data"]["type"]
-        # print(field_type)
-        # field_validators = form_validators[field_name]['output_data'].validators if field_name in form_validators else []
-
-        if field_type in field_types and field_name in form_data:
-            field_class = field_types[field_type]
-
-            if field_type == "list":
-                class NestedForm(FlaskForm):
-                    nested_field = StringField()
-
-                field_instance = field_class(FormField(NestedForm), min_entries=1, max_entries=len(form_data[field_name]))
-                for data in form_data[field_name]:
-                    field_instance.append_entry(data)
-
-            else:
-                field_instance = field_class(form_data[field_name])
-
-            # setattr(DynamicForm, field_name, field_class(form_data[field_name]))
-
-            # setattr(DynamicForm, field_name, field_class(field_info["label"], validators=field_validators))
-            setattr(DynamicForm, field_name, field_instance)
+    # Add fields to the SimpleForm class based on the form data
+    for field_name, field_value in form_data.items():
+        if isinstance(field_value, list):
+            setattr(SimpleForm, field_name, FieldList(FormField(SimpleStringForm), default=field_value))
+        else:
+            setattr(SimpleForm, field_name, StringField(default=field_value))
 
     # Process the form data, validate and store the values in a dictionary
     if form_data:
-        form_instance = DynamicForm(data=form_data)
+        form_instance = SimpleForm()
         if form_instance.validate():
-            processed_data = {field_name: getattr(form_instance, field_name).data for field_name in form_fields.keys()}
+            processed_data = {field_name: getattr(form_instance, field_name).data for field_name in form_data.keys()}
             return processed_data
-        else:
-            # Handle validation errors as needed
-            pass
 
-    return DynamicForm
-    
+    return SimpleForm
+
 # webargs allows us to dynamically define form fields and assign them 
 # data types with ease - this was one of the reasons we opted initially
 # to use webargs, though we've been considering a pivot back to WTForms
@@ -652,7 +619,7 @@ def forms(form_name):
                     return redirect(url_for('forms.forms', form_name=form_name))
 
 
-            if config['enable_test_features']:
+            if config['enable_wtforms_test_features']:
 
                 # Generate the dynamic form class
                 # FormClass = create_dynamic_form(form_name, current_user.group, form_data=list(request.form))
@@ -676,6 +643,7 @@ def forms(form_name):
 
             else:
 
+                print(list(request.form))
                 parsed_args = flaskparser.parser.parse(define_webarg_form_data_types(form_name, user_group=current_user.group, args=list(request.form)), request, location="form")
 
             # here we remove the _password field from the parsed args so it's not written to the database,

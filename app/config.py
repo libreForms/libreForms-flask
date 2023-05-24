@@ -134,7 +134,7 @@ config['debug'] = False
 # this configuration will turn on features that are still being tested
 # by the development team and may therefore not yet be fully stable, 
 # see https://github.com/libreForms/libreForms-flask/issues/417
-config['enable_test_features'] = False
+config['enable_wtforms_test_features'] = False
 
 
 # these configurations determine whether to enable / disable additional 

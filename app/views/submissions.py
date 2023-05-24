@@ -939,7 +939,7 @@ def render_document_edit(form_name, document_id):
                             return redirect(url_for('submissions.render_document_edit', form_name=form_name, document_id=document_id))
 
 
-                    if config['enable_test_features']:
+                    if config['enable_wtforms_test_features']:
 
                         # Generate the dynamic form class
                         # FormClass = create_dynamic_form(form_name, current_user.group, form_data=list(request.form))
