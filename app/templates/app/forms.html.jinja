@@ -93,8 +93,11 @@
 			</select>
 
 			{% if '_lookup_other_document' in context[field] %}
+			<div>
 			<div id= "content_{{field}}" style="width: 100%; height: 300px; overflow-y: auto; resize: vertical; margin-top: 10px; border: 2px solid var(--bs-secondary);"></div>
+			<div>
 			{%endif%}
+
 		</div>
 		{% elif input_type == "radio" %}
 		<div title="{{field}}" class="form-group{% if context[field]['_depends_on'] %} {{ context[field]['_depends_on'][0] }}{% endif %}">
@@ -344,20 +347,30 @@ async function generateLookup(s, form_name, id="right_bar_content") {
 	table.setAttribute("class", "table {{'text-dark' if not dark_mode else ''}}");
 	table.setAttribute("style", "width: 100%; table-layout: fixed; word-wrap: break-word; white-space: pre-line;");
 
-    // Create a new row at the top of the table
+    {# // Create a new row at the top of the table
     let topRow = table.insertRow(0);
 
     // Create a new cell in the top row with a colspan of 2
     let topCell = topRow.insertCell(0);
-    topCell.colSpan = 2;
+    topCell.colSpan = 2; #}
+
+    let oldLink = document.getElementById('lookup-link-'+id);
+    if (oldLink) {
+        oldLink.parentNode.removeChild(oldLink);
+    }
 
     // Create an anchor element with the appropriate href
     let link = document.createElement('a');
     link.href = "{{config['domain']}}/submissions/" + form_name + "/" + s;
     link.innerHTML = "Go to form";
-    
-    // Add the anchor element to the top cell
-    topCell.appendChild(link);
+	link.className = "btn btn-primary d-flex justify-content-center my-3"; // This adds Bootstrap classes to style the link as a button
+    link.title = "Click here to view more details about this form.";
+	link.target = "_blank";
+	link.setAttribute("aria-label", "View full details for this form");
+    link.id = 'lookup-link-'+id; // Add this line to set the id
+	
+    {# // Add the anchor element to the top cell
+    topCell.appendChild(link); #}
 
 	// Iterate over the JSON object and create HTML rows for each key-value pair
 	for (let [key, value] of Object.entries(result)) {
@@ -375,6 +388,8 @@ async function generateLookup(s, form_name, id="right_bar_content") {
 
 	// Set the table as the inner HTML of the parent element
 	foo.innerHTML = table.outerHTML;
+
+	foo.parentNode.insertBefore(link, foo);
 
     // foo.innerHTML = JSON.stringify(result)
   }
