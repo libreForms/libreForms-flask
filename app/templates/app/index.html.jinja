@@ -18,7 +18,8 @@
             <tbody>
                 <tr>
                     <th>Form</th>
-                    <th>Document ID</th>
+                    {# <th>Document ID</th> #}
+                    <th>Summary</th>
                     <th>Edited By</th>
                     <th>Last Edited</th>
                 </tr>
@@ -27,9 +28,11 @@
                 <tr class="table{% if emphasize and item in emphasize %}-secondary{% else %}{{'-dark' if dark_mode else '-transparent'}}{% endif %}">
 
                     <td>{{ row.form }}</td>
-                    <td>{{ row.id }}</td>
+                    {# <td>{{ row.id }}</td> #}
+                    <td>{{ row.content_summary }}</td>
                     <td>{{ row.reporter }}</td>
                     <td>{{ row.timestamp }}</td>
+                    
                 
                 </tr>
             {% endfor %}

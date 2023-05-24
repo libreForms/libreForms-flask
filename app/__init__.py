@@ -624,11 +624,19 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
                         current_user.username != row[mongodb.metadata_field_names['reporter']] )):
                     continue
                 # print(row._id, index, row)
+
+                # here we create a summary field of the row's content
+                content_summary = ', '.join([f'{x} - {str(row[x])}' for x in row.index if x not in mongodb.metadata_fields(exclude_id=True)])
+                content_summary = content_summary[:100] + " ..." if len(content_summary) > 100 else content_summary
+
                 new_row = pd.DataFrame({    'form':[form_name], 
-                                            'id': [Markup(f"<a href=\"{config['domain']}/submissions/{form_name}/{str(row['_id'])}\">{str(row['_id'])}</a>")], 
+                                            # 'id': [Markup(f"<a href=\"{config['domain']}/submissions/{form_name}/{str(row['_id'])}\">{str(row['_id'])}</a>")], 
                                             'reporter':[Markup(f"<a href=\"{config['domain']}/auth/profile/{row[mongodb.metadata_field_names['reporter']]}\">{row[mongodb.metadata_field_names['reporter']]}</a>")], 
                                             # 'timestamp':[row[mongodb.metadata_field_names['timestamp']]],})
-                                            'timestamp':[time_since_last_edit],})
+                                            # 'timestamp':[time_since_last_edit],
+                                            'content_summary': content_summary,
+                                            'timestamp': [Markup(f"<a href=\"{config['domain']}/submissions/{form_name}/{str(row['_id'])}\">{time_since_last_edit}</a>")], 
+                                        })
 
                 df = pd.concat([df, new_row],
                         ignore_index=True)
