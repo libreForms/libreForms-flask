@@ -84,6 +84,12 @@
 			{% for item in content %}
 					<option value="{{ item }}" id="{{ field }} {{ item }}" name="{{ field }}" {%if item == default_value%}selected="selected"{%endif%}>{{ apparent_values[loop.index0] }}</option>
 			{% endfor %}
+			{% if '_lookup_other_document' in context[field] %}
+			<script>
+			window.onload = function() {
+				generateLookup(document.getElementsByName('{{field}}')[0].value, '{{context[field]['_lookup_other_document']}}', 'content_{{field}}');
+			};			</script>
+			{%endif%}
 			</select>
 
 			{% if '_lookup_other_document' in context[field] %}
