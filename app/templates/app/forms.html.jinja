@@ -344,6 +344,21 @@ async function generateLookup(s, form_name, id="right_bar_content") {
 	table.setAttribute("class", "table {{'text-dark' if not dark_mode else ''}}");
 	table.setAttribute("style", "width: 100%; table-layout: fixed; word-wrap: break-word; white-space: pre-line;");
 
+    // Create a new row at the top of the table
+    let topRow = table.insertRow(0);
+
+    // Create a new cell in the top row with a colspan of 2
+    let topCell = topRow.insertCell(0);
+    topCell.colSpan = 2;
+
+    // Create an anchor element with the appropriate href
+    let link = document.createElement('a');
+    link.href = "{{config['domain']}}/submissions/" + form_name + "/" + s;
+    link.innerHTML = "Go to form";
+    
+    // Add the anchor element to the top cell
+    topCell.appendChild(link);
+
 	// Iterate over the JSON object and create HTML rows for each key-value pair
 	for (let [key, value] of Object.entries(result)) {
 		// Create a table row element
