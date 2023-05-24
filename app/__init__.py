@@ -632,10 +632,10 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
                 new_row = pd.DataFrame({    'form':[form_name], 
                                             # 'id': [Markup(f"<a href=\"{config['domain']}/submissions/{form_name}/{str(row['_id'])}\">{str(row['_id'])}</a>")], 
                                             'reporter':[Markup(f"<a href=\"{config['domain']}/auth/profile/{row[mongodb.metadata_field_names['reporter']]}\">{row[mongodb.metadata_field_names['reporter']]}</a>")], 
-                                            # 'timestamp':[row[mongodb.metadata_field_names['timestamp']]],})
+                                            'timestamp':[row[mongodb.metadata_field_names['timestamp']]],
                                             # 'timestamp':[time_since_last_edit],
                                             'content_summary': content_summary,
-                                            'timestamp': [Markup(f"<a href=\"{config['domain']}/submissions/{form_name}/{str(row['_id'])}\">{time_since_last_edit}</a>")], 
+                                            'time_since_last_edit': [Markup(f"<a href=\"{config['domain']}/submissions/{form_name}/{str(row['_id'])}\">{time_since_last_edit}</a>")], 
                                         })
 
                 df = pd.concat([df, new_row],
