@@ -191,7 +191,7 @@ def create_user(username, email, password, organization, phone, active, theme, g
     new_user = User(
         email=email, 
         username=username.lower(), 
-        password=generate_password_hash(password, method='scrypt'),
+        password=generate_password_hash(password, method='sha256'),
         organization=organization,
         group=config['default_group'],
         certificate=generate_symmetric_key(),
@@ -265,7 +265,7 @@ def modify_user(username=None, **kwargs):
             user.last_password_change = datetime.datetime.utcnow()
 
             # here we hash the password field, if it has been passed
-            value = generate_password_hash(value, method='scrypt')
+            value = generate_password_hash(value, method='sha256')
 
         setattr(user, attribute, value)
 

@@ -121,7 +121,7 @@ def change_password():
 
             try:
     
-                user.password=generate_password_hash(new_password, method='scrypt')
+                user.password=generate_password_hash(new_password, method='sha256')
                 user.last_password_change = datetime.datetime.utcnow()
                 db.session.commit()
 
@@ -175,7 +175,7 @@ def reset_password(signature):
             if error is None:
                 try:
                     user = User.query.filter_by(email=str(email)).first() ## get email from Signing table & collate to User table 
-                    user.password=generate_password_hash(password, method='scrypt')
+                    user.password=generate_password_hash(password, method='sha256')
                     db.session.commit()
 
                     signing.expire_key(signature)
@@ -325,7 +325,7 @@ def register():
                 new_user = User(
                             email=email, 
                             username=username.lower(), 
-                            password=generate_password_hash(password, method='scrypt'),
+                            password=generate_password_hash(password, method='sha256'),
                             organization=organization,
                             group=config['default_group'],
                             certificate=generate_symmetric_key(),
@@ -731,7 +731,7 @@ def profile():
 
             try:
     
-                user.password=generate_password_hash(new_password, method='scrypt')
+                user.password=generate_password_hash(new_password, method='sha256')
                 user.last_password_change = datetime.datetime.utcnow()
                 db.session.commit()
 
