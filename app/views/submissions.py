@@ -29,9 +29,13 @@ from app.models import User, db
 from app.form_access import list_of_forms_approved_by_this_group
 from app.views.auth import login_required, session
 from app.certification import encrypt_with_symmetric_key, verify_symmetric_key
-from app.views.forms import form_menu, checkGroup, checkFormGroup, create_dynamic_form, \
+from app.views.forms import form_menu, checkGroup, checkFormGroup, \
     checkKey, propagate_form_configs, propagate_form_fields, define_webarg_form_data_types, \
     collect_list_of_users, compile_depends_on_data, rationalize_routing_list, standard_view_kwargs
+
+if config['enable_wtforms_test_features']:
+    from app.views.forms import create_dynamic_form
+    
 from celeryd.tasks import send_mail_async
 from app.decorators import required_login_and_password_reset
 

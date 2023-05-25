@@ -34,9 +34,10 @@ from app.scripts import convert_to_string
 from app.decorators import required_login_and_password_reset
 
 # wtf forms requirements
-from flask_wtf import FlaskForm
-from wtforms import Form, StringField, IntegerField, BooleanField, FloatField, SubmitField, FieldList, DateField, FormField
-from wtforms.validators import DataRequired, Optional
+if config['enable_wtforms_test_features']:
+    from flask_wtf import FlaskForm
+    from wtforms import Form, StringField, IntegerField, BooleanField, FloatField, SubmitField, FieldList, DateField, FormField
+    from wtforms.validators import DataRequired, Optional
 
 # and finally, import other packages
 import os, json, uuid
@@ -212,55 +213,57 @@ def generate_list_of_users(db=db):
 # integration with other flask features. Initially, we used webargs because it was more 
 # straightforward to define arbitrary form structures, but this approach may help bridge that
 # gap, see discussion at https://github.com/libreForms/libreForms-flask/issues/30.
-def create_dynamic_form(form_name: str, user_group: str, form_data: Optional[ImmutableMultiDict] = None) -> Union[Type[FlaskForm], Dict[str, Any]]:
-    """
-    Create a dynamic FlaskForm based on the given form_name and user_group.
-    Optionally, process the form data if provided.
+if config['enable_wtforms_test_features']:
 
-    :param form_name: The name of the form.
-    :param user_group: The user group for which the form is being generated.
-    :param form_data: Optional dictionary containing form data to process.
-    :return: Returns the DynamicForm class if form_data is not provided, otherwise returns the processed form data as a dictionary.
-    """
-    def unpack_form_data(form_data: ImmutableMultiDict) -> Dict[str, Any]:
+    def create_dynamic_form(form_name: str, user_group: str, form_data: Optional[ImmutableMultiDict] = None) -> Union[Type[FlaskForm], Dict[str, Any]]:
         """
-        Unpack the ImmutableMultiDict form data to a simple dictionary, correctly handling list data types.
+        Create a dynamic FlaskForm based on the given form_name and user_group.
+        Optionally, process the form data if provided.
 
-        :param form_data: ImmutableMultiDict containing form data.
-        :return: A dictionary containing the unpacked form data.
+        :param form_name: The name of the form.
+        :param user_group: The user group for which the form is being generated.
+        :param form_data: Optional dictionary containing form data to process.
+        :return: Returns the DynamicForm class if form_data is not provided, otherwise returns the processed form data as a dictionary.
         """
-        # Restructure the ImmutableMultiDict
-        parsed_data = {key: form_data.getlist(key) for key in form_data.keys()}
-        
-        # Unpack single-value lists
-        parsed_data = {key: value[0] if len(value) == 1 else value for key, value in parsed_data.items()}
+        def unpack_form_data(form_data: ImmutableMultiDict) -> Dict[str, Any]:
+            """
+            Unpack the ImmutableMultiDict form data to a simple dictionary, correctly handling list data types.
 
-        return parsed_data
+            :param form_data: ImmutableMultiDict containing form data.
+            :return: A dictionary containing the unpacked form data.
+            """
+            # Restructure the ImmutableMultiDict
+            parsed_data = {key: form_data.getlist(key) for key in form_data.keys()}
+            
+            # Unpack single-value lists
+            parsed_data = {key: value[0] if len(value) == 1 else value for key, value in parsed_data.items()}
 
-    form_data = unpack_form_data(form_data) if form_data else {}
+            return parsed_data
 
-    # Create the SimpleForm class
-    class SimpleForm(FlaskForm):
-        pass
+        form_data = unpack_form_data(form_data) if form_data else {}
 
-    class SimpleStringForm(Form):
-        field = StringField()
+        # Create the SimpleForm class
+        class SimpleForm(FlaskForm):
+            pass
 
-    # Add fields to the SimpleForm class based on the form data
-    for field_name, field_value in form_data.items():
-        if isinstance(field_value, list):
-            setattr(SimpleForm, field_name, FieldList(FormField(SimpleStringForm), default=field_value))
-        else:
-            setattr(SimpleForm, field_name, StringField(default=field_value))
+        class SimpleStringForm(Form):
+            field = StringField()
 
-    # Process the form data, validate and store the values in a dictionary
-    if form_data:
-        form_instance = SimpleForm()
-        if form_instance.validate():
-            processed_data = {field_name: getattr(form_instance, field_name).data for field_name in form_data.keys()}
-            return processed_data
+        # Add fields to the SimpleForm class based on the form data
+        for field_name, field_value in form_data.items():
+            if isinstance(field_value, list):
+                setattr(SimpleForm, field_name, FieldList(FormField(SimpleStringForm), default=field_value))
+            else:
+                setattr(SimpleForm, field_name, StringField(default=field_value))
 
-    return SimpleForm
+        # Process the form data, validate and store the values in a dictionary
+        if form_data:
+            form_instance = SimpleForm()
+            if form_instance.validate():
+                processed_data = {field_name: getattr(form_instance, field_name).data for field_name in form_data.keys()}
+                return processed_data
+
+        return SimpleForm
 
 # webargs allows us to dynamically define form fields and assign them 
 # data types with ease - this was one of the reasons we opted initially
