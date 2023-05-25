@@ -398,8 +398,8 @@ def propagate_form_fields(form=False, group=None):
                 # if the content field is callable, then call it, see
                 # https://github.com/libreForms/libreForms-flask/issues/305
                 if callable(VALUES[field]['input_field']['content'][0]):
-                    # print (VALUES[field]['input_field']['content'][0]())
-                    VALUES[field]['input_field']['content'] = VALUES[field]['input_field']['content'][0]()
+                    print (VALUES[field]['input_field']['content'][0]())
+                    VALUES[field]['input_field']['content'] = [VALUES[field]['input_field']['content'][0]()]
 
                 # here we also add support for `apparent` form content, when administrators want the data to look 
                 # different for the end user, than for the system backend, see the following issue for further discussion:
