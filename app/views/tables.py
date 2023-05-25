@@ -137,7 +137,7 @@ def tables(form_name):
         return redirect(url_for('tables.tables_home'))
     
     return render_template('app/tables.html.jinja',
-        table=Markup(df.to_html(index=False, render_links=True, classes='table text-dark' if not config['dark_mode'] or not current_user.theme == 'dark' else 'table')),
+        table=Markup(df.to_html(index=False, render_links=True, classes='table text-dark' if not config['dark_mode'] and not current_user.theme == 'dark' else 'table')),
         # table=df,
         type="tables",
         name='Tables',
