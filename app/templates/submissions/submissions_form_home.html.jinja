@@ -1,6 +1,17 @@
 {% extends 'base.html.jinja' %}
 {% block content %}
 
+{% if subtitle=="Review"  %}
+<h4>Document Review</h4> 
+{% else %}
+<h4>{{subtitle}} Records</h4> 
+
+{% endif %}
+
+
+{% if submission.index|length < 1 %}
+<p style="padding-top: 10px;">No records to show at this time.</p>
+{% else %}
 
 <table role="presentation" title="submissions" class="table {{'text-dark' if not dark_mode else 'table-hover'}}">
   <tbody>
@@ -18,6 +29,7 @@
   </tbody>
 </table>
 
+{% endif %}
 
 
 {% endblock %}
