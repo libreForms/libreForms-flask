@@ -12,21 +12,52 @@
 
 </style>
 
-        {% if form_not_found %}
-            <p>Go <a href="{{ url_for( 'home' ) }}">home</a>.</p>
-        {% endif %}
-        {% if is_table %}
-            <div title="table" class="container" style="overflow: auto;">
-                {{ table }}
-            </div>
-        {% endif %}	
+{% if form_not_found %}
+    <p>Go <a href="{{ url_for( 'home' ) }}">home</a>.</p>
+{% endif %}
 
-        {% if filename %}
-            <div style="padding-top: 10px;">
-            <hr/>
-            <a href="{{ url_for(type+'.download_file', filename = filename) }}"><button type="button" class="btn btn-outline-success btn-sm">download this data as a CSV</button></a>
-            </div>
-        {%endif%}
+
+{% if is_table %}
+
+<div title="table" class="container" style="overflow: auto;">
+    <table role="presentation" title="form table" class="table {{'text-dark' if not dark_mode else 'table-hover'}}">
+        <tbody>
+            <tr>
+            {% for col in table.columns %}
+                <th>{{col}}</th>
+            {% endfor %}
+            </tr>
+
+        {% for index, row in table.iterrows() %}
+            <tr class="table{% if emphasize and item in emphasize %}-secondary{% else %}{{'-dark' if dark_mode else '-transparent'}}{% endif %}">
+            {% for col in table.columns %}
+                {% if col == "Hyperlink" %}
+                    <td><a href="{{ row[col] }}">{{ row[col] }}</a></td>
+
+                {% elif col in [' owner',' reporter'] %}
+                    <td><a href="{{ url_for('auth.other_profiles', username=row[col]) }}">{{ row[col] }}</a></td>
+
+                {% else %}
+                    <td>{{ row[col]|e }}</td>
+                {% endif %}
+
+            {% endfor %}            
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}	
+
+
+
+
+{% if filename %}
+    <div style="padding-top: 10px;">
+    <hr/>
+    <a href="{{ url_for(type+'.download_file', filename = filename) }}"><button type="button" class="btn btn-outline-success btn-sm">download this data as a CSV</button></a>
+    </div>
+{%endif%}
 
 
 {% endblock %}

@@ -136,9 +136,20 @@ def tables(form_name):
 
         return redirect(url_for('tables.tables_home'))
     
+
+    def clip_string(s):
+        if isinstance(s, str) and len(s) > 150:
+            return s[:150] + "..."
+        else:
+            return s
+
+    df = df.applymap(clip_string)
+
+    print(df.columns)
+
+
     return render_template('app/tables.html.jinja',
-        table=Markup(df.to_html(index=False, render_links=True, classes='table text-dark' if not config['dark_mode'] and not current_user.theme == 'dark' else 'table')),
-        # table=df,
+        table=df,
         type="tables",
         name='Tables',
         subtitle=form_name,
