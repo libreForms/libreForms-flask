@@ -6,7 +6,7 @@
         /* word-break: break-all; */
         white-space: pre-line;
     }
-    td{
+    p {
         white-space: pre-line;
     } 
 
@@ -38,7 +38,7 @@
                     <td><a href="{{ url_for('auth.other_profiles', username=row[col]) }}">{{ row[col] }}</a></td>
 
                 {% else %}
-                    <td>{{ row[col]|e }}</td>
+                    <td><p>{{ row[col]|e }}</p></td>
                 {% endif %}
 
             {% endfor %}            
