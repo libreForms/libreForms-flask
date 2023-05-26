@@ -187,7 +187,7 @@ def compile_form_data(form_names=[]):
             content_summary = content_summary[:100] + " ..." if len(content_summary) > 100 else content_summary
 
             new_row = pd.DataFrame({    'form':[form_name], 
-                                        'id': [Markup(f"<a href=\"{config['domain']}/submissions/{form_name}/{str(row['_id'])}\">{str(row['_id'])}</a>")], 
+                                        'id': [str(row['_id'])], 
                                         'owner':[Markup(f"<a href=\"{config['domain']}/auth/profile/{row[mongodb.metadata_field_names['owner']]}\">{row[mongodb.metadata_field_names['owner']]}</a>")], 
                                         'timestamp':[row[mongodb.metadata_field_names['timestamp']]],
                                         # 'timestamp':[time_since_last_edit],
