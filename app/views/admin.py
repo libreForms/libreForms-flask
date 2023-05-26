@@ -369,7 +369,13 @@ def form_management():
     # here we gauge whether user data has been passed, 
     # which will be used to tailor the log data shown.
     try:
-        form = request.form['form'].strip()
+        
+        if request.method == 'POST':
+            form = request.form['form'].strip()
+
+        else:
+            form = request.args.get('form', '').strip()
+
 
         assert(form != '*all forms*')
 
@@ -1058,7 +1064,7 @@ def toggle_form_deletion_status(form_name, document_id):
 
     if len(form.index) == 0:
         flash (f'Form {document_id} does not exist.', 'warning')
-        return redirect(url_for('admin.form_management'))
+        return redirect(url_for('admin.form_management', form=form_name))
 
     f = form.iloc[0]
 
@@ -1078,4 +1084,4 @@ def toggle_form_deletion_status(form_name, document_id):
         log.info(f'{current_user.username.upper()} - deleted form {document_id}.')
 
 
-    return redirect(url_for('admin.form_management'))
+    return redirect(url_for('admin.form_management', form=form_name))

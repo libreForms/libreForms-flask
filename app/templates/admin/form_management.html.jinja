@@ -27,22 +27,21 @@
             </tr>
 
         {% for index, row in form_data.iterrows() %}
-            <tr class="table{% if emphasize and item in emphasize %}-secondary{% else %}{{'-dark' if dark_mode else '-transparent'}}{% endif %}" style="{% if not row.active  %}background-color: #303030; color: #6c757d; opacity: 0.6; {% endif %}">
-
-
-
+            <tr class="table{% if emphasize and item in emphasize %}-secondary{% else %}{{'-dark' if dark_mode else '-transparent'}}{% endif %}"style="{% if not row.active  %}opacity: 0.6; {% endif %}">
                 <td>{{ row.form }}</td>
                 <td>
-                    <a class="dropdown-toggle" data-bs-toggle="dropdown" data-bs-placement="right" role="button" aria-haspopup="true" aria-expanded="false" href="#">{{ row.id }}</a>
-                    <div class="dropdown-menu">
-                    {% if  row.active  %}
-                        <a class="dropdown-item" href="{{url_for('submissions.render_document',form_name=row.form, document_id=row.id)}}">View Form</a>
-                        <a class="dropdown-item" href="{{url_for('submissions.render_document_edit',form_name=row.form, document_id=row.id)}}">Edit Form</a>
-                        <a class="dropdown-item" href="{{url_for('admin.toggle_form_deletion_status', form_name=row.form, document_id=row.id)}}">Delete Form</a>
-                    {% else %}
-                        <a class="dropdown-item" href="{{url_for('admin.toggle_form_deletion_status', form_name=row.form, document_id=row.id)}}">Restore Form</a>
-                    {% endif %}
-                    </div> 
+                    <div class="dropend" style="z-index: 100;">
+                        <a class="dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" href="#">{{ row.id }}</a>
+                        <div class="dropdown-menu">
+                        {% if  row.active  %}
+                            <a class="dropdown-item" href="{{url_for('submissions.render_document',form_name=row.form, document_id=row.id)}}">View Form</a>
+                            <a class="dropdown-item" href="{{url_for('submissions.render_document_edit',form_name=row.form, document_id=row.id)}}">Edit Form</a>
+                            <a class="dropdown-item" href="{{url_for('admin.toggle_form_deletion_status', form_name=row.form, document_id=row.id)}}">Delete Form</a>
+                        {% else %}
+                            <a class="dropdown-item" href="{{url_for('admin.toggle_form_deletion_status', form_name=row.form, document_id=row.id)}}">Restore Form</a>
+                        {% endif %}
+                        </div>
+                    </div>
                 </td>
                 <td>{{ row.content_summary }}</td>
                 <td>{{ row.owner }}</td>
