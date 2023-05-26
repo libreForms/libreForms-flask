@@ -34,6 +34,9 @@
                     <a class="dropdown-toggle" data-bs-toggle="dropdown" data-bs-placement="right" role="button" aria-haspopup="true" aria-expanded="false" href="#">{{ row.id }}</a>
                     <div class="dropdown-menu">
                         <a class="dropdown-item" href="{{url_for('submissions.render_document',form_name=row.form, document_id=row.id)}}">View Form</a>
+                        <a class="dropdown-item" href="{{url_for('submissions.render_document_edit',form_name=row.form, document_id=row.id)}}">Edit Form</a>
+                        {# <a class="dropdown-item" href="{{url_for('admin.toggle_user_active_status', username=row.username)}}">{{"Deactivate" if row.active else "Activate"}} User</a> #}
+
                     </div> 
                 </td>
                 <td>{{ row.content_summary }}</td>
