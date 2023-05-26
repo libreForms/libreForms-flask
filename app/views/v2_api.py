@@ -54,6 +54,10 @@ def api_v2_get(form_name):
     # pull the data
     get_data = mongodb.read_documents_from_collection(form_name)
 
+    # check if data is empty
+    if not get_data:
+        return make_response(jsonify({"message": "No documents in the collection"}), 204)
+        
     # write to a df
     df = pd.DataFrame(list(get_data))
 
