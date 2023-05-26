@@ -56,7 +56,7 @@ def api_v2_get(form_name):
 
     # check if data is empty
     if not get_data:
-        return make_response(jsonify({"message": "No documents in the collection"}), 204)
+        return make_response(jsonify({"message": "No documents in the collection"}), 204, {'Content-Type': 'application/json'})
         
     # write to a df
     df = pd.DataFrame(list(get_data))
