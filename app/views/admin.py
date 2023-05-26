@@ -116,6 +116,7 @@ def compile_admin_views_for_menu():
                                                                                                         'admin.toggle_signature_active_status',
                                                                                                         'admin.edit_profile',
                                                                                                         'admin.generate_api_key',
+                                                                                                        'admin.toggle_form_deletion_status',
                                                                                                         ]]:
         v = view.replace('admin_','')
         v = v.replace('admin.','')
@@ -163,7 +164,7 @@ def dotenv_overrides(env_file='libreforms.env',restart_app=True,**kwargs):
 
 
 
-def compile_form_data(form_names=[], include_deleted=True):
+def compile_form_data(form_names=[], include_deleted=True, sort=True):
     df = pd.DataFrame(columns = ['form', 'id', 'owner', 'timestamp', 'content_summary', 'time_since_last_edit', 'active'])
     current_time = datetime.datetime.now()
 
@@ -229,7 +230,7 @@ def compile_form_data(form_names=[], include_deleted=True):
             df = pd.concat([df, new_row],
                     ignore_index=True)
 
-    return df.sort_values(by='timestamp', ignore_index=True, ascending=False)
+    return df.sort_values(by='timestamp', ignore_index=True, ascending=False) if sort else df
 
 
 # this is a password generation script that takes a password length
@@ -1042,37 +1043,39 @@ def generate_api_key(username):
 
     return redirect(url_for('admin.user_management'))
 
-"""
-
 @bp.route(f'/toggle/f/<form_name>/<document_id>', methods=['GET', 'POST'])
 @is_admin
-def toggle_signature_active_status(form_name, document_id):
+def toggle_form_deletion_status(form_name, document_id):
 
-    s = Signing.query.filter_by(signature=signature).first()
+    forms = compile_form_data(form_name, sort=False)
 
-    if not s:
-        flash (f'Signature {signature} does not exist.', 'warning')
-        return redirect(url_for('admin.signature_management'))
+    print(forms)
+
+    form = forms.loc [forms.id == document_id]
+
+    print(form)
 
 
-    if s.active == 0:
-        s.active = 1 
-        db.session.commit()
-        flash (f'Activated signature {signature}. ', 'info')
-        log.info(f'{current_user.username.upper()} - activated {mask_string(signature)} signature.')
+    if len(form.index) == 0:
+        flash (f'Form {document_id} does not exist.', 'warning')
+        return redirect(url_for('admin.form_management'))
+
+    f = form.iloc[0]
+
+    print(f)
+
+    if not f.active:
+
+        _ = mongodb.restore_soft_deleted_document(form_name, document_id)
+
+        flash (f'Restored form {document_id}. ', 'info')
+        log.info(f'{current_user.username.upper()} - restored form {document_id}.')
+
 
     else:
-        s.active = 0
-        db.session.commit()
-        flash (f'Deactivated signature {signature}. ', 'info')
-        log.info(f'{current_user.username.upper()} - deactivated {mask_string(signature)} signature.')
+        _ = mongodb.soft_delete_document(form_name, document_id)
+        flash (f'Deleted form {document_id}. ', 'info')
+        log.info(f'{current_user.username.upper()} - deleted form {document_id}.')
 
-    if config['notify_users_on_admin_action']:
-        action_taken = "Deactivated" if s.active == 0 else "Activated"
-        subject = f'{config["site_name"]} Signing Key {action_taken}'
-        content = f"This email serves to notify you that an administrator has just {action_taken.lower()} a signing key {mask_string(signature)}, which is associated with your email at {config['domain']}. Please contact your system administrator if you believe this was a mistake."
-        m = send_mail_async.delay(subject=subject, content=content, to_address=s.email) if config['send_mail_asynchronously'] else mailer.send_mail(subject=subject, content=content, to_address=s.email)
 
-    return redirect(url_for('admin.signature_management'))
-
-"""
+    return redirect(url_for('admin.form_management'))

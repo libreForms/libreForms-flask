@@ -38,9 +38,9 @@
                     {% if  row.active  %}
                         <a class="dropdown-item" href="{{url_for('submissions.render_document',form_name=row.form, document_id=row.id)}}">View Form</a>
                         <a class="dropdown-item" href="{{url_for('submissions.render_document_edit',form_name=row.form, document_id=row.id)}}">Edit Form</a>
-                        {# <a class="dropdown-item" href="{{url_for('admin.toggle_user_active_status', username=row.username)}}">Delete Form</a> #}
+                        <a class="dropdown-item" href="{{url_for('admin.toggle_form_deletion_status', form_name=row.form, document_id=row.id)}}">Delete Form</a>
                     {% else %}
-                        {# <a class="dropdown-item" href="{{url_for('admin.toggle_user_active_status', username=row.username)}}">Restore Form</a> #}
+                        <a class="dropdown-item" href="{{url_for('admin.toggle_form_deletion_status', form_name=row.form, document_id=row.id)}}">Restore Form</a>
                     {% endif %}
                     </div> 
                 </td>
