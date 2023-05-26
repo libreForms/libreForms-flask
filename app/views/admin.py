@@ -164,12 +164,12 @@ def dotenv_overrides(env_file='libreforms.env',restart_app=True,**kwargs):
 
 
 def compile_form_data(form_names=[]):
-    df = pd.DataFrame(columns = ['form', 'id', 'owner', 'timestamp'])
+    df = pd.DataFrame(columns = ['form', 'id', 'owner', 'timestamp', 'content_summary', 'time_since_last_edit'])
+    current_time = datetime.datetime.now()
 
 
     if not isinstance(form_names,list) or len(form_names) < 1:
         form_names = libreforms.forms
-
 
     for form_name in form_names:        
         temp = mongodb.new_read_documents_from_collection(form_name)
@@ -178,14 +178,28 @@ def compile_form_data(form_names=[]):
             continue
 
         for index,row in temp.iterrows():
-            
+    
+            last_edit = datetime.datetime.strptime(row[mongodb.metadata_field_names['timestamp']], "%Y-%m-%d %H:%M:%S.%f")
+            time_since_last_edit = prettify_time_diff((current_time - last_edit).total_seconds())
+
+            # here we create a summary field of the row's content
+            content_summary = ', '.join([f'{x} - {str(row[x])}' for x in row.index if x not in mongodb.metadata_fields(exclude_id=True)])
+            content_summary = content_summary[:100] + " ..." if len(content_summary) > 100 else content_summary
+
             new_row = pd.DataFrame({    'form':[form_name], 
-                                        'id': [Markup(f"<a href=\"{config['domain']}/submissions/{form_name}/{row['_id']}\">{row['_id']}</a>")], 
+                                        'id': [Markup(f"<a href=\"{config['domain']}/submissions/{form_name}/{str(row['_id'])}\">{str(row['_id'])}</a>")], 
                                         'owner':[Markup(f"<a href=\"{config['domain']}/auth/profile/{row[mongodb.metadata_field_names['owner']]}\">{row[mongodb.metadata_field_names['owner']]}</a>")], 
-                                        'timestamp':[row[mongodb.metadata_field_names['timestamp']]],})
+                                        'timestamp':[row[mongodb.metadata_field_names['timestamp']]],
+                                        # 'timestamp':[time_since_last_edit],
+                                        'content_summary': content_summary,
+                                        'time_since_last_edit': [time_since_last_edit], 
+                                    })
 
             df = pd.concat([df, new_row],
-                       ignore_index=True)
+                    ignore_index=True)
+
+        df.sort_values(by='timestamp', inplace=True, ignore_index=True, ascending=False)
+
             
     return df
 

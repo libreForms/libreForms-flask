@@ -595,7 +595,9 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
                 **forms.standard_view_kwargs(),
             )
 
-        df = pd.DataFrame(columns = ['form', 'id', 'reporter', 'timestamp'])
+        df = pd.DataFrame(columns = ['form', 'id', 'reporter', 'timestamp', 'content_summary', 'time_since_last_edit'])
+        current_time = datetime.datetime.now()
+        
         import libreforms
 
         for form_name in libreforms.forms:
@@ -613,8 +615,6 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
             if not isinstance(temp,pd.DataFrame):
                 continue
             
-            current_time = datetime.datetime.now()
-
             for index,row in temp.iterrows():
 
                 last_edit = datetime.datetime.strptime(row[mongodb.metadata_field_names['timestamp']], "%Y-%m-%d %H:%M:%S.%f")

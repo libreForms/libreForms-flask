@@ -21,6 +21,7 @@
             <tr>
                 <th>Form</th>
                 <th>Document ID</th>
+                <th>Summary</th>
                 <th>Owner</th>
                 <th>Last Edited</th>
             </tr>
@@ -30,8 +31,9 @@
 
                 <td>{{ row.form }}</td>
                 <td>{{ row.id }}</td>
+                <td>{{ row.content_summary }}</td>
                 <td>{{ row.owner }}</td>
-                <td>{{ row.timestamp }}</td>
+                <td>{{ row.time_since_last_edit }}</td>
             
             </tr>
         {% endfor %}
