@@ -92,6 +92,11 @@ log = config['logger']('log/libreforms.log',__name__)
 log.info('LIBREFORMS - started libreforms web application.')
 
 
+# we create the docs directory if none exists, see 
+# https://github.com/libreForms/libreForms-flask/issues/374
+if not os.path.exists ("app/static/docs/"):
+    os.mkdir('app/static/docs/')
+
 # here we create the celery object
 celery = Celery(__name__, backend=config['celery_backend'], broker=config['celery_broker'])
 log.info(f'LIBREFORMS - initialized celery object.')
