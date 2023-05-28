@@ -310,7 +310,9 @@ config['enable_docs'] = False
 config['docs_body'] = Markup("<h4>Sample Documentation</h4><br/><hr/><p>If you are seeing this, that means that your system administrators have enabled documentation views for the web application, but have not written their own docs. It's highly recommended that they do so!</p>")
 config['require_login_for_docs'] = True
 config['allow_docs_pdf_download'] = False
+config['pdf_download_font_size'] = 12
 config['add_assets_to_user_docs'] = True
+
 
 # this config determines whether to show the five most recent forms visible to the 
 # current user, see https://github.com/libreForms/libreForms-flask/issues/199.

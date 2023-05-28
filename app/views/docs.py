@@ -103,6 +103,24 @@ def docs_download():
 
         HTML = replace_img_links(config['docs_body'], use_actual_file_path=True) if config['add_assets_to_user_docs'] else config['docs_body']
 
+        print(HTML)
+
+        HTML = f'''
+                <html>
+                <head>
+                    <style>
+                        body, body * {{
+                            font-family: "Arial";
+                            font-size: {config['pdf_download_font_size']}pt;
+                        }}
+                    </style>
+                </head>
+                <body>
+                ''' + HTML + '''
+                </body>
+                </html>
+                '''
+
         filename = "docs.pdf"
         fp = os.path.join(tempfile_path, filename)
         # Convert the HTML string to a PDF file
