@@ -78,6 +78,7 @@ import pandas as pd
 import os, tempfile, datetime, re, random, string
 from app import log, mailer
 from werkzeug.security import generate_password_hash
+from werkzeug.utils import secure_filename
 from celeryd.tasks import send_mail_async, restart_app_async
 from app.scripts import prettify_time_diff, convert_to_string, mask_string
 
@@ -404,6 +405,40 @@ def form_management():
         **standard_view_kwargs(),
         )
 
+
+
+# define a route for documentation management
+@bp.route('/docs', methods=('GET', 'POST'))
+@is_admin
+def docs_management():
+    if request.method == 'POST':
+        # Get the documentation HTML from the form
+        new_docs_body = request.form.get('docs_body')
+
+        if new_docs_body:
+            # Save the new documentation HTML to a file in the app/static/docs directory
+            with open('app/static/docs/docs_body.html', 'w') as f:
+                f.write(new_docs_body)
+
+            # Update the docs_body config
+            config['docs_body'] = Markup(new_docs_body)
+
+        # Future requirement: handle image upload
+        # if 'image' in request.files:
+        #     image = request.files['image']
+        #     filename = secure_filename(image.filename)
+        #     image.save(os.path.join('app/static/docs', filename))
+        #     # Now you can reference this image in your documentation HTML as /static/docs/{filename}
+
+    # For now, just render the form with the current docs_body value
+    return render_template('admin/docs_management.html.jinja',
+        name='Admin',
+        subtitle='Docs',
+        type="admin",
+        menu=compile_admin_views_for_menu(),
+        docs_body=config['docs_body'],
+        **standard_view_kwargs(),
+        )
 
 
 @bp.route('/signatures', methods=('GET', 'POST'))
