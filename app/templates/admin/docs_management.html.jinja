@@ -4,9 +4,22 @@
 <h4>Documentation</h4>
 
 <form method="POST">
-    <textarea name="docs_body" rows="10" cols="80">{{ docs_body }}</textarea>
+    <textarea id="docs_input" name="docs_body" rows="10" cols="80">{{ docs_body }}</textarea>
     <input type="submit" value="Save">
 </form>
+
+<!-- Preview Area -->
+<h4>Preview</h4>
+<div id="docs_preview"></div>
+
+<!-- JavaScript to update the preview -->
+<script>
+document.getElementById('docs_input').addEventListener('input', function() {
+    // Use innerHTML to set the content of the preview div
+    // This will interpret the HTML in the textarea
+    document.getElementById('docs_preview').innerHTML = this.value;
+});
+</script>
 
 <!-- Future requirement: image upload -->
 <!-- <form method="POST" enctype="multipart/form-data">
