@@ -22,11 +22,20 @@ import os
 # import flask-related packages
 from flask import current_app, Blueprint, render_template, request, flash, redirect, url_for, send_from_directory, abort
 from flask_login import current_user, login_required
+from markupsafe import Markup
+
 
 # import custom packages from the current repository
 from app import config, log, mongodb, db
 from app.views.external import conditional_decorator
 from app.views.forms import standard_view_kwargs
+
+def load_docs():
+    if os.path.exists('docs.html'):
+        with open('docs.html', 'r') as file:
+            return Markup(file.read())
+    else:
+        return config['docs_body']
 
 def replace_img_links(html_snippet, use_actual_file_path=False):
 
@@ -55,7 +64,11 @@ bp = Blueprint('docs', __name__, url_prefix='/docs')
 @conditional_decorator(login_required, config['require_login_for_docs'])
 def docs_home():
 
-    
+    # Update the docs_body config. This line of code will ensure that, if app/static/docs/docs.html exists,
+    # it will always read that file, no matter what you've written to `docs_body`. For more discussion,
+    # see https://github.com/libreForms/libreForms-flask/issues/374.
+    config['docs_body'] = load_docs()
+
     return render_template('docs/documentation.html.jinja', 
             name='Documentation',
             documentation = replace_img_links(config['docs_body']) if config['add_assets_to_user_docs'] else config['docs_body'],

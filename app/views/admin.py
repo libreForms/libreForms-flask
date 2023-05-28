@@ -412,16 +412,11 @@ def form_management():
 @is_admin
 def docs_management():
 
-    def load_docs():
-        if os.path.exists('docs.html'):
-            with open('docs.html', 'r') as file:
-                return Markup(file.read())
-        else:
-            return None
 
     def save_docs(new_docs_body):
         with open('docs.html', 'w') as file:
             file.write(str(new_docs_body))
+
 
     if request.method == 'POST':
         # Get the documentation HTML from the form
@@ -429,8 +424,7 @@ def docs_management():
 
         if new_docs_body:
             # Save the new documentation HTML to a file in the app/static/docs directory
-            with open('app/static/docs/docs_body.html', 'w') as f:
-                f.write(new_docs_body)
+            save_docs(new_docs_body)
 
             # Update the docs_body config
             config['docs_body'] = Markup(new_docs_body)
