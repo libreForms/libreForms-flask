@@ -91,6 +91,11 @@ def docs_download():
     if not config['allow_docs_pdf_download']:
         return abort(404)
 
+    # Update the docs_body config. This line of code will ensure that, if app/static/docs/docs.html exists,
+    # it will always read that file, no matter what you've written to `docs_body`. For more discussion,
+    # see https://github.com/libreForms/libreForms-flask/issues/374.
+    config['docs_body'] = load_docs()
+
     # here we employ a context-bound temp directory to stage this file for download, see
     # discussion in app.tmpfiles and https://github.com/signebedi/libreForms/issues/169.
     from app.tmpfiles import temporary_directory
