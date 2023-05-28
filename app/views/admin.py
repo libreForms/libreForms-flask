@@ -411,6 +411,18 @@ def form_management():
 @bp.route('/docs', methods=('GET', 'POST'))
 @is_admin
 def docs_management():
+
+    def load_docs():
+        if os.path.exists('docs.html'):
+            with open('docs.html', 'r') as file:
+                return Markup(file.read())
+        else:
+            return None
+
+    def save_docs(new_docs_body):
+        with open('docs.html', 'w') as file:
+            file.write(str(new_docs_body))
+
     if request.method == 'POST':
         # Get the documentation HTML from the form
         new_docs_body = request.form.get('docs_body')
