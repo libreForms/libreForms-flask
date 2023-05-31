@@ -1126,3 +1126,32 @@ def toggle_form_deletion_status(form_name, document_id):
 
 
     return redirect(url_for('admin.form_management', form=form_name))
+
+
+
+@bp.route(f'/toggle/g/<username>/<group>', methods=['GET', 'POST'])
+@is_admin
+def modify_user_group(username, group):
+
+    user = User.query.filter_by(username=username.lower()).first()
+
+    if not user:
+        flash (f'User {username} does not exist.', 'warning')
+        return redirect(url_for('admin.user_management'))
+
+    if current_user.id == user.id:
+        flash (f'You cannot modify group of the user you are currently logged in as.', 'warning')
+        return redirect(url_for('admin.user_management'))
+
+    user.group = group 
+    db.session.commit()
+    flash (f'Group of user {username}. set to {group}.', 'info')
+    log.info(f'{current_user.username.upper()} - Group of user {username}. set to {group}.')
+
+
+    if config['notify_users_on_admin_action']:
+        subject = f'{config["site_name"]} User Group Changed'
+        content = f"This email serves to notify you that an administrator has just modified the group assignment for user '{user.username}', which is associated with your email at {config['domain']}. Your new user group is: {group}. Please contact your system administrator if you believe this was a mistake."
+        m = send_mail_async.delay(subject=subject, content=content, to_address=user.email) if config['send_mail_asynchronously'] else mailer.send_mail(subject=subject, content=content, to_address=user.email)
+
+    return redirect(url_for('admin.user_management'))
