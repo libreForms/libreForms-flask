@@ -32,6 +32,15 @@
                         <a class="dropdown-item" href="{{url_for('admin.toggle_user_active_status', username=row.username)}}">{{"Deactivate" if row.active else "Activate"}} User</a>
                         <a class="dropdown-item" href="{{url_for('admin.generate_random_password', username=row.username)}}">Reset Password</a>
                         <a class="dropdown-item" href="{{url_for('admin.generate_api_key', username=row.username)}}">Generate API key</a>
+
+                        <form action="{{ url_for('admin.modify_user_group', username=row.username) }}" method="post" class="dropdown-item">
+                            <div class="row">
+                                <label for="group-input-{{ row.username }}" class="col-form-label col-4">Change Group</label>
+                                <div class="col-8">
+                                    <input type="text" id="group-input-{{ row.username }}" name="group" value="{{ row.group }}" onkeyup="submitOnEnter(event, this.form)" class="form-control" placeholder="Enter new group">
+                                </div>
+                            </div>
+                        </form>
                     </div> 
                 </td>
                 <td>{{ row.group }}</td>
@@ -47,4 +56,19 @@
 </div>
 
 
+{% endblock %}
+
+
+{% block js %}
+<script>
+    function submitOnEnter(event, form) {
+        // if the key pressed was "Enter"
+        if (event.key === "Enter") {
+            // prevent the default action (form submission)
+            event.preventDefault();
+            // submit the form
+            form.submit();
+        }
+    }
+</script>
 {% endblock %}

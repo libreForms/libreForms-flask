@@ -118,6 +118,7 @@ def compile_admin_views_for_menu():
                                                                                                         'admin.edit_profile',
                                                                                                         'admin.generate_api_key',
                                                                                                         'admin.toggle_form_deletion_status',
+                                                                                                        'admin.modify_user_group',
                                                                                                         ]]:
         v = view.replace('admin_','')
         v = v.replace('admin.','')
@@ -1129,9 +1130,11 @@ def toggle_form_deletion_status(form_name, document_id):
 
 
 
-@bp.route(f'/toggle/g/<username>/<group>', methods=['GET', 'POST'])
+@bp.route(f'/toggle/g/<username>', methods=['POST'])
 @is_admin
-def modify_user_group(username, group):
+def modify_user_group(username):
+
+    group = request.form.get('group') # get the group from form data
 
     user = User.query.filter_by(username=username.lower()).first()
 
@@ -1145,8 +1148,8 @@ def modify_user_group(username, group):
 
     user.group = group 
     db.session.commit()
-    flash (f'Group of user {username}. set to {group}.', 'info')
-    log.info(f'{current_user.username.upper()} - Group of user {username}. set to {group}.')
+    flash (f'Group of user {username} set to {group}.', 'info')
+    log.info(f'{current_user.username.upper()} - Group of user {username} set to {group}.')
 
 
     if config['notify_users_on_admin_action']:
