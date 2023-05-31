@@ -378,7 +378,7 @@ def form_management():
             form = request.args.get('form', '').strip()
 
 
-        assert(form != '*all forms*')
+        assert(form != '*all forms*' and form != '')
 
         # QUERY FORM DATA for `form` collection
         form_data = compile_form_data(form_names=[form])
