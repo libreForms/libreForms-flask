@@ -15,12 +15,13 @@
 
 <table role="presentation" title="submissions" class="table {{'text-dark' if not dark_mode else 'table-hover'}}">
   <tbody>
+  {% if subtitle=="Review"  %}<th>Timestamp</th>{% endif %}
   {% for col in submission.columns if col not in ["_timestamp","_id"]  %}
     <th>{{col|replace("_","")|capitalize}}</th>
   {%endfor%}
   {% for item in submission.index %} 
     <tr class="table{% if emphasize and item in emphasize %}-secondary{% else %}{{'-dark' if dark_mode else '-transparent'}}{% endif %}">
-      {# <th scope="row">{{submission['_timestamp'][item]}}</th> #}
+      {% if subtitle=="Review"  %}<th scope="row">{{submission['_timestamp'][item]}}</th>{% endif %}
       {% for col in submission.columns if col not in ["_timestamp","_id"]  %}
       <td>{{submission[col][item]}}</td>
       {% endfor %}

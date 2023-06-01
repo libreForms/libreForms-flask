@@ -519,7 +519,7 @@ def render_user_review(user):
             type="submissions",
             name='Submissions',
             subtitle="Review",
-            submission=record,
+            submission=record.sort_values(by=mongodb.metadata_field_names['timestamp'], ascending=False),
             menu=form_menu(checkFormGroup),
             **standard_view_kwargs(),
         )
