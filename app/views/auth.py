@@ -935,16 +935,23 @@ if config['saml_enabled']:
     # this route is used to initiate SSO login FROM THE SP / CURRENT APPLICATION
     @bp.route('/sso', methods=['GET', 'POST'])
     def sso():
-        req_data = prepare_saml_request(request)
-        saml_auth = OneLogin_Saml2_Auth(req_data, current_app.config['SAML_AUTH'])
+        try:
+            req_data = prepare_saml_request(request)
+            saml_auth = OneLogin_Saml2_Auth(req_data, current_app.config['SAML_AUTH'])
+        except:
+            return abort(404)
+            
         return redirect(saml_auth.login())
 
 
     @bp.route('/acs', methods=['GET', 'POST'])
     def acs():
-        req_data = prepare_saml_request(request)
-        saml_auth = OneLogin_Saml2_Auth(req_data, current_app.config['SAML_AUTH'])
-        saml_auth.process_response()
+        try:
+            req_data = prepare_saml_request(request)
+            saml_auth = OneLogin_Saml2_Auth(req_data, current_app.config['SAML_AUTH'])
+            saml_auth.process_response()
+        except:
+            return abort(404)
 
         errors = saml_auth.get_errors()
         if len(errors) == 0:
@@ -985,9 +992,13 @@ if config['saml_enabled']:
 
     @bp.route('/metadata', methods=['GET'])
     def metadata():
-        req_data = prepare_saml_request(request)
-        saml_auth = OneLogin_Saml2_Auth(req_data, current_app.config['SAML_AUTH'])
-        metadata = saml_auth.get_settings().get_sp_metadata()
+        try:
+            req_data = prepare_saml_request(request)
+            saml_auth = OneLogin_Saml2_Auth(req_data, current_app.config['SAML_AUTH'])
+            metadata = saml_auth.get_settings().get_sp_metadata()
+        except:
+            return abort(404)
+        
         errors = saml_auth.get_errors()
         if not errors:
             response = make_response(metadata, 200)
@@ -999,10 +1010,13 @@ if config['saml_enabled']:
 
     @bp.route('/sls', methods=['GET', 'POST'])
     def sls():
-        req_data = prepare_saml_request(request)
-        saml_auth = OneLogin_Saml2_Auth(req_data, current_app.config['SAML_AUTH'])
-        saml_auth.process_slo()
-
+        try:
+            req_data = prepare_saml_request(request)
+            saml_auth = OneLogin_Saml2_Auth(req_data, current_app.config['SAML_AUTH'])
+            saml_auth.process_slo()
+        except:
+            return abort(404)
+            
         errors = saml_auth.get_errors()
         if len(errors) == 0:
             if saml_auth.is_authenticated():
