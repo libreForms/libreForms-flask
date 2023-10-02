@@ -1,0 +1,51 @@
+{% extends "base.html.jinja" %}
+
+{% block content %}
+<div class="container mt-5">
+    <form id="searchForm" class="mb-4">
+        <div class="mb-3">
+            <label for="formSelector" class="form-label">Select a form:</label>
+            <select id="formSelector" name="formName" class="form-select">
+                {% for form in form_list %}
+                    <option value="{{ form }}">{{ form }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="button" class="btn btn-primary" onclick="fetchFormFields()">Select</button>
+    </form>
+
+    <div id="results">
+        <!-- Results will be displayed here -->
+    </div>
+</div>
+{% endblock %}
+
+{% block addons %}
+<script>
+    function fetchFormFields() {
+        const formName = document.getElementById('formSelector').value;
+
+        // Create a POST request with the selected form name
+        fetch('/search/get_fields', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ formName: formName })
+        })
+        .then(response => response.json())
+        .then(data => {
+            let output = '<h3 class="mt-4">Fields:</h3><ul class="list-group">';
+            for (let field of data) {
+                output += `<li class="list-group-item">${field.name} (${field.type})</li>`;
+            }
+            output += '</ul>';
+            document.getElementById('results').innerHTML = output;
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('results').innerHTML = '<div class="alert alert-danger" role="alert">An error occurred while fetching form fields.</div>';
+        });
+    }
+</script>
+{% endblock %}

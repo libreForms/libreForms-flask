@@ -14,7 +14,7 @@ __maintainer__ = "Sig Janoska-Bedi"
 __email__ = "signe@atreeus.com"
 
 # import flask-related dependencies
-from flask import current_app, Blueprint, render_template, request, flash, redirect, url_for, send_from_directory
+from flask import current_app, Blueprint, render_template, request, flash, redirect, url_for, send_from_directory, jsonify
 from flask_login import current_user
 
 # import flask app specific dependencies
@@ -24,6 +24,7 @@ from app.form_access import test_access_single_group
 from app.views.auth import login_required
 from app.views.forms import standard_view_kwargs
 from app.decorators import required_login_and_password_reset
+from libreforms import forms as lf
 
 bp = Blueprint('search', __name__, url_prefix='/search')
 
@@ -112,9 +113,30 @@ def search():
 @required_login_and_password_reset
 @bp.route('/advanced', methods=['GET'])
 def advanced_search():
-    pass
+
+
+    # # Here we define a config listing the names of all the forms
+    # with app.app_context():
+    #     app.config['FORMS_ALL'] = libreforms.forms.keys()
+
+
+    if config['exclude_forms_from_search']:
+
+        f = [x for x in lf.keys() if x not in config['exclude_forms_from_search']]
+
+    else:
+        f = lf.keys()
+
+    return render_template('app/advanced_search.html.jinja', 
+        type="home",
+        name='Search',
+        subtitle="Advanced",
+        form_list=f,
+        **standard_view_kwargs(),
+    )
 
     # for form not in exclude form:
+
         # allow users to select form from dropdown and,
         # using JS, select the fields that users can match. 
         # Default to NA for each field. If it is a checkbox 
@@ -129,3 +151,32 @@ def advanced_search():
 
         # Make sure to escape the query string values to minitgate risk 
         # of an eg. sql injection.
+
+
+@required_login_and_password_reset
+@bp.route('/get_fields', methods=['POST'])
+def get_fields_advanced_search():
+
+    data = request.get_json()
+    form_name = data.get('formName')
+
+    # Check if the form name exists in the lf dictionary
+    if form_name in lf:
+        form_fields = lf[form_name]
+        response_data = [{"name": field, "type": form_fields[field]['input_field']["type"], "content": form_fields[field]['input_field']["content"]} for field in form_fields if not field.startswith("_")]
+        return jsonify(response_data)
+    else:
+        return jsonify({"error": "Form not found"}), 404
+
+
+    # if request.method == 'POST':
+    #     form = request.form['form']
+
+    # return abort(404)
+    # try:
+    #     form = request.args.get('form').lower()
+    # except:
+    #     return abort(404)
+
+
+    # Exclude the hidden fields.
