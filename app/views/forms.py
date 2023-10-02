@@ -159,7 +159,8 @@ def checkTableGroup(form, group):
 def checkDashboardGroup(form, group):
     # return False if checkKey(propagate_form_configs(form)['_dashboard'], '_deny_groups') and group \
     #     in propagate_form_configs(form)['_dashboard']['_deny_groups'] else True
-    return True # temporarily need to just return True for this
+    x = propagate_form_configs(form)['_dashboard']
+    return True if x and len(x) > 0 else False # temporarily need to just let everything through w/o ACLs
 
 # this function just compiles 'depends_on' data for each form
 # to build a useful data tree that can be parsed by the jinja / javascript
@@ -490,6 +491,10 @@ def propagate_form_configs(form=False):
                 if field in ['_routing_list', '_form_approval']:
                     assert (checkKey(list_fields[field],'type'))
                     assert (checkKey(list_fields[field],'target'))
+
+                # if field == '_dashboard':
+                #     if len(list_fields[key]) < 1:
+                #         list_fields[key] = None
 
                 # these, if set, should always be a list
                 if field in ['_on_creation', '_on_submission', '_on_update', '_on_approval', '_on_disapproval',]:
