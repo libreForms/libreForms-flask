@@ -107,3 +107,25 @@ def search():
         results=results,
         **standard_view_kwargs(),
     )
+
+# Added in https://github.com/libreForms/libreForms-flask/issues/437
+@required_login_and_password_reset
+@bp.route('/advanced', methods=['GET'])
+def advanced_search():
+    pass
+
+    # for form not in exclude form:
+        # allow users to select form from dropdown and,
+        # using JS, select the fields that users can match. 
+        # Default to NA for each field. If it is a checkbox 
+        # field, allow user to check boxes. If it is a radio or
+        # select field, allow users to select from a dropdown.
+        # Allow users to toggle exact vs. fuzzy matching on the 
+        # query as a whole.
+
+        # Here, we just pass the fields, input_types, and (if
+        # they are pre-set value ranges) the options available to 
+        # each user.
+
+        # Make sure to escape the query string values to minitgate risk 
+        # of an eg. sql injection.
