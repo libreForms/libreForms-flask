@@ -47,6 +47,8 @@ def search():
     # here we collect the group access data for search result control
     exclude_forms_for_group, group_mapping = test_access_single_group(group=current_user.group, access_level='read-other-form-data')
 
+    #  we concatenate the group forms exlude list with the config defined form exclude list, if it exists
+    total_exclusions = exclude_forms_for_group + config['exclude_forms_from_search'] if config['exclude_forms_from_search'] else exclude_forms_for_group
 
     # if we've opted to use elasticsearch as a wrapper search engine for MongoDB
     if config['use_elasticsearch_as_wrapper']:
@@ -55,9 +57,6 @@ def search():
 
         client = Elasticsearch()
 
-
-        #  we concatenate the group forms exlude list with the config defined form exclude list, if it exists
-        total_exclusions = exclude_forms_for_group + config['exclude_forms_from_search'] if config['exclude_forms_from_search'] else exclude_forms_for_group
 
         #  Add fuzzy matching, we it's been configured
         if config['fuzzy_search']:
