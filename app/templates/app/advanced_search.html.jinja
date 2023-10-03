@@ -35,8 +35,8 @@
         })
         .then(response => response.json())
         .then(data => {
-            let output = `<form action="/your_post_route_here" method="post">
-                            <input type="hidden" name="form_name" value="${formName}">`;
+            let output = `<form action="/search/advanced" method="post">
+                            <input type="hidden" name="_form_name" value="${formName}">`;
 
             for (let field of data) {
                 output += `<div class="mb-3">

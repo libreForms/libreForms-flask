@@ -527,6 +527,56 @@ class MongoDB:
 
             return return_list
 
+    def advanced_search_engine(self, conditions, limit=10, exclude_forms=None, fuzzy_search=False):
+        with MongoClient(host=self.host, port=self.port) if not self.dbpw else MongoClient(self.connection_string) as client:
+
+            return_list = []
+
+            db = client['libreforms']
+
+            for collection_name in self.collections():
+
+                # Skip excluded forms
+                if exclude_forms and collection_name in exclude_forms:
+                    continue
+
+                # Construct the base query using the conditions
+                query = {"$and": [{condition["field"]: condition["value"]} for condition in conditions]}
+
+                if fuzzy_search:
+                    from fuzzywuzzy import fuzz
+
+                    TEMP = []
+                    for item in db[collection_name].find(query):  # Use the constructed query here
+                        for field, value in conditions:
+                            score = fuzz.token_set_ratio(value, item.get(field, ""))
+                            if score >= fuzzy_search:
+                                TEMP.append(item)
+                                continue
+
+                else:
+                    # Add text index for the collection
+                    db[collection_name].create_index([('$**', 'text')], default_language='english')
+
+                    # Use the constructed query for direct search
+                    TEMP = list(db[collection_name].find(query).limit(limit))
+
+                df = pd.DataFrame(TEMP)
+
+                if len(df) < 1:
+                    continue
+
+                # Process the dataframe as before
+                df['_id'] = df['_id'].astype("string")
+                df['formName'] = collection_name
+                df['fullString'] = df.apply(lambda row: " ".join([str(row[x]) for x in row.keys() if x not in ["Hyperlink", "_id"]]), axis=1)
+
+                [return_list.append(x) for x in df.to_dict('records')]
+
+            return return_list
+
+
+
     def is_document_in_collection(self, collection_name, document_id):
         with MongoClient(host=self.host, port=self.port) if not self.dbpw else MongoClient(self.connection_string) as client:
             db = client['libreforms']

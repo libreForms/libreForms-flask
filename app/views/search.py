@@ -111,19 +111,55 @@ def search():
 
 # Added in https://github.com/libreForms/libreForms-flask/issues/437
 @required_login_and_password_reset
-@bp.route('/advanced', methods=['GET'])
+@bp.route('/advanced', methods=['GET', 'POST'])
 def advanced_search():
 
+    # Check for POST method (when the form is submitted)
+    if request.method == 'POST':
+        try:
+            form_data = request.form.to_dict()
+            
+            # Exclude fields with empty values and the special _form_name field
+            search_fields = {k: v for k, v in form_data.items() if v and k != "_form_name"}
+            
+            if not search_fields:
+                flash("Please fill in at least one search field", "warning")
+                return redirect(url_for('search.advanced_search'))
 
-    # # Here we define a config listing the names of all the forms
-    # with app.app_context():
-    #     app.config['FORMS_ALL'] = libreforms.forms.keys()
+        except Exception as e:
+            flash("Invalid query", "danger")
+            return redirect(url_for('search.advanced_search'))
 
+        # here we collect the group access data for search result control
+        exclude_forms_for_group, group_mapping = test_access_single_group(group=current_user.group, access_level='read-other-form-data')
 
+        #  we concatenate the group forms exclude list with the config defined form exclude list, if it exists
+        total_exclusions = exclude_forms_for_group + config['exclude_forms_from_search'] if config['exclude_forms_from_search'] else exclude_forms_for_group
+
+        # Create a list of query conditions
+        conditions = [{"field": k, "value": v} for k, v in search_fields.items()]
+
+        # Query MongoDB directly
+        results = mongodb.advanced_search_engine(conditions, exclude_forms=total_exclusions, fuzzy_search=False)
+
+        # here we allow administrators to set the max number of results that will be shown in the search results.
+        if config['limit_search_results_length'] and isinstance(config['limit_search_results_length'], int) and len(results) > config['limit_search_results_length']:
+            results = results[:config['limit_search_results_length']]
+
+        if len(results) < 1:
+            flash(f"No results found for search terms {conditions}", "warning")
+
+        return render_template('app/search.html.jinja', 
+            type="home",
+            name='Search',
+            subtitle="Results",
+            results=results,
+            **standard_view_kwargs(),
+        )
+
+    # For GET method (initial page load)
     if config['exclude_forms_from_search']:
-
         f = [x for x in lf.keys() if x not in config['exclude_forms_from_search']]
-
     else:
         f = lf.keys()
 
@@ -134,23 +170,6 @@ def advanced_search():
         form_list=f,
         **standard_view_kwargs(),
     )
-
-    # for form not in exclude form:
-
-        # allow users to select form from dropdown and,
-        # using JS, select the fields that users can match. 
-        # Default to NA for each field. If it is a checkbox 
-        # field, allow user to check boxes. If it is a radio or
-        # select field, allow users to select from a dropdown.
-        # Allow users to toggle exact vs. fuzzy matching on the 
-        # query as a whole.
-
-        # Here, we just pass the fields, input_types, and (if
-        # they are pre-set value ranges) the options available to 
-        # each user.
-
-        # Make sure to escape the query string values to minitgate risk 
-        # of an eg. sql injection.
 
 
 @required_login_and_password_reset
