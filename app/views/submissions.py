@@ -1050,6 +1050,180 @@ def render_document_edit(form_name, document_id):
         flash (f"There was an error in processing your request. Transaction ID: {transaction_id}. ", 'warning')
         return redirect(url_for('submissions.submissions_home'))
 
+
+@bp.route('/<form_name>/<document_id>/duplicate', methods=('GET', 'POST'))
+@required_login_and_password_reset
+def duplicate_document(form_name, document_id):
+    try:
+
+        if not checkGroup(group=current_user.group, struct=propagate_form_configs(form_name)):
+                flash(f'You do not have access to this view. ', "warning")
+                return redirect(url_for('submissions.submissions_home'))
+
+        else:
+
+            try:
+                verify_group = propagate_form_configs(form=form_name)['_submission']
+            except Exception as e: 
+                # flash('This form does not exist.', "warning")
+                # log.warning(f'{current_user.username.upper()} - {e}')
+                transaction_id = str(uuid.uuid1())
+                log.warning(f"{current_user.username.upper()} - {e}", extra={'transaction_id': transaction_id})
+                flash (f"There was an error in processing your request. Transaction ID: {transaction_id}. ", 'warning')
+
+                return redirect(url_for('submissions.submissions_home'))
+
+            # if checkKey(verify_group, '_deny_write') and current_user.group in verify_group['_deny_write']:
+            #     flash('You do not have access to this resource.')
+            #     return redirect(url_for('submissions.submissions_home'))
+
+
+            # if checkKey(libreforms.forms, form_name) and \
+            #     checkKey(libreforms.forms[form_name], '_enable_universal_form_access') and \
+            #     libreforms.forms[form_name]['_enable_universal_form_access']:
+            if propagate_form_configs(form=form_name)['_submission']['_enable_universal_form_access'] and not \
+            (checkKey(verify_group, '_deny_write') and current_user.group in verify_group['_deny_write']):
+                # flash("Warning: this form lets everyone view all its submissions. ")
+                record = get_record_of_submissions(form_name=form_name,remove_underscores=False)
+
+            else:
+
+                record = get_record_of_submissions(form_name=form_name, user=current_user.username, remove_underscores=False)
+
+
+            if not isinstance(record, pd.DataFrame):
+                flash('This document does not exist.', "warning")
+                return redirect(url_for('submissions.submissions_home'))
+        
+            else:
+        
+                options = propagate_form_configs(form_name)
+                forms = propagate_form_fields(form_name, group=current_user.group)
+
+                if not str(document_id) in record['_id'].values:
+                    flash('You do not have edit access to this form.', "warning")
+                    return redirect(url_for('submissions.submissions_home'))      
+
+                record = record.loc[record['_id'] == str(document_id)]
+                # we abort if the form doesn't exist
+                if len(record.index)<1:
+                    return abort(404)
+
+                # here we convert the slice to a dictionary to use to override default values
+                overrides = record.iloc[0].to_dict()
+                # print(overrides)
+
+                if request.method == 'POST':
+
+                    # here we conduct a passworde check if digital signatures are enabled and password
+                    # protected, see  https://github.com/signebedi/libreForms/issues/167
+                    if config['require_password_for_electronic_signatures'] and options['_digitally_sign']:
+                        password = request.form['_password']
+                    
+                        if not check_password_hash(current_user.password, password):
+                            flash('Incorrect password.', "warning")
+                            return redirect(url_for('submissions.render_document_edit', form_name=form_name, document_id=document_id))
+
+
+                    if config['enable_wtforms_test_features']:
+
+                        # Generate the dynamic form class
+                        # FormClass = create_dynamic_form(form_name, current_user.group, form_data=list(request.form))
+                        # f_data = request.form.to_dict()
+                        # print(f_data)
+                        FormClass = create_dynamic_form(form_name, current_user.group, form_data=request.form)
+
+                        # Create an instance of the dynamic form class
+                        form_instance = FormClass()
+
+                        # Populate the form instance with submitted data
+                        form_instance.process(request.form)
+
+                        # Validate the form data
+                        # if form_instance.validate():
+
+                        parsed_args = form_instance.data
+                        # Proceed with form processing
+
+                    else:
+
+                        print(list(request.form))
+
+                        parsed_args = flaskparser.parser.parse(define_webarg_form_data_types(form_name, user_group=current_user.group, args=list(request.form)), request, location="form")
+
+                        print(parsed_args)
+
+                    # parsed_args = flaskparser.parser.parse(define_webarg_form_data_types(form_name, user_group=current_user.group, args=list(request.form)), request, location="form")
+
+                    digital_signature = encrypt_with_symmetric_key(current_user.certificate, config['signature_key']) if options['_digitally_sign'] else None
+
+                    # here we pass a modification
+                    new_document_id = mongodb.write_document_to_collection(parsed_args, form_name, reporter=current_user.username, modification=False, digital_signature=digital_signature,
+                                                            ip_address=request.remote_addr if options['_collect_client_ip'] else None,)
+                    
+                    # if config['write_documents_asynchronously']:
+                    #     import time, requests
+                    #     while True:
+                    #         requests.get(url_for('taskstatus', task_id=r.task_id))
+                    #         print(r.task_id)
+                    #         time.sleep(.1)
+
+                    flash(f'{form_name} form successfully submitted, document ID {new_document_id}. ', "success")
+                    if config['debug']:
+                        flash(str(parsed_args), "info")
+
+
+                    # log the update
+                    log.info(f'{current_user.username.upper()} - updated \'{form_name}\' form, document no. {new_document_id}.')
+
+                    # here we build our message and subject, customized for anonymous users
+                    subject = f'{config["site_name"]} {form_name} Updated ({new_document_id})'
+                    content = f"This email serves to verify that {current_user.username} ({current_user.email}) has just updated the {form_name} form, which you can view at {config['domain']}/submissions/{form_name}/{new_document_id}. {'; '.join(key + ': ' + str(value) for key, value in parsed_args.items() if key not in [mongodb.metadata_field_names['journal'], mongodb.metadata_field_names['metadata']]) if options['_send_form_with_email_notification'] else ''}"
+                    
+                    # and then we send our message
+                    m = send_mail_async.delay(subject=subject, content=content, to_address=current_user.email, cc_address_list=rationalize_routing_list(form_name)) if config['send_mail_asynchronously'] else mailer.send_mail(subject=subject, content=content, to_address=current_user.email, cc_address_list=rationalize_routing_list(form_name), logfile=log)
+
+
+                    # form processing trigger, see https://github.com/libreForms/libreForms-flask/issues/201    
+                    if config['enable_form_processing']:
+                        current_app.config['FORM_PROCESSING'].onUpdate(document_id=new_document_id, form_name=form_name)
+
+
+                    # and then we redirect to the forms view page
+                    return redirect(url_for('submissions.render_document', form_name=form_name, document_id=new_document_id, ignore_menu=True))
+
+                
+
+
+                return render_template('app/forms.html.jinja', 
+                    context=forms,                                          # this passes the form fields as the primary 'context' variable
+                    name='Forms',
+                    subtitle=form_name,
+                    menu=form_menu(checkFormGroup),              # this returns the forms in libreform/forms to display in the lefthand menu
+                    type="forms",       
+                    default_overrides=overrides,
+                    editing_existing_form=True,
+                    options=options, 
+                    filename = f'{form_name.lower().replace(" ","")}.csv' if options['_allow_csv_templates'] else False,
+                    depends_on=compile_depends_on_data(form_name, user_group=current_user.group),
+                    user_list = collect_list_of_users() if config['allow_forms_access_to_user_list'] else [],
+                    # here we tell the jinja to include password re-entry for form signatures, if configured,
+                    # see https://github.com/signebedi/libreForms/issues/167.
+                    require_password=True if config['require_password_for_electronic_signatures'] and options['_digitally_sign'] else False,
+                    **standard_view_kwargs(),
+                    )
+
+    except Exception as e: 
+        # log.warning(f"LIBREFORMS - {e}")
+        # flash(f'This form does not exist. {e}', "warning")
+        transaction_id = str(uuid.uuid1())
+        log.warning(f"{current_user.username.upper()} - {e}", extra={'transaction_id': transaction_id})
+        flash (f"There was an error in processing your request. Transaction ID: {transaction_id}. ", 'warning')
+        return redirect(url_for('submissions.submissions_home'))
+
+
+
+
 # this is a replica of render_document() above, just modified to check for 
 # propagate_form_configs(form_name)['_form_approval'] and verify that the current_user
 # is the form approver, otherwise abort. See https://github.com/signebedi/libreForms/issues/8.
