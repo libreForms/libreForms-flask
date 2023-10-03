@@ -686,6 +686,9 @@ def render_document(form_name, document_id, ignore_menu=False):
             if propagate_form_configs(form_name)['_allow_pdf_download']:
                 msg = msg + Markup(f"<td><a href = '{config['domain']}/submissions/{form_name}/{document_id}/download'><button type=\"button\" class=\"btn btn-outline-success btn-sm\" style = \"margin-right: 10px;\">download PDF</button></a></td>")
 
+            # Option to duplicate form, see https://github.com/libreForms/libreForms-flask/issues/439
+            msg = msg + Markup(f"<td><a href = '{config['domain']}/submissions/{form_name}/{document_id}/duplicate'><button type=\"button\" class=\"btn btn-outline-success btn-sm\" style = \"margin-right: 10px;\">duplicate this form</button></a></td>")
+
             # if set to True, this will suppress the left-bar nav, see
             # https://github.com/libreForms/libreForms-flask/issues/375
             ignore_menu = request.args.get('ignore_menu', False)
@@ -1186,7 +1189,7 @@ def duplicate_document(form_name, document_id):
 
                     # form processing trigger, see https://github.com/libreForms/libreForms-flask/issues/201    
                     if config['enable_form_processing']:
-                        current_app.config['FORM_PROCESSING'].onUpdate(document_id=new_document_id, form_name=form_name)
+                        current_app.config['FORM_PROCESSING'].onCreation(document_id=new_document_id, form_name=form_name)
 
 
                     # and then we redirect to the forms view page
