@@ -35,11 +35,17 @@
         })
         .then(response => response.json())
         .then(data => {
-            let output = '<h3 class="mt-4">Fields:</h3><ul class="list-group">';
+            let output = `<form action="/your_post_route_here" method="post">
+                            <input type="hidden" name="form_name" value="${formName}">`;
+
             for (let field of data) {
-                output += `<li class="list-group-item">${field.name} (${field.type})</li>`;
+                output += `<div class="mb-3">
+                                <label for="${field.name}" class="form-label">${field.name}</label>
+                                <input type="${field.type}" class="form-control" id="${field.name}" name="${field.name}">
+                           </div>`;
             }
-            output += '</ul>';
+
+            output += '<button type="submit" class="btn btn-success">Submit</button></form>';
             document.getElementById('results').innerHTML = output;
         })
         .catch(error => {

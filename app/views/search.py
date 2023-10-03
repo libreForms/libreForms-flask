@@ -163,7 +163,7 @@ def get_fields_advanced_search():
     # Check if the form name exists in the lf dictionary
     if form_name in lf:
         form_fields = lf[form_name]
-        response_data = [{"name": field, "type": form_fields[field]['input_field']["type"], "content": form_fields[field]['input_field']["content"]} for field in form_fields if not field.startswith("_")]
+        response_data = [{"name": field, "type": form_fields[field]['input_field']["type"], "content": form_fields[field]['input_field']["content"]} for field in form_fields if not field.startswith("_") and form_fields[field]['input_field']["type"] != "hidden"]
         return jsonify(response_data)
     else:
         return jsonify({"error": "Form not found"}), 404
