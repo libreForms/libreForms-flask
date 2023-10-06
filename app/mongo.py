@@ -452,80 +452,50 @@ class MongoDB:
             # if the collection doesn't exist, return false
             return False
     
-    def search_engine(  self,
-                        search_term,
-                        limit=10, 
-                        exclude_forms=None,
-                        fuzzy_search=False):
-
+    def search_engine(self, search_term, limit=10, exclude_forms=None, fuzzy_search=False):
         with MongoClient(host=self.host, port=self.port) if not self.dbpw else MongoClient(self.connection_string) as client:
-
             return_list = []
-            return_dict = {}
-
             db = client['libreforms']
 
             for collection_name in self.collections():
-
-                # if we've passed exclude_forms, then we assess it here
-                # and ignore the form if administrators want us to skip it,
-                # see https://github.com/libreForms/libreForms-flask/issues/260
                 if exclude_forms and collection_name in exclude_forms:
-                # if type(exclude_forms)==list and collection_name in exclude_forms: # if we want to force this to be a list...
                     continue
-
 
                 if fuzzy_search:
                     from fuzzywuzzy import fuzz
-
                     TEMP = []
+                    seen_ids = set()  # To track items that have already been added
+
                     for item in db[collection_name].find():
-                        # print(item)
                         for field in item:
-                            # print(f"-- {field}")
                             score = fuzz.token_set_ratio(search_term, item[field])
-                            if score >= fuzzy_search:
-                                # print (f"********Found Match")
+                            if score >= fuzzy_search and item['_id'] not in seen_ids:
                                 TEMP.append(item)
+                                seen_ids.add(item['_id'])
                                 continue
-                    
                 else:
-                    # here we add an index, see 
-                    #   https://stackoverflow.com/a/48237570/13301284
-                    #   https://stackoverflow.com/a/30314946/13301284 
-                    #   *** https://stackoverflow.com/a/48371352/13301284
                     db[collection_name].create_index([('$**', 'text')], default_language='english')
-
-                    # Probably need to escape the values here, see
-                    #   https://stackoverflow.com/a/13224790/13301284
-
                     TEMP = list(db[collection_name].find(
-                        {"$text": {"$search": search_term, "$caseSensitive" : False}},
+                        {"$text": {"$search": search_term, "$caseSensitive": False}},
                         [x for x in self.get_collection_columns(collection_name, *self.metadata_fields())]
-                        ).limit(limit))
+                    ).limit(limit))
 
                 df = pd.DataFrame(TEMP)
-
                 if len(df) < 1:
                     continue
 
-                # print(df)
-
-                # case as a string
                 df['_id'] = df['_id'].astype("string")
                 df['formName'] = collection_name
-                # df['Hyperlink'] = df.apply (lambda row: f"submissions/{collection_name}/{row['_id']}", axis=1)
-                df['fullString'] = df.apply (lambda row: " ".join([str(row[x]) for x in row.keys() if x not in ["Hyperlink", "_id"]]), axis=1)
+                df['fullString'] = df.apply(lambda row: " ".join([str(row[x]) for x in row.keys() if x not in ["Hyperlink", "_id"]]), axis=1)
 
-
-                
-
-                # TEMP = list(db[collection_name].find())
-                [return_list.append(x) for x in df.to_dict('records')]
-
-                # return_dict[collection_name] = df
+                # Check for duplicates before appending
+                records = df.to_dict('records')
+                for record in records:
+                    if record not in return_list:
+                        return_list.append(record)
 
             return return_list
+
 
     def advanced_search_engine(self, conditions, limit=10, exclude_forms=None, fuzzy_search=False):
         with MongoClient(host=self.host, port=self.port) if not self.dbpw else MongoClient(self.connection_string) as client:
