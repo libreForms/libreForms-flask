@@ -40,7 +40,7 @@ if config['enable_wtforms_test_features']:
     from wtforms.validators import DataRequired, Optional
 
 # and finally, import other packages
-import os, json, uuid
+import os, json, uuid, copy
 import pandas as pd
 import tempfile
 import inspect
@@ -387,27 +387,35 @@ def reconcile_form_data_struct(form=False):
 def propagate_form_fields(form=False, group=None):
     
     try:
-        list_fields = libreforms.forms[form]
+
+        # import libreforms as lf
+        # list_fields = lf.forms[form].copy()
+        list_fields = copy.deepcopy(libreforms.forms[form])
+
+
+        print(list_fields)
 
         VALUES = {}
 
         # here we drop the meta data fields   
 
         for field in list_fields.keys():
-            if not field.startswith("_") and checkGroup(group, libreforms.forms[form][field]): # drop configs and fields we don't have access to
-                VALUES[field] = list_fields[field]
+            if not field.startswith("_") and checkGroup(group, list_fields[field]): # drop configs and fields we don't have access to
+                VALUES[field] = list_fields[field].copy()
                 # if the content field is callable, then call it, see
                 # https://github.com/libreForms/libreForms-flask/issues/305
                 if callable(VALUES[field]['input_field']['content'][0]):
-                    print (VALUES[field]['input_field']['content'][0]())
                     VALUES[field]['input_field']['content'] = VALUES[field]['input_field']['content'][0]()
+                    print ("ACTUAL VALS: ", VALUES[field]['input_field']['content'])
+
 
                 # here we also add support for `apparent` form content, when administrators want the data to look 
                 # different for the end user, than for the system backend, see the following issue for further discussion:
                 # https://github.com/libreForms/libreForms-flask/issues/339
                 if 'apparent_content' in VALUES[field]['input_field'] and callable(VALUES[field]['input_field']['apparent_content'][0]):
                     VALUES[field]['input_field']['apparent_content'] = VALUES[field]['input_field']['apparent_content'][0]()
-                    # print(VALUES[field]['input_field']['apparent_content'])
+                    # Bruh, we want to render these at runtime
+                    print("APPARENT VALS: ", VALUES[field]['input_field']['apparent_content'])
                 
         return VALUES
     
@@ -760,6 +768,7 @@ def forms(form_name):
             # here we tell the jinja to include password re-entry for form signatures, if configured,
             # see https://github.com/signebedi/libreForms/issues/167.
             require_password=True if config['require_password_for_electronic_signatures'] and options['_digitally_sign'] else False,
+            # callable=callable,
             **standard_view_kwargs(),
             )
 
