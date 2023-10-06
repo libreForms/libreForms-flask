@@ -1332,7 +1332,7 @@ def review_document(form_name, document_id):
             verify_changes_to_approval = check_args_for_changes({mongodb.metadata_field_names['approval']: digital_signature}, overrides)
             verify_changes_to_approver_comment = check_args_for_changes({mongodb.metadata_field_names['approver_comment']: comment}, overrides)
 
-           
+             
             # presuming there is a change, write the change
             # if approve != 'no' or comment != '':
 
@@ -1352,6 +1352,26 @@ def review_document(form_name, document_id):
                     current_app.config['FORM_PROCESSING'].onApproval(document_id=document_id, form_name=form_name)
                 elif approve == 'no':
                     current_app.config['FORM_PROCESSING'].onDisapproval(document_id=document_id, form_name=form_name)
+
+
+            if approve == 'yes':
+                msg_header = "APPROVED"
+            elif approve == 'no':
+                msg_header = "NOT APPROVED"
+            elif approve == 'pushback':
+                msg_header = "PUSHED BACK"
+            else:
+                msg_header = ""
+
+            # # here we build our message and subject, customized for anonymous users
+            subject = f'{config["site_name"]} {form_name} ({document_id}) {msg_header} by {current_user.username}'
+            content = f"This email serves to verify that {current_user.username} ({current_user.email}) has just {msg_header} the {form_name} form, which you can view at {config['domain']}/submissions/{form_name}/{document_id}."
+            
+            # # and create the to-list from the owner
+            to_user = User.query.filter_by(username=overrides[mongodb.metadata_field_names['owner']]).first()
+
+            # # and then we send our message
+            m = send_mail_async.delay(subject=subject, content=content, to_address=to_user.email, cc_address_list=[current_user.email]) if config['send_mail_asynchronously'] else mailer.send_mail(subject=subject, content=content, to_address=to_user.email, cc_address_list=[current_user.email], logfile=log)
 
             return redirect(url_for('submissions.render_document', form_name=form_name, document_id=document_id))
 
