@@ -1230,7 +1230,6 @@ def duplicate_document(form_name, document_id):
 # this is a replica of render_document() above, just modified to check for 
 # propagate_form_configs(form_name)['_form_approval'] and verify that the current_user
 # is the form approver, otherwise abort. See https://github.com/signebedi/libreForms/issues/8.
-
 @bp.route('/<form_name>/<document_id>/review', methods=['GET', 'POST'])
 @required_login_and_password_reset
 def review_document(form_name, document_id):
@@ -1313,8 +1312,9 @@ def review_document(form_name, document_id):
                 digital_signature = None
 
             else:
-                flash('You have not approved this form. ', "success")
-                digital_signature = None
+                # flash('You have not approved this form. ', "success")
+                return abort(404)
+                # digital_signature = None
 
             if comment == '':
                 # set comment to None if the arrived empty
