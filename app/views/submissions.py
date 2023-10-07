@@ -336,28 +336,34 @@ def set_digital_signature(      username,
 # will return the number of unsigned approvals
 def aggregate_approval_count(select_on=None): 
 
-        try:
-            record = aggregate_form_data(mongodb.metadata_field_names['approver'], mongodb.metadata_field_names['approval'], user=None)
+    try:
+        record = aggregate_form_data(mongodb.metadata_field_names['approver'], mongodb.metadata_field_names['approval'], user=None)
 
-            # first we drop values that are not tied to the current list of acceptible forms
-            record = record.drop(record.loc[~record.form.isin(libreforms.forms.keys())].index)
+        # First, drop values that are not tied to the current list of acceptable forms
+        record = record.drop(record.loc[~record.form.isin(libreforms.forms.keys())].index)
 
-            # then we select those whose approver is set to the select_on parameter
-            forms_approved_by_user = record.loc[(record[mongodb.metadata_field_names['approver']] == select_on) & (record[mongodb.metadata_field_names['approval']].isna())]
+        # Select those whose approver is set to the select_on parameter
+        forms_approved_by_user = record.loc[(record[mongodb.metadata_field_names['approver']] == select_on) & (record[mongodb.metadata_field_names['approval']].isna())]
 
-            # these forms should be approved by group
-            forms_approved_by_group = record.loc[(record.form.isin(list_of_forms_approved_by_this_group(group=current_user.group))) & (record[mongodb.metadata_field_names['approval']].isna())]
+        # These forms should be approved by group
+        forms_approved_by_group = record.loc[(record.form.isin(list_of_forms_approved_by_this_group(group=current_user.group))) & (record[mongodb.metadata_field_names['approval']].isna())]
 
-            # print(pd.concat([forms_approved_by_user, forms_approved_by_group], ignore_index=True))
+        # Check for overlap between the two DataFrames
+        merged_df = pd.merge(forms_approved_by_user, forms_approved_by_group, indicator=True, how='outer')
+        overlap = merged_df[merged_df['_merge'] == 'both']
 
-            # we concat the two dataframes above and return
-            return pd.concat([forms_approved_by_user, forms_approved_by_group], ignore_index=True)
-            
+        # If there's an overlap, log a warning
+        if not overlap.empty:
+            log.warning(f"LIBREFORMS - Overlap detected between forms_approved_by_user and forms_approved_by_group")
 
-        except Exception as e: 
-            log.warning(f"LIBREFORMS - {e}") 
-            return pd.DataFrame()
-            
+        # Concatenate the two DataFrames and remove duplicates
+        result = pd.concat([forms_approved_by_user, forms_approved_by_group], ignore_index=True).drop_duplicates()
+
+        return result
+
+    except Exception as e: 
+        log.warning(f"LIBREFORMS - {e}") 
+        return pd.DataFrame()            
 
 def generate_username_badge_list(form_name:str) -> list:
     
