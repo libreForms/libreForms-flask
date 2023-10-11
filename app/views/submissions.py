@@ -1334,7 +1334,7 @@ def review_document(form_name, document_id):
             overrides = record.iloc[0].to_dict()
                     
             # here we drop any elements that are not changed from the overrides
-            verify_changes_to_approver = check_args_for_changes({mongodb.metadata_field_names['approver']: getattr(current_user, config['visible_signature_field'])}, overrides)
+            verify_changes_to_approver = check_args_for_changes({mongodb.metadata_field_names['approver']: getattr(current_user, "username")}, overrides)
             verify_changes_to_approval = check_args_for_changes({mongodb.metadata_field_names['approval']: digital_signature}, overrides)
             verify_changes_to_approver_comment = check_args_for_changes({mongodb.metadata_field_names['approver_comment']: comment}, overrides)
 
