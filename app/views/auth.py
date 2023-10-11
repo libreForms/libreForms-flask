@@ -212,7 +212,8 @@ def forgot_password():
 
         # Modifying based on case-sensitive bug in https://github.com/libreForms/libreForms-flask/issues/451
         # if not User.query.filter_by(email=email.lower()).first():
-        if not User.query.filter(User.email.ilike(email)).first():
+        email_query = User.query.filter(User.email.ilike(email)).first()
+        if not email_query:
             error = f'Email {email.lower()} is not registered. ' 
 
                         
@@ -224,9 +225,9 @@ def forgot_password():
 
         if error is None:
             try: 
-                key = signing.write_key_to_database(scope='forgot_password', expiration=1, active=1, email=email)
+                key = signing.write_key_to_database(scope='forgot_password', expiration=1, active=1, email=email_query.email)
                 content = f"A password reset request has been submitted for your account. Please follow this link to complete the reset. {config['domain']}/auth/forgot_password/{key}. Please note this link will expire after one hour."
-                m = send_mail_async.delay(subject=f'{config["site_name"]} Password Reset', content=content, to_address=email) if config['send_mail_asynchronously'] else mailer.send_mail(subject=f'{config["site_name"]} Password Reset', content=content, to_address=email, logfile=log)
+                m = send_mail_async.delay(subject=f'{config["site_name"]} Password Reset', content=content, to_address=email_query.email) if config['send_mail_asynchronously'] else mailer.send_mail(subject=f'{config["site_name"]} Password Reset', content=content, to_address=email_query.email, logfile=log)
                 flash("Password reset link successfully sent.", "success")
             except Exception as e: 
                 transaction_id = str(uuid.uuid1())
