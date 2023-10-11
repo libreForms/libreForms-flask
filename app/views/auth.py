@@ -210,8 +210,11 @@ def forgot_password():
     if request.method == 'POST' and config["smtp_enabled"]:
         email = request.form['email']
 
-        if not User.query.filter_by(email=email.lower()).first():
+        # Modifying based on case-sensitive bug in https://github.com/libreForms/libreForms-flask/issues/451
+        # if not User.query.filter_by(email=email.lower()).first():
+        if not User.query.filter(User.email.ilike(email)).first():
             error = f'Email {email.lower()} is not registered. ' 
+
                         
         else: error=None
         
