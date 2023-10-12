@@ -519,7 +519,12 @@ def login():
         remember = True if request.form.get('remember') else False
 
         error = None
-        user = User.query.filter_by(username=username.lower()).first()
+        try:
+            user = User.query.filter_by(username=username.lower()).first()
+        except Exception as e:
+            flash('There was a problem logging in. Please try again shortly. If the problem persists, contact your system administrator.', "warning")
+            return redirect(url_for('auth.login'))
+
 
         if not user:
             error = 'Incorrect username. '
