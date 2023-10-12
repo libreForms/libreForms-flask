@@ -117,19 +117,20 @@ if config['enable_hcaptcha']:
     # https://github.com/signebedi/libreForms/issues/69
 # if this truly implemented, we should probably also add it to
 # etc/gunicorn.conf.py to handle pre-fork 
-if config['custom_sql_db'] == True:
-    if os.path.exists ("user_db_creds"):
-        user_db_creds = pd.read_csv("user_db_creds", dtype=str) # expecting the CSV format: db_driver,db_user, db_pw, db_host, db_port
-        db_driver = user_db_creds.db_driver[0] # eg. postgres, mysql
-        db_user = user_db_creds.db_user[0]
-        db_pw = user_db_creds.db_pw[0] # in the future, support other way to store secrets
-        db_host = user_db_creds.db_host[0]
-        db_port = user_db_creds.db_port[0]
-        log.info(f'LIBREFORMS - loaded custom SQL database settings.')
+# if config['custom_sql_db'] == True:
+#     if os.path.exists ("user_db_creds"):
+#         user_db_creds = pd.read_csv("user_db_creds", dtype=str) # expecting the CSV format: db_driver,db_user, db_pw, db_host, db_port
+#         db_driver = user_db_creds.db_driver[0] # eg. postgres, mysql
+#         db_user = user_db_creds.db_user[0]
+#         db_pw = user_db_creds.db_pw[0] # in the future, support other way to store secrets
+#         db_host = user_db_creds.db_host[0]
+#         db_port = user_db_creds.db_port[0]
+#         log.info(f'LIBREFORMS - loaded custom SQL database settings.')
 
-    else:
-        config['custom_sql_db'] = False
-        log.warning('LIBREFORMS - no user db credentials file found, custom sql database will not be enabled.')
+#     else:
+#         if not isinstance(config['custom_sql_db'], str):
+#             config['custom_sql_db'] = False
+#             log.warning('LIBREFORMS - no user db credentials file found, custom sql database will not be enabled.')
 
 
 # here we start up the SMTP `mailer` object that we'll propagate like the 
@@ -213,7 +214,8 @@ def create_app(test_config=None, celery_app=False, db_init_only=False):
         # SERVER_NAME=config['domain'],
         SECRET_KEY=config['secret_key'],
         # getting started on allowing other SQL databases than SQLite, but defaulting to that. 
-        SQLALCHEMY_DATABASE_URI = f'{db_driver}://{db_host}:{db_pw}@{db_host}:{str(db_port)}/' if config['custom_sql_db'] == True else f'sqlite:///{os.path.join(app.instance_path, "app.sqlite")}',
+        # SQLALCHEMY_DATABASE_URI = f'{db_driver}://{db_host}:{db_pw}@{db_host}:{str(db_port)}/' if config['custom_sql_db'] == True else f'sqlite:///{os.path.join(app.instance_path, "app.sqlite")}',
+        SQLALCHEMY_DATABASE_URI = f"{config['custom_sql_db']}" if isinstance(config['custom_sql_db'], str) else f'sqlite:///{os.path.join(app.instance_path, "app.sqlite")}',
         # SQLALCHEMY_DATABASE_URI = f'sqlite:///{os.path.join(app.instance_path, "app.sqlite")}',
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
         UPLOAD_FOLDER = config['upload_folder'],
