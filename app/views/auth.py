@@ -174,7 +174,10 @@ def reset_password(signature):
 
             if error is None:
                 try:
-                    user = User.query.filter_by(email=str(email)).first() ## get email from Signing table & collate to User table 
+                    # Modifying based on case-sensitive bug in https://github.com/libreForms/libreForms-flask/issues/451
+                    # if not User.query.filter_by(email=email.lower()).first():
+                    user = User.query.filter(User.email.ilike(email)).first()
+
                     user.password=generate_password_hash(password, method='sha256')
                     db.session.commit()
 
@@ -185,7 +188,7 @@ def reset_password(signature):
                 except Exception as e: 
                     transaction_id = str(uuid.uuid1())
                     log.warning(f"LIBREFORMS - {e}", extra={'transaction_id': transaction_id})
-                    flash (f"There was an error in processing your request. Transaction ID: {transaction_id}. ")
+                    flash (f"There was an error in processing your request. Transaction ID: {transaction_id}.","warning")
                 
             else:
                 flash(error, "warning")
@@ -213,6 +216,7 @@ def forgot_password():
         # Modifying based on case-sensitive bug in https://github.com/libreForms/libreForms-flask/issues/451
         # if not User.query.filter_by(email=email.lower()).first():
         email_query = User.query.filter(User.email.ilike(email)).first()
+
         if not email_query:
             error = f'Email {email.lower()} is not registered. ' 
 
