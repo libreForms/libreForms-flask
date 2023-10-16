@@ -45,6 +45,7 @@ import pandas as pd
 import tempfile
 import inspect
 from cmath import e
+from math import isnan
 from fileinput import filename
 from typing import List, Type, Dict, Any, Optional, Union
 # from collections import defaultdict
@@ -60,6 +61,7 @@ def standard_view_kwargs():
     kwargs['user'] = current_user if current_user.is_authenticated else None
     kwargs['config'] = config
     kwargs['stringify'] = convert_to_string
+    kwargs['is_nan'] = isnan
 
     return kwargs
 

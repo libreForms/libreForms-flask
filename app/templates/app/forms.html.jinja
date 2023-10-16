@@ -44,12 +44,18 @@
 			{% endif %}
 		{% endif %}
 
+		{# Fixing a bug that prevented edits if a NaN value is detected, see
+		https://github.com/libreForms/libreForms-flask/issues/457
+		#}
+		{% set default_value = default_value if default_value is not number or not is_nan(default_value) else '' %}
 
 		{% if 'apparent_content' in context[field].input_field %}
 			{% set apparent_values = context[field].input_field.apparent_content %}
 		{% else %}
 			{% set apparent_values = context[field].input_field.content %}
 		{% endif %}
+
+
 
 
 		{% if input_type == "autocomplete" %}
