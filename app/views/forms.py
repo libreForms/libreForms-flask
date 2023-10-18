@@ -62,6 +62,7 @@ def standard_view_kwargs():
     kwargs['config'] = config
     kwargs['stringify'] = convert_to_string
     kwargs['is_nan'] = isnan
+    kwargs['len'] = len
 
     return kwargs
 
