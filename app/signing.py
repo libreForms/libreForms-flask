@@ -224,15 +224,15 @@ def write_key_to_database(scope:str=None, expiration:int=1, active:int=1, email:
     return key
 
 # DEPRECATED in favor of key-by-key verification, see verify_signatures()
-def flush_key_db():
-    signing_df = pd.read_sql_table(Signing.__tablename__, con=db.engine.connect())
+# def flush_key_db():
+#     signing_df = pd.read_sql_table(Signing.__tablename__, con=db.engine.connect())
 
-    # This will disable all keys whose 'expiration' timestamp is less than the current time
-    signing_df.loc[ signing_df['expiration'] < datetime.datetime.timestamp(datetime.datetime.now()), 'active' ] = 0
+#     # This will disable all keys whose 'expiration' timestamp is less than the current time
+#     signing_df.loc[ signing_df['expiration'] < datetime.datetime.timestamp(datetime.datetime.now()), 'active' ] = 0
 
-    # this will write the modified dataset to the database
-    signing_df.to_sql(Signing.__tablename__, con=db.engine.connect(), if_exists='replace', index=False)
-    return signing_df
+#     # this will write the modified dataset to the database
+#     signing_df.to_sql(Signing.__tablename__, con=db.engine.connect(), if_exists='replace', index=False)
+#     return signing_df
 
 # DEPRECATED: I don't think this approach is particularly efficient anymore; instead, 
 # we'll approach expiration on a key-by-key basis and potentially prepare an abstract function.
@@ -266,21 +266,21 @@ def flush_key_db():
 # here we create a mechanism to disable keys when they are used
 def expire_key(key=None):
 
-    # I wonder if there is a more efficient way to accomplish this ... eg. to simply modify 
-    # the entry at the query stage immediately below...
-    if Signing.query.filter_by(signature=key).first():
+    signing_key = Signing.query.filter_by(signature=key).first()
 
-        signing_df = pd.read_sql_table(Signing.__tablename__, con=db.engine.connect())
-
-        # This will disable the key
-        signing_df.loc[ signing_df['signature'] == key, 'active' ] = 0
-
-        # this will write the modified dataset to the database
-        signing_df.to_sql(Signing.__tablename__, con=db.engine.connect(), if_exists='replace', index=False)
-        return signing_df
-    
-    else:
+    if not signing_key:            
         log.error(f"LIBREFORMS - attempted to expire key {key} but failed to locate it in the signing database.")
+        return False
+
+    # This will disable the key
+    signing_key.active = False
+    self.db.session.commit()
+    return True
+    
+
+
+
+
 
 # here we define an abstract set of operations that we want 
 # to run everytime the end user attempts to invoke a   
