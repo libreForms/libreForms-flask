@@ -274,7 +274,7 @@ def expire_key(key=None):
 
     # This will disable the key
     signing_key.active = False
-    self.db.session.commit()
+    db.session.commit()
     return True
     
 
