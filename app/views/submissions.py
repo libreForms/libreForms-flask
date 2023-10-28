@@ -689,11 +689,15 @@ def render_document(form_name, document_id, ignore_menu=False):
             if (aggregate_approval_count()._id.str.contains(document_id) == True).sum() > 0:
                 msg = msg + Markup(f"<td><a href = '{config['domain']}/submissions/{form_name}/{document_id}/review'><button type=\"button\" class=\"btn btn-outline-success btn-sm\" style = \"margin-right: 10px;\">go to form approval</button></a></td>")
 
-            if propagate_form_configs(form_name)['_allow_pdf_download']:
+            f_config = propagate_form_configs(form_name)
+            if f_config['_allow_pdf_download']:
                 msg = msg + Markup(f"<td><a href = '{config['domain']}/submissions/{form_name}/{document_id}/download'><button type=\"button\" class=\"btn btn-outline-success btn-sm\" style = \"margin-right: 10px;\">download PDF</button></a></td>")
 
             # Option to duplicate form, see https://github.com/libreForms/libreForms-flask/issues/439
             msg = msg + Markup(f"<td><a href = '{config['domain']}/submissions/{form_name}/{document_id}/duplicate'><button type=\"button\" class=\"btn btn-outline-success btn-sm\" style = \"margin-right: 10px;\">duplicate this form</button></a></td>")
+
+            if f_config['_allow_owner_deletion'] and current_user.username == record[mongodb.metadata_field_names['owner']].iloc[0]:
+                msg = msg + Markup(f"<td><a href = '{config['domain']}/submissions/{form_name}/{document_id}/delete'><button type=\"button\" class=\"btn btn-outline-success btn-sm\" style = \"margin-right: 10px;\">delete form</button></a></td>")
 
             # if set to True, this will suppress the left-bar nav, see
             # https://github.com/libreForms/libreForms-flask/issues/375
@@ -715,6 +719,46 @@ def render_document(form_name, document_id, ignore_menu=False):
                 badge_list=generate_username_badge_list(form_name),
                 **standard_view_kwargs(),
             )
+
+@bp.route('/<form_name>/<document_id>/delete', methods=('GET', 'POST'))
+@required_login_and_password_reset
+def soft_delete_form(form_name, document_id):
+
+    try:
+        f_config = propagate_form_configs(form_name)
+    except:
+        flash (f'Form does not exist.', 'warning')
+        return redirect(url_for('submissions.submissions_home'))
+
+
+    if not f_config['_allow_owner_deletion']:
+        flash (f'You are not authorized to delete this form.', 'warning')
+        return redirect(url_for('submissions.submissions', form_name=form_name))
+
+    forms = mongodb.new_read_documents_from_collection(form_name)
+    forms['_id'] = forms['_id'].astype(str)
+
+    if not isinstance(forms, pd.DataFrame):
+        flash (f'Form {document_id} does not exist.', 'warning')
+        return redirect(url_for('submissions.submissions', form_name=form_name))
+
+    form = forms.loc[forms._id == document_id]
+
+    if len(form.index) == 0:
+        flash (f'Form {document_id} does not exist.', 'warning')
+        return redirect(url_for('submissions.submissions', form_name=form_name))
+
+    f = form.iloc[0]
+
+    if not current_user.username == f[mongodb.metadata_field_names['owner']]:
+        flash (f'You are not authorized to delete this form.', 'warning')
+        return redirect(url_for('submissions.render_document', form_name=form_name, document_id=document_id))
+
+    _ = mongodb.soft_delete_document(form_name, document_id)
+    flash (f'Deleted form {document_id}. ', 'info')
+    log.info(f'{current_user.username.upper()} - deleted form {document_id}.')
+
+    return redirect(url_for('submissions.submissions', form_name=form_name))
 
 
 @bp.route('/<form_name>/<document_id>/history', methods=('GET', 'POST'))

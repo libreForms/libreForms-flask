@@ -1101,7 +1101,7 @@ def toggle_form_deletion_status(form_name, document_id):
 
     form = forms.loc [forms.id == document_id]
 
-    print(form)
+    # print(form)
 
 
     if len(form.index) == 0:
@@ -1110,7 +1110,7 @@ def toggle_form_deletion_status(form_name, document_id):
 
     f = form.iloc[0]
 
-    print(f)
+    # print(f)
 
     if not f.active:
 

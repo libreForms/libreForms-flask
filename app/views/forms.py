@@ -464,6 +464,7 @@ def propagate_form_configs(form=False):
             "_allow_anonymous_access": False,  
             "_smtp_notifications":False,
             '_deny_groups': [],
+            "_allow_owner_deletion": True,
             '_enable_universal_form_access': False,
             '_submission': {
                 '_enable_universal_form_access': False,
