@@ -20,7 +20,7 @@
             </tr>
 
         {% for row in user_list %}
-            <tr class="table{% if emphasize and item in emphasize %}-secondary{% else %}{{'-dark' if dark_mode else '-transparent'}}{% endif %}">
+            <tr class="table{% if emphasize and item in emphasize %}-secondary{% else %}{{'-dark' if dark_mode else '-transparent'}}{% endif %}" style="{% if not row.active  %}opacity: 0.6; {% endif %}">
 
                 <td>{{ row.id }}</td>
                 <td>{{ row.email }}</td>
