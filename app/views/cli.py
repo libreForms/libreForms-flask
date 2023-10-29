@@ -179,10 +179,10 @@ def create_user(username, email, password, organization, phone, active, theme, g
         error = 'Invalid email.' 
     elif phone and not re.fullmatch(r'^[a-z0-9]{3}-[a-z0-9]{3}-[a-z0-9]{4}$', phone):
         error = 'Invalid phone number (xxx-xxx-xxxx).' 
-    elif email and User.query.filter_by(email=email).first():
-        error = 'Email is already registered.' 
-    elif User.query.filter_by(username=username.lower()).first():
-        error = f'Username {username.lower()} is already registered.' 
+    elif email and User.query.filter(User.email.ilike(email)).first():
+        error = 'Email is already registered. ' 
+    elif User.query.filter(User.username.ilike(username.lower())).first():
+        error = f'Username {username.lower()} is already registered. ' 
 
     if error:
         click.echo(f"Failed: {error}")

@@ -624,10 +624,11 @@ def user_register():
             error = f'Invalid email. ({config["user_friendly_email_regex"]}) ' 
         elif phone and not re.fullmatch(config['phone_regex'], phone):
             error = f'Invalid phone number ({config["user_friendly_phone_regex"]}). ' 
-        elif email and User.query.filter_by(email=email).first():
+        elif email and User.query.filter(User.email.ilike(email)).first():
             error = 'Email is already registered. ' 
-        elif User.query.filter_by(username=username.lower()).first():
+        elif User.query.filter(User.username.ilike(username.lower())).first():
             error = f'Username {username.lower()} is already registered. ' 
+
 
         if error is None:
             try:
@@ -742,11 +743,11 @@ def bulk_register():
 
             if error is None:
                 # created_date=datetime.datetime.today().strftime("%Y-%m-%d %H:%M:%S")
-                
-                for index, row in bulk_user_df.iterrows():
-                    does_user_exist = User.query.filter_by(username=row.username.lower()).first()
-                    does_email_exist =  User.query.filter_by(email=row.email.lower()).first()
 
+                for index, row in bulk_user_df.iterrows():
+                    does_user_exist = User.query.filter(User.username.ilike(row.username.lower())).first()
+                    does_email_exist = User.query.filter(User.email.ilike(row.email.lower())).first()
+                    
                     if does_user_exist or does_email_exist:
                         flash(f"Could not register {row.username.lower()} under email {row.email.lower()}. User already exists. ", "warning")
 

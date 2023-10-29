@@ -316,9 +316,9 @@ def register():
             error = f'Invalid email. ({config["user_friendly_email_regex"]}) ' 
         elif phone and not re.fullmatch(config['phone_regex'], phone):
             error = f'Invalid phone number ({config["user_friendly_phone_regex"]}). ' 
-        elif email and User.query.filter_by(email=email).first():
+        elif email and User.query.filter(User.email.ilike(email)).first():
             error = 'Email is already registered. ' 
-        elif User.query.filter_by(username=username.lower()).first():
+        elif User.query.filter(User.username.ilike(username.lower())).first():
             error = f'Username {username.lower()} is already registered. ' 
         elif password != reenter_password:
             error = 'Passwords do not match. '
@@ -524,7 +524,7 @@ def login():
 
         error = None
         try:
-            user = User.query.filter_by(username=username.lower()).first()
+            user = User.query.filter(User.username.ilike(username.lower())).first()
         except Exception as e:
             flash('There was a problem logging in. Please try again shortly. If the problem persists, contact your system administrator.', "warning")
             return redirect(url_for('auth.login'))
@@ -860,11 +860,11 @@ def lint_user_field():
 
         try:
             if field == 'username':
-                user = User.query.filter_by(username=value).first()
+                user = User.query.filter(User.username.ilike(value.lower())).first()
                 assert not user, "An account is already registered to this username."
 
             elif field == 'email':
-                email = User.query.filter_by(email=value).first()
+                email = User.query.filter(User.email.ilike(value)).first()
                 assert not email, "An account is already registered to this email addresss."
 
             assert validator(value), error_msg
@@ -905,7 +905,7 @@ if config['saml_enabled']:
     from onelogin.saml2.utils import OneLogin_Saml2_Utils
 
     def load_user_by_email(email, username=None, group=None):
-        user = User.query.filter_by(email=email).first()
+        user = User.query.filter(User.email.ilike(email)).first()
         # create the user if none exists
         if not user:
 
