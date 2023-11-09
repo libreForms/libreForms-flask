@@ -592,7 +592,18 @@ class MongoDB:
             document = df.loc[df['_id'] == ObjectId(document_id)]
             return document.iloc[0].to_dict() if len(document) > 0 else False
 
-
+    def update_document_field(self, collection_name, document_id, field_name, new_value):
+        with MongoClient(host=self.host, port=self.port) if not self.dbpw else MongoClient(self.connection_string) as client:
+            db = client['libreforms']
+            if collection_name not in self.collections():
+                return False
+            try:
+                document_id = ObjectId(document_id)
+            except (errors.InvalidId, AssertionError):
+                return False
+            collection = db[collection_name]
+            update_result = collection.update_one({'_id': document_id}, {'$set': {field_name: new_value}})
+            return True if update_result.modified_count > 0 else False
 
     def check_connection(self):
         try:
