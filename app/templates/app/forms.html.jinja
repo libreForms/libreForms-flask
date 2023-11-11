@@ -232,7 +232,7 @@
 			{# <img src="{{ url_for( 'static', filename='audio_dark.png' if dark_mode else 'audio_light.png' ) }}" alt="audio accessibility {{subtitle}} {{field}}" style="padding-left:2px; max-width:1.5%; height: auto;" class="{{subtitle}}_{{field}}" onClick="play( 'audio_{{subtitle}}_{{field}}' )">  #}
 			<audio id="audio_{{subtitle}}_{{field}}" src="{{url_for (config['path_to_accessibility_audio'], filename=subtitle+'_'+field+'.mp3') }}"></audio>
 			{%endif%}
-			<textarea class="form-control" onchange="validateFields('{{subtitle}}', '{{field}}', this.value, this.id);" rows="3" style="resize: vertical;" maxlength="{{context[field].input_field.maxlength if context[field].input_field.maxlength}}" id="{{ field }}" name="{{ field }}">{{ default_value }}</textarea>
+			<textarea class="form-control" onchange="validateFields('{{subtitle}}', '{{field}}', this.value, this.id);" rows="3" style="resize: vertical;" maxlength="{{context[field].input_field.maxlength if context[field].input_field.maxlength}}" id="{{ field }}" name="{{ field }}" {% if context[field].output_data.required==true %}required{%endif%}>{{ default_value }}</textarea>
 			<div class="valid-feedback" id="{{field}}-is-valid">This field is valid!</div>
 			<div class="invalid-feedback" id="{{field}}-is-invalid">This field is invalid!</div>    
 
