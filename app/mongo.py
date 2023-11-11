@@ -605,6 +605,20 @@ class MongoDB:
             update_result = collection.update_one({'_id': document_id}, {'$set': {field_name: new_value}})
             return True if update_result.modified_count > 0 else False
 
+    def flash_value_across_collection(self, collection_name, field_name, new_value):
+        with MongoClient(host=self.host, port=self.port) if not self.dbpw else MongoClient(self.connection_string) as client:
+            db = client['libreforms']
+            if collection_name not in self.collections():
+                return False
+            try:
+                collection = db[collection_name]
+                update_result = collection.update_many({}, {'$set': {field_name: new_value}})
+                return True if update_result.modified_count > 0 else False
+            except Exception as e:
+                print(f"An error occurred: {e}")
+                return False
+
+
     def check_connection(self):
         try:
             with MongoClient(host=self.host, port=self.port) if not self.dbpw else MongoClient(self.connection_string) as client:
