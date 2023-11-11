@@ -144,6 +144,7 @@ __maintainer__ = "Sig Janoska-Bedi"
 __email__ = "signe@atreeus.com"
 
 from pymongo import MongoClient, TEXT
+import pymongo.errors
 import os
 import pandas as pd
 import datetime
@@ -630,6 +631,25 @@ class MongoDB:
             except Exception as e:
                 print(f"An error occurred: {e}")
                 return False
+
+    def backup_database(self):
+        backup_db_name = f"backup_{self.dbname}_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+        try:
+            with MongoClient(host=self.host, port=self.port) if not self.dbpw else MongoClient(self.connection_string) as client:
+                db = client[self.dbname]
+                backup_db = client[backup_db_name]
+
+                for collection_name in db.list_collection_names():
+                    source_collection = db[collection_name]
+                    backup_collection = backup_db[collection_name]
+                    for doc in source_collection.find():
+                        backup_collection.insert_one(doc)
+
+            print(f"Backup created successfully: {backup_db_name}")
+            return True
+        except pymongo.errors.PyMongoError as e:
+            print(f"Backup failed: {e}")
+            return False
 
     def check_connection(self):
         try:
