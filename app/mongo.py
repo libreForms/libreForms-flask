@@ -606,7 +606,11 @@ class MongoDB:
             update_result = collection.update_one({'_id': document_id}, {'$set': {field_name: new_value}})
             return True if update_result.modified_count > 0 else False
 
-    def flash_value_across_collection(self, collection_name, field_name, new_value):
+    def flash_value_across_collection(self, collection_name, field_name, new_value, backup=True):
+        if backup and not self.backup_database():
+            print("Backup failed, aborting update operation.")
+            return False
+
         with MongoClient(host=self.host, port=self.port) if not self.dbpw else MongoClient(self.connection_string) as client:
             db = client['libreforms']
             if collection_name not in self.collections():
@@ -619,7 +623,12 @@ class MongoDB:
                 print(f"An error occurred: {e}")
                 return False
 
-    def remove_field_from_collection(self, collection_name, field_name):
+
+    def remove_field_from_collection(self, collection_name, field_name, backup=True):
+        if backup and not self.backup_database():
+            print("Backup failed, aborting update operation.")
+            return False
+
         with MongoClient(host=self.host, port=self.port) if not self.dbpw else MongoClient(self.connection_string) as client:
             db = client['libreforms']
             if collection_name not in self.collections():
