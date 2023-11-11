@@ -172,6 +172,8 @@ class MongoDB:
         # set our metadata field names, see below
         self.set_metadata_field_names()
 
+        self.dbname = 'libreforms'
+
     # we set and update the class variable that will be used to set metadata field names, see
     # https://github.com/libreForms/libreForms-flask/issues/195
     def set_metadata_field_names(self,**kwargs):
