@@ -644,7 +644,7 @@ class MongoDB:
                 return False
 
     def backup_database(self):
-        backup_db_name = f"backup_{self.dbname}_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+        backup_db_name = f"backup_{self.dbname}_{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}"
         try:
             with MongoClient(host=self.host, port=self.port) if not self.dbpw else MongoClient(self.connection_string) as client:
                 db = client[self.dbname]
