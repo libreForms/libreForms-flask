@@ -660,6 +660,31 @@ class MongoDB:
             print(f"Backup failed: {e}")
             return False
 
+    def restore_from_archive(self, backup_db_name, dry_run=True):
+        try:
+            with MongoClient(host=self.host, port=self.port) if not self.dbpw else MongoClient(self.connection_string) as client:
+                if backup_db_name not in client.list_database_names():
+                    print("Backup database does not exist.")
+                    return False
+
+                backup_db = client[backup_db_name]
+                target_db = client[self.dbname]
+
+                if dry_run:
+                    print(f"Dry run activated. No data will be restored from {backup_db_name}.")
+                else:
+                    for collection_name in backup_db.list_collection_names():
+                        backup_collection = backup_db[collection_name]
+                        target_collection = target_db[collection_name]
+                        target_collection.drop()  # Caution: This deletes current data in the collection
+                        for doc in backup_collection.find():
+                            target_collection.insert_one(doc)
+
+                return True
+        except pymongo.errors.PyMongoError as e:
+            print(f"Restore failed: {e}")
+            return False
+
     def check_connection(self):
         try:
             with MongoClient(host=self.host, port=self.port) if not self.dbpw else MongoClient(self.connection_string) as client:
