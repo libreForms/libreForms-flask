@@ -788,11 +788,15 @@ def other_profiles(username):
         flash('This user does not exist. ', "warning")
         return redirect(url_for('auth.profile'))
 
+    if callable(config['user_profile_custom_logic']):
+        custom_data = config['user_profile_custom_logic'](profile_user)
+
     return render_template('auth/other_profiles.html.jinja', 
         type="profile",
         name='User',
         subtitle=f'{username}',
         profile_user=profile_user,
+        custom_data=custom_data,
         **standard_view_kwargs(),
     )
 
