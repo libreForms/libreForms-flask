@@ -10,7 +10,7 @@
 <tr title="group" ><td><b>Group</b></td><td style="width: 80%;">{{ profile_user.group }}</td></tr>
 <tr title="organization" ><td><b>Organization</b></td><td style="width: 80%;"><span>{{ profile_user.organization }}</span></td></tr>
 <tr title="phone" ><td><b>Phone</b></td><td style="width: 80%;"><span>{{ profile_user.phone }}</span></td></tr>
-<tr title="theme" ><td><b>Theme</b></td><td style="width: 80%;"><span>{{ profile_user.theme }}</span></td></tr>
+{# <tr title="theme" ><td><b>Theme</b></td><td style="width: 80%;"><span>{{ profile_user.theme }}</span></td></tr> #}
 {% if config['user_registration_fields'] is defined %}
 {% for attribute in config['user_registration_fields'] %}
 <tr title="{{attribute}}"><td><b>{{attribute | capitalize | replace("_", " ")}}</b></td><td style="width: 80%;">{{ profile_user[attribute] }}</td></tr>
@@ -20,6 +20,8 @@
 <tr title="created date"><td><b>Created</b></td><td style="width: 80%;">{{ profile_user.created_date }}</td></tr>
 </table>
 
-{{custom_data}}
+<div title="custom data" style="padding-top:10px;">
+    {{custom_data}}
+</div>
 
 {% endblock %}

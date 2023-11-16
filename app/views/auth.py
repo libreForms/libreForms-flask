@@ -758,11 +758,17 @@ def profile():
             
         flash(error, "warning")
 
+    if callable(config['user_profile_custom_logic']):
+        custom_data = config['user_profile_custom_logic'](current_user, mongodb)
+    else: 
+        custom_data = ""
+
 
     return render_template('auth/profile.html.jinja', 
         type="profile",
         name='User',
         subtitle='Profile',
+        custom_data=custom_data,
         api_keys=[x.signature for x in Signing.query.filter_by(email=current_user.email, scope="api_key").all()] if config['enable_user_profile_api_key_aggregation'] else None,
         log_data=aggregate_log_data(keyword=f'- {current_user.username.upper()} -', limit=1000, pull_from='end') if config['enable_user_profile_log_aggregation'] else None,
         **standard_view_kwargs(),
