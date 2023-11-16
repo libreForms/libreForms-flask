@@ -825,7 +825,7 @@ def render_document_history(form_name, document_id):
                 if item == timestamp:
                     breadcrumb = breadcrumb + Markup(f'<li class="breadcrumb-item active">{item}</li>')
                 else:
-                    breadcrumb = breadcrumb + Markup(f'<li class="breadcrumb-item"><a href="?Timestamp={item}" class="{"" if config["dark_mode"] and not current_user.theme == "light" else "text-dark"}">{item}</a></li>')
+                    breadcrumb = breadcrumb + Markup(f'<li class="breadcrumb-item"><a href="?Timestamp={item}" class="{"" if config["dark_mode"] or current_user.theme == "dark" else "text-dark"}">{item}</a></li>')
             breadcrumb = breadcrumb + Markup('</ol>')
 
 
