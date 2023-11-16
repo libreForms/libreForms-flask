@@ -26,7 +26,7 @@ from werkzeug.utils import secure_filename
 from flask_login import LoginManager, login_required, login_user, logout_user, current_user
 
 
-from app import config, log, mailer
+from app import config, log, mailer, mongodb
 import app.signing as signing
 from app.models import User, Signing, OldPassword, db
 from app.log_functions import aggregate_log_data
@@ -790,6 +790,8 @@ def other_profiles(username):
 
     if callable(config['user_profile_custom_logic']):
         custom_data = config['user_profile_custom_logic'](profile_user, mongodb)
+    else: 
+        custom_data = ""
 
     return render_template('auth/other_profiles.html.jinja', 
         type="profile",
