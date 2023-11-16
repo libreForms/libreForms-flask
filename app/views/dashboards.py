@@ -89,6 +89,15 @@ def dashboards(form_name):
             if not checkGroup(group=current_user.group, struct=dashboard_data):
                 continue
 
+            # Quick logic to permit locking down dashboard access by group, see
+            # https://github.com/libreForms/libreForms-flask/issues/473
+            def verify_access(dashboard):
+                if "_deny_groups" in dashboard and isinstance(dashboard['_deny_groups'], list) and current_user.group in dashboard["_deny_groups"]:
+                    return False
+                return True
+
+            if not verify_access(dashboard_data):
+                continue
 
             ref = dashboard_data['fields']
             viz_type = dashboard_data['type']
@@ -99,6 +108,7 @@ def dashboards(form_name):
 
             # if request.args.get("y") and request.args.get("y") in form.keys(): # alternative if we want to verify the field exists
             # y_context = request.args.get("y") if request.args.get("y") else ref['y']
+
 
             if request.args.get("y") and viz_type != "bootstrap":
                 y_context = request.args.get("y")
