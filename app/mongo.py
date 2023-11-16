@@ -595,6 +595,20 @@ class MongoDB:
             document = df.loc[df['_id'] == ObjectId(document_id)]
             return document.iloc[0].to_dict() if len(document) > 0 else False
 
+    def custom_query(self, collection_name, query):
+        with MongoClient(host=self.host, port=self.port) if not self.dbpw else MongoClient(self.connection_string) as client:
+            db = client['libreforms']
+            if collection_name not in self.collections():
+                return None
+
+            try:
+                collection = db[collection_name]
+                results = collection.find(query)
+                return list(results)  # Converting the cursor to a list
+            except Exception as e:
+                print(f"An error occurred: {e}")
+                return None
+                
     def update_document_field(self, collection_name, document_id, field_name, new_value):
         with MongoClient(host=self.host, port=self.port) if not self.dbpw else MongoClient(self.connection_string) as client:
             db = client['libreforms']

@@ -789,7 +789,7 @@ def other_profiles(username):
         return redirect(url_for('auth.profile'))
 
     if callable(config['user_profile_custom_logic']):
-        custom_data = config['user_profile_custom_logic'](profile_user)
+        custom_data = config['user_profile_custom_logic'](profile_user, mongodb)
 
     return render_template('auth/other_profiles.html.jinja', 
         type="profile",

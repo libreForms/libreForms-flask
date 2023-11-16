@@ -157,8 +157,9 @@ config['smtp_from_address'] = None
 # this configuration is used to set custom logic at the bottom of user profiles.
 # nb. this will show up for ALL USERS and ALL GROUPS by default, and be universally
 # readable. See https://github.com/libreForms/libreForms-flask/issues/474. If you 
-# choose to pass a function here, a user object will be passed to it. So, you should 
-# assign a callable here.
+# choose to pass a function here, a user object and mongodb object (so, a single 
+# user and all the mongodb form data) will be passed to it. So, you should 
+# assign a callable here that takes those two positional arguments.
 config['user_profile_custom_logic'] = None 
 
 
