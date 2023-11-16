@@ -154,6 +154,12 @@ config['smtp_password'] = None
 config['smtp_from_address'] = None 
 
 
+# this configuration is used to set custom logic at the bottom of user profiles.
+# nb. this will show up for ALL USERS and ALL GROUPS by default, and be universally
+# readable. See https://github.com/libreForms/libreForms-flask/issues/474.abs
+config['user_profile_custom_logic'] = None 
+
+
 # setting some celery configurations here to give a single place for admins 
 # to make modifications to the default broker and backend; both of which default 
 # to rabbit-mq but can easily be changed to use redis by switching both values 
