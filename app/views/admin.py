@@ -981,6 +981,33 @@ def toggle_users_active_status():
     return redirect(url_for('admin.user_management'))
 
 
+@bp.route('/refresh/users', methods=['POST'])
+@is_admin
+def refresh_users_login_date():
+    usernames = request.form.getlist('usernames')
+
+    current_time = datetime.datetime.now()
+
+    for username in usernames:
+        user = User.query.filter_by(username=username.lower()).first()
+
+        if not user:
+            flash(f'User {username} does not exist.', 'warning')
+            continue
+
+        # if current_user.id == user.id:
+        #     continue
+
+        user.last_login = current_time
+        flash(f'Refreshed {username}.', 'info')
+        log.info(f'{current_user.username.upper()} - refreshed {user.username} user.')
+
+        db.session.commit()
+
+    return redirect(url_for('admin.user_management'))
+
+
+
 @bp.route(f'/password/<username>', methods=['GET', 'POST'])
 @is_admin
 def generate_random_password(username):
