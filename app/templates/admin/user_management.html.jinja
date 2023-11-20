@@ -10,7 +10,7 @@
 
                     <input type="checkbox" id="select-all" onclick="toggleCheckboxes(this)"><a style="padding-left:3px;" class="dropdown-toggle" data-bs-toggle="dropdown" data-bs-placement="right" role="button" aria-haspopup="true" aria-expanded="false" href="#"></a>
                     <div class="dropdown-menu">
-                        <a class="dropdown-item toggle-link" href="javascript:void(0);" onclick="toggleActiveStatusForSelected()" >Toggle Selected Users Active Status</a>
+                        <a class="dropdown-item toggle-link" href="javascript:void(0);" onclick="passMultipleFields('/admin/toggle/users')" >Toggle Selected Users Active Status</a>
                     </div> 
 
                 </th>
@@ -82,11 +82,12 @@
         }
     }
 
-    function toggleActiveStatusForSelected() {
+    function passMultipleFields(route) {
         var checkboxes = document.getElementsByClassName('user-checkbox');
         var form = document.createElement('form');
         form.method = 'POST';
-        form.action = '/admin/toggle/users';
+        // form.action = '/admin/toggle/users';
+        form.action = route;
 
         Array.from(checkboxes).forEach((checkbox, index) => {
             if (checkbox.checked) {
