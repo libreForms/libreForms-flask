@@ -1,13 +1,19 @@
 {% extends 'base.html.jinja' %}
 {% block content %}
 
-  
 <h4>Users</h4>
 <div class="list-group vh-100 scrollable overflow-auto table table-hover">
-
     <table role="presentation" title="user table" class="table {{'text-dark' if not dark_mode else 'table-hover'}}">
-        <tbody>
+        <thead>
             <tr>
+                <th>
+
+                    <input type="checkbox" id="select-all" onclick="toggleCheckboxes(this)"><a style="padding-left:3px;" class="dropdown-toggle" data-bs-toggle="dropdown" data-bs-placement="right" role="button" aria-haspopup="true" aria-expanded="false" href="#"></a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item toggle-link" href="javascript:void(0);" onclick="toggleActiveStatusForSelected()" >Toggle Selected Users Active Status</a>
+                    </div> 
+
+                </th>
                 <th>id</th>
                 <th>email</th>
                 <th>username</th>
@@ -18,10 +24,13 @@
                 <th>created date</th>
                 <th>last login</th>
             </tr>
-
+        </thead>
+        <tbody>
         {% for row in user_list %}
             <tr class="table{% if emphasize and item in emphasize %}-secondary{% else %}{{'-dark' if dark_mode else '-transparent'}}{% endif %}" style="{% if not row.active  %}opacity: 0.6; {% endif %}">
-
+                <td>
+                    <input type="checkbox" class="user-checkbox" value="{{ row.username }}">
+                </td>
                 <td>{{ row.id }}</td>
                 <td>{{ row.email }}</td>
                 <td>
@@ -55,20 +64,43 @@
     </table>
 </div>
 
-
 {% endblock %}
-
 
 {% block js %}
 <script>
     function submitOnEnter(event, form) {
-        // if the key pressed was "Enter"
         if (event.key === "Enter") {
-            // prevent the default action (form submission)
             event.preventDefault();
-            // submit the form
             form.submit();
         }
     }
+
+    function toggleCheckboxes(source) {
+        checkboxes = document.getElementsByClassName('user-checkbox');
+        for(var i=0, n=checkboxes.length;i<n;i++) {
+            checkboxes[i].checked = source.checked;
+        }
+    }
+
+    function toggleActiveStatusForSelected() {
+        var checkboxes = document.getElementsByClassName('user-checkbox');
+        var form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/admin/toggle/users';
+
+        Array.from(checkboxes).forEach((checkbox, index) => {
+            if (checkbox.checked) {
+                var input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'usernames';
+                input.value = checkbox.value;
+                form.appendChild(input);
+            }
+        });
+
+        document.body.appendChild(form);
+        form.submit();
+    }
+
 </script>
 {% endblock %}

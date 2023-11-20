@@ -944,6 +944,42 @@ def toggle_user_active_status(username):
     return redirect(url_for('admin.user_management'))
 
 
+@bp.route('/toggle/users', methods=['POST'])
+@is_admin
+def toggle_users_active_status():
+    usernames = request.form.getlist('usernames')
+
+    for username in usernames:
+        user = User.query.filter_by(username=username.lower()).first()
+
+        if not user:
+            flash(f'User {username} does not exist.', 'warning')
+            continue
+
+        if current_user.id == user.id:
+            flash(f'You cannot deactivate the user you are currently logged in as.', 'warning')
+            continue
+
+        user.active = 1 if user.active == 0 else 0
+
+        if user.active:
+            user.last_login = datetime.datetime.now()
+            flash(f'Activated user {username}.', 'info')
+            log.info(f'{current_user.username.upper()} - activated {user.username} user.')
+        else:
+            flash(f'Deactivated user {username}.', 'info')
+            log.info(f'{current_user.username.upper()} - deactivated {user.username} user.')
+
+        db.session.commit()
+
+        if config['notify_users_on_admin_action']:
+            action_taken = "Deactivated" if user.active == 0 else "Activated"
+            subject = f'{config["site_name"]} User {action_taken}'
+            content = f"This email serves to notify you that an administrator has just {action_taken.lower()} the user '{user.username}', which is associated with your email at {config['domain']}. Please contact your system administrator if you believe this was a mistake."
+            send_mail_async.delay(subject=subject, content=content, to_address=user.email) if config['send_mail_asynchronously'] else mailer.send_mail(subject=subject, content=content, to_address=user.email)
+
+    return redirect(url_for('admin.user_management'))
+
 
 @bp.route(f'/password/<username>', methods=['GET', 'POST'])
 @is_admin
