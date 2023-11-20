@@ -921,6 +921,9 @@ def toggle_user_active_status(username):
 
     if user.active == 0:
         user.active = 1 
+        # Update user last login date when user is set to active.
+        # See https://github.com/libreForms/libreForms-flask/issues/477
+        user.last_login = datetime.datetime.now() 
         db.session.commit()
         flash (f'Activated user {username}. ', 'info')
         log.info(f'{current_user.username.upper()} - activated {user.username} user.')
