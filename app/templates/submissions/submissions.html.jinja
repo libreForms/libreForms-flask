@@ -28,7 +28,7 @@
           {% endif %}
         {% elif item in is_user %}
 
-          {% if submission[item].iloc[0] is iterable and (submission[item].iloc[0] is not string and submission[item].iloc[0] is not mapping) %}
+          {% if submission[item].iloc[0] is iterable and (submission[item].iloc[0] is not string and submission[item].iloc[0] is not mapping) and submission[item].iloc[0][0]|length > 1 %}
 
             {%for _u in submission[item].iloc[0]%}
               {% if config['enable_other_profile_views'] == true %}
