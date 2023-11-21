@@ -597,7 +597,7 @@ def render_document(form_name, document_id, ignore_menu=False):
             forms = propagate_form_fields(form_name, group=current_user.group)
             # print(forms)
             # print([x for x in forms])
-            is_user = [x for x in forms if 'is_user' in forms[x].keys() and forms[x]['is_user']]
+            is_user = [x for x in forms if '_is_user' in forms[x].keys() and forms[x]['_is_user']]
             # print(is_user)
             is_lookup = {x:forms[x]['_lookup_other_document'] for x in forms if '_lookup_other_document' in forms[x].keys() and isinstance(forms[x]['_lookup_other_document'], str)}
             print(is_lookup)

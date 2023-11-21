@@ -28,10 +28,24 @@
           {% endif %}
         {% elif item in is_user %}
 
-          {% if config['enable_other_profile_views'] == true %}
-          <span class="badge bg-primary"><a href="{{url_for('auth.other_profiles', username=submission[item].iloc[0])}}" style="color: inherit; text-decoration: inherit;">{{submission[item].iloc[0]}}</a></span> 
+          {% if submission[item].iloc[0] is iterable and (submission[item].iloc[0] is not string and submission[item].iloc[0] is not mapping) %}
+
+            {%for _u in submission[item].iloc[0]%}
+              {% if config['enable_other_profile_views'] == true %}
+              <span class="badge bg-primary"><a href="{{url_for('auth.other_profiles', username=_u)}}" style="color: inherit; text-decoration: inherit;">{{_u}}</a></span> 
+              {% else %}
+              <span class="badge bg-primary">{{_u}}</span> 
+              {% endif %}
+            {% endfor %}
+
+
           {% else %}
-          <span class="badge bg-primary">{{submission[item].iloc[0]}}</span> 
+
+            {% if config['enable_other_profile_views'] == true %}
+            <span class="badge bg-primary"><a href="{{url_for('auth.other_profiles', username=submission[item].iloc[0])}}" style="color: inherit; text-decoration: inherit;">{{submission[item].iloc[0]}}</a></span> 
+            {% else %}
+            <span class="badge bg-primary">{{submission[item].iloc[0]}}</span> 
+            {% endif %}
           {% endif %}
 
         {% elif item in is_lookup.keys() %}
