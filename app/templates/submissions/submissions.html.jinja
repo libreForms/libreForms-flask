@@ -41,10 +41,12 @@
 
           {% else %}
 
-            {% if config['enable_other_profile_views'] == true %}
-            <span class="badge bg-primary"><a href="{{url_for('auth.other_profiles', username=submission[item].iloc[0])}}" style="color: inherit; text-decoration: inherit;">{{submission[item].iloc[0]}}</a></span> 
-            {% else %}
-            <span class="badge bg-primary">{{submission[item].iloc[0]}}</span> 
+            {% if submission[item].iloc[0]|len > 1%}
+              {% if config['enable_other_profile_views'] == true %}
+              <span class="badge bg-primary"><a href="{{url_for('auth.other_profiles', username=submission[item].iloc[0])}}" style="color: inherit; text-decoration: inherit;">{{submission[item].iloc[0]}}</a></span> 
+              {% else %}
+              <span class="badge bg-primary">{{submission[item].iloc[0]}}</span> 
+              {% endif %}
             {% endif %}
           {% endif %}
 
