@@ -1249,6 +1249,9 @@ def duplicate_document(form_name, document_id):
                     # form processing trigger, see https://github.com/libreForms/libreForms-flask/issues/201    
                     if config['enable_form_processing']:
                         current_app.config['FORM_PROCESSING'].onCreation(document_id=new_document_id, form_name=form_name)
+                        # Added onDuplication trigger... this will follow immediate following the onCreation trigger. See 
+                        # discussion in https://github.com/libreForms/libreForms-flask/issues/465.
+                        current_app.config['FORM_PROCESSING'].onDuplication(document_id=new_document_id, form_name=form_name)
 
 
                     # and then we redirect to the forms view page
