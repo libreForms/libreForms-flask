@@ -117,6 +117,9 @@
 			<div id= "content_{{field}}" style="width: 100%; height: 300px; overflow-y: auto; resize: vertical; margin-top: 10px; border: 2px solid var(--bs-secondary);"></div>
 			<div>
 			{%endif%}
+			<div class="valid-feedback" id="{{field}}-is-valid">This field is valid!</div>
+			<div class="invalid-feedback" id="{{field}}-is-invalid">This field is invalid!</div>   
+
 
 		</div>
 		{% elif input_type == "radio" %}
