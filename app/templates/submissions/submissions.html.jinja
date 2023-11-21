@@ -34,6 +34,9 @@
           <span class="badge bg-primary">{{submission[item].iloc[0]}}</span> 
           {% endif %}
 
+        {% elif item in is_lookup.keys() %}
+
+          <span class="badge bg-primary"><a href="{{url_for('submissions.render_document', form_name=is_lookup[item], document_id=submission[item].iloc[0])}}" style="color: inherit; text-decoration: inherit;">{{submission[item].iloc[0]}}</a></span> 
 
         {% else %}
           {{ stringify(submission[item].iloc[0])|e }}

@@ -599,6 +599,8 @@ def render_document(form_name, document_id, ignore_menu=False):
             # print([x for x in forms])
             is_user = [x for x in forms if 'is_user' in forms[x].keys() and forms[x]['is_user']]
             # print(is_user)
+            is_lookup = {x:forms[x]['_lookup_other_document'] for x in forms if '_lookup_other_document' in forms[x].keys() and isinstance(forms[x]['_lookup_other_document'], str)}
+            print(is_lookup)
             verify_group = options['_submission']
         except Exception as e: 
             transaction_id = str(uuid.uuid1())
@@ -723,6 +725,7 @@ def render_document(form_name, document_id, ignore_menu=False):
                 menu=None if ignore_menu else form_menu(checkFormGroup),
                 badge_list=generate_username_badge_list(form_name),
                 is_user=is_user,
+                is_lookup=is_lookup,
                 **standard_view_kwargs(),
             )
 
