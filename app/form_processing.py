@@ -21,6 +21,7 @@ These triggers are:
     onUpdate - only when the form is updated, not when first created
     onApproval - when the form is approved
     onDisapproval - when the form is disapproved
+    onDuplication - when the form is duplicated
 
 Each of these should probably be tied to a separate trigger in the form 
 config, like:
@@ -30,6 +31,7 @@ config, like:
     _on_update
     _on_approval
     _on_disapproval
+    _on_duplication
 
 """
 
@@ -130,6 +132,24 @@ class postProcessor:
     def onDisapproval (self, document_id:str, form_name:str, *args, **kwargs):
 
         func_list = self.forms(form_name)['_on_disapproval']
+
+        if len (func_list) > 0 and isinstance(func_list, list): 
+            document = self.mongodb.get_document_as_dict(collection_name=form_name, document_id=document_id)
+            
+            if not document:
+                return None
+
+            for function in func_list:
+                function(document)
+
+            return True
+        else:
+            return False
+
+    # Added in https://github.com/libreForms/libreForms-flask/issues/465
+    def onDuplication (self, document_id:str, form_name:str, *args, **kwargs):
+
+        func_list = self.forms(form_name)['_on_duplication']
 
         if len (func_list) > 0 and isinstance(func_list, list): 
             document = self.mongodb.get_document_as_dict(collection_name=form_name, document_id=document_id)
