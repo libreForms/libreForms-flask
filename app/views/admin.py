@@ -119,7 +119,12 @@ def compile_admin_views_for_menu():
                                                                                                         'admin.generate_api_key',
                                                                                                         'admin.toggle_form_deletion_status',
                                                                                                         'admin.modify_user_group',
+                                                                                                        'admin.bulk_password_change',
+                                                                                                        'admin.toggle_users_active_status',
+                                                                                                        'admin.refresh_users_login_date',
+                                                                                                        # 'admin.',
                                                                                                         ]]:
+
         v = view.replace('admin_','')
         v = v.replace('admin.','')
         v = v.replace('_',' ')
@@ -1046,7 +1051,34 @@ def generate_random_password(username):
     #     m = send_mail_async.delay(subject=f'{config["site_name"]} User Registered', content=f"This email serves to notify you that the user {row.username} has just been registered for this email address at {config['domain']}.", to_address=row.email) if config['send_mail_asynchronously'] else mailer.send_mail(subject=f'{config["site_name"]} User Registered', content=f"This email serves to notify you that the user {row.username} has just been registered for this email address at {config['domain']}.", to_address=row.email, logfile=log)
     #     flash(f'Successfully created user \'{row.username.lower()}\'.', "success")
 
+@bp.route('/bulk_password_change', methods=['POST'])
+@is_admin
+def bulk_password_change():
+    usernames = request.form.getlist('usernames')
+    # Generate one new password for all users
+    new_password = percentage_alphanumeric_generate_password(config['password_regex'], 16, 0.65)
+    hashed_password = generate_password_hash(new_password, method='sha256')
 
+    updated_users = []
+    for username in usernames:
+        user = User.query.filter_by(username=username.lower()).first()
+        if not user:
+            continue
+
+        user.password = hashed_password
+        updated_users.append(user.username)
+        db.session.commit()
+
+        if config['notify_users_on_admin_action']:
+            subject = f'{config["site_name"]} Password Changed'
+            content = f"This email serves to notify you that an administrator has just changed your password. Your new password is: {new_password}\nPlease contact your system administrator if you believe this was a mistake."
+            send_mail_async.delay(subject=subject, content=content, to_address=user.email) if config['send_mail_asynchronously'] else mailer.send_mail(subject=subject, content=content, to_address=user.email)
+        log.info(f'{current_user.username.upper()} - updated {user.username} user\'s password.')
+
+    if updated_users:
+        flash(f'Successfully modified passwords for users: {", ".join(updated_users)} to: {new_password}', "success")
+
+    return redirect(url_for('admin.user_management'))
 
 
 @bp.route('/edit/<username>', methods=('GET', 'POST'))
