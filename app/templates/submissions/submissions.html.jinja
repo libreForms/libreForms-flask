@@ -16,7 +16,8 @@
       <th scope="row">{{item|replace('_', ' ')}}</th>
         <td>
 
-        
+        {# is_user #}
+
         {% if item in badge_list and submission[item].iloc[0].__class__.__name__ in ['str','Markup'] %}
         <!-- <button type="button" class="btn btn-secondary" data-bs-container="body" data-bs-toggle="popover" data-bs-placement="bottom" data-bs-content="Vivamus sagittis lacus vel augue laoreet rutrum faucibus." data-bs-original-title="Popover Title">Bottom</button> -->
 
@@ -25,6 +26,15 @@
           {% else %}
           <span class="badge bg-primary">{{submission[item].iloc[0].split(' ')[0]}}</span> {{' '.join(submission[item].iloc[0].split(' ')[1:])|safe()}}
           {% endif %}
+        {% elif item in is_user %}
+
+          {% if config['enable_other_profile_views'] == true %}
+          <span class="badge bg-primary"><a href="{{url_for('auth.other_profiles', username=submission[item].iloc[0])}}" style="color: inherit; text-decoration: inherit;">{{submission[item].iloc[0]}}</a></span> 
+          {% else %}
+          <span class="badge bg-primary">{{submission[item].iloc[0]}}</span> 
+          {% endif %}
+
+
         {% else %}
           {{ stringify(submission[item].iloc[0])|e }}
         {% endif %}

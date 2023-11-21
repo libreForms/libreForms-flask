@@ -594,6 +594,11 @@ def render_document(form_name, document_id, ignore_menu=False):
 
         try:
             options = propagate_form_configs(form=form_name)
+            forms = propagate_form_fields(form_name, group=current_user.group)
+            # print(forms)
+            # print([x for x in forms])
+            is_user = [x for x in forms if 'is_user' in forms[x].keys() and forms[x]['is_user']]
+            # print(is_user)
             verify_group = options['_submission']
         except Exception as e: 
             transaction_id = str(uuid.uuid1())
@@ -717,6 +722,7 @@ def render_document(form_name, document_id, ignore_menu=False):
                 msg=msg,
                 menu=None if ignore_menu else form_menu(checkFormGroup),
                 badge_list=generate_username_badge_list(form_name),
+                is_user=is_user,
                 **standard_view_kwargs(),
             )
 
