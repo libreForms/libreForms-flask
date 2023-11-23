@@ -600,7 +600,7 @@ def render_document(form_name, document_id, ignore_menu=False):
             is_user = [x for x in forms if '_is_user' in forms[x].keys() and forms[x]['_is_user']]
             # print(is_user)
             is_lookup = {x:forms[x]['_lookup_other_document'] for x in forms if '_lookup_other_document' in forms[x].keys() and isinstance(forms[x]['_lookup_other_document'], str)}
-            print(is_lookup)
+            # print(is_lookup)
             verify_group = options['_submission']
         except Exception as e: 
             transaction_id = str(uuid.uuid1())
@@ -1303,6 +1303,14 @@ def review_document(form_name, document_id):
             return abort(404)
             # return redirect(url_for('submissions.render_document', form_name=form_name,document_id=document_id))
 
+        forms = propagate_form_fields(form_name, group=current_user.group)
+        # print(forms)
+        # print([x for x in forms])
+        is_user = [x for x in forms if '_is_user' in forms[x].keys() and forms[x]['_is_user']]
+        # print(is_user)
+        is_lookup = {x:forms[x]['_lookup_other_document'] for x in forms if '_lookup_other_document' in forms[x].keys() and isinstance(forms[x]['_lookup_other_document'], str)}
+        # print(is_lookup)
+
     except Exception as e: 
         # flash('This form does not exist.', "warning")
         # log.warning(f'{current_user.username.upper()} - {e}')
@@ -1501,6 +1509,8 @@ def review_document(form_name, document_id):
             # here we tell the jinja to include password re-entry for form signatures, if configured,
             # see https://github.com/signebedi/libreForms/issues/167.
             require_password=True if config['require_password_for_electronic_signatures'] and '_form_approval' in options else False,
+            is_user=is_user,
+            is_lookup=is_lookup,
             **standard_view_kwargs(),
         )
 
