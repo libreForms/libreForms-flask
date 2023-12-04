@@ -70,7 +70,10 @@ config['last_restart'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 # this sets the welcome message for the website, so customization is expected;
 # you can remove the Markup designation if you don't want to render this as HTML.
+# The authenticated_homepage_msg config allows admins to set a custom msg for logged
+# in users, see https://github.com/libreForms/libreForms-flask/issues/489.
 config['homepage_msg'] = Markup("<p>Welcome to <code>libreForms-flask</code>, an implementation of the <a href='https://github.com/libreForms/spec'>libreForms API</a> in Flask. Select a view from above to get started. You can view the app source at <a href='https://github.com/libreForms/libreForms-flask'>https://github.com/libreForms/libreForms-flask</a>. You can view the docs at <a href='https://libreforms.readthedocs.io/en/latest/'>https://libreforms.readthedocs.io/en/latest/</a>.</p>")
+config['authenticated_homepage_msg'] = False
 
 # this sets the pre-login message for the website, which will be visible to users when they
 # sign into the system, see https://github.com/libreForms/libreForms-flask/issues/353

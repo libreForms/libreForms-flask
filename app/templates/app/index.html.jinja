@@ -1,7 +1,11 @@
 {% extends 'base.html.jinja' %}
 {% block content %}
 {% if homepage %}
-	{{ config.homepage_msg }}
+    {% if current_user.is_authenticated and config.authenticated_homepage_msg %}
+        {{ config.authenticated_homepage_msg }}
+    {% else %}
+        {{ config.homepage_msg }}
+    {% endif %}
 {% endif %}
 
 {% if config['enable_front_page_feed'] and current_user.is_authenticated %}

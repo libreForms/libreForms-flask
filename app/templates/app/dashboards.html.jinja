@@ -3,10 +3,7 @@
 {% block content %}
 
 
-			{% if homepage %}
-			  {{ config.homepage_msg }}
-
-		    {% elif form_not_found %}
+		    {% if form_not_found %}
 			    <p>Go <a href="{{ url_for( 'home' ) }}">home</a>.</p>
 
 	    	{% else %}
