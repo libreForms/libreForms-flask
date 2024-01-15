@@ -14,7 +14,7 @@ __maintainer__ = "Sig Janoska-Bedi"
 __email__ = "signe@atreeus.com"
 
 # import flask-related packages
-import re, datetime
+import re, datetime, uuid
 from cmath import e
 from fileinput import filename
 from flask import current_app, Blueprint, g, flash, render_template, request, send_from_directory, abort, redirect, url_for
@@ -26,10 +26,12 @@ import libreforms
 from app import config, log, mailer, mongodb
 from app.views.auth import login_required, session
 from app.views.forms import define_webarg_form_data_types, checkGroup, reconcile_form_data_struct, \
-    propagate_form_fields, propagate_form_configs, compile_depends_on_data, rationalize_routing_list
+    propagate_form_fields, propagate_form_configs, compile_depends_on_data, rationalize_routing_list, \
+    standard_view_kwargs
 import app.signing as signing
 from app.models import Signing, db
 from celeryd.tasks import send_mail_async
+
 
 
 # and finally, import other packages
@@ -110,10 +112,10 @@ if config['allow_anonymous_form_submissions']:
         return render_template('app/external_request.html.jinja', 
             name='Forms',
             subtitle=form_name,
-            config=config,
             suppress_navbar=True if not config['require_auth_users_to_initiate_external_forms'] else None,
-            user=current_user if config['require_auth_users_to_initiate_external_forms'] else None,
+            # user=current_user if config['require_auth_users_to_initiate_external_forms'] else None,
             type='external',
+            **standard_view_kwargs(),
             )
 
     # this creates the route to each of the forms
@@ -180,12 +182,12 @@ if config['allow_anonymous_form_submissions']:
                     name='Forms',
                     subtitle=form_name,
                     options=options, 
-                    config=config,
                     suppress_navbar=True,
                     signed_url=signature,
                     type='external',
                     depends_on=compile_depends_on_data(form_name, user_group='anonymous'),
                     filename = f'{form_name.lower().replace(" ","")}.csv' if options['_allow_csv_templates'] else False,
+                    **standard_view_kwargs()
                     )
 
             except Exception as e: 

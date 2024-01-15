@@ -396,7 +396,7 @@ def propagate_form_fields(form=False, group=None):
         list_fields = copy.deepcopy(libreforms.forms[form])
 
 
-        print(list_fields)
+        # print(list_fields)
 
         VALUES = {}
 
@@ -409,7 +409,7 @@ def propagate_form_fields(form=False, group=None):
                 # https://github.com/libreForms/libreForms-flask/issues/305
                 if callable(VALUES[field]['input_field']['content'][0]):
                     VALUES[field]['input_field']['content'] = VALUES[field]['input_field']['content'][0]()
-                    print ("ACTUAL VALS: ", VALUES[field]['input_field']['content'])
+                    # print ("ACTUAL VALS: ", VALUES[field]['input_field']['content'])
 
 
                 # here we also add support for `apparent` form content, when administrators want the data to look 
@@ -418,7 +418,7 @@ def propagate_form_fields(form=False, group=None):
                 if 'apparent_content' in VALUES[field]['input_field'] and callable(VALUES[field]['input_field']['apparent_content'][0]):
                     VALUES[field]['input_field']['apparent_content'] = VALUES[field]['input_field']['apparent_content'][0]()
                     # Bruh, we want to render these at runtime
-                    print("APPARENT VALS: ", VALUES[field]['input_field']['apparent_content'])
+                    # print("APPARENT VALS: ", VALUES[field]['input_field']['apparent_content'])
                 
         return VALUES
     
@@ -663,7 +663,7 @@ def forms(form_name):
 
             else:
 
-                print(list(request.form))
+                # print(list(request.form))
                 parsed_args = flaskparser.parser.parse(define_webarg_form_data_types(form_name, user_group=current_user.group, args=list(request.form)), request, location="form")
 
             # here we remove the _password field from the parsed args so it's not written to the database,
@@ -803,7 +803,7 @@ def upload_forms(form_name):
         assert options['_allow_csv_uploads']
 
     except Exception as e:
-        print(e)
+        # print(e)
         return redirect(url_for('forms.forms', form_name=form_name))
 
     if request.method == 'POST':
@@ -858,10 +858,10 @@ def upload_forms(form_name):
 
 
                 else:
-                    print('csv')
+                    # print('csv')
                     df = pd.read_csv(filepath)
                     
-                print(df)
+                # print(df)
 
                 for x in forms.keys(): # a minimalist common sense check
                     assert x in df.columns, f"{x} not in columns"
@@ -879,7 +879,7 @@ def upload_forms(form_name):
 
 
         for index, row in df.iterrows():
-            print(row)
+            # print(row)
         
             try:
                 ### eventually add content validators for each cell here
