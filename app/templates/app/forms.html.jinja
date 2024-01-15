@@ -31,7 +31,10 @@
 
 		{# here we override the default value with overrides if default_overrides was passed #}
 		{% set other_field_override = false %}
-		{% if default_overrides and field in default_overrides %}
+		{% if isDuplicate and context[field]['input_field']['type'] == 'hidden'%}
+				{% set default_value = context[field].input_field.content[0] %}
+
+		{% elif default_overrides and field in default_overrides %}
 			{% set default_value = default_overrides[field] %}
 			{% if default_value not in context[field].input_field.content %}
 				{% set other_field_override = true %}

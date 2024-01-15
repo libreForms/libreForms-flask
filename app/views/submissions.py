@@ -1268,6 +1268,7 @@ def duplicate_document(form_name, document_id):
                     type="forms",       
                     default_overrides=overrides,
                     editing_existing_form=True,
+                    isDuplicate=True,
                     options=options, 
                     filename = f'{form_name.lower().replace(" ","")}.csv' if options['_allow_csv_templates'] else False,
                     depends_on=compile_depends_on_data(form_name, user_group=current_user.group),
