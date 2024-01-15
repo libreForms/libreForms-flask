@@ -488,6 +488,7 @@ def propagate_form_configs(form=False):
             '_on_update':[],
             '_on_approval':[],
             '_on_disapproval':[],
+            '_on_duplication':[],
         }
 
         for field in list_fields.keys():
