@@ -112,7 +112,7 @@
             <div style="padding-left: 10px;">
               <form class="d-flex" method="get" action="{{ url_for('search.search') }}" title="search bar">
                 <input class="form-control me-sm-2" type="search" name="query" placeholder="Search" required>
-                <button class="btn btn-{{'secondary' if dark_mode else 'primary'}} my-2 my-sm-0" type="submit">Search</button>
+                <button class="btn btn-{{'secondary' if dark_mode else 'primary'}} my-2 my-sm-0" type="submit" onClick="this.form.submit(); this.disabled=true; this.value='Searching...';">Search</button>
               </form>
 
               {# <a style="font-size:10px;" href="{{ url_for('search.advanced_search') }}" alt="advanced search" title="advanced search">
