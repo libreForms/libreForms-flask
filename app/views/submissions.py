@@ -657,10 +657,11 @@ def render_document(form_name, document_id, ignore_menu=False):
                 else:
                     record.drop(columns=[mongodb.metadata_field_names['signature']], inplace=True)
 
+
             # Added signature verification, see https://github.com/signebedi/libreForms/issues/144    
-            if mongodb.metadata_field_names['approval'] in record.columns and record[mongodb.metadata_field_names['approval']].iloc[0]:
+            if mongodb.metadata_field_names['approval'] in record.columns and not record[mongodb.metadata_field_names['approval']].isna().iloc[0] and record[mongodb.metadata_field_names['approval']].iloc[0]:
                 filters = (
-                getattr(User, config['visible_signature_field']) == getattr(current_user, config['visible_signature_field']),
+                getattr(User, 'username') == record[mongodb.metadata_field_names['approver']].iloc[0],
                 )
                 manager = db.session.query(User).filter(*filters).first()
 
@@ -1465,11 +1466,10 @@ def review_document(form_name, document_id):
             else:
                 record.drop(columns=[mongodb.metadata_field_names['signature']], inplace=True)
         # Added signature verification, see https://github.com/signebedi/libreForms/issues/144    
-        if mongodb.metadata_field_names['approval'] in record.columns and record[mongodb.metadata_field_names['approval']].iloc[0]:
+        if mongodb.metadata_field_names['approval'] in record.columns and not record[mongodb.metadata_field_names['approval']].isna().iloc[0] and record[mongodb.metadata_field_names['approval']].iloc[0]:
             try:
-
                 filters = (
-                getattr(User, config['visible_signature_field']) == getattr(current_user, config['visible_signature_field']),
+                getattr(User, 'username') == record[mongodb.metadata_field_names['approver']].iloc[0],
                 )
                 manager = db.session.query(User).filter(*filters).first()
 
@@ -1582,9 +1582,9 @@ def generate_pdf(form_name, document_id):
                     record.drop(columns=[mongodb.metadata_field_names['signature']], inplace=True)
             
             # Added signature verification, see https://github.com/signebedi/libreForms/issues/144    
-            if mongodb.metadata_field_names['approval'] in record.columns and record[mongodb.metadata_field_names['approval']].iloc[0]:
+            if mongodb.metadata_field_names['approval'] in record.columns and not record[mongodb.metadata_field_names['approval']].isna().iloc[0] and record[mongodb.metadata_field_names['approval']].iloc[0]:
                 filters = (
-                getattr(User, config['visible_signature_field']) == getattr(current_user, config['visible_signature_field']),
+                getattr(User, 'username') == record[mongodb.metadata_field_names['approver']].iloc[0],
                 )
                 manager = db.session.query(User).filter(*filters).first()
 
