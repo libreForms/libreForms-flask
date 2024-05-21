@@ -68,8 +68,21 @@ def api_v2_get(form_name):
     # here we drop the metadata fields
     df.drop(columns=[x for x in mongodb.metadata_field_names.values() if x in df.columns and x not in [mongodb.metadata_field_names['reporter'], mongodb.metadata_field_names['owner'], mongodb.metadata_field_names['timestamp']]], inplace=True)
     
-    # convert the data back to a dictionary
-    data = df.to_dict()
+
+    # get the query parameters
+    escape = request.args.get('escape', default='false').lower() == 'true'
+    records = request.args.get('records', default='false').lower() == 'true'
+
+    if escape:
+        # convert all columns to string and escape them
+        df = df.applymap(lambda x: str(x).encode('unicode_escape').decode('utf-8'))
+
+    if records:
+        # convert df to a list of dictionaries
+        data = df.to_dict('records')
+    else:
+        # default to column-oriented dict
+        data = df.to_dict()
 
     # set headers and status code
     status_code = 200

@@ -623,6 +623,7 @@ def load_logged_in_user():
 
 
 @bp.route('/logout')
+@required_login_and_password_reset
 def logout():
     session.clear()
     return redirect(url_for('home'))
